@@ -1,25 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arduino Control</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    button { padding: 10px 20px; margin: 5px; font-size: 16px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature & Pin Control</title>
 </head>
 <body>
-  <h1>Temperature: {{ temperature }}</h1>
-  
-  <h2>Control Pins (3 to 10)</h2>
-  <form method="POST" action="/control">
-    <!-- Create buttons for pins 3 to 10 -->
-    {% for pin_data in pin_data %}
-      <button type="submit" name="pin" value="{{ pin_data.pin }}" name="state" value="on">Turn Pin {{ pin_data.index }} On</button>
-      <button type="submit" name="pin" value="{{ pin_data.pin }}" name="state" value="off">Turn Pin {{ pin_data.index }} Off</button><br>
-    {% endfor %}
-  </form>
+    <h1>Temperature & Pin Control</h1>
+    <p>Current Temperature: <strong>{{ temperature }} °C</strong></p>
 
+    <h2>Control Pins</h2>
+    <form action="/control" method="post">
+        {% for pin in pins %}
+            <div>
+                <label>{{ pin.label }}</label>
+                <button type="submit" name="pin" value="{{ pin.pin }}o">Turn On</button>
+                <button type="submit" name="pin" value="{{ pin.pin }}f">Turn Off</button>
+            </div>
+        {% endfor %}
+    </form>
 </body>
 </html>
