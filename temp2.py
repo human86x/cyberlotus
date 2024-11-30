@@ -39,19 +39,23 @@ def index():
     return render_template('index.html', temperature=temperature, pins=pins)
 
 
-@app.route('/control', methods=['GET', 'POST'])
+
+@app.route('/control', methods=['POST'])
 def control():
-    if request.method == 'GET':
-        return "This endpoint accepts only POST requests with pin and state data."
-    elif request.method == 'POST':
-        pin = request.form.get('pin')  # Pin character ('a' to 'h')
-        state = request.form.get('state')  # State ('o' for on, 'f' for off)
+    print("Headers:", request.headers)
+    print("Form data:", request.form)
+    print("Raw data:", request.data.decode())
+    
+    pin = request.form.get('pin')
+    state = request.form.get('state')
 
-        if not pin or not state:
-            return "Invalid request: 'pin' or 'state' missing", 400
+    if not pin or not state:
+        return "Invalid request: 'pin' or 'state' missing", 400
 
-        control_pin(pin, state)
-        return index()  # Re-render the index page with updated state
+    control_pin(pin, state)
+    return "Pin controlled successfully!"
+
+
 
 
 if __name__ == '__main__':
