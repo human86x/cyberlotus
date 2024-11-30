@@ -1,23 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temperature & Pin Control</title>
-</head>
-<body>
-    <h1>Temperature & Pin Control</h1>
-    <p>Current Temperature: <strong>{{ temperature }} °C</strong></p>
-
-    <h2>Control Pins</h2>
-    <form action="/control" method="post">
-        {% for pin in pins %}
-            <div>
-                <label>{{ pin.label }}</label>
-                <button type="submit" name="pin" value="{{ pin.pin }}o">Turn On</button>
-                <button type="submit" name="pin" value="{{ pin.pin }}f">Turn Off</button>
-            </div>
-        {% endfor %}
-    </form>
-</body>
-</html>
+<form method="POST" action="/control">
+    <label for="pin">Pin:</label>
+    <select name="pin" id="pin">
+      <option value="a">Pin 3</option>
+      <option value="b">Pin 4</option>
+      <option value="c">Pin 5</option>
+      <option value="d">Pin 6</option>
+      <option value="e">Pin 7</option>
+      <option value="f">Pin 8</option>
+      <option value="g">Pin 9</option>
+      <option value="h">Pin 10</option>
+    </select>
+  
+    <label for="state">State:</label>
+    <select name="state" id="state">
+      <option value="o">ON</option>
+      <option value="f">OFF</option>
+    </select>
+  
+    <button type="submit">Submit</button>
+  </form>
+  

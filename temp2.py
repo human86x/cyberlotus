@@ -24,12 +24,16 @@ def get_temperature():
 
 
 # Function to control pins
+#def control_pin(pin, state):
+#    try:
+#        ser.write(f"{pin}{state}".encode())  # Send pin and state (e.g., 'ao' or 'af')
+#    except Exception as e:
+#        print(f"Error sending pin control command: {e}")
 def control_pin(pin, state):
-    try:
-        ser.write(f"{pin}{state}".encode())  # Send pin and state (e.g., 'ao' or 'af')
-    except Exception as e:
-        print(f"Error sending pin control command: {e}")
-
+    command = f"{pin}{state}".encode()  # Create command
+    ser.write(command)  # Send command
+    time.sleep(0.1)  # Short delay for Arduino to process
+    print(f"Sent command: {command.decode()}")
 
 @app.route('/')
 def index():
