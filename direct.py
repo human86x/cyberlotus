@@ -1,23 +1,35 @@
 import serial
 import time
 
-# Define the serial connection
-serial_port = '/dev/ttyACM0'  # Replace with your Arduino's serial port
+# Serial configuration
+serial_port = '/dev/ttyACM0'  # Update with your port
 baud_rate = 9600
 
+# Establish connection
+ser = serial.Serial(serial_port, baud_rate, timeout=1)
+time.sleep(2)  # Allow Arduino to initialize
+
+def get_temperature():
+    ser.write(b'R')  # Request temperature
+    time.sleep(0.1)  # Wait for Arduino to respond
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    return response
+
+def control_pin(pin, state):
+    command = f"{pin}{state}".encode()  # Create command
+    ser.write(command)  # Send command
+    time.sleep(0.1)  # Short delay for Arduino to process
+    print(f"Sent command: {command.decode()}")
+
 try:
-    # Open the serial connection
-    ser = serial.Serial(serial_port, baud_rate, timeout=1)
-    time.sleep(2)  # Wait for the Arduino to initialize
+    # Get temperature
+    temperature = get_temperature()
+    print(f"Temperature: {temperature} °C")
+    
+    # Control pin 7 (mapped to 'e')
+    control_pin('e', 'o')  # Turn pin 7 ON
+    time.sleep(2)          # Wait for 2 seconds
+    control_pin('e', 'f')  # Turn pin 7 OFF
 
-    # Send the command to turn on pin 7
-    ser.write(b'eo')  # 'e' corresponds to pin 7, 'o' means ON
-    print("Command sent: eo (Turn on pin 7)")
-
-    # Close the serial connection
-    ser.close()
-
-except serial.SerialException as e:
-    print(f"Error: {e}")
-except Exception as e:
-    print(f"Unexpected error: {e}")
+finally:
+    ser.close()  # Close serial connection
