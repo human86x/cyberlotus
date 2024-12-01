@@ -31,81 +31,90 @@ try:
     time.sleep(0.2)          # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
-    control_pin('b', 'o')  # Turn pin 7 ON
-    time.sleep(0.2)          # Wait for 2 seconds
-    response = ser.readline().decode('utf-8').strip()  # Read and decode response
-    print(f"The response:  {response}")
-    control_pin('c', 'o')  # Turn pin 7 ON
-    time.sleep(0.2)          # Wait for 2 seconds
-    response = ser.readline().decode('utf-8').strip()  # Read and decode response
-    print(f"The response:  {response}")
-    control_pin('d', 'o')  # Turn pin 7 ON
-    time.sleep(0.2)          # Wait for 2 seconds
-    response = ser.readline().decode('utf-8').strip()  # Read and decode response
-    print(f"The response:  {response}")
-    control_pin('e', 'o')  # Turn pin 7 ON
-    time.sleep(0.2)          # Wait for 2 seconds
-    response = ser.readline().decode('utf-8').strip()  # Read and decode response
-    print(f"The response:  {response}")
-    control_pin('l', 'o')  # Turn pin 7 ON
-    time.sleep(0.2)        # Wait for 2 seconds
-    response = ser.readline().decode('utf-8').strip()  # Read and decode response
-    print(f"The response:  {response}")
-    
-    control_pin('g', 'o')  # Turn pin 7 ON
-    time.sleep(0.2)         # Wait for 2 seconds
-    response = ser.readline().decode('utf-8').strip()  # Read and decode response
-    print(f"The response:  {response}")
-    
-    control_pin('h', 'o')  # Turn pin 7 ON
-    time.sleep(0.2)         # Wait for 2 seconds
-    response = ser.readline().decode('utf-8').strip()  # Read and decode response
-    print(f"The response:  {response}")
-    
-    
-
-
-    
-
     control_pin('a', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)           # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+    
+    control_pin('b', 'o')  # Turn pin 7 ON
+    time.sleep(0.2)          # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
     control_pin('b', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)          # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+    control_pin('c', 'o')  # Turn pin 7 ON
+    time.sleep(0.2)          # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
     control_pin('c', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)          # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+
+    control_pin('d', 'o')  # Turn pin 7 ON
+    time.sleep(0.2)          # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
     control_pin('d', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)           # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+
+    control_pin('e', 'o')  # Turn pin 7 ON
+    time.sleep(0.2)          # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
     control_pin('e', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)           # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+    control_pin('l', 'o')  # Turn pin 7 ON
+    time.sleep(0.2)        # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
     control_pin('l', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)          # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+
+    control_pin('g', 'o')  # Turn pin 7 ON
+    time.sleep(0.2)         # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
     control_pin('g', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)         # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+
+    control_pin('h', 'o')  # Turn pin 7 ON
+    time.sleep(0.2)         # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
     control_pin('h', 'f')  # Turn pin 7 OFF
     time.sleep(0.2)        # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
+    
+    
+
+
+    
+
+    
+    
+    
+    
+    
+    
     
 
 
