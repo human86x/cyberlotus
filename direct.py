@@ -31,7 +31,7 @@ try:
     time.sleep(2)          # Wait for 2 seconds
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
-    control_pin('e', 'f')  # Turn pin 7 OFF
+    #control_pin('e', 'f')  # Turn pin 7 OFF
 
 finally:
     ser.close()  # Close serial connection
