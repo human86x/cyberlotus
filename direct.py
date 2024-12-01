@@ -52,6 +52,19 @@ try:
     response = ser.readline().decode('utf-8').strip()  # Read and decode response
     print(f"The response:  {response}")
     
+    control_pin('g', 'o')  # Turn pin 7 ON
+    time.sleep(2)          # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
+    
+    control_pin('h', 'o')  # Turn pin 7 ON
+    time.sleep(2)          # Wait for 2 seconds
+    response = ser.readline().decode('utf-8').strip()  # Read and decode response
+    print(f"The response:  {response}")
+    
+    
+
+
     
 
     control_pin('a', 'f')  # Turn pin 7 OFF
