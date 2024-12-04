@@ -37,7 +37,7 @@ def read_phosphorus():
 def read_ph():
     return round(random.uniform(5.5, 7.0), 2)  # pH between 5.5 and 7.0
 
-def read_fresh_water():
+def read_water_level():
     return round(random.uniform(300.0, 500.0), 2)  # mL
 
 # Function to read all sensor data
@@ -48,7 +48,7 @@ def read_sensors():
         "potassium": read_potassium(),
         "phosphorus": read_phosphorus(),
         "ph": read_ph(),
-        "fresh_water": read_fresh_water(),
+        "water_level": read_water_level(),
         "timestamp": datetime.now().isoformat()  # Add timestamp to track data
     }
 
