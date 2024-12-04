@@ -15,15 +15,18 @@
             });
             const result = await response.json();
             if (result.success) {
-                alert(`Pin ${pin} set to ${state === 'o' ? 'ON' : 'OFF'}. Response: ${result.response}`);
+                'alert(`Pin ${pin} set to ${state === 'o' ? 'ON' : 'OFF'}. Response: ${result.response}`);
             } else {
-                alert(`Error: ${result.error}`);
+                'alert(`Error: ${result.error}`);
             }
         }
     </script>
 </head>
 <body>
     <h1>Arduino Control Panel</h1>
+    <h1>Blue Lotus Control Panel</h1>
+    <p>Current Temperature: {{ temperature }} °C</p>
+    
     <div>
         <h2>Control Pins</h2>
         <div>
