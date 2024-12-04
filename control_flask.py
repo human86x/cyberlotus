@@ -1,4 +1,4 @@
-from control_flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import serial
 import time
 
