@@ -9,9 +9,12 @@ ser = serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)
 
 # Load desired parameters from JSON file
-def load_desired_parameters(filename="data/desired_parameters.json"):
+# Function to load the desired parameters from a JSON file
+def load_desired_parameters(filename="data/desired_params.json"):
     with open(filename, "r") as file:
-        return json.load(file)
+        params = json.load(file)
+        # Ensure all values are converted to float
+        return {key: float(value) for key, value in params.items()}
 
 # Read temperature and other sensor data
 def read_temperature():
