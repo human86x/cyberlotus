@@ -12,9 +12,14 @@ time.sleep(2)
 # Function to load the desired parameters from a JSON file
 def load_desired_parameters(filename="data/desired_parameters.json"):
     with open(filename, "r") as file:
-        params = json.load(file)
-        # Ensure all values are converted to float
-        return {key: float(value) for key, value in params.items()}
+        
+        try:
+            params = json.load(file)
+            # Ensure all values are converted to float
+            return {key: float(value) for key, value in params.items()}
+        except ValueError:
+            print(f"Error converting {sensor_data[key]} to float for {key}")
+            continue  # Skip if there's an issue with the data
 
 # Read temperature and other sensor data
 def read_temperature():
