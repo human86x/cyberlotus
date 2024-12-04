@@ -46,7 +46,13 @@ def regulate():
         # Compare current sensor readings with desired values
         for key, desired_value in desired_params.items():
             if key in sensor_data:
-                current_value = float(sensor_data[key])
+                try:
+                    current_value = float(sensor_data[key])  # Ensure conversion to float
+                    print(f"Comparing {key}: Current Value = {current_value}, Desired Value = {desired_value}")
+                except ValueError:
+                    print(f"Error converting {sensor_data[key]} to float for {key}")
+                    continue  # Skip if there's an issue with the data
+                
                 if current_value < desired_value:
                     # Turn on the pump (example: Nitrogen)
                     pin = get_corresponding_pin(key)
