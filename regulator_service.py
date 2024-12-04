@@ -10,7 +10,7 @@ time.sleep(2)
 
 # Load desired parameters from JSON file
 # Function to load the desired parameters from a JSON file
-def load_desired_parameters(filename="data/desired_parameters"):
+def load_desired_parameters(filename="data/desired_parameters.json"):
     with open(filename, "r") as file:
         params = json.load(file)
         # Ensure all values are converted to float
