@@ -3,10 +3,26 @@ import json
 import random
 from datetime import datetime
 
+import serial
+
+
+
+# Serial configuration
+serial_port = '/dev/ttyACM0'  # Update with your port
+baud_rate = 9600
+
+# Establish serial connection
+ser = serial.Serial(serial_port, baud_rate, timeout=1)
+time.sleep(2)  # Allow Arduino to initialize
+
+
 # Simulating temperature sensor (replace with actual sensor code)
 def read_temperature():
     # Example: Replace with your actual sensor code for reading temperature
-    return round(random.uniform(22.0, 30.0), 2)  # Random temp between 22-30°C
+    ser.write(b'R')  # Send a read command to Arduino (you can adapt the command as needed)
+    line = ser.readline().decode('utf-8').strip()
+    return line
+    #return round(random.uniform(22.0, 30.0), 2)  # Random temp between 22-30°C
 
 # Simulating other sensors
 def read_nitrogen():
