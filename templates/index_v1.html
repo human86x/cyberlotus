@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino Control Panel</title>
+    <script>
+        async function controlPin(pin, state) {
+            const response = await fetch('/control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ pin, state }),
+            });
+            const result = await response.json();
+            if (result.success) {
+                //alert(`Pin ${pin} set to ${state === 'o' ? 'ON' : 'OFF'}. Response: ${result.response}`);
+            } else {
+                //alert(`Error: ${result.error}`);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Arduino Control Panel</h1>
+    <h1>Blue Lotus Control Panel</h1>
+    <p>Current Temperature: {{ temperature }} °C</p>
+    
+    <div>
+        <h2>Control Pins</h2>
+        <div>
+            <button onclick="controlPin('a', 'o')">Turn ON Pin A</button>
+            <button onclick="controlPin('a', 'f')">Turn OFF Pin A</button>
+        </div>
+        <div>
+            <button onclick="controlPin('b', 'o')">Turn ON Pin B</button>
+            <button onclick="controlPin('b', 'f')">Turn OFF Pin B</button>
+        </div>
+        <div>
+            <button onclick="controlPin('c', 'o')">Turn ON Pin C</button>
+            <button onclick="controlPin('c', 'f')">Turn OFF Pin C</button>
+        </div>
+        <div>
+            <button onclick="controlPin('d', 'o')">Turn ON Pin D</button>
+            <button onclick="controlPin('d', 'f')">Turn OFF Pin D</button>
+        </div>
+        <div>
+            <button onclick="controlPin('e', 'o')">Turn ON Pin E</button>
+            <button onclick="controlPin('e', 'f')">Turn OFF Pin E</button>
+        </div>
+        <div>
+            <button onclick="controlPin('l', 'o')">Turn ON Pin L</button>
+            <button onclick="controlPin('l', 'f')">Turn OFF Pin L</button>
+        </div>
+        <div>
+            <button onclick="controlPin('g', 'o')">Turn ON Pin G</button>
+            <button onclick="controlPin('g', 'f')">Turn OFF Pin G</button>
+        </div>
+        <div>
+            <button onclick="controlPin('h', 'o')">Turn ON Pin H</button>
+            <button onclick="controlPin('h', 'f')">Turn OFF Pin H</button>
+        </div>
+    </div>
+</body>
+</html>

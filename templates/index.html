@@ -3,8 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arduino Control Panel</title>
+    <title>Artificial Environment Control Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        h2 {
+            color: #34495e;
+        }
+        .metrics, .controls {
+            display: flex;
+            flex-direction: column;
+            margin: 20px 0;
+        }
+        .metric-item, .control-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .status {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .status.on {
+            background-color: green;
+        }
+        .status.off {
+            background-color: gray;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
     <script>
+        // Artificially generated metrics for now
+        let metrics = {
+            nitrogen: "100 ppm",
+            potassium: "80 ppm",
+            phosphorus: "90 ppm",
+            ph: "6.5",
+            fresh_water: "500 ml",
+            temperature: "25 °C"
+        };
+
         async function controlPin(pin, state) {
             const response = await fetch('/control', {
                 method: 'POST',
@@ -15,51 +74,82 @@
             });
             const result = await response.json();
             if (result.success) {
-                //alert(`Pin ${pin} set to ${state === 'o' ? 'ON' : 'OFF'}. Response: ${result.response}`);
+                updateStatus(pin, state);
             } else {
-                //alert(`Error: ${result.error}`);
+                alert(`Error: ${result.error}`);
             }
         }
+
+        function updateStatus(pin, state) {
+            const status = document.querySelector(`#status-${pin}`);
+            status.className = `status ${state === 'o' ? 'on' : 'off'}`;
+        }
+
+        function loadMetrics() {
+            document.querySelector('#temperature').innerText = metrics.temperature;
+            document.querySelector('#nitrogen').innerText = metrics.nitrogen;
+            document.querySelector('#potassium').innerText = metrics.potassium;
+            document.querySelector('#phosphorus').innerText = metrics.phosphorus;
+            document.querySelector('#ph').innerText = metrics.ph;
+            document.querySelector('#fresh_water').innerText = metrics.fresh_water;
+        }
+
+        window.onload = () => {
+            loadMetrics();
+        };
     </script>
 </head>
 <body>
-    <h1>Arduino Control Panel</h1>
-    <h1>Blue Lotus Control Panel</h1>
-    <p>Current Temperature: {{ temperature }} °C</p>
-    
-    <div>
-        <h2>Control Pins</h2>
-        <div>
-            <button onclick="controlPin('a', 'o')">Turn ON Pin A</button>
-            <button onclick="controlPin('a', 'f')">Turn OFF Pin A</button>
+    <h1>Artificial Environment Control Panel</h1>
+
+    <!-- Metrics Section -->
+    <div class="metrics">
+        <h2>Current Metrics</h2>
+        <div class="metric-item">Temperature: <span id="temperature"></span></div>
+        <div class="metric-item">Nitrogen: <span id="nitrogen"></span></div>
+        <div class="metric-item">Potassium: <span id="potassium"></span></div>
+        <div class="metric-item">Phosphorus: <span id="phosphorus"></span></div>
+        <div class="metric-item">pH Level: <span id="ph"></span></div>
+        <div class="metric-item">Fresh Water: <span id="fresh_water"></span></div>
+    </div>
+
+    <!-- Controls Section -->
+    <div class="controls">
+        <h2>Device Controls</h2>
+        <div class="control-item">
+            <span><div id="status-a" class="status off"></div> Nitrogen Pump (A)</span>
+            <button onclick="controlPin('a', 'o')">ON</button>
+            <button onclick="controlPin('a', 'f')">OFF</button>
         </div>
-        <div>
-            <button onclick="controlPin('b', 'o')">Turn ON Pin B</button>
-            <button onclick="controlPin('b', 'f')">Turn OFF Pin B</button>
+        <div class="control-item">
+            <span><div id="status-b" class="status off"></div> Potassium Pump (B)</span>
+            <button onclick="controlPin('b', 'o')">ON</button>
+            <button onclick="controlPin('b', 'f')">OFF</button>
         </div>
-        <div>
-            <button onclick="controlPin('c', 'o')">Turn ON Pin C</button>
-            <button onclick="controlPin('c', 'f')">Turn OFF Pin C</button>
+        <div class="control-item">
+            <span><div id="status-c" class="status off"></div> Phosphorus Pump (C)</span>
+            <button onclick="controlPin('c', 'o')">ON</button>
+            <button onclick="controlPin('c', 'f')">OFF</button>
         </div>
-        <div>
-            <button onclick="controlPin('d', 'o')">Turn ON Pin D</button>
-            <button onclick="controlPin('d', 'f')">Turn OFF Pin D</button>
+        <div class="control-item">
+            <span><div id="status-d" class="status off"></div> pH+ Pump (D)</span>
+            <button onclick="controlPin('d', 'o')">ON</button>
+            <button onclick="controlPin('d', 'f')">OFF</button>
         </div>
-        <div>
-            <button onclick="controlPin('e', 'o')">Turn ON Pin E</button>
-            <button onclick="controlPin('e', 'f')">Turn OFF Pin E</button>
+        <div class="control-item">
+            <span><div id="status-e" class="status off"></div> pH- Pump (E)</span>
+            <button onclick="controlPin('e', 'o')">ON</button>
+            <button onclick="controlPin('e', 'f')">OFF</button>
         </div>
-        <div>
-            <button onclick="controlPin('l', 'o')">Turn ON Pin L</button>
-            <button onclick="controlPin('l', 'f')">Turn OFF Pin L</button>
+        <div class="control-item">
+            <span><div id="status-l" class="status off"></div> Drain Pump (L)</span>
+            <button onclick="controlPin('l', 'o')">ON</button>
+            <button onclick="controlPin('l', 'f')">OFF</button>
         </div>
-        <div>
-            <button onclick="controlPin('g', 'o')">Turn ON Pin G</button>
-            <button onclick="controlPin('g', 'f')">Turn OFF Pin G</button>
-        </div>
-        <div>
-            <button onclick="controlPin('h', 'o')">Turn ON Pin H</button>
-            <button onclick="controlPin('h', 'f')">Turn OFF Pin H</button>
+        <div class="control-item">
+            <span><div id="status-g" class="status off"></div> Water Heater (G)</span>
+            <button onclick="controlPin('g', 'o')">ON</button>
+            <button onclick="controlPin('g', 'f')">OFF</button>
         </div>
     </div>
 </body>
