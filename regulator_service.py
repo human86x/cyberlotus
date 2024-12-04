@@ -9,7 +9,7 @@ ser = serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)
 
 # Load desired parameters from JSON file
-def load_desired_parameters(filename="desired_parameters.json"):
+def load_desired_parameters(filename="data/desired_parameters.json"):
     with open(filename, "r") as file:
         return json.load(file)
 
