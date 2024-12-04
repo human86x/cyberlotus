@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask_control import Flask, render_template, request, jsonify
 import serial
 import time
 
@@ -13,6 +13,13 @@ baud_rate = 9600
 ser = serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
+
+# Read temperature from Arduino
+def get_temperature():
+    ser.write(b'R')  # Send a read command to Arduino (you can adapt the command as needed)
+    line = ser.readline().decode('utf-8').strip()
+    return line
+
 # Function to send commands to Arduino
 def control_pin(pin, state):
     try:
@@ -26,7 +33,9 @@ def control_pin(pin, state):
 
 @app.route('/')
 def index():
-    return render_template('index.html')  # Render the web interface
+    temperature = get_temperature()  # Get the temperature from Arduino
+    return render_template('index.html', temperature=temperature)
+    #return render_template('index.html')  # Render the web interface
 
 @app.route('/control', methods=['POST'])
 def control():
