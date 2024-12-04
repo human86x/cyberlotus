@@ -16,12 +16,12 @@
         h2 {
             color: #34495e;
         }
-        .metrics, .controls, .settings {
+        .metrics, .controls {
             display: flex;
             flex-direction: column;
             margin: 20px 0;
         }
-        .metric-item, .control-item, .setting-item {
+        .metric-item, .control-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -52,15 +52,9 @@
         button:hover {
             background-color: #2980b9;
         }
-        input {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 80px;
-            text-align: center;
-        }
     </style>
     <script>
+        // Artificially generated metrics for now
         let metrics = {
             nitrogen: "100 ppm",
             potassium: "80 ppm",
@@ -68,14 +62,6 @@
             ph: "6.5",
             fresh_water: "500 ml",
             temperature: "{{ temperature }}°C"
-        };
-
-        let setPoints = {
-            nitrogen: 100,
-            potassium: 80,
-            phosphorus: 90,
-            ph: 6.5,
-            temperature: 25
         };
 
         async function controlPin(pin, state) {
@@ -108,16 +94,6 @@
             document.querySelector('#fresh_water').innerText = metrics.fresh_water;
         }
 
-        function applySettings() {
-            setPoints.nitrogen = parseFloat(document.querySelector('#set-nitrogen').value);
-            setPoints.potassium = parseFloat(document.querySelector('#set-potassium').value);
-            setPoints.phosphorus = parseFloat(document.querySelector('#set-phosphorus').value);
-            setPoints.ph = parseFloat(document.querySelector('#set-ph').value);
-            setPoints.temperature = parseFloat(document.querySelector('#set-temperature').value);
-
-            alert('Setpoints updated successfully!');
-        }
-
         window.onload = () => {
             loadMetrics();
         };
@@ -135,17 +111,6 @@
         <div class="metric-item">Phosphorus: <span id="phosphorus"></span></div>
         <div class="metric-item">pH Level: <span id="ph"></span></div>
         <div class="metric-item">Fresh Water: <span id="fresh_water"></span></div>
-    </div>
-
-    <!-- Settings Section -->
-    <div class="settings">
-        <h2>Set Desired Parameters</h2>
-        <div class="setting-item">Nitrogen (ppm): <input id="set-nitrogen" type="number" value="100"></div>
-        <div class="setting-item">Potassium (ppm): <input id="set-potassium" type="number" value="80"></div>
-        <div class="setting-item">Phosphorus (ppm): <input id="set-phosphorus" type="number" value="90"></div>
-        <div class="setting-item">pH Level: <input id="set-ph" type="number" step="0.1" value="6.5"></div>
-        <div class="setting-item">Temperature (°C): <input id="set-temperature" type="number" value="25"></div>
-        <button onclick="applySettings()">Apply Settings</button>
     </div>
 
     <!-- Controls Section -->
