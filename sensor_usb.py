@@ -1,4 +1,4 @@
-from pymodbus.client.sync import ModbusSerialClient as ModbusClient
+from pymodbus.client import ModbusSerialClient as ModbusClient
 
 # Configure Modbus client
 client = ModbusClient(
@@ -15,7 +15,7 @@ client = ModbusClient(
 if client.connect():
     try:
         # Read multiple registers (humidity, temperature, conductivity, pH, N, P, K)
-        result = client.read_holding_registers(address=0, count=7, unit=1)
+        result = client.read_holding_registers(address=0, count=7, slave=1)
         if result.isError():
             print(f"Error reading registers: {result}")
         else:
