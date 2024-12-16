@@ -1,8 +1,7 @@
-from pymodbus.client.sync import ModbusSerialClient as ModbusClient
-import struct
+from pymodbus.client import ModbusSerialClient
 
 # Initialize the Modbus client
-client = ModbusClient(
+client = ModbusSerialClient(
     method='rtu',
     port='/dev/ttyUSB0',  # Adjust this to your actual device
     baudrate=4800,
@@ -15,13 +14,13 @@ client = ModbusClient(
 # Function to read a register
 def read_register(register):
     try:
-        result = client.read_holding_registers(register, 1, unit=1)  # Unit 1 is the default slave ID
-        if result.isError():
+        result = client.read_holding_registers(address=register, count=1, unit=1)  # Unit 1 is the default slave ID
+        if not result.isError():
+            value = result.registers[0]
+            return value
+        else:
             print(f"Error reading register {register}: {result}")
             return None
-        # Convert the 16-bit register value to float or integer as needed
-        value = result.registers[0]
-        return value
     except Exception as e:
         print(f"Exception reading register {register}: {e}")
         return None
