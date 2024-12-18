@@ -1,0 +1,5 @@
+{
+    "solution_tank_volume": 10.0,  
+    "ph_minus_liquid_ph": 4.0,     
+    "ph_plus_liquid_ph": 10.0      
+}
