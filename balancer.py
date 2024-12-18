@@ -111,11 +111,11 @@ def adjust_temperature(sensor_data, goal_data):
 
     if current_temp < target_temp:
         # Activate heater (Pump 3)
-        arduino_serial.write(b"co")  # Heater on (Pin 3)
+        arduino_serial.write(b"do")  # Heater on (Pin 3)
         print("Heater activated.")
     else:
         # Turn off heater
-        arduino_serial.write(b"cf")  # Heater off (Pin 3)
+        arduino_serial.write(b"df")  # Heater off (Pin 3)
         print("Heater deactivated.")
 
 def main():
