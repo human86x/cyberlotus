@@ -27,7 +27,7 @@ arduino_serial = serial.Serial(
 
 # Paths for JSON files
 data_file = "data/sensor_data.json"
-goal_file = "data/desired_parametrs.json"
+goal_file = "data/desired_parameters.json"
 
 def write_to_json(file_path, data):
     """Write data to a JSON file."""
