@@ -46,7 +46,7 @@ def get_tank_weight():
     """Fetch the tank level (weight) from Arduino via Serial."""
     try:
         # Send "W" command to Arduino
-        arduino_serial.write(b'W\n')
+        arduino_serial.write(b'W')
         # Read the response
         response = arduino_serial.readline().decode().strip()
         # Parse the response as a float
