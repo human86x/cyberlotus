@@ -23,7 +23,9 @@ def read_from_json(file_path):
     """Read data from a JSON file."""
     try:
         with open(file_path, 'r') as f:
-            return json.load(f)
+            data = json.load(f)
+            print(f"Data read from {file_path}: {data}")
+            return data
     except FileNotFoundError:
         print(f"File not found: {file_path}")
         return {}
@@ -33,6 +35,9 @@ def calculate_ph_adjustment(current_ph, target_ph, tank_volume, acid_ph, base_ph
     Calculate how long to run the pump to achieve the desired pH.
     Returns pump_id and duration in seconds.
     """
+    print(f"Calculating pH adjustment: current_ph={current_ph}, target_ph={target_ph}, "
+          f"tank_volume={tank_volume}, acid_ph={acid_ph}, base_ph={base_ph}, flowrate={flowrate}")
+    
     delta_ph = target_ph - current_ph
 
     if delta_ph > 0:
@@ -45,6 +50,7 @@ def calculate_ph_adjustment(current_ph, target_ph, tank_volume, acid_ph, base_ph
         solution_ph = acid_ph
     else:
         # No adjustment needed
+        print("No pH adjustment needed.")
         return None, 0
 
     # Calculate the amount of rebalancing liquid needed (in liters)
@@ -53,7 +59,8 @@ def calculate_ph_adjustment(current_ph, target_ph, tank_volume, acid_ph, base_ph
 
     # Convert volume to seconds of pump operation
     duration_seconds = liquid_volume_liters * 1000 / flowrate
-
+    print(f"Calculated adjustment: pump_id={pump_id}, duration_seconds={duration_seconds}")
+    
     return pump_id, duration_seconds
 
 def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
@@ -64,6 +71,9 @@ def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
     acid_ph = liquid_config.get("ph_minus_liquid_ph")
     base_ph = liquid_config.get("ph_plus_liquid_ph")
 
+    print(f"Adjusting pH: current_ph={current_ph}, target_ph={target_ph}, "
+          f"tank_volume={tank_volume}, acid_ph={acid_ph}, base_ph={base_ph}")
+    
     if None in (current_ph, target_ph, tank_volume, acid_ph, base_ph):
         print("Missing pH or tank configuration data.")
         return
@@ -71,6 +81,8 @@ def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
     # Get flowrate for pumps
     pump1_flowrate = flowrate_data.get("pump1", 0)
     pump2_flowrate = flowrate_data.get("pump2", 0)
+
+    print(f"Flow rates: pump1={pump1_flowrate}, pump2={pump2_flowrate}")
 
     pump_id, duration = calculate_ph_adjustment(
         current_ph, target_ph, tank_volume, acid_ph, base_ph,
@@ -90,6 +102,8 @@ def adjust_temperature(sensor_data, goal_data):
     current_temp = sensor_data.get("temperature")
     target_temp = goal_data.get("temperature")
 
+    print(f"Adjusting temperature: current_temp={current_temp}, target_temp={target_temp}")
+
     if None in (current_temp, target_temp):
         print("Missing temperature data.")
         return
@@ -106,6 +120,7 @@ def adjust_temperature(sensor_data, goal_data):
 def main():
     while True:
         # Load data from JSON files
+        print("Loading JSON files...")
         sensor_data = read_from_json(sensor_data_file)
         goal_data = read_from_json(goal_file)
         flowrate_data = read_from_json(flowrate_file)
@@ -117,10 +132,12 @@ def main():
             continue
 
         # Adjust pH and temperature
+        print("Adjusting pH and temperature...")
         adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config)
         adjust_temperature(sensor_data, goal_data)
 
         # Wait before the next adjustment cycle
+        print("Waiting before next adjustment cycle...")
         time.sleep(10)
 
 if __name__ == "__main__":
