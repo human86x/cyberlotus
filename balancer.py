@@ -67,9 +67,9 @@ def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
     """Adjust the pH to the desired level."""
     current_ph = sensor_data.get("pH")
     target_ph = goal_data.get("pH")
-    tank_volume = liquid_config.get("tank")
-    acid_ph = liquid_config.get("ph_minus")
-    base_ph = liquid_config.get("ph_plus")
+    tank_volume = liquid_config.get("tank", {}).get("volume")
+    acid_ph = liquid_config.get("ph_minus", {}).get("concentration")
+    base_ph = liquid_config.get("ph_plus", {}).get("concentration")
 
     print(f"Adjusting pH: current_ph={current_ph}, target_ph={target_ph}, "
           f"tank_volume={tank_volume}, acid_ph={acid_ph}, base_ph={base_ph}")
@@ -84,13 +84,14 @@ def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
 
     print(f"Flow rates: pump1={pump1_flowrate}, pump2={pump2_flowrate}")
 
+    # Calculate pH adjustment
     pump_id, duration = calculate_ph_adjustment(
         current_ph, target_ph, tank_volume, acid_ph, base_ph,
-        pump1_flowrate if pump_id == 1 else pump2_flowrate
+        pump1_flowrate if target_ph < current_ph else pump2_flowrate
     )
 
     if pump_id and duration > 0:
-        # Send command to Arduino to activate the pump
+        # Send command to Arduino to activate the correct pump
         command = f"{'a' if pump_id == 1 else 'b'}:{duration:.2f}"  # Send pump control command
         arduino_serial.write(command.encode())
         print(f"Sent command to Arduino: {command}")
