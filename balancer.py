@@ -5,7 +5,7 @@ import serial
 # Paths for JSON files
 sensor_data_file = "data/sensor_data.json"
 goal_file = "data/desired_parameters.json"
-flowrate_file = "data/flowrate.json"
+flowrate_file = "data/flow_rate.json"
 liquid_config_file = "data/liquid_config.json"
 
 # Configure Serial communication for Arduino
