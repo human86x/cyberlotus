@@ -65,9 +65,9 @@ def calculate_ph_adjustment(current_ph, target_ph, tank_volume, acid_ph, base_ph
 
 def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
     """Adjust the pH to the desired level."""
-    current_ph = sensor_data.get("ph")
-    target_ph = goal_data.get("ph")
-    tank_volume = liquid_config.get("solution_tank_volume")
+    current_ph = sensor_data.get("pH")
+    target_ph = goal_data.get("pH")
+    tank_volume = liquid_config.get("tank")
     acid_ph = liquid_config.get("ph_minus")
     base_ph = liquid_config.get("ph_plus")
 
