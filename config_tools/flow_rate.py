@@ -1,13 +1,14 @@
 import json
 import time
 import serial
+import os
 
 # Serial port settings
 SERIAL_PORT = "/dev/ttyACM0"  # Use Linux serial port
 BAUD_RATE = 9600
 
-# JSON file path
-#FLOW_RATES_FILE = "data/flow_rates.json"
+# JSON file path (relative to the script location)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Parent directory of config_tools
 FLOW_RATES_FILE = os.path.join(BASE_DIR, "data", "flow_rates.json")
 
 # Mapping of pump names to Arduino commands
