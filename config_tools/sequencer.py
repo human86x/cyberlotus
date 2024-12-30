@@ -3,7 +3,7 @@ import time
 from flow_rate import send_command_with_heartbeat, load_flow_rates
 
 # File paths
-SEQUENCE_FILE = '../data/pH_calibration.json'
+SEQUENCE_FILE = '../sequences/pH_calibration.json'
 
 # Function to execute a single command in the sequence
 def execute_command(command, weight, flow_rates):
