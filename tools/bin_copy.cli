@@ -1,0 +1,3 @@
+/tmp/arduino/sketches/9E382E4C84B5F240E2357C980504BAA4/wemos_stopper.ino.bin
+sshpass -p 777 scp /tmp/arduino/sketches/9E382E4C84B5F240E2357C980504BAA4/wemos_stopper.ino.bin lotus@192.168.12.187:/home/lotus/
+
