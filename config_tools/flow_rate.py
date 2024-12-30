@@ -89,7 +89,7 @@ def calibrate_pump(pump_name):
     print(f"Calibrating pump '{pump_name}'.")
     input("Place the container on the scale and press Enter to start calibration.")
     print("Pumping for 5 seconds...")
-    if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=5):
+    if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=10):
         print("Error: Calibration failed due to Arduino communication issue.")
         return
 
