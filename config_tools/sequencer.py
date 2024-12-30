@@ -1,24 +1,34 @@
 import json
 import time
-from flow_rate import send_command_with_heartbeat, load_flow_rates
+from flow_rates import send_command_with_heartbeat, load_flow_rates
 
 # File paths
-CALIBRATION_FILE = 'pH_calibration.json'
+SEQUENCE_FILE = '../data/pH_calibration.json'
 
 # Function to execute a single command in the sequence
-def execute_command(command, weight):
-    """Execute the given command for a specific weight."""
+def execute_command(command, weight, flow_rates):
+    """Execute the given command for a specific weight using flow rates."""
     print(f"Executing command: {command} for {weight}g")
-    if command not in PUMP_COMMANDS:
-        print(f"Error: Invalid command '{command}'")
+    
+    if command not in flow_rates:
+        print(f"Error: Flow rate for '{command}' not found in flow rates file.")
         return False
-    return send_command_with_heartbeat(PUMP_COMMANDS[command], duration=weight / load_flow_rates()[command])
+
+    # Calculate duration based on flow rate
+    flow_rate = flow_rates[command]
+    duration = weight / flow_rate  # Time in seconds to pump the given weight
+
+    return send_command_with_heartbeat(command, duration)
 
 # Function to execute the sequence from the JSON file
-def execute_sequence(sequence_file):
+def execute_sequence(sequence_file, flow_rates):
     """Read the sequence from a JSON file and execute the actions."""
-    with open(sequence_file, 'r') as file:
-        data = json.load(file)
+    try:
+        with open(sequence_file, 'r') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        print(f"Error: {sequence_file} not found.")
+        return
 
     for action in data["sequence"]:
         command = action["command"]
@@ -27,11 +37,11 @@ def execute_sequence(sequence_file):
         # Check for calibration actions
         if "calibration" in action and action["calibration"]:
             print(f"Calibration step detected. Waiting for calibration...")
-            # Here we simulate the calibration waiting logic (replace with actual calibration function in the future)
+            # Simulate the calibration waiting logic (replace with actual calibration function if necessary)
             input(f"Calibration needed for {command}. Press Enter when calibration is complete.")
         
         # Execute the command after calibration (if applicable)
-        if not execute_command(command, weight):
+        if not execute_command(command, weight, flow_rates):
             print(f"Error: Failed to execute command {command}.")
             break
 
@@ -41,4 +51,6 @@ def execute_sequence(sequence_file):
 
 # Example usage
 if __name__ == "__main__":
-    execute_sequence(CALIBRATION_FILE)
+    flow_rates = load_flow_rates()  # Load flow rates from the JSON file
+    if flow_rates:
+        execute_sequence(SEQUENCE_FILE, flow_rates)
