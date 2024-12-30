@@ -1,13 +1,14 @@
 import json
 import time
-from flow_rate import send_command_with_heartbeat, load_flow_rates
+from flow_tune import send_command_with_heartbeat, load_flow_rates
 
 # File paths
 SEQUENCE_FILE = '../sequences/pH_calibration.json'
 
-# Function to execute a single command in the sequence
 def execute_command(command, weight, flow_rates):
-    """Execute the given command for a specific weight using flow rates."""
+    """
+    Execute the given command for a specific weight using flow rates.
+    """
     print(f"Executing command: {command} for {weight}g")
     
     if command not in flow_rates:
@@ -16,13 +17,16 @@ def execute_command(command, weight, flow_rates):
 
     # Calculate duration based on flow rate
     flow_rate = flow_rates[command]
-    duration = weight / flow_rate  # Time in seconds to pump the given weight
-
+    duration = weight / flow_rate
+    print(f"Debug: Command '{command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
+    
+    # Send the command to Arduino
     return send_command_with_heartbeat(command, duration)
 
-# Function to execute the sequence from the JSON file
 def execute_sequence(sequence_file, flow_rates):
-    """Read the sequence from a JSON file and execute the actions."""
+    """
+    Read the sequence from a JSON file and execute the actions.
+    """
     try:
         with open(sequence_file, 'r') as file:
             data = json.load(file)
@@ -37,7 +41,6 @@ def execute_sequence(sequence_file, flow_rates):
         # Check for calibration actions
         if "calibration" in action and action["calibration"]:
             print(f"Calibration step detected. Waiting for calibration...")
-            # Simulate the calibration waiting logic (replace with actual calibration function if necessary)
             input(f"Calibration needed for {command}. Press Enter when calibration is complete.")
         
         # Execute the command after calibration (if applicable)
@@ -49,8 +52,12 @@ def execute_sequence(sequence_file, flow_rates):
 
     print("Sequence complete.")
 
-# Example usage
 if __name__ == "__main__":
-    flow_rates = load_flow_rates()  # Load flow rates from the JSON file
+    # Load flow rates from the JSON file
+    flow_rates = load_flow_rates()
+    print(f"Debug: Loaded flow rates: {flow_rates}")
+    
     if flow_rates:
         execute_sequence(SEQUENCE_FILE, flow_rates)
+    else:
+        print("Error: Flow rates not loaded. Ensure the flow_rates.json file exists and is valid.")
