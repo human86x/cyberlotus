@@ -74,6 +74,32 @@ def load_flow_rates():
     with open(FLOW_RATES_FILE, 'r') as file:
         return json.load(file)
 
+def save_flow_rates(flow_rates):
+    """Save updated flow rates to JSON file."""
+    with open(FLOW_RATES_FILE, 'w') as file:
+        json.dump(flow_rates, file, indent=4)
+
+def calibrate_pump(pump_name):
+    """Calibrate the pump by determining its flow rate."""
+    flow_rates = load_flow_rates()
+    if pump_name not in PUMP_COMMANDS:
+        print(f"Error: Invalid pump name '{pump_name}'")
+        return
+
+    print(f"Calibrating pump '{pump_name}'.")
+    input("Place the container on the scale and press Enter to start calibration.")
+    print("Pumping for 5 seconds...")
+    if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=5):
+        print("Error: Calibration failed due to Arduino communication issue.")
+        return
+
+    weight = float(input("Enter the weight of liquid pumped (in grams): "))
+    flow_rate = weight / 5  # Calculate flow rate (grams per second)
+    print(f"Calibration complete. Flow rate for '{pump_name}' is {flow_rate:.3f} g/s.")
+    flow_rates[pump_name] = flow_rate
+    save_flow_rates(flow_rates)
+    print(f"Updated flow rates saved to {FLOW_RATES_FILE}.")
+
 def test_pump(pump_name, weight):
     """Test pump accuracy by dispensing a specific weight of liquid."""
     flow_rates = load_flow_rates()
@@ -95,14 +121,18 @@ def test_pump(pump_name, weight):
 if __name__ == "__main__":
     while True:
         print("\nOptions:")
-        print("1. Test pump")
-        print("2. Exit")
+        print("1. Calibrate pump")
+        print("2. Test pump")
+        print("3. Exit")
         choice = input("Enter your choice: ")
         if choice == "1":
             pump = input("Enter pump name (e.g., NPK, pH_plus): ")
+            calibrate_pump(pump)
+        elif choice == "2":
+            pump = input("Enter pump name (e.g., NPK, pH_plus): ")
             weight = float(input("Enter desired weight (grams): "))
             test_pump(pump, weight)
-        elif choice == "2":
+        elif choice == "3":
             print("Exiting...")
             break
         else:
