@@ -9,6 +9,18 @@ BAUD_RATE = 9600
 # JSON file path
 FLOW_RATES_FILE = "data/flow_rates.json"
 
+# Mapping of pump names to Arduino commands
+PUMP_COMMANDS = {
+    "NPK": "a",
+    "pH_plus": "b",
+    "pH_minus": "c",
+    "pH_cal_high": "d",
+    "pH_cal_low": "e",
+    "EC_cal": "f",
+    "fresh_water_speed": "g",
+    "draining_speed": "h"
+}
+
 # Initialize serial communication
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
@@ -27,10 +39,15 @@ def save_flow_rates(flow_rates):
 
 def calibrate_pump(pump_name, duration):
     """Calibrate a pump by measuring flow rate."""
+    if pump_name not in PUMP_COMMANDS:
+        print(f"Error: Invalid pump name '{pump_name}'")
+        return None
+
     print(f"Activating pump '{pump_name}' for {duration} seconds.")
-    ser.write(f"{pump_name}o".encode())  # Turn on the pump
+    ser.write(f"{PUMP_COMMANDS[pump_name]}o".encode())  # Turn on the pump
     time.sleep(duration)
-    ser.write(f"{pump_name}f".encode())  # Turn off the pump
+    ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())  # Turn off the pump
+
     print("Enter the weight of the liquid pumped (in grams):")
     weight = float(input("Weight (grams): "))
     flow_rate = weight / duration
@@ -43,12 +60,16 @@ def test_pump(pump_name, weight):
     if pump_name not in flow_rates:
         print(f"Error: Flow rate for '{pump_name}' not found.")
         return
+    if pump_name not in PUMP_COMMANDS:
+        print(f"Error: Invalid pump name '{pump_name}'")
+        return
+
     flow_rate = flow_rates[pump_name]
     duration = weight / flow_rate
     print(f"Activating pump '{pump_name}' for {duration:.2f} seconds to dispense {weight} grams.")
-    ser.write(f"{pump_name}o".encode())  # Turn on the pump
+    ser.write(f"{PUMP_COMMANDS[pump_name]}o".encode())  # Turn on the pump
     time.sleep(duration)
-    ser.write(f"{pump_name}f".encode())  # Turn off the pump
+    ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())  # Turn off the pump
     print("Test complete.")
 
 def main():
@@ -65,8 +86,9 @@ def main():
             pump_name = input("Enter pump name (e.g., NPK, pH_plus): ")
             duration = float(input("Enter activation duration (seconds): "))
             flow_rate = calibrate_pump(pump_name, duration)
-            flow_rates[pump_name] = flow_rate
-            save_flow_rates(flow_rates)
+            if flow_rate is not None:
+                flow_rates[pump_name] = flow_rate
+                save_flow_rates(flow_rates)
         elif choice == "2":
             pump_name = input("Enter pump name (e.g., NPK, pH_plus): ")
             weight = float(input("Enter desired weight (grams): "))
