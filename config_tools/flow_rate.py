@@ -2,6 +2,7 @@ import json
 import time
 import serial
 import os
+import threading
 
 # Serial port settings
 SERIAL_PORT = "/dev/ttyACM0"  # Use Linux serial port
@@ -26,6 +27,32 @@ PUMP_COMMANDS = {
 # Initialize serial communication
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
+# Heartbeat status
+heartbeat_detected = False
+
+
+def heartbeat_monitor():
+    """Background thread to monitor heartbeat messages."""
+    global heartbeat_detected
+    while True:
+        if ser.in_waiting > 0:
+            line = ser.readline().decode('utf-8').strip()
+            if line == "HEARTBEAT":
+                heartbeat_detected = True
+                time.sleep(0.5)  # Short delay for blinking effect
+                heartbeat_detected = False
+
+
+def display_heartbeat():
+    """Display the heartbeat status without interfering with user input."""
+    while True:
+        if heartbeat_detected:
+            print("\r♥ HEARTBEAT ♥", end="")
+        else:
+            print("\r               ", end="")  # Clear the line
+        time.sleep(0.5)
+
+
 def load_flow_rates():
     """Load flow rates from JSON file."""
     try:
@@ -34,10 +61,12 @@ def load_flow_rates():
     except FileNotFoundError:
         return {}
 
+
 def save_flow_rates(flow_rates):
     """Save flow rates to JSON file."""
     with open(FLOW_RATES_FILE, "w") as file:
         json.dump(flow_rates, file, indent=4)
+
 
 def calibrate_pump(pump_name, duration):
     """Calibrate a pump by measuring flow rate."""
@@ -55,6 +84,7 @@ def calibrate_pump(pump_name, duration):
     flow_rate = weight / duration
     print(f"Calculated flow rate for {pump_name}: {flow_rate:.3f} g/s")
     return flow_rate
+
 
 def test_pump(pump_name, weight):
     """Test pump accuracy by dispensing a specific weight of liquid."""
@@ -74,7 +104,12 @@ def test_pump(pump_name, weight):
     ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())  # Turn off the pump
     print("Test complete.")
 
+
 def main():
+    # Start the heartbeat monitor in a background thread
+    threading.Thread(target=heartbeat_monitor, daemon=True).start()
+    threading.Thread(target=display_heartbeat, daemon=True).start()
+
     flow_rates = load_flow_rates()
 
     while True:
@@ -100,6 +135,7 @@ def main():
             break
         else:
             print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     main()
