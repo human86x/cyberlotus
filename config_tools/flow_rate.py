@@ -14,7 +14,7 @@ PUMP_COMMANDS = {
     "pH_cal_high": 'c',
     "pH_cal_low": 'd',
     "EC_cal": 'f',
-    "fresh_water": 'a',
+    "fresh": 'a',
     "drain": 'b'
 }
 
