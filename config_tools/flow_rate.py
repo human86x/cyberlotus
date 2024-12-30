@@ -7,7 +7,8 @@ SERIAL_PORT = "/dev/ttyACM0"  # Use Linux serial port
 BAUD_RATE = 9600
 
 # JSON file path
-FLOW_RATES_FILE = "data/flow_rates.json"
+#FLOW_RATES_FILE = "data/flow_rates.json"
+FLOW_RATES_FILE = os.path.join(BASE_DIR, "data", "flow_rates.json")
 
 # Mapping of pump names to Arduino commands
 PUMP_COMMANDS = {
