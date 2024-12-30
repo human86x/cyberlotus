@@ -8,14 +8,14 @@ SERIAL_PORT = '/dev/ttyACM0'
 BAUD_RATE = 9600
 HEARTBEAT_TIMEOUT = 2  # Maximum time (seconds) to wait for a heartbeat
 PUMP_COMMANDS = {
-    "NPK": 'a',
-    "pH_plus": 'b',
-    "pH_minus": 'c',
-    "pH_cal_high": 'd',
-    "pH_cal_low": 'e',
+    "NPK": 'g',
+    "pH_plus": 'h',
+    "pH_minus": 'e',
+    "pH_cal_high": 'c',
+    "pH_cal_low": 'd',
     "EC_cal": 'f',
-    "fresh_water": 'g',
-    "drain": 'h'
+    "fresh_water": 'a',
+    "drain": 'b'
 }
 
 # File paths

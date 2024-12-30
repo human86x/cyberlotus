@@ -1,0 +1,15 @@
+{
+    "sequence": [
+      {"command": "fresh_water", "weight": 5},
+      {"command": "drain", "weight": 5},
+      {"command": "pH_cal_low", "weight": 5, "calibration": true},
+      {"command": "drain", "weight": 5},
+      {"command": "fresh_water", "weight": 5},
+      {"command": "drain", "weight": 5},
+      {"command": "pH_cal_high", "weight": 5, "calibration": true},
+      {"command": "drain", "weight": 5},
+      {"command": "fresh_water", "weight": 5},
+      {"command": "drain", "weight": 5}
+    ]
+  }
+  
