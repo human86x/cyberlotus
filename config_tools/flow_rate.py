@@ -58,9 +58,9 @@ def send_command_with_heartbeat(command, duration=None):
     If duration is provided, the command assumes a timed operation (e.g., dosing).
     """
     print(f"Preparing to send command '{command}' to Arduino...")
-    if not wait_for_heartbeat():
-        print("Error: No heartbeat detected. Arduino may not be responding.")
-        return False
+    #if not wait_for_heartbeat():
+    #    print("Error: No heartbeat detected. Arduino may not be responding.")
+    #    return False
 
     print("Heartbeat verified. Sending command to Arduino...")
     ser.write(f"{command}o".encode())  # Turn on the pump
