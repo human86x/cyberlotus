@@ -38,6 +38,20 @@ def wait_for_heartbeat(timeout=HEARTBEAT_TIMEOUT):
                     return True
     return False
 
+
+def load_flow_rates():
+    """Load flow rates from JSON file."""
+    if not os.path.exists(FLOW_RATES_FILE):
+        print(f"Error: {FLOW_RATES_FILE} not found.")
+        return {}
+    with open(FLOW_RATES_FILE, 'r') as file:
+        return json.load(file)
+
+def save_flow_rates(flow_rates):
+    """Save updated flow rates to JSON file."""
+    with open(FLOW_RATES_FILE, 'w') as file:
+        json.dump(flow_rates, file, indent=4)
+
 def send_command_with_heartbeat(command, duration=None):
     """
     Send a command to Arduino with heartbeat checks before and during operation.
@@ -54,7 +68,7 @@ def send_command_with_heartbeat(command, duration=None):
         start_time = time.time()
         while time.time() - start_time < duration:
             time_elapsed = time.time() - start_time
-            progress = int((time_elapsed / duration) * 100)
+            progress = min(int((time_elapsed / duration) * 100), 100)  # Ensure max progress is 100%
             print(f"Operation in progress... {progress}% complete.", end="\r")
 
             # Check for heartbeat during operation
@@ -66,19 +80,6 @@ def send_command_with_heartbeat(command, duration=None):
         print("\nOperation complete.")
     return True
 
-def load_flow_rates():
-    """Load flow rates from JSON file."""
-    if not os.path.exists(FLOW_RATES_FILE):
-        print(f"Error: {FLOW_RATES_FILE} not found.")
-        return {}
-    with open(FLOW_RATES_FILE, 'r') as file:
-        return json.load(file)
-
-def save_flow_rates(flow_rates):
-    """Save updated flow rates to JSON file."""
-    with open(FLOW_RATES_FILE, 'w') as file:
-        json.dump(flow_rates, file, indent=4)
-
 def calibrate_pump(pump_name):
     """Calibrate the pump by determining its flow rate."""
     flow_rates = load_flow_rates()
@@ -88,13 +89,13 @@ def calibrate_pump(pump_name):
 
     print(f"Calibrating pump '{pump_name}'.")
     input("Place the container on the scale and press Enter to start calibration.")
-    print("Pumping for 5 seconds...")
-    if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=10):
+    print("Pumping for 10 seconds...")
+    if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=10):  # Set calibration duration to 10 seconds
         print("Error: Calibration failed due to Arduino communication issue.")
         return
 
     weight = float(input("Enter the weight of liquid pumped (in grams): "))
-    flow_rate = weight / 5  # Calculate flow rate (grams per second)
+    flow_rate = weight / 10  # Calculate flow rate (grams per second), adjusted for 10 seconds
     print(f"Calibration complete. Flow rate for '{pump_name}' is {flow_rate:.3f} g/s.")
     flow_rates[pump_name] = flow_rate
     save_flow_rates(flow_rates)
