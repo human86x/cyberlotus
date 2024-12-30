@@ -1,6 +1,6 @@
 import json
 import time
-from flow_rates import send_command_with_heartbeat, load_flow_rates
+from flow_rate import send_command_with_heartbeat, load_flow_rates
 
 # File paths
 SEQUENCE_FILE = '../data/pH_calibration.json'
