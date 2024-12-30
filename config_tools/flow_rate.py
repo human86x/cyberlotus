@@ -117,24 +117,24 @@ def main():
         print("1. Calibrate pump")
         print("2. Test pump")
         print("3. Exit")
-        choice = input("Enter your choice: ")
+        choice = input("-------------------Enter your choice: ")
 
         if choice == "1":
-            pump_name = input("Enter pump name (e.g., NPK, pH_plus): ")
-            duration = float(input("Enter activation duration (seconds): "))
+            pump_name = input("----------------Enter pump name (e.g., NPK, pH_plus): ")
+            duration = float(input("--------------Enter activation duration (seconds): "))
             flow_rate = calibrate_pump(pump_name, duration)
             if flow_rate is not None:
                 flow_rates[pump_name] = flow_rate
                 save_flow_rates(flow_rates)
         elif choice == "2":
-            pump_name = input("Enter pump name (e.g., NPK, pH_plus): ")
-            weight = float(input("Enter desired weight (grams): "))
+            pump_name = input("---------------Enter pump name (e.g., NPK, pH_plus): ")
+            weight = float(input("------------Enter desired weight (grams): "))
             test_pump(pump_name, weight)
         elif choice == "3":
             print("Exiting program.")
             break
         else:
-            print("Invalid choice. Please try again.")
+            print("--------------Invalid choice. Please try again.")
 
 
 if __name__ == "__main__":
