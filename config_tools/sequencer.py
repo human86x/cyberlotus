@@ -28,6 +28,9 @@ PUMP_COMMANDS = {
 # Initialize serial connection
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
+ser.write(b'ao')  # Turn on "fresh" pump
+time.sleep(5)
+ser.write(b'af')  # Turn off "fresh" pump
 
 
 
