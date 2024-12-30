@@ -2,6 +2,38 @@ import json
 import time
 from flow_tune import send_command_with_heartbeat, load_flow_rates
 
+
+
+
+import serial
+
+# Serial configuration
+SERIAL_PORT = '/dev/ttyACM0'
+BAUD_RATE = 9600
+HEARTBEAT_TIMEOUT = 2  # Maximum time (seconds) to wait for a heartbeat
+PUMP_COMMANDS = {
+    "NPK": 'g',
+    "pH_plus": 'h',
+    "pH_minus": 'e',
+    "pH_cal_high": 'c',
+    "pH_cal_low": 'd',
+    "EC_cal": 'f',
+    "fresh": 'a',
+    "drain": 'b'
+}
+
+# File paths
+#FLOW_RATES_FILE = '../data/flow_rates.json'
+
+# Initialize serial connection
+ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+
+
+
+
+
+
+
 # File paths
 SEQUENCE_FILE = '../sequences/pH_calibration.json'
 
