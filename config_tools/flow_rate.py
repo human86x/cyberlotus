@@ -72,9 +72,9 @@ def send_command_with_heartbeat(command, duration=None):
             print(f"Operation in progress... {progress}% complete.", end="\r")
 
             # Check for heartbeat during operation
-            if not wait_for_heartbeat(timeout=1):
-                print("\nWarning: Arduino heartbeat delay detected during operation!")
-                break
+            #if not wait_for_heartbeat(timeout=1):
+            #    print("\nWarning: Arduino heartbeat delay detected during operation!")
+            #    break
             time.sleep(0.1)  # Small delay to avoid excessive CPU usage
         ser.write(f"{command}f".encode())  # Turn off the pump
         print("\nOperation complete.")
