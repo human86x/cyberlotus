@@ -2,6 +2,7 @@ import json
 import time
 import serial
 from flow_tune import send_command_with_heartbeat, load_flow_rates
+from flow_tune import PUMP_COMMANDS
 
 
 
@@ -35,6 +36,8 @@ print('test ended ')
 # File paths
 SEQUENCE_FILE = '../sequences/pH_calibration.json'
 
+#from flow_tune import PUMP_COMMANDS  # Import the translation map from flow_tune
+
 def execute_command(command, weight, flow_rates):
     """
     Execute the given command for a specific weight using flow rates.
@@ -45,16 +48,23 @@ def execute_command(command, weight, flow_rates):
         print(f"Error: Flow rate for '{command}' not found in flow rates file.")
         return False
 
+    if command not in PUMP_COMMANDS:
+        print(f"Error: Command '{command}' not recognized in PUMP_COMMANDS.")
+        return False
+
+    # Translate the logical command to the Arduino command
+    arduino_command = PUMP_COMMANDS[command]
+
     # Calculate duration based on flow rate
     flow_rate = flow_rates[command]
     duration = weight / flow_rate
     
-    print(f"Debug: Command '{command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
+    print(f"Debug: Command '{command}' translated to '{arduino_command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
     
-    print(f"Debug: Sending command '{command}' to Arduino with duration {duration:.2f}s.")
+    print(f"Debug: Sending command '{arduino_command}' to Arduino with duration {duration:.2f}s.")
 
-    # Send the command to Arduino
-    return send_command_with_heartbeat(command, duration)
+    # Send the translated command to Arduino
+    return send_command_with_heartbeat(arduino_command, duration)
 
 def execute_sequence(sequence_file, flow_rates):
     """
