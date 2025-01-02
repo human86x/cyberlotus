@@ -17,6 +17,11 @@ BAUD_RATE = 9600
 # Initialize serial connection
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 print('starting test fresh pump')
+
+ser.write(b'\n')  # Send a newline or reset sequence
+time.sleep(2)  # Wait for Arduino to reset
+ser.flush()  # Clear any pending serial data
+
 ser.write(b'ao')  # Turn on "fresh" pump
 print('waiting 5')
 time.sleep(5)
@@ -43,8 +48,11 @@ def execute_command(command, weight, flow_rates):
     # Calculate duration based on flow rate
     flow_rate = flow_rates[command]
     duration = weight / flow_rate
+    
     print(f"Debug: Command '{command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
     
+    print(f"Debug: Sending command '{command}' to Arduino with duration {duration:.2f}s.")
+
     # Send the command to Arduino
     return send_command_with_heartbeat(command, duration)
 
