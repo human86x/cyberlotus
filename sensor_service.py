@@ -1,11 +1,7 @@
 import time
 import json
-import random
 from datetime import datetime
-
 import serial
-
-
 
 # Serial configuration
 serial_port = '/dev/ttyACM0'  # Update with your port
@@ -15,41 +11,41 @@ baud_rate = 9600
 ser = serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
-
-# Simulating temperature sensor (replace with actual sensor code)
-def read_temperature():
-    # Example: Replace with your actual sensor code for reading temperature
-    ser.write(b'R')  # Send a read command to Arduino (you can adapt the command as needed)
+# Function to read solution temperature from Dallas temperature sensor
+def read_solution_temperature():
+    ser.write(b'T')  # Command to read temperature from Arduino
     line = ser.readline().decode('utf-8').strip()
-    return line
-    #return round(random.uniform(22.0, 30.0), 2)  # Random temp between 22-30°C
+    try:
+        return float(line)
+    except ValueError:
+        print(f"Error reading temperature: {line}")
+        return None
 
-# Simulating other sensors
-def read_nitrogen():
-    return round(random.uniform(60.0, 100.0), 2)  # ppm
+# Function to read tank level from ultrasonic sensor
+def read_tank_level():
+    ser.write(b'L')  # Command to read level from Arduino
+    line = ser.readline().decode('utf-8').strip()
+    try:
+        return float(line)
+    except ValueError:
+        print(f"Error reading tank level: {line}")
+        return None
 
-def read_potassium():
-    return round(random.uniform(50.0, 90.0), 2)  # ppm
-
-def read_phosphorus():
-    return round(random.uniform(40.0, 80.0), 2)  # ppm
+# Placeholder functions for future sensors
+def read_ec():
+    return None  # Placeholder for EC sensor
 
 def read_ph():
-    return round(random.uniform(5.5, 7.0), 2)  # pH between 5.5 and 7.0
-
-def read_water_level():
-    return round(random.uniform(300.0, 500.0), 2)  # mL
+    return None  # Placeholder for pH sensor
 
 # Function to read all sensor data
 def read_sensors():
     return {
-        "temperature": read_temperature(),
-        "nitrogen": read_nitrogen(),
-        "potassium": read_potassium(),
-        "phosphorus": read_phosphorus(),
+        "solution_temperature": read_solution_temperature(),
+        "tank_level": read_tank_level(),
+        "ec": read_ec(),
         "ph": read_ph(),
-        "water_level": read_water_level(),
-        "timestamp": datetime.now().isoformat()  # Add timestamp to track data
+        "timestamp": datetime.now().isoformat()
     }
 
 # Function to save sensor data to JSON file
@@ -61,9 +57,9 @@ def save_sensor_data(data, filename="data/sensor_data.json"):
 def run_sensor_service():
     while True:
         sensor_data = read_sensors()
-        print(f"Sensor Data: {sensor_data}")  # Optional: Print the data to the console
+        print(f"Sensor Data: {sensor_data}")
         save_sensor_data(sensor_data)
-        time.sleep(5)  # Wait for 5 seconds before taking another reading (adjust as needed)
+        time.sleep(5)  # Adjust as needed
 
 if __name__ == "__main__":
     run_sensor_service()
