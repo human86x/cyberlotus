@@ -1,11 +1,11 @@
+import serial
 import json
 import time
-import serial
 
 # Paths for JSON files
 sensor_data_file = "data/sensor_data.json"
 goal_file = "data/desired_parameters.json"
-flowrate_file = "data/flow_rate.json"
+flowrate_file = "data/flow_rates.json"
 liquid_config_file = "data/liquid_config.json"
 
 # Configure Serial communication for Arduino
@@ -30,73 +30,75 @@ def read_from_json(file_path):
         print(f"File not found: {file_path}")
         return {}
 
-def calculate_ph_adjustment(current_ph, target_ph, tank_volume, acid_ph, base_ph, flowrate):
-    """
-    Calculate how long to run the pump to achieve the desired pH.
-    Returns pump_id and duration in seconds.
-    """
-    print(f"Calculating pH adjustment: current_ph={current_ph}, target_ph={target_ph}, "
-          f"tank_volume={tank_volume}, acid_ph={acid_ph}, base_ph={base_ph}, flowrate={flowrate}")
-    
-    delta_ph = target_ph - current_ph
+# Disable pH-related functions for now
+# def calculate_ph_adjustment(current_ph, target_ph, tank_volume, acid_ph, base_ph, flowrate):
+#     """
+#     Calculate how long to run the pump to achieve the desired pH.
+#     Returns pump_id and duration in seconds.
+#     """
+#     print(f"Calculating pH adjustment: current_ph={current_ph}, target_ph={target_ph}, "
+#           f"tank_volume={tank_volume}, acid_ph={acid_ph}, base_ph={base_ph}, flowrate={flowrate}")
+#     
+#     delta_ph = target_ph - current_ph
+# 
+#     if delta_ph > 0:
+#         # We need to increase pH (alkalize)
+#         pump_id = 2  # Pump 2 is for base (pH+)
+#         solution_ph = base_ph
+#     elif delta_ph < 0:
+#         # We need to decrease pH (acidify)
+#         pump_id = 1  # Pump 1 is for acid (pH-)
+#         solution_ph = acid_ph
+#     else:
+#         # No adjustment needed
+#         print("No pH adjustment needed.")
+#         return None, 0
+# 
+#     # Calculate the amount of rebalancing liquid needed (in liters)
+#     required_adjustment = abs(delta_ph) / abs(solution_ph - current_ph)
+#     liquid_volume_liters = required_adjustment * tank_volume
+# 
+#     # Convert volume to seconds of pump operation
+#     duration_seconds = liquid_volume_liters * 1000 / flowrate
+#     print(f"Calculated adjustment: pump_id={pump_id}, duration_seconds={duration_seconds}")
+#     
+#     return pump_id, duration_seconds
 
-    if delta_ph > 0:
-        # We need to increase pH (alkalize)
-        pump_id = 2  # Pump 2 is for base (pH+)
-        solution_ph = base_ph
-    elif delta_ph < 0:
-        # We need to decrease pH (acidify)
-        pump_id = 1  # Pump 1 is for acid (pH-)
-        solution_ph = acid_ph
-    else:
-        # No adjustment needed
-        print("No pH adjustment needed.")
-        return None, 0
-
-    # Calculate the amount of rebalancing liquid needed (in liters)
-    required_adjustment = abs(delta_ph) / abs(solution_ph - current_ph)
-    liquid_volume_liters = required_adjustment * tank_volume
-
-    # Convert volume to seconds of pump operation
-    duration_seconds = liquid_volume_liters * 1000 / flowrate
-    print(f"Calculated adjustment: pump_id={pump_id}, duration_seconds={duration_seconds}")
-    
-    return pump_id, duration_seconds
-
-def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
-    """Adjust the pH to the desired level."""
-    current_ph = sensor_data.get("pH")
-    target_ph = goal_data.get("pH")
-    tank_volume = liquid_config.get("tank", {}).get("volume")
-    acid_ph = liquid_config.get("ph_minus", {}).get("concentration")
-    base_ph = liquid_config.get("ph_plus", {}).get("concentration")
-
-    print(f"Adjusting pH: current_ph={current_ph}, target_ph={target_ph}, "
-          f"tank_volume={tank_volume}, acid_ph={acid_ph}, base_ph={base_ph}")
-    
-    if None in (current_ph, target_ph, tank_volume, acid_ph, base_ph):
-        print("Missing pH or tank configuration data.")
-        return
-
-    # Get flowrate for pumps
-    pump1_flowrate = flowrate_data.get("pump1", 0)
-    pump2_flowrate = flowrate_data.get("pump2", 0)
-
-    print(f"Flow rates: pump1={pump1_flowrate}, pump2={pump2_flowrate}")
-
-    # Calculate pH adjustment
-    pump_id, duration = calculate_ph_adjustment(
-        current_ph, target_ph, tank_volume, acid_ph, base_ph,
-        pump1_flowrate if target_ph < current_ph else pump2_flowrate
-    )
-
-    if pump_id and duration > 0:
-        # Send command to Arduino to activate the correct pump
-        command = f"{'a' if pump_id == 1 else 'b'}:{duration:.2f}"  # Send pump control command
-        arduino_serial.write(command.encode())
-        print(f"Sent command to Arduino: {command}")
-    else:
-        print("pH is already balanced.")
+# Disable pH adjustment call in adjust_ph
+# def adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config):
+#     """Adjust the pH to the desired level."""
+#     current_ph = sensor_data.get("pH")
+#     target_ph = goal_data.get("pH")
+#     tank_volume = liquid_config.get("tank", {}).get("volume")
+#     acid_ph = liquid_config.get("ph_minus", {}).get("concentration")
+#     base_ph = liquid_config.get("ph_plus", {}).get("concentration")
+# 
+#     print(f"Adjusting pH: current_ph={current_ph}, target_ph={target_ph}, "
+#           f"tank_volume={tank_volume}, acid_ph={acid_ph}, base_ph={base_ph}")
+#     
+#     if None in (current_ph, target_ph, tank_volume, acid_ph, base_ph):
+#         print("Missing pH or tank configuration data.")
+#         return
+# 
+#     # Get flowrate for pumps
+#     pump1_flowrate = flowrate_data.get("pump1", 0)
+#     pump2_flowrate = flowrate_data.get("pump2", 0)
+# 
+#     print(f"Flow rates: pump1={pump1_flowrate}, pump2={pump2_flowrate}")
+# 
+#     # Calculate pH adjustment
+#     pump_id, duration = calculate_ph_adjustment(
+#         current_ph, target_ph, tank_volume, acid_ph, base_ph,
+#         pump1_flowrate if target_ph < current_ph else pump2_flowrate
+#     )
+# 
+#     if pump_id and duration > 0:
+#         # Send command to Arduino to activate the correct pump
+#         command = f"{'a' if pump_id == 1 else 'b'}:{duration:.2f}"  # Send pump control command
+#         arduino_serial.write(command.encode())
+#         print(f"Sent command to Arduino: {command}")
+#     else:
+#         print("pH is already balanced.")
 
 def adjust_temperature(sensor_data, goal_data):
     """Adjust the temperature to the desired level."""
@@ -132,9 +134,8 @@ def main():
             time.sleep(5)
             continue
 
-        # Adjust pH and temperature
-        print("Adjusting pH and temperature...")
-        adjust_ph(sensor_data, goal_data, flowrate_data, liquid_config)
+        # Adjust temperature (pH adjustments are disabled for now)
+        print("Adjusting temperature...")
         adjust_temperature(sensor_data, goal_data)
 
         # Wait before the next adjustment cycle
