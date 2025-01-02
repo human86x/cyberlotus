@@ -58,7 +58,7 @@ def run_sensor_service():
     while True:
         sensor_data = read_sensors()
         print(f"Sensor Data: {sensor_data}")
-        print(f"Solution Temperature: {solution_temperature}, Tank Level: {tank_level}")
+        #print(f"Solution Temperature: {solution_temperature}, Tank Level: {tank_level}")
 
         save_sensor_data(sensor_data)
         time.sleep(5)  # Adjust as needed
