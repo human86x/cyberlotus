@@ -11,35 +11,47 @@ baud_rate = 9600
 ser = serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
+# Function to send a command and handle "HEARTBEAT" responses
+def send_command_and_get_response(command, retries=3):
+    for _ in range(retries):
+        ser.write(command)
+        line = ser.readline().decode('utf-8').strip()
+        if line == "HEARTBEAT":
+            time.sleep(0.1)  # Short delay before retrying
+            continue
+        return line
+    print(f"Error: No valid response for command {command.decode('utf-8')}")
+    return None
+
 # Function to read solution temperature from Dallas temperature sensor
 def read_solution_temperature():
-    ser.write(b'T')  # Command to read temperature from Arduino
-    line = ser.readline().decode('utf-8').strip()
-    try:
-        return float(line)
-    except ValueError:
-        print(f"Error reading temperature: {line}")
-        return None
+    response = send_command_and_get_response(b'T')
+    if response is not None:
+        try:
+            return float(response)
+        except ValueError:
+            print(f"Error reading temperature: {response}")
+    return None
 
 # Function to read tank level from ultrasonic sensor
 def read_tank_level():
-    ser.write(b'L')  # Command to read level from Arduino
-    line = ser.readline().decode('utf-8').strip()
-    try:
-        return float(line)
-    except ValueError:
-        print(f"Error reading tank level: {line}")
-        return None
+    response = send_command_and_get_response(b'L')
+    if response is not None:
+        try:
+            return float(response)
+        except ValueError:
+            print(f"Error reading tank level: {response}")
+    return None
 
 # Function to read EC (TDS) sensor value
 def read_ec():
-    ser.write(b'D')  # Command to read EC value from Arduino
-    line = ser.readline().decode('utf-8').strip()
-    try:
-        return float(line)
-    except ValueError:
-        print(f"Error reading EC: {line}")
-        return None
+    response = send_command_and_get_response(b'D')
+    if response is not None:
+        try:
+            return float(response)
+        except ValueError:
+            print(f"Error reading EC: {response}")
+    return None
 
 # Placeholder function for pH sensor (if needed later)
 def read_ph():
