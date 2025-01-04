@@ -31,10 +31,17 @@ def read_tank_level():
         print(f"Error reading tank level: {line}")
         return None
 
-# Placeholder functions for future sensors
+# Function to read EC (TDS) sensor value
 def read_ec():
-    return None  # Placeholder for EC sensor
+    ser.write(b'D')  # Command to read EC value from Arduino
+    line = ser.readline().decode('utf-8').strip()
+    try:
+        return float(line)
+    except ValueError:
+        print(f"Error reading EC: {line}")
+        return None
 
+# Placeholder function for pH sensor (if needed later)
 def read_ph():
     return None  # Placeholder for pH sensor
 
@@ -58,7 +65,6 @@ def run_sensor_service():
     while True:
         sensor_data = read_sensors()
         print(f"Sensor Data: {sensor_data}")
-        #print(f"Solution Temperature: {solution_temperature}, Tank Level: {tank_level}")
 
         save_sensor_data(sensor_data)
         time.sleep(5)  # Adjust as needed
