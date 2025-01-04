@@ -1,0 +1,10 @@
+{
+    "NPK": "g",
+    "pH_plus": "h",
+    "pH_minus": "e",
+    "pH_cal_high": "c",
+    "pH_cal_low": "d",
+    "EC_cal": "f",
+    "fresh": "a",
+    "drain": "b"
+}

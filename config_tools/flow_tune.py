@@ -7,22 +7,24 @@ import os
 SERIAL_PORT = '/dev/ttyACM0'
 BAUD_RATE = 9600
 HEARTBEAT_TIMEOUT = 2  # Maximum time (seconds) to wait for a heartbeat
-PUMP_COMMANDS = {
-    "NPK": 'g',
-    "pH_plus": 'h',
-    "pH_minus": 'e',
-    "pH_cal_high": 'c',
-    "pH_cal_low": 'd',
-    "EC_cal": 'f',
-    "fresh": 'a',
-    "drain": 'b'
-}
 
 # File paths
+PUMP_COMMANDS_FILE = '../data/relay_names.json'
 FLOW_RATES_FILE = '../data/flow_rates.json'
 
 # Initialize serial connection
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+
+def load_pump_commands():
+    """Load pump commands from JSON file."""
+    if not os.path.exists(PUMP_COMMANDS_FILE):
+        print(f"Error: {PUMP_COMMANDS_FILE} not found.")
+        return {}
+    with open(PUMP_COMMANDS_FILE, 'r') as file:
+        return json.load(file)
+
+# Load PUMP_COMMANDS from the JSON file
+PUMP_COMMANDS = load_pump_commands()
 
 def wait_for_heartbeat(timeout=HEARTBEAT_TIMEOUT):
     """Wait for the heartbeat signal from Arduino."""
@@ -37,7 +39,6 @@ def wait_for_heartbeat(timeout=HEARTBEAT_TIMEOUT):
                 if heartbeat_count >= 2:  # Require 2 heartbeats
                     return True
     return False
-
 
 def load_flow_rates():
     """Load flow rates from JSON file."""

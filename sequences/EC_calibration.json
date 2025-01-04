@@ -1,0 +1,12 @@
+{
+    "sequence": [
+      {"command": "drain", "weight": 2},
+      {"command": "fresh_water", "weight": 2},
+      {"command": "drain", "weight": 2},
+      {"command": "EC_cal", "weight": 5, "calibration": true},
+      {"command": "drain", "weight": 5},
+      {"command": "fresh_water", "weight": 5},
+      {"command": "drain", "weight": 5} 
+    ]
+  }
+  
