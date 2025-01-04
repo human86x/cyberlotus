@@ -5,7 +5,7 @@ import os
 # File paths
 FLOW_RATES_FILE = '../data/flow_rates.json'
 PUMP_COMMANDS_FILE = '../data/relay_names.json'
-EC_SEQUENCE_FILE = '../sequences/ec_calibration.json'
+EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
 
 def load_flow_rates():
     """Load flow rates from a JSON file."""
