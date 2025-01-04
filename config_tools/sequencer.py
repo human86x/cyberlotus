@@ -1,44 +1,41 @@
 import json
 import time
 import serial
-from flow_tune import send_command_with_heartbeat, load_flow_rates
-from flow_tune import PUMP_COMMANDS
+import os
 
-
-
-
+# File paths
+PUMP_COMMANDS_FILE = '../data/relay_names.json'  # Path to the JSON file
+SEQUENCE_FILE = '../sequences/pH_calibration.json'
 
 # Serial configuration
 SERIAL_PORT = '/dev/ttyACM0'
 BAUD_RATE = 9600
 
-# File paths
-#FLOW_RATES_FILE = '../data/flow_rates.json'
+def load_pump_commands():
+    """Load pump commands from the JSON file."""
+    if not os.path.exists(PUMP_COMMANDS_FILE):
+        print(f"Error: {PUMP_COMMANDS_FILE} not found.")
+        return {}
+    with open(PUMP_COMMANDS_FILE, 'r') as file:
+        return json.load(file)
 
-# Initialize serial connection
-ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
-print('starting test fresh pump')
+def load_flow_rates():
+    """Load flow rates from the JSON file."""
+    FLOW_RATES_FILE = '../data/flow_rates.json'
+    if not os.path.exists(FLOW_RATES_FILE):
+        print(f"Error: {FLOW_RATES_FILE} not found.")
+        return {}
+    with open(FLOW_RATES_FILE, 'r') as file:
+        return json.load(file)
 
-ser.write(b'\n')  # Send a newline or reset sequence
-time.sleep(2)  # Wait for Arduino to reset
-ser.flush()  # Clear any pending serial data
+def send_command_with_heartbeat(command, duration):
+    # Example implementation
+    print(f"Sending command {command} for {duration} seconds to Arduino.")
+    # Simulate the command sending here
+    time.sleep(duration)
+    return True
 
-ser.write(b'ao')  # Turn on "fresh" pump
-print('waiting 5')
-time.sleep(5)
-ser.write(b'af')  # Turn off "fresh" pump
-print('test ended ')
-
-
-
-
-
-# File paths
-SEQUENCE_FILE = '../sequences/pH_calibration.json'
-
-#from flow_tune import PUMP_COMMANDS  # Import the translation map from flow_tune
-
-def execute_command(command, weight, flow_rates):
+def execute_command(command, weight, flow_rates, PUMP_COMMANDS):
     """
     Execute the given command for a specific weight using flow rates.
     """
@@ -66,7 +63,7 @@ def execute_command(command, weight, flow_rates):
     # Send the translated command to Arduino
     return send_command_with_heartbeat(arduino_command, duration)
 
-def execute_sequence(sequence_file, flow_rates):
+def execute_sequence(sequence_file, flow_rates, PUMP_COMMANDS):
     """
     Read the sequence from a JSON file and execute the actions.
     """
@@ -87,7 +84,7 @@ def execute_sequence(sequence_file, flow_rates):
             input(f"Calibration needed for {command}. Press Enter when calibration is complete.")
         
         # Execute the command after calibration (if applicable)
-        if not execute_command(command, weight, flow_rates):
+        if not execute_command(command, weight, flow_rates, PUMP_COMMANDS):
             print(f"Error: Failed to execute command {command}.")
             break
 
@@ -101,6 +98,11 @@ if __name__ == "__main__":
     print(f"Debug: Loaded flow rates: {flow_rates}")
     
     if flow_rates:
-        execute_sequence(SEQUENCE_FILE, flow_rates)
+        # Load pump commands directly from the JSON file
+        PUMP_COMMANDS = load_pump_commands()
+        print(f"Debug: Loaded PUMP_COMMANDS: {PUMP_COMMANDS}")
+        
+        # Proceed to execute the sequence
+        execute_sequence(SEQUENCE_FILE, flow_rates, PUMP_COMMANDS)
     else:
         print("Error: Flow rates not loaded. Ensure the flow_rates.json file exists and is valid.")

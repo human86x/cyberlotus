@@ -1,10 +1,10 @@
 {
-    "NPK": "g",
+    "EC_cal": "g",
     "pH_plus": "h",
     "pH_minus": "e",
-    "pH_cal_high": "c",
+    "solution_EC": "c",
     "pH_cal_low": "d",
-    "EC_cal": "f",
+    "heater_1": "f",
     "fresh": "a",
     "drain": "b"
 }
