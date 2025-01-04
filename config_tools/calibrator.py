@@ -32,20 +32,26 @@ def save_calibration_factor(sensor, factor):
 
 # Calibrate EC sensor
 def calibrate_ec_sensor():
-    print("\nStarting EC sensor calibration...")
+    """
+    Calibrate the EC sensor by executing the calibration sequence.
+    """
+    print("Starting EC sensor calibration...")
+
+    # Load flow rates
     flow_rates = load_flow_rates()
     if not flow_rates:
         print("Error: Flow rates not loaded. Ensure the flow_rates.json file exists and is valid.")
         return
 
-    execute_sequence(EC_SEQUENCE_FILE, flow_rates)
+    # Load pump commands
+    PUMP_COMMANDS = load_pump_commands()
+    if not PUMP_COMMANDS:
+        print("Error: Pump commands not loaded. Ensure the relay_names.json file exists and is valid.")
+        return
 
-    # Ask user for calibration factor
-    try:
-        factor = float(input("Enter the calculated calibration factor for the EC sensor: "))
-        save_calibration_factor("EC", factor)
-    except ValueError:
-        print("Invalid input. Calibration factor must be a number.")
+    # Execute the calibration sequence with both flow_rates and PUMP_COMMANDS
+    execute_sequence(EC_SEQUENCE_FILE, flow_rates, PUMP_COMMANDS)
+    print("EC sensor calibration complete.")
 
 # Main loop
 def main():
