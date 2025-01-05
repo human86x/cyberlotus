@@ -3,7 +3,7 @@
       {"command": "drain", "weight": 2},
       {"command": "EC_cal", "weight": 2},
       {"command": "drain", "weight": 2},
-      {"command": "EC_cal", "weight": 2, "calibration": true},
+      {"command": "EC_cal", "weight": 2},
       {"command": "drain", "weight": 2},
       {"command": "EC_cal", "weight": 2},
       {"command": "drain", "weight": 2} 
