@@ -48,6 +48,7 @@ def read_ec():
     response = send_command_and_get_response(b'D')
     if response is not None:
         try:
+            print(f"------------Reading EC:")
             return float(response)
         except ValueError:
             print(f"Error reading EC: {response}")
