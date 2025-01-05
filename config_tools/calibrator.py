@@ -10,16 +10,39 @@ from flow_tune import PUMP_COMMANDS
 #PUMP_COMMANDS_FILE = '../data/relay_names.json'
 EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
 
+from sensor_service import read_ec
+
 def calibrate_ec_sensor():
     """
-    Calibrate the EC sensor.
+    Calibrate the EC sensor by retrieving the EC value and guiding the user through the process.
     """
     print("Starting EC sensor calibration...")
 
-    # Perform the calibration logic here
-    input("Perform calibration manually and press Enter to continue...")
+    # Read EC value from the sensor
+    ec_value = read_ec()
+    if ec_value is None:
+        print("Error: Unable to read EC value from the sensor.")
+        return
 
+    print(f"Current EC value: {ec_value}")
+    
+    # Guide user to perform manual adjustments if necessary
+    input("Adjust the EC sensor setup as needed. Press Enter when ready to continue.")
+
+    # Optionally save the calibrated EC value
+    save_calibration_data({"calibrated_ec": ec_value})
     print("EC sensor calibration complete.")
+
+def save_calibration_data(data, filename="data/calibration_data.json"):
+    """
+    Save calibration data to a JSON file.
+    """
+    try:
+        with open(filename, "w") as file:
+            json.dump(data, file, indent=4)
+        print(f"Calibration data saved to {filename}.")
+    except Exception as e:
+        print(f"Error saving calibration data: {e}")
 
 def main():
     """
