@@ -8,7 +8,7 @@ from flow_tune import PUMP_COMMANDS
 # File paths
 #FLOW_RATES_FILE = '../data/flow_rates.json'
 #PUMP_COMMANDS_FILE = '../data/relay_names.json'
-#EC_SEQUENCE_FILE = '../sequences/pH_calibration.json'
+EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
 
 def calibrate_ec_sensor():
     """
