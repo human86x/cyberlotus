@@ -1,11 +1,11 @@
 {
-    "NPK": 0.005,  
-    "pH_plus": 0.004,
-    "pH_minus": 0.003,
-    "pH_cal_high": 0.002,
-    "pH_cal_low": 0.006,
-    "EC_cal": 0.006,
-    "solution_EC": 0.006,
-    "fresh": 0.006,
-    "drain": 0.006
+    "NPK": 0.15,  
+    "pH_plus": 0.15,
+    "pH_minus": 0.15,
+    "pH_cal_high": 0.15,
+    "pH_cal_low": 0.15,
+    "EC_cal": 0.15,
+    "solution_EC": 0.15,
+    "fresh": 0.15,
+    "drain": 0.15
 }
