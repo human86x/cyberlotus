@@ -67,6 +67,8 @@ def main():
         print("\n--- Calibration Menu ---")
         print("1. Calibrate EC Sensor")
         print("2. Exit")
+        print("3. Read EC value")
+        
         choice = input("Select an option: ")
 
         if choice == "1":
@@ -82,6 +84,9 @@ def main():
         elif choice == "2":
             print("Exiting calibration tool. Goodbye!")
             break
+        elif choice == "3":
+            print("Reading EC values")
+            read_ec()
         else:
             print("Invalid option. Please try again.")
 
