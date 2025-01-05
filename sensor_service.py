@@ -12,7 +12,7 @@ ser = serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
 # Function to send a command and handle "HEARTBEAT" responses
-def send_command_and_get_response(command, retries=3):
+def send_command_and_get_response(command, retries=1):
     for _ in range(retries):
         ser.write(command)
         line = ser.readline().decode('utf-8').strip()
