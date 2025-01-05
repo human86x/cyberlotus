@@ -2,8 +2,8 @@
     "sequence": [
       {"command": "drain", "weight": 1},
       {"command": "fresh", "weight": 1},
-      {"command": "drain", "weight": 1},
-      {"command": "EC_cal", "weight": 1, "calibration": true},
+      {"command": "drain", "weight": 1, "calibration": true},
+      {"command": "EC_cal", "weight": 1},
       {"command": "drain", "weight": 1},
       {"command": "fresh", "weight": 1},
       {"command": "drain", "weight": 1} 
