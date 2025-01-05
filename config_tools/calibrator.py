@@ -5,12 +5,27 @@ from sequencer import execute_sequence
 from flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 from flow_tune import PUMP_COMMANDS
 
+
+
+
+
 # File paths
 #FLOW_RATES_FILE = '../data/flow_rates.json'
 #PUMP_COMMANDS_FILE = '../data/relay_names.json'
 EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
 
-from sensor_service import read_ec
+
+import sys
+
+# Add the parent directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from sensor_service import read_ec  # Import after modifying the path
+
+
+
+
+#from sensor_service import read_ec
 
 def calibrate_ec_sensor():
     """
