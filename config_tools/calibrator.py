@@ -35,6 +35,7 @@ def calibrate_ec_sensor():
 
     # Read EC value from the sensor
     ec_value = read_ec()
+    print("EC DEBUG - {read_ec()}")
     if ec_value is None:
         print("Error: Unable to read EC value from the sensor.")
         return
