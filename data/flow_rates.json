@@ -5,6 +5,7 @@
     "pH_cal_high": 0.002,
     "pH_cal_low": 0.006,
     "EC_cal": 0.006,
+    "solution_EC": 0.006,
     "fresh": 0.006,
     "drain": 0.006
 }
