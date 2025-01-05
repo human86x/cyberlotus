@@ -47,7 +47,7 @@ def execute_command(command, weight, flow_rates):
     # Send the translated command to Arduino
     return send_command_with_heartbeat(arduino_command, duration)
 
-def execute_sequence(sequence_file, flow_rates):
+def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
     """
     Read the sequence from a JSON file and execute the actions.
     """
@@ -64,9 +64,13 @@ def execute_sequence(sequence_file, flow_rates):
 
         # Check for calibration actions
         if "calibration" in action and action["calibration"]:
-            print(f"Calibration step detected. Waiting for calibration...")
-            input(f"Calibration needed for {command}. Press Enter when calibration is complete.")
-        
+            print(f"Calibration step detected for {command}.")
+            if calibration_callback:
+                calibration_callback()  # Call the calibration function
+            else:
+                print("Error: No calibration callback provided.")
+                return
+
         # Execute the command after calibration (if applicable)
         if not execute_command(command, weight, flow_rates):
             print(f"Error: Failed to execute command {command}.")
