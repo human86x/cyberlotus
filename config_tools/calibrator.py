@@ -40,7 +40,7 @@ def main():
                 continue
 
             # Execute the sequence with calibration callback
-            execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ec_sensor)
+            execute_sequence(EC_SEQUENCE_FILE, flow_rates, calibrate_ec_sensor)
         elif choice == "2":
             print("Exiting calibration tool. Goodbye!")
             break
