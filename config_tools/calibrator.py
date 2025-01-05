@@ -87,8 +87,11 @@ def main():
             break
         elif choice == "3":
             print("Reading EC values")
-            
-            read_ec()
+            ec_value = read_ec()
+            print("EC DEBUG - {read_ec()}")
+    
+            print(f"Current EC value: {ec_value}")
+            #read_ec()
         else:
             print("Invalid option. Please try again.")
 
