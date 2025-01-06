@@ -60,7 +60,7 @@ def calibrate_ec_sensor():
     print(f"Current EC value: {ec_value}")
 
     # Calculate the calibration factor
-    calibration_factor = target_ec_value / ec_value
+    calibration_factor = target_ec_value / float(ec_value)
     print(f"Calibration factor: {calibration_factor}")
 
     # Save the calibration factor to the JSON file
