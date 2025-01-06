@@ -1,4 +1,6 @@
 {
-    "EC_calibration_factor": 3.66,
-    "EC_calibration_solution": 2000
+    "EC_calibration_factor": 8.107964601769911,
+    "EC_calibration_solution": 5000.0,
+    "EC_baseline" : 3300.00
+
 }
