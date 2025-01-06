@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import sys
 import statistics
 from sequencer import execute_sequence
 from flow_tune import send_command_with_heartbeat, load_flow_rates
