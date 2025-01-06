@@ -15,6 +15,40 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from sensor_service import read_ec  # Import after modifying the path
 
+
+
+
+def get_EC_calibration_factor(filename="../data/calibration.json"):
+    """
+    Get the EC calibration factor from the calibration JSON file.
+
+    Args:
+        filename (str): Path to the calibration JSON file.
+
+    Returns:
+        float: The EC calibration factor. Defaults to 1.0 if not found.
+    """
+    try:
+        with open(filename, "r") as file:
+            calibration_data = json.load(file)
+            return float(calibration_data.get("EC_calibration_factor", 1.0))
+    except FileNotFoundError:
+        print(f"Calibration file {filename} not found. Using default calibration factor of 1.0.")
+        return 1.0
+    except ValueError:
+        print(f"Invalid data in {filename}. Using default calibration factor of 1.0.")
+        return 1.0
+    except Exception as e:
+        print(f"Error loading calibration factor from {filename}: {e}")
+        return 1.0
+
+
+
+
+
+
+
+
 def save_calibration_data(data, filename="../data/calibration.json"):
     """
     Save calibration data to a JSON file.
@@ -62,7 +96,7 @@ def calibrate_ec_sensor():
     # Calculate the calibration factor
     calibration_factor = target_ec_value / float(ec_value)
     print(f"Calibration factor: {calibration_factor}")
-
+    time.sleep(2000)
     # Save the calibration factor to the JSON file
     calibration_data["EC_calibration_factor"] = calibration_factor
     save_calibration_data(calibration_data)
@@ -109,7 +143,7 @@ def main():
             set_calibration_solution()
         elif choice == "3":
             print("Reading EC values...")
-            ec_value = read_ec()
+            ec_value = get_EC_calibration_factor() * read_ec()
             print(f"Current EC value: {ec_value}")
         elif choice == "4":
             print("Exiting calibration tool. Goodbye!")
