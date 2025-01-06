@@ -143,7 +143,7 @@ def main():
             set_calibration_solution()
         elif choice == "3":
             print("Reading EC values...")
-            ec_value = get_EC_calibration_factor() * read_ec()
+            ec_value = get_EC_calibration_factor() * float(read_ec())
             print(f"Current EC value: {ec_value}")
         elif choice == "4":
             print("Exiting calibration tool. Goodbye!")
