@@ -1,6 +1,6 @@
 {
     "sequence": [ 
-      {"command": "drain", "weight": 0.1, "baseline": true}     
+      {"command": "drain", "weight": 0.1, "calibration": true}     
     ]
   }
   
