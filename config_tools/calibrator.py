@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import statistics
 from sequencer import execute_sequence
 from flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 from flow_tune import PUMP_COMMANDS
@@ -87,19 +88,33 @@ def calibrate_ec_sensor():
     target_ec_value = calibration_data.get("EC_calibration_solution", 2000)
     print(f"Target EC value (calibration solution): {target_ec_value}")
 
-    # Read EC value from the sensor (ensure it's converted to float)
-    ec_value = read_ec()
-    if ec_value is None or ec_value == 0:
-        print("Error: Unable to read EC value from the sensor or EC value is zero.")
+    # Number of EC readings to take
+    num_readings = 15  # Adjust this number as needed
+    ec_values = []
+
+    # Read EC values multiple times and store valid readings
+    for _ in range(num_readings):
+        ec_value = read_ec()
+        if ec_value is None or ec_value == 0:
+            print("Error: Invalid EC value read from the sensor.")
+            continue  # Skip invalid readings
+        try:
+            ec_value = float(ec_value)  # Convert EC value to float
+        except ValueError:
+            print(f"Error: Invalid EC value '{ec_value}' received, cannot convert to float.")
+            continue  # Skip invalid readings
+        
+        # Only add valid readings within a reasonable range (adjust this range as needed)
+        if 100 <= ec_value <= 5000:  # Adjust range based on your expected EC values
+            ec_values.append(ec_value)
+
+    if len(ec_values) == 0:
+        print("Error: No valid EC readings collected.")
         return
 
-    try:
-        ec_value = float(ec_value)  # Convert EC value to float
-    except ValueError:
-        print(f"Error: Invalid EC value '{ec_value}' received, cannot convert to float.")
-        return
-
-    print(f"Current EC value: {ec_value}")
+    # Estimate the middle value (we'll use the median as the representative value)
+    estimated_ec_value = statistics.median(ec_values)  # You can also use mean if desired
+    print(f"Estimated EC value from {len(ec_values)} valid readings: {estimated_ec_value}")
 
     # Read solution temperature (ensure it's a float)
     solution_temperature = read_solution_temperature()
@@ -113,10 +128,10 @@ def calibrate_ec_sensor():
 
     # Apply temperature correction (assuming temperature is in °C)
     if solution_temperature != 25:  # Apply correction only if temperature is not 25°C
-        corrected_ec_value = ec_value / (1 + 0.02 * (solution_temperature - 25))
+        corrected_ec_value = estimated_ec_value / (1 + 0.02 * (solution_temperature - 25))
         print(f"Corrected EC value at 25°C: {corrected_ec_value}")
     else:
-        corrected_ec_value = ec_value
+        corrected_ec_value = estimated_ec_value
         print("No temperature correction applied (25°C).")
 
     # Calculate the calibration factor
@@ -129,7 +144,6 @@ def calibrate_ec_sensor():
     save_calibration_data(calibration_data)
 
     print("EC sensor calibration complete.")
-
 
 
 def set_calibration_solution():
