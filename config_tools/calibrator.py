@@ -94,6 +94,7 @@ def calibrate_ec_sensor():
 
     # Read EC values multiple times and store valid readings
     for _ in range(num_readings):
+        time.sleep(1)
         ec_value = read_ec()
         if ec_value is None or ec_value == 0:
             print("Error: Invalid EC value read from the sensor.")
@@ -115,7 +116,7 @@ def calibrate_ec_sensor():
     # Estimate the middle value (we'll use the median as the representative value)
     estimated_ec_value = statistics.median(ec_values)  # You can also use mean if desired
     print(f"Estimated EC value from {len(ec_values)} valid readings: {estimated_ec_value}")
-
+    time.sleep(1)
     # Read solution temperature (ensure it's a float)
     solution_temperature = read_solution_temperature()
     try:
