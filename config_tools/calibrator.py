@@ -16,6 +16,53 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from sensor_service import read_ec, read_solution_temperature  # Import after modifying the path
 
+def get_correct_EC():
+    """
+    Get the corrected EC value by reading the EC sensor, applying temperature correction, and using the calibration factor.
+    
+    Returns:
+        float: The corrected EC value.
+    """
+    # Get the calibration factor from the JSON file
+    calibration_factor = get_EC_calibration_factor()
+    
+    # Read the raw EC value from the sensor
+    raw_ec_value = read_ec()
+    if raw_ec_value is None or raw_ec_value == 0:
+        print("Error: Invalid EC value read from the sensor.")
+        return None  # Return None to indicate error
+    
+    try:
+        raw_ec_value = float(raw_ec_value)  # Ensure the EC value is a float
+    except ValueError:
+        print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
+        return None  # Return None to indicate error
+    
+    print(f"Raw EC value: {raw_ec_value}")
+    
+    # Read the solution temperature
+    solution_temperature = read_solution_temperature()
+    try:
+        solution_temperature = float(solution_temperature)  # Ensure it's a float
+    except ValueError:
+        print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
+        return None  # Return None to indicate error
+    
+    print(f"Solution temperature: {solution_temperature}°C")
+    
+    # Apply temperature correction (assuming temperature is in °C)
+    if solution_temperature != 25:  # Apply correction only if temperature is not 25°C
+        corrected_ec_value = raw_ec_value / (1 + 0.02 * (solution_temperature - 25))
+        print(f"Corrected EC value at 25°C: {corrected_ec_value}")
+    else:
+        corrected_ec_value = raw_ec_value
+        print("No temperature correction applied (25°C).")
+    
+    # Apply the calibration factor to the corrected EC value
+    corrected_ec_value *= calibration_factor
+    print(f"Final corrected EC value after applying calibration factor: {corrected_ec_value}")
+    
+    return corrected_ec_value
 
 
 
@@ -96,6 +143,7 @@ def calibrate_ec_sensor():
     for _ in range(num_readings):
         time.sleep(1)
         ec_value = read_ec()
+        print(f"Retrived EC value - '{ec_value}'")
         if ec_value is None or ec_value == 0:
             print("Error: Invalid EC value read from the sensor.")
             continue  # Skip invalid readings
@@ -187,7 +235,7 @@ def main():
             set_calibration_solution()
         elif choice == "3":
             print("Reading EC values...")
-            ec_value = get_EC_calibration_factor() * float(read_ec())
+            ec_value = get_correct_EC()
             print(f"Current EC value: {ec_value}")
         elif choice == "4":
             print("Exiting calibration tool. Goodbye!")
