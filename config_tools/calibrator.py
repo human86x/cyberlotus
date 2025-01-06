@@ -4,7 +4,11 @@ import os
 import statistics
 from sequencer import execute_sequence
 from flow_tune import send_command_with_heartbeat, load_flow_rates
-from sensor_service import read_ec, read_solution_temperature
+#from sensor_service import read_ec, read_solution_temperature
+# Add the parent directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from sensor_service import read_ec, read_solution_temperature  # Import after modifying the path
+
 
 # File paths
 EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
