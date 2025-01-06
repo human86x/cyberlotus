@@ -1,8 +1,10 @@
 import time
 import json
+import os
 from datetime import datetime, timedelta
 import serial
-from sequencer import execute_sequence
+from config_tools.sequencer import execute_sequence  # Updated import path
+
 
 # Serial configuration
 serial_port = '/dev/ttyACM0'  # Update with your port
