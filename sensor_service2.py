@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timedelta
 import serial
 from config_tools.sequencer import execute_sequence  # Updated import path
+from config_tools.flow_tune import load_flow_rates  # Updated import path
 
 
 # Serial configuration
