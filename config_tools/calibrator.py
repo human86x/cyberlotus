@@ -74,7 +74,7 @@ def load_calibration_data(filename="../data/calibration.json"):
         print(f"Error loading calibration data: {e}")
         return {}
 
-import time
+
 
 def calibrate_ec_sensor():
     """
@@ -87,16 +87,28 @@ def calibrate_ec_sensor():
     target_ec_value = calibration_data.get("EC_calibration_solution", 2000)
     print(f"Target EC value (calibration solution): {target_ec_value}")
 
-    # Read EC value from the sensor
+    # Read EC value from the sensor (ensure it's converted to float)
     ec_value = read_ec()
     if ec_value is None or ec_value == 0:
         print("Error: Unable to read EC value from the sensor or EC value is zero.")
         return
 
+    try:
+        ec_value = float(ec_value)  # Convert EC value to float
+    except ValueError:
+        print(f"Error: Invalid EC value '{ec_value}' received, cannot convert to float.")
+        return
+
     print(f"Current EC value: {ec_value}")
 
-    # Read solution temperature
+    # Read solution temperature (ensure it's a float)
     solution_temperature = read_solution_temperature()
+    try:
+        solution_temperature = float(solution_temperature)  # Ensure it's a float
+    except ValueError:
+        print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
+        return
+
     print(f"Solution temperature: {solution_temperature}°C")
 
     # Apply temperature correction (assuming temperature is in °C)
@@ -117,6 +129,7 @@ def calibrate_ec_sensor():
     save_calibration_data(calibration_data)
 
     print("EC sensor calibration complete.")
+
 
 
 def set_calibration_solution():
