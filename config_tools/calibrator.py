@@ -96,7 +96,7 @@ def calibrate_ec_sensor():
     # Calculate the calibration factor
     calibration_factor = target_ec_value / float(ec_value)
     print(f"Calibration factor: {calibration_factor}")
-    time.sleep(2000)
+    time.sleep(5)
     # Save the calibration factor to the JSON file
     calibration_data["EC_calibration_factor"] = calibration_factor
     save_calibration_data(calibration_data)
