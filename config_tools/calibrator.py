@@ -13,7 +13,7 @@ import sys
 # Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from sensor_service import read_ec  # Import after modifying the path
+from sensor_service import read_ec, read_solution_temperature  # Import after modifying the path
 
 
 
@@ -74,6 +74,8 @@ def load_calibration_data(filename="../data/calibration.json"):
         print(f"Error loading calibration data: {e}")
         return {}
 
+import time
+
 def calibrate_ec_sensor():
     """
     Calibrate the EC sensor by calculating the calibration factor and saving it to a file.
@@ -93,15 +95,29 @@ def calibrate_ec_sensor():
 
     print(f"Current EC value: {ec_value}")
 
+    # Read solution temperature
+    solution_temperature = read_solution_temperature()
+    print(f"Solution temperature: {solution_temperature}°C")
+
+    # Apply temperature correction (assuming temperature is in °C)
+    if solution_temperature != 25:  # Apply correction only if temperature is not 25°C
+        corrected_ec_value = ec_value / (1 + 0.02 * (solution_temperature - 25))
+        print(f"Corrected EC value at 25°C: {corrected_ec_value}")
+    else:
+        corrected_ec_value = ec_value
+        print("No temperature correction applied (25°C).")
+
     # Calculate the calibration factor
-    calibration_factor = target_ec_value / float(ec_value)
+    calibration_factor = target_ec_value / float(corrected_ec_value)
     print(f"Calibration factor: {calibration_factor}")
     time.sleep(5)
+
     # Save the calibration factor to the JSON file
     calibration_data["EC_calibration_factor"] = calibration_factor
     save_calibration_data(calibration_data)
 
     print("EC sensor calibration complete.")
+
 
 def set_calibration_solution():
     """
