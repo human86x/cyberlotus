@@ -16,8 +16,8 @@ from control_libs.arduino import connect_to_arduino, send_command_and_get_respon
 HEARTBEAT_TIMEOUT = 2  # Maximum time (seconds) to wait for a heartbeat
 
 # File paths
-PUMP_COMMANDS_FILE = '../data/relay_names.json'
-FLOW_RATES_FILE = '../data/flow_rates.json'
+PUMP_COMMANDS_FILE = 'data/relay_names.json'
+FLOW_RATES_FILE = 'data/flow_rates.json'
 
 # Initialize serial connection
 ser = connect_to_arduino() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
