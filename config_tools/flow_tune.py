@@ -3,8 +3,12 @@ import time
 import json
 import os
 import sys
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#from device_connections import connect_to_arduino  # Import after modifying the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from device_connections import connect_arduino  # Import after modifying the path
+#from control_libs.electric_conductivity import get_ec
+#from control_libs.temperature import read_solution_temperature
+from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 
 # Serial configuration
 #SERIAL_PORT = '/dev/ttyACM0'
@@ -12,11 +16,11 @@ from device_connections import connect_arduino  # Import after modifying the pat
 HEARTBEAT_TIMEOUT = 2  # Maximum time (seconds) to wait for a heartbeat
 
 # File paths
-PUMP_COMMANDS_FILE = 'data/relay_names.json'
-FLOW_RATES_FILE = 'data/flow_rates.json'
+PUMP_COMMANDS_FILE = '../data/relay_names.json'
+FLOW_RATES_FILE = '../data/flow_rates.json'
 
 # Initialize serial connection
-ser = connect_arduino() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+ser = connect_to_arduino() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
 def load_pump_commands():
     """Load pump commands from JSON file."""
