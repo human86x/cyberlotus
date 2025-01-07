@@ -2,17 +2,17 @@ import time
 import json
 import os
 from datetime import datetime, timedelta
-import serial
+#import serial
 from config_tools.sequencer import execute_sequence  # Updated import path
 from config_tools.flow_tune import load_flow_rates  # Updated import path
-
+from device_connections import connect_arduino
 
 # Serial configuration
-serial_port = '/dev/ttyACM0'  # Update with your port
-baud_rate = 9600
+#serial_port = '/dev/ttyACM0'  # Update with your port
+#baud_rate = 9600
 
 # Establish serial connection
-ser = serial.Serial(serial_port, baud_rate, timeout=1)
+ser = pnnect_arduino()#serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
 # File paths

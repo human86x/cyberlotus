@@ -2,13 +2,13 @@ import time
 import json
 from datetime import datetime
 import serial
-
+from device_connections import arduino_connect
 # Serial configuration
-serial_port = '/dev/ttyACM0'  # Update with your port
-baud_rate = 9600
+#serial_port = '/dev/ttyACM0'  # Update with your port
+#baud_rate = 9600
 
 # Establish serial connection
-ser = serial.Serial(serial_port, baud_rate, timeout=1)
+ser = arduino_connect()#serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
 # Function to send a command and handle "HEARTBEAT" responses
