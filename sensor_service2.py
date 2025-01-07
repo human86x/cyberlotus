@@ -100,7 +100,8 @@ def check_ec_time():
 
             if datetime.now() - last_timestamp < timedelta(minutes=0.2):
                 print("EC data is recent; skipping new EC reading.")
-                return 0  # Skip new reading if data is recent
+                ec_value = get_ec_readings_from_file()
+                return ec_value  # Skip new reading if data is recent
 
         print("Performing new EC reading...")
         return get_ec_readings()
@@ -108,6 +109,35 @@ def check_ec_time():
         print(f"Error reading EC: {e}")
     return None
 
+
+
+
+
+def get_ec_readings_from_file():
+    """
+    Reads the EC value from the sensor_data.json file.
+
+    Returns:
+        float or None: The EC value if found, otherwise None.
+    """
+    try:
+        if not os.path.exists(SENSOR_DATA_FILE):
+            print(f"File not found: {SENSOR_DATA_FILE}")
+            return None
+
+        with open(SENSOR_DATA_FILE, "r") as file:
+            sensor_data = json.load(file)
+
+        # Get the EC value
+        ec_value = sensor_data.get("ec")
+        if ec_value is not None:
+            return ec_value
+
+        print("EC value not found in the file.")
+        return None
+    except Exception as e:
+        print(f"Error reading EC data from file: {e}")
+        return None
 
 # Function to read all sensor data
 def read_sensors():
@@ -122,7 +152,7 @@ def read_sensors():
     return {
         "solution_temperature": read_solution_temperature(ser),
         "tank_level": read_tank_level(),
-        "ec": ec_value,
+        "ec": ec_readings,
         "ph": read_ph(),
         "timestamp": datetime.now().isoformat(),
         "ec_last_updated": ec_timestamp,
