@@ -40,7 +40,7 @@ def get_correct_EC():
 
     print(f"Raw EC value: {raw_ec_value}")
 
-    solution_temperature = read_solution_temperature()
+    solution_temperature = read_solution_temperature(ser)
     try:
         solution_temperature = float(solution_temperature)
     except ValueError:
@@ -120,7 +120,7 @@ def calibrate_ec_sensor():
 
     estimated_ec_value = statistics.median(ec_values)
     print(f"Estimated EC value: {estimated_ec_value}")
-    solution_temperature = read_solution_temperature()
+    solution_temperature = read_solution_temperature(ser)
     try:
         solution_temperature = float(solution_temperature)
     except ValueError:
