@@ -64,8 +64,9 @@ def get_ec_readings():
         print(f"File not found: {EC_TEST_SEQUENCE_FILE}")
     try:
         #execute_sequence(, {}, lambda data: ec_data.update(data))
-        a = execute_sequence(EC_TEST_SEQUENCE_FILE, load_flow_rates(), get_correct_EC)
-        print(f"Sequence return = : {a}")
+        a = 1
+        execute_sequence(EC_TEST_SEQUENCE_FILE, load_flow_rates(), get_correct_EC)
+        #print(f"Sequence return = : {a}")
         return a
     except Exception as e:
         print(f"Error executing EC test sequence: {e}")
