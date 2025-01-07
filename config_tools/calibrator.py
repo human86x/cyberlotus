@@ -5,6 +5,7 @@ import sys
 import statistics
 from sequencer import execute_sequence
 from flow_tune import send_command_with_heartbeat, load_flow_rates
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from libs.EC import read_ec
 from libs.temperature import read_solution_temperature
 
