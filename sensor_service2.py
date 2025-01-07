@@ -11,8 +11,9 @@ sys.path.append(os.path.join(script_dir, "config_tools"))
 from config_tools.sequencer import execute_sequence
 from config_tools.calibrator import get_correct_EC
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
-from device_connections import connect_arduino
-
+from libs.arduino import connect_arduino, send_command_and_get_response
+from libs.EC import read_ec
+from libs.temperature import read_solution_temperature
 # Establish serial connection
 ser = connect_arduino()
 time.sleep(2)  # Allow Arduino to initialize
@@ -22,26 +23,26 @@ EC_TEST_SEQUENCE_FILE = 'sequences/EC_test.json'
 SENSOR_DATA_FILE = "data/sensor_data.json"
 
 # Function to send a command and handle "HEARTBEAT" responses
-def send_command_and_get_response(command, retries=1):
-    for _ in range(retries):
-        ser.write(command)
-        line = ser.readline().decode('utf-8').strip()
-        if line == "HEARTBEAT":
-            time.sleep(0.1)  # Short delay before retrying
-            continue
-        return line
-    print(f"Error: No valid response for command {command.decode('utf-8')}")
-    return None
+#def send_command_and_get_response(command, retries=1):
+#    for _ in range(retries):
+#        ser.write(command)
+#        line = ser.readline().decode('utf-8').strip()
+#        if line == "HEARTBEAT":
+#            time.sleep(0.1)  # Short delay before retrying
+#            continue
+#        return line
+#    print(f"Error: No valid response for command {command.decode('utf-8')}")
+#    return None
 
 # Function to read solution temperature
-def read_solution_temperature():
-    response = send_command_and_get_response(b'T')
-    if response:
-        try:
-            return float(response)
-        except ValueError:
-            print(f"Error reading temperature: {response}")
-    return None
+#def read_solution_temperature():
+#    response = send_command_and_get_response(b'T')
+#    if response:
+#        try:
+#            return float(response)
+#        except ValueError:
+#            print(f"Error reading temperature: {response}")
+#    return None
 
 # Function to read tank level
 def read_tank_level():
@@ -65,7 +66,7 @@ def get_ec_readings():
     return None
 
 # Function to read EC value with timestamp check
-def read_ec():
+def check_ec_time():
     try:
         if os.path.exists(SENSOR_DATA_FILE):
             with open(SENSOR_DATA_FILE, "r") as file:
@@ -84,7 +85,7 @@ def read_ec():
 
 # Function to read all sensor data
 def read_sensors():
-    ec_readings = read_ec()
+    ec_readings = check_ec_time_ec()
     ec_value = None
     ec_timestamp = None
 
