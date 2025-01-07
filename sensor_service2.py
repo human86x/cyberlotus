@@ -2,9 +2,21 @@ import time
 import json
 import os
 from datetime import datetime, timedelta
-#import serial
+import sys
+
+# Add the current script's directory to the Python path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(script_dir, "config_tools"))
+
+
+#import     serial
+
 from config_tools.sequencer import execute_sequence  # Updated import path
-from config_tools.flow_tune import load_flow_rates  # Updated import path
+#from config_tools.flow_tune import load_flow_rates  # Updated import path
+from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
+#from .flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
+
+#from config_tools import flow_tune #load_flow_rates
 from device_connections import connect_arduino
 
 # Serial configuration
@@ -12,7 +24,7 @@ from device_connections import connect_arduino
 #baud_rate = 9600
 
 # Establish serial connection
-ser = pnnect_arduino()#serial.Serial(serial_port, baud_rate, timeout=1)
+ser = connect_arduino()#serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
 # File paths
