@@ -56,6 +56,12 @@ def read_tank_level():
     return None
 
 # Function to get EC readings
+
+def update_ec():
+    ec = get_correct_EC()
+    print(f"***********UPDATED EC----- : {ec}")
+    return None
+
 def get_ec_readings():
     ec_data = {}
     if os.path.exists(EC_TEST_SEQUENCE_FILE):
@@ -64,7 +70,7 @@ def get_ec_readings():
         print(f"File not found: {EC_TEST_SEQUENCE_FILE}")
     try:
         #execute_sequence(, {}, lambda data: ec_data.update(data))
-        a = execute_sequence(EC_TEST_SEQUENCE_FILE, load_flow_rates(), get_correct_EC)
+        a = execute_sequence(EC_TEST_SEQUENCE_FILE, load_flow_rates(), update_ec)
         # test test test print(f"Sequence return = : {a}")
         return a
     except Exception as e:
