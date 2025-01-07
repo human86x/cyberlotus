@@ -13,7 +13,7 @@ from control_libs.arduino import connect_to_arduino
 EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
 EC_BASELINE_FILE = '../sequences/EC_baseline.json'
 CALIBRATION_FILE = '../data/calibration.json'
-
+global ser
 ser = connect_to_arduino()
 
 def get_correct_EC():
