@@ -85,7 +85,7 @@ def check_ec_time():
 
 # Function to read all sensor data
 def read_sensors():
-    ec_readings = check_ec_time_ec()
+    ec_readings = check_ec_time()
     ec_value = None
     ec_timestamp = None
 
