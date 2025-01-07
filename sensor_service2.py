@@ -84,7 +84,7 @@ def read_ec():
 
             # Check timestamp
             last_timestamp = datetime.fromisoformat(sensor_data.get("timestamp", "1970-01-01T00:00:00"))
-            if datetime.now() - last_timestamp < timedelta(minutes=5):
+            if datetime.now() - last_timestamp < timedelta(minutes=0.2):
                 print("EC data is recent; skipping new EC reading.")
                 return sensor_data.get("ec")
 
