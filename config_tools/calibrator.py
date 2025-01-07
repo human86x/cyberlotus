@@ -5,11 +5,8 @@ import sys
 import statistics
 from sequencer import execute_sequence
 from flow_tune import send_command_with_heartbeat, load_flow_rates
-#from sensor_service import read_ec, read_solution_temperature
-# Add the parent directory to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from sensor_service import read_ec, read_solution_temperature  # Import after modifying the path
-
+from libs.EC import read_ec
+from libs.temperature import read_solution_temperature
 
 # File paths
 EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
@@ -17,6 +14,9 @@ EC_BASELINE_FILE = '../sequences/EC_baseline.json'
 CALIBRATION_FILE = '../data/calibration.json'
 
 def get_correct_EC():
+    #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    #from sensor_service import read_ec, read_solution_temperature  # Import after modifying the path
+
     """
     Get the corrected EC value by reading the EC sensor, applying temperature correction, and using the calibration factor.
 
