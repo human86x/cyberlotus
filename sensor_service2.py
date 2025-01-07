@@ -65,7 +65,7 @@ def get_ec_readings():
     try:
         #execute_sequence(, {}, lambda data: ec_data.update(data))
         a = execute_sequence(EC_TEST_SEQUENCE_FILE, load_flow_rates(), get_correct_EC)
-        #print(f"Sequence return = : {a}")
+        # test test test print(f"Sequence return = : {a}")
         return a
     except Exception as e:
         print(f"Error executing EC test sequence: {e}")
