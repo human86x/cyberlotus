@@ -11,9 +11,9 @@ sys.path.append(os.path.join(script_dir, "config_tools"))
 from config_tools.sequencer import execute_sequence
 from config_tools.calibrator import get_correct_EC
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
-from libs.arduino import connect_arduino, send_command_and_get_response
-from libs.EC import read_ec
-from libs.temperature import read_solution_temperature
+from control_libs.arduino import connect_arduino, send_command_and_get_response
+from control_libs.EC import get_ec
+from control_libs.temperature import read_solution_temperature
 # Establish serial connection
 ser = connect_arduino()
 time.sleep(2)  # Allow Arduino to initialize
