@@ -15,6 +15,7 @@ from control_libs.arduino import connect_to_arduino, send_command_and_get_respon
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
 # Establish serial connection
+global ser
 ser = connect_to_arduino()
 time.sleep(2)  # Allow Arduino to initialize
 
@@ -46,7 +47,7 @@ SENSOR_DATA_FILE = "data/sensor_data.json"
 
 # Function to read tank level
 def read_tank_level():
-    response = send_command_and_get_response(b'L')
+    response = send_command_and_get_response(ser, b'L')
     if response:
         try:
             return float(response)
@@ -94,7 +95,7 @@ def read_sensors():
         ec_timestamp = datetime.now().isoformat()
 
     return {
-        "solution_temperature": read_solution_temperature(),
+        "solution_temperature": read_solution_temperature(ser),
         "tank_level": read_tank_level(),
         "ec": ec_value,
         "ph": read_ph(),
