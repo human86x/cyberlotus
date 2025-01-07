@@ -65,6 +65,7 @@ def update_ec():
         "timestamp": datetime.now().isoformat(),
         "ec_last_updated": datetime.now().isoformat()
     }
+    print(f"***********sensor data----- : {sensor_data}")
     save_sensor_data(sensor_data)
     return None
 
