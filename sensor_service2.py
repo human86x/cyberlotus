@@ -83,11 +83,11 @@ def read_ec():
                 sensor_data = json.load(file)
 
             # Check timestamp
-            last_timestamp = datetime.fromisoformat(sensor_data.get("timestamp", "1970-01-01T00:00:00"))
+            last_timestamp = datetime.fromisoformat(sensor_data.get("ec_last_update", "1970-01-01T00:00:00"))
             if datetime.now() - last_timestamp < timedelta(minutes=0.2):
-                print(f"Last timestamp  {last_timestamp}     New timestamp  {timedelta}   Difference ")
+                print(f"Last timestamp  {last_timestamp}     Current timestamp  {datetime.now}   Difference ")
                 print("EC data is recent; skipping new EC reading.")
-                return sensor_data.get("ec")
+                return 0
 
         # If the data is outdated or the file does not exist, read new EC data
         print("Performing new EC reading...")
@@ -102,12 +102,26 @@ def read_ph():
 
 # Function to read all sensor data
 def read_sensors():
+
+    ec_readings= read_ec()
+    if not ec_readings = 0
+        ec_timestamp = datetime.now().isoformat()
+        ec_value = ec_readings
+    else
+        return {
+            "solution_temperature": read_solution_temperature(),
+            "tank_level": read_tank_level(),
+            "ph": read_ph(),
+            "timestamp": datetime.now().isoformat(),
+            "ec_last_updated": 
+        }
     return {
         "solution_temperature": read_solution_temperature(),
         "tank_level": read_tank_level(),
-        "ec": read_ec(),
+        "ec": ec_value(),
         "ph": read_ph(),
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
+        "ec_last_updated": 
     }
 
 # Function to save sensor data to JSON file
