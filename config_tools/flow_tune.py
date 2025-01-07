@@ -16,8 +16,12 @@ from control_libs.arduino import connect_to_arduino, send_command_and_get_respon
 HEARTBEAT_TIMEOUT = 2  # Maximum time (seconds) to wait for a heartbeat
 
 # File paths
-PUMP_COMMANDS_FILE = 'data/relay_names.json'
-FLOW_RATES_FILE = 'data/flow_rates.json'
+# Get the absolute path of the current script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Define file paths relative to this script's location
+PUMP_COMMANDS_FILE = os.path.join(current_dir, '../data/relay_names.json')
+FLOW_RATES_FILE = os.path.join(current_dir, '../data/flow_rates.json')
 
 # Initialize serial connection
 ser = connect_to_arduino() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
