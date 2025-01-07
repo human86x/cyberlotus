@@ -60,6 +60,12 @@ def read_tank_level():
 def update_ec():
     ec = get_correct_EC()
     print(f"***********UPDATED EC----- : {ec}")
+    sensor_data = {
+        "ec": ec,
+        "timestamp": datetime.now().isoformat(),
+        "ec_last_updated": datetime.now().isoformat()
+    }
+    save_sensor_data(sensor_data)
     return None
 
 def get_ec_readings():
