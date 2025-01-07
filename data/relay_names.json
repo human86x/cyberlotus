@@ -1,10 +1,11 @@
 {
     "EC_cal": "g",
     "pH_plus": "h",
-    "pH_minus": "e",
+    "pH_minus": "k",
     "solution_EC": "c",
     "pH_cal_low": "d",
     "heater_1": "f",
     "fresh": "a",
+    "fill": "e",
     "drain": "b"
 }
