@@ -8,11 +8,13 @@ from flow_tune import send_command_with_heartbeat, load_flow_rates
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
-
+from control_libs.arduino import connect_arduino
 # File paths
 EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
 EC_BASELINE_FILE = '../sequences/EC_baseline.json'
 CALIBRATION_FILE = '../data/calibration.json'
+
+ser = connect_arduino()
 
 def get_correct_EC():
     #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -25,7 +27,7 @@ def get_correct_EC():
         float: The corrected EC value.
     """
     calibration_factor = get_EC_calibration_factor()
-    raw_ec_value = get_ec()
+    raw_ec_value = get_ec(ser)
     if raw_ec_value is None or raw_ec_value == 0:
         print("Error: Invalid EC value read from the sensor.")
         return None
@@ -99,7 +101,7 @@ def calibrate_ec_sensor():
     ec_values = []
     for _ in range(num_readings):
         time.sleep(1)
-        ec_value = get_ec()
+        ec_value = get_ec(ser)
         print(f"Retrieved EC value: '{ec_value}'")
         if ec_value is None or ec_value == 0:
             print("Error: Invalid EC value read from the sensor.")
