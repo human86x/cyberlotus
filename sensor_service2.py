@@ -8,23 +8,12 @@ import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
 
-
-#import     serial
-
-from config_tools.sequencer import execute_sequence  # Updated import path
-#from config_tools.flow_tune import load_flow_rates  # Updated import path
+from config_tools.sequencer import execute_sequence
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
-#from .flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
-
-#from config_tools import flow_tune #load_flow_rates
 from device_connections import connect_arduino
 
-# Serial configuration
-#serial_port = '/dev/ttyACM0'  # Update with your port
-#baud_rate = 9600
-
 # Establish serial connection
-ser = connect_arduino()#serial.Serial(serial_port, baud_rate, timeout=1)
+ser = connect_arduino()
 time.sleep(2)  # Allow Arduino to initialize
 
 # File paths
@@ -43,27 +32,27 @@ def send_command_and_get_response(command, retries=1):
     print(f"Error: No valid response for command {command.decode('utf-8')}")
     return None
 
-# Function to read solution temperature from Dallas temperature sensor
+# Function to read solution temperature
 def read_solution_temperature():
     response = send_command_and_get_response(b'T')
-    if response is not None:
+    if response:
         try:
             return float(response)
         except ValueError:
             print(f"Error reading temperature: {response}")
     return None
 
-# Function to read tank level from ultrasonic sensor
+# Function to read tank level
 def read_tank_level():
     response = send_command_and_get_response(b'L')
-    if response is not None:
+    if response:
         try:
             return float(response)
         except ValueError:
             print(f"Error reading tank level: {response}")
     return None
 
-# Function to get EC readings from the EC test sequence
+# Function to get EC readings
 def get_ec_readings():
     ec_data = {}
     try:
@@ -77,57 +66,48 @@ def get_ec_readings():
 # Function to read EC value with timestamp check
 def read_ec():
     try:
-        # Check if the file exists and read its contents
         if os.path.exists(SENSOR_DATA_FILE):
             with open(SENSOR_DATA_FILE, "r") as file:
                 sensor_data = json.load(file)
 
-            # Check timestamp
-            last_timestamp = datetime.fromisoformat(sensor_data.get("ec_last_update", "1970-01-01T00:00:00"))
+            last_timestamp = datetime.fromisoformat(sensor_data.get("ec_last_updated", "1970-01-01T00:00:00"))
             if datetime.now() - last_timestamp < timedelta(minutes=0.2):
-                print(f"Last timestamp  {last_timestamp}     Current timestamp  {datetime.now}   Difference ")
                 print("EC data is recent; skipping new EC reading.")
-                return 0
+                return 0  # Skip new reading if data is recent
 
-        # If the data is outdated or the file does not exist, read new EC data
         print("Performing new EC reading...")
         return get_ec_readings()
     except Exception as e:
         print(f"Error reading EC: {e}")
     return None
 
-# Placeholder function for pH sensor (if needed later)
-def read_ph():
-    return None  # Placeholder for pH sensor
-
 # Function to read all sensor data
 def read_sensors():
+    ec_readings = read_ec()
+    ec_value = None
+    ec_timestamp = None
 
-    ec_readings= read_ec()
-    if not ec_readings = 0
-        ec_timestamp = datetime.now().isoformat()
+    if ec_readings != 0:  # New EC data available
         ec_value = ec_readings
-    else
-        return {
-            "solution_temperature": read_solution_temperature(),
-            "tank_level": read_tank_level(),
-            "ph": read_ph(),
-            "timestamp": datetime.now().isoformat(),
-            "ec_last_updated": 
-        }
+        ec_timestamp = datetime.now().isoformat()
+
     return {
         "solution_temperature": read_solution_temperature(),
         "tank_level": read_tank_level(),
-        "ec": ec_value(),
+        "ec": ec_value,
         "ph": read_ph(),
         "timestamp": datetime.now().isoformat(),
-        "ec_last_updated": 
+        "ec_last_updated": ec_timestamp,
     }
 
 # Function to save sensor data to JSON file
 def save_sensor_data(data, filename=SENSOR_DATA_FILE):
     with open(filename, "w") as file:
         json.dump(data, file, indent=4)
+
+# Placeholder function for pH sensor
+def read_ph():
+    return None  # Placeholder for pH sensor
 
 # Main loop to keep reading sensors
 def run_sensor_service():
