@@ -9,6 +9,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
 
 from config_tools.sequencer import execute_sequence
+from config_tools.calibrator import get_correct_EC
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 from device_connections import connect_arduino
 
@@ -56,9 +57,9 @@ def read_tank_level():
 def get_ec_readings():
     ec_data = {}
     try:
-        execute_sequence(EC_TEST_SEQUENCE_FILE, {}, lambda data: ec_data.update(data))
-        if 'ec' in ec_data:
-            return ec_data['ec']
+        #execute_sequence(, {}, lambda data: ec_data.update(data))
+        a = execute_sequence(EC_TEST_SEQUENCE_FILE, load_flow_rates(), get_correct_EC)
+        return a
     except Exception as e:
         print(f"Error executing EC test sequence: {e}")
     return None
