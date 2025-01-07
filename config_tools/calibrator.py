@@ -8,7 +8,7 @@ from flow_tune import send_command_with_heartbeat, load_flow_rates
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
-from control_libs.arduino import connect_to_arduino
+from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 # File paths
 EC_SEQUENCE_FILE = '../sequences/EC_calibration.json'
 EC_BASELINE_FILE = '../sequences/EC_baseline.json'
