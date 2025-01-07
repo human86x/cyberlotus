@@ -2,6 +2,7 @@ import serial
 import time
 import json
 import os
+import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from device_connections import connect_arduino  # Import after modifying the path
 
