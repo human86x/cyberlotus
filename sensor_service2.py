@@ -28,7 +28,7 @@ ser = connect_arduino()#serial.Serial(serial_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow Arduino to initialize
 
 # File paths
-EC_TEST_SEQUENCE_FILE = '../sequences/EC_test.json'
+EC_TEST_SEQUENCE_FILE = 'sequences/EC_test.json'
 SENSOR_DATA_FILE = "data/sensor_data.json"
 
 # Function to send a command and handle "HEARTBEAT" responses
@@ -85,7 +85,7 @@ def read_ec():
             # Check timestamp
             last_timestamp = datetime.fromisoformat(sensor_data.get("timestamp", "1970-01-01T00:00:00"))
             if datetime.now() - last_timestamp < timedelta(minutes=0.2):
-                print("Last timestamp  {last_timestamp}     New timestamp  {timedelta}    Difference {}")
+                print("Last timestamp  '{last_timestamp}'     New timestamp  '{timedelta}'    Difference '{}'")
                 print("EC data is recent; skipping new EC reading.")
                 return sensor_data.get("ec")
 
