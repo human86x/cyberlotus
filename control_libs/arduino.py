@@ -3,22 +3,22 @@ import time
 
 def connect_to_arduino():
     """
-    Tries to connect to an Arduino Mega via /dev/ttyACM0 through /dev/ttyACM10.
-    Returns the serial connection if successful, otherwise raises an exception.
+    Ensures only one connection is created and reused.
     """
-    for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
-        port = f"/dev/ttyACM{i}"
-        try:
-            print(f"Trying to connect to {port}...")
-            connection = serial.Serial(port, baudrate=9600, timeout=1)
-            time.sleep(2)  # Allow time for the Arduino to reset
-            print(f"Connected successfully to {port}")
-            return connection
-        except serial.SerialException:
-            print(f"Failed to connect to {port}.")
-            continue
-
-    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
+    if not hasattr(connect_to_arduino, "connection"):
+        for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
+            port = f"/dev/ttyACM{i}"
+            try:
+                print(f"Trying to connect to {port}...")
+                connect_to_arduino.connection = serial.Serial(port, baudrate=9600, timeout=1)
+                time.sleep(2)  # Allow time for the Arduino to reset
+                print(f"Connected successfully to {port}")
+                return connect_to_arduino.connection
+            except serial.SerialException:
+                print(f"Failed to connect to {port}.")
+                continue
+        raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
+    return connect_to_arduino.connection
 
 # Usage example
 #t#ry:
