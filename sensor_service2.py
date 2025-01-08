@@ -98,7 +98,7 @@ def update_ec():
 
 def get_ec_readings():
     ec_data = {}
-    target_ec_timing = 10
+    
     if os.path.exists(EC_TEST_SEQUENCE_FILE):
         print(f"Found file: {EC_TEST_SEQUENCE_FILE}")
     else:
@@ -114,6 +114,7 @@ def get_ec_readings():
 
 # Function to read EC value with timestamp check
 def check_ec_time():
+    target_ec_timing = 10
     try:
         if os.path.exists(SENSOR_DATA_FILE):
             with open(SENSOR_DATA_FILE, "r") as file:
@@ -144,7 +145,9 @@ def check_ec_time():
                 return ec_value  # Skip new reading if data is recent
 
         print("Performing new EC reading...")
-        return get_ec_readings()
+        ec_value = get_ec_readings()
+        update_ec()  # Ensure the timestamp gets updated after a new reading
+        return ec_value
 
     except Exception as e:
         print(f"Error reading EC: {e}")
