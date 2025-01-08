@@ -23,7 +23,7 @@ def execute_commands(commands, weights, flow_rates):
 
     Parameters:
         commands (list or str): Command(s) to execute. Can be a single string or a list of strings.
-        weights (float or list): Weight(s) corresponding to each command. Can be a single float or a list of floats.
+        weights (float, int, or list): Weight(s) corresponding to each command. Can be a single value or a list.
         flow_rates (dict): Dictionary containing the flow rates for each pump command.
 
     Returns:
@@ -34,10 +34,10 @@ def execute_commands(commands, weights, flow_rates):
     arduino_commands = []
     durations = []
 
-    # Handle single command/weight scenarios
+    # Convert single command or weight to list for consistent processing
     if isinstance(commands, str):
         commands = [commands]
-    if isinstance(weights, float):
+    if isinstance(weights, (int, float)):
         weights = [weights] * len(commands)
 
     # Validate commands and weights alignment
