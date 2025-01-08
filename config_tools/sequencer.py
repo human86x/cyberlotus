@@ -25,9 +25,14 @@ def execute_commands(commands, weights, flow_rates):
     
     arduino_commands = []
     durations = []
+    if isinstance(weights, float):
+        weights = [weights] * len(commands)  # Repeat the float value for all commands
+    elif isinstance(weights, dict):
+        weights = [flow_rates[cmd] for cmd in commands if cmd in flow_rates]
 
-    print(f"Commands: {commands}")
-    print(f"Weights: {weights}")
+    # Debugging outputs
+    print(f"Final Commands: {commands}")
+    print(f"Final Weights: {weights}")
 
     
     for command, weight in zip(commands, weights):
