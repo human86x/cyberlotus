@@ -194,7 +194,8 @@ def read_sensors():
             "tank_level": None,
             "ec": None,
             "ph": None,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "ec_last_updated": None  # Ensure this field exists
         }
 
     # Attempt to get EC readings from check_ec_time
@@ -208,13 +209,16 @@ def read_sensors():
         ec_timestamp = datetime.now().isoformat()
         # Update the EC field in the sensor data only if it's a new value
         sensor_data["ec"] = ec_value
-        sensor_data["ec_last_updated"] = ec_timestamp  # Optional: track the last time EC was updated
+        sensor_data["ec_last_updated"] = ec_timestamp  # Update EC last updated time
     else:
         print("EC reading not updated. Fetching from file.")
         ec_value = get_ec_readings_from_file()
         if ec_value is not None:
             # EC reading is valid, update it
             sensor_data["ec"] = ec_value
+            # Ensure ec_last_updated is preserved or updated if it exists
+            if "ec_last_updated" not in sensor_data or sensor_data["ec_last_updated"] is None:
+                sensor_data["ec_last_updated"] = datetime.now().isoformat()
 
     # Collect other sensor data, but don't overwrite existing values
     sensor_data["solution_temperature"] = read_solution_temperature(ser)  # Update temperature
