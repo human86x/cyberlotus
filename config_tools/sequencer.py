@@ -25,6 +25,10 @@ def execute_commands(commands, weights, flow_rates):
     
     arduino_commands = []
     durations = []
+
+    print(f"Commands: {commands}")
+    print(f"Weights: {weights}")
+
     
     for command, weight in zip(commands, weights):
         if command not in flow_rates:
