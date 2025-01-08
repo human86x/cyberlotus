@@ -253,7 +253,7 @@ def run_sensor_service():
 
         # Trigger reading if the time difference exceeds the threshold
         if time_difference >= trigger_value:
-            get_ec_readings_from_file()
+            get_ec_readings()
             ec_value = updated_ec
             print(f"+++++++++++++EC READINGS = {ec_value}")
             if ec_value:
