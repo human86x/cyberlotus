@@ -250,7 +250,7 @@ def run_sensor_service():
 
         # Trigger reading if the time difference exceeds the threshold
         if time_difference >= trigger_value:
-            ec_value = check_ec_time()  # Get EC reading
+            ec_value = get_ec_readings()  # Get EC reading
             if ec_value:
                 sensor_data['ec'] = ec_value
                 sensor_data['ec_last_updated'] = current_time.isoformat()
