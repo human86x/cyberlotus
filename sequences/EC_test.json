@@ -4,7 +4,14 @@
       "commands": ["solution_EC", "drain"], 
       "weights": [5, 5]
     },
-    {"command": "solution_EC", "weight": 2, "calibration": true},
-    {"command": "drain", "weight": 2}       
+    {
+      "commands": ["solution_EC"], 
+      "weights": [2],
+      "calibration": true
+    },
+    {
+      "commands": ["drain"], 
+      "weights": [2]
+    }
   ]
 }
