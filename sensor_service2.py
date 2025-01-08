@@ -92,12 +92,19 @@ def check_ec_time():
                 sensor_data = json.load(file)
 
             last_timestamp = sensor_data.get("ec_last_updated", "1970-01-01T00:00:00")
+            
+            # Ensure the timestamp is in datetime format
             if isinstance(last_timestamp, str):
                 last_timestamp = datetime.fromisoformat(last_timestamp)
             else:
                 print("Warning: 'ec_last_updated' is not a valid string. Using default timestamp.")
                 last_timestamp = datetime(1970, 1, 1)
 
+            # Debug output
+            print(f"Last EC timestamp: {last_timestamp}")
+            print(f"Current time: {datetime.now()}")
+
+            # Check if the timestamp is recent (less than 0.2 minutes old)
             if datetime.now() - last_timestamp < timedelta(minutes=0.2):
                 print("EC data is recent; skipping new EC reading.")
                 ec_value = get_ec_readings_from_file()
@@ -105,11 +112,10 @@ def check_ec_time():
 
         print("Performing new EC reading...")
         return get_ec_readings()
+
     except Exception as e:
         print(f"Error reading EC: {e}")
     return None
-
-
 
 
 
