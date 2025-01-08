@@ -110,7 +110,7 @@ def check_ec_time():
             print(f"Trigger value (minutes): 0.2")
 
             # Check if the timestamp is recent (less than 0.2 minutes old)
-            if time_difference < 0.2:
+            if time_difference < 2:
                 print("EC data is recent; skipping new EC reading.")
                 ec_value = get_ec_readings_from_file()
                 return ec_value  # Skip new reading if data is recent
