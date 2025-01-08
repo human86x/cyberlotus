@@ -183,6 +183,20 @@ def get_ec_readings_from_file():
 
 # Function to read all sensor data
 def read_sensors():
+    # Load the current sensor data from file to preserve previously collected values
+    try:
+        with open(SENSOR_DATA_FILE, "r") as file:
+            sensor_data = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # If the file doesn't exist or there's an error in reading, initialize an empty sensor_data dictionary
+        sensor_data = {
+            "solution_temperature": None,
+            "tank_level": None,
+            "ec": None,
+            "ph": None,
+            "timestamp": datetime.now().isoformat()
+        }
+
     # Attempt to get EC readings from check_ec_time
     ec_readings = check_ec_time()
     ec_value = None
@@ -192,20 +206,30 @@ def read_sensors():
     if ec_readings is not None and ec_readings != 0:  # New EC data available
         ec_value = ec_readings
         ec_timestamp = datetime.now().isoformat()
+        # Update the EC field in the sensor data only if it's a new value
+        sensor_data["ec"] = ec_value
+        sensor_data["ec_last_updated"] = ec_timestamp  # Optional: track the last time EC was updated
     else:
         print("EC reading not updated. Fetching from file.")
         ec_value = get_ec_readings_from_file()
-        ec_timestamp = datetime.now().isoformat()
+        if ec_value is not None:
+            # EC reading is valid, update it
+            sensor_data["ec"] = ec_value
 
-    # Collect other sensor data
-    return {
-        "solution_temperature": read_solution_temperature(ser),
-        "tank_level": read_tank_level(),
-        "ec": ec_value,
-        "ph": read_ph(),
-        "timestamp": datetime.now().isoformat()
-        
-    }
+    # Collect other sensor data, but don't overwrite existing values
+    sensor_data["solution_temperature"] = read_solution_temperature(ser)  # Update temperature
+    sensor_data["tank_level"] = read_tank_level()  # Update tank level
+    sensor_data["ph"] = read_ph()  # Update pH (even if placeholder, could be improved later)
+    sensor_data["timestamp"] = datetime.now().isoformat()  # Update timestamp to reflect current time
+
+    # Debugging: print the updated sensor data
+    print(f"Updated sensor data: {sensor_data}")
+
+    # Save the updated sensor data back to the file
+    save_sensor_data(sensor_data)
+
+    return sensor_data
+
 
 # Function to save sensor data to JSON file
 def save_sensor_data(data, filename=SENSOR_DATA_FILE):
