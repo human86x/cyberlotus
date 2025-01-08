@@ -6,6 +6,10 @@
     },
     {
       "commands": ["solution_EC"], 
+      "weights": [2]
+    },
+    {
+      "commands": ["solution_EC"], 
       "weights": [2],
       "calibration": true
     },
