@@ -18,6 +18,7 @@ from control_libs.temperature import read_solution_temperature
 # Establish serial connection
 global ser
 global sensor_data
+global trigger_value
 # Global variable to store sensor data
 sensor_data = {
     'ec': None,
