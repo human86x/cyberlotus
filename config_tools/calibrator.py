@@ -204,6 +204,9 @@ def main():
         choice = input("Select an option: ")
 
         if choice == "1":
+            temp = load_flow_rates()
+            print(f"flow rates: {temp}")
+
             execute_sequence(EC_SEQUENCE_FILE, load_flow_rates(), calibrate_ec_sensor)
         elif choice == "2":
             set_calibration_solution()
