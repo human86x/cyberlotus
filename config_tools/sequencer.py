@@ -112,7 +112,7 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
                     continue  # Skip actual callback if none is provided
 
             # Execute the command
-            if not execute_command(command, weight, flow_rates):
+            if not execute_commands(command, weight, flow_rates):
                 print(f"Error: Failed to execute command {command}.")
                 break
 
