@@ -19,7 +19,7 @@ from control_libs.temperature import read_solution_temperature
 global ser
 global sensor_data
 global trigger_value
-trigger_value = 5
+trigger_value = 0.5
 # Global variable to store sensor data
 sensor_data = {
     'ec': None,
@@ -131,7 +131,7 @@ def check_ec_time():
             print(f"Last EC timestamp: {last_timestamp}")
             print(f"Current time: {datetime.now()}")
             print(f"Time difference in minutes: {time_difference:.2f}")
-            print(f"Trigger value (minutes): 5")
+            print(f"Trigger value (minutes): {trigger_value}")
 
             # Check if the timestamp is recent (less than 5 minutes old)
             if time_difference < target_ec_timing:
