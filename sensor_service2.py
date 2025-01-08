@@ -233,22 +233,6 @@ def save_sensor_data(data, filename=SENSOR_DATA_FILE):
 def read_ph():
     return None  # Placeholder for pH sensor
 
-def collect_ec_reading():
-    # Collect EC readings
-    ec_readings = []
-    for _ in range(10):  # Assuming you're taking 10 readings
-        reading = get_ec_value_from_sensor()
-        if reading:
-            ec_readings.append(reading)
-    
-    # Process and calculate the median of valid readings
-    if ec_readings:
-        valid_readings = [r for r in ec_readings if isinstance(r, (int, float))]  # Ensure valid data
-        if valid_readings:
-            median_ec = median(valid_readings)
-            return median_ec
-    return None
-
 def run_sensor_service():
     global sensor_data  # Ensure sensor_data is accessible
     last_ec_timestamp = sensor_data.get('ec_last_updated')
@@ -263,7 +247,7 @@ def run_sensor_service():
 
     # Trigger reading if the time difference exceeds the threshold
     if time_difference >= trigger_value:
-        ec_value = collect_ec_reading()
+        ec_value = check_ec_time()  # Get the EC value after timestamp check
         if ec_value:
             sensor_data['ec'] = ec_value
             sensor_data['ec_last_updated'] = current_time.isoformat()
