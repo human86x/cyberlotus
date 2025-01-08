@@ -17,6 +17,7 @@ from control_libs.temperature import read_solution_temperature
 
 # Establish serial connection
 global ser
+global sensor_data
 ser = connect_to_arduino()
 time.sleep(2)  # Allow Arduino to initialize
 
