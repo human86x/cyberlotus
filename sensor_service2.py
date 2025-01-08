@@ -49,13 +49,14 @@ def read_tank_level():
 # Function to update EC value
 ec_last_updated = None  # Track the last time EC was updated
 ec_last_reading = None  # Store the last EC reading
+updated_ec = None
 
 def update_ec():
-    global ec_last_updated, ec_last_reading
+    global ec_last_updated, ec_last_reading, updated_ec
     # Get the corrected EC value
     ec = get_correct_EC()
     print(f"***********UPDATED EC----- : {ec}")
-
+    updated_ec = ec
     # Only update EC if the value is different from the last one
     if ec != ec_last_reading:
         # Initialize the new data to update
@@ -201,7 +202,8 @@ def read_sensors():
         sensor_data["ec_last_updated"] = ec_timestamp  # Update EC last updated time
     else:
         print("EC reading not updated. Fetching from file.")
-        ec_value = get_ec_readings_from_file()
+        get_ec_readings_from_file()
+        ec_value = updated_ec
         if ec_value is not None:
             # EC reading is valid, update it
             sensor_data["ec"] = ec_value
