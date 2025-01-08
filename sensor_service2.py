@@ -172,8 +172,8 @@ def read_sensors():
         "tank_level": read_tank_level(),
         "ec": ec_value,
         "ph": read_ph(),
-        "timestamp": datetime.now().isoformat(),
-        "ec_last_updated": ec_timestamp,
+        "timestamp": datetime.now().isoformat()
+        
     }
 
 # Function to save sensor data to JSON file
