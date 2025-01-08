@@ -5,47 +5,54 @@ from flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_co
 from flow_tune import PUMP_COMMANDS
 
 # Serial configuration
-SERIAL_PORT = '/dev/ttyACM0'
-BAUD_RATE = 9600
+#SERIAL_PORT = '/dev/ttyACM0'
+#BAUD_RATE = 9600
 
 # File paths
 #FLOW_RATES_FILE = '../data/flow_rates.json'
 
 PUMP_COMMANDS = load_pump_commands()
 
-
 # File paths
 SEQUENCE_FILE = '../sequences/EC_calibration.json'
 
-#from flow_tune import PUMP_COMMANDS  # Import the translation map from flow_tune
-
-def execute_command(command, weight, flow_rates):
+def execute_commands(commands, weights, flow_rates):
     """
-    Execute the given command for a specific weight using flow rates.
+    Execute multiple commands for specific weights using flow rates simultaneously.
     """
-    print(f"Executing command: {command} for {weight}g")
+    print(f"Executing commands: {commands} for weights {weights}")
     
-    if command not in flow_rates:
-        print(f"Error: Flow rate for '{command}' not found in flow rates file.")
-        return False
-
-    if command not in PUMP_COMMANDS:
-        print(f"Error: Command '{command}' not recognized in PUMP_COMMANDS.")
-        return False
-
-    # Translate the logical command to the Arduino command
-    arduino_command = PUMP_COMMANDS[command]
-
-    # Calculate duration based on flow rate
-    flow_rate = flow_rates[command]
-    duration = weight / flow_rate
+    arduino_commands = []
+    durations = []
     
-    print(f"Debug: Command '{command}' translated to '{arduino_command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
-    
-    print(f"Debug: Sending command '{arduino_command}' to Arduino with duration {duration:.2f}s.")
+    for command, weight in zip(commands, weights):
+        if command not in flow_rates:
+            print(f"Error: Flow rate for '{command}' not found in flow rates file.")
+            return False
 
-    # Send the translated command to Arduino
-    return send_command_with_heartbeat(arduino_command, duration)
+        if command not in PUMP_COMMANDS:
+            print(f"Error: Command '{command}' not recognized in PUMP_COMMANDS.")
+            return False
+
+        # Translate the logical command to the Arduino command
+        arduino_command = PUMP_COMMANDS[command]
+        
+        # Calculate duration based on flow rate
+        flow_rate = flow_rates[command]
+        duration = weight / flow_rate
+        
+        arduino_commands.append(arduino_command)
+        durations.append(duration)
+        
+        print(f"Debug: Command '{command}' translated to '{arduino_command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
+    
+    # Send the translated commands to Arduino simultaneously
+    for arduino_command, duration in zip(arduino_commands, durations):
+        print(f"Debug: Sending command '{arduino_command}' to Arduino with duration {duration:.2f}s.")
+        if not send_command_with_heartbeat(arduino_command, duration):
+            return False
+
+    return True
 
 def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
     """
@@ -59,22 +66,41 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
         return
 
     for action in data["sequence"]:
-        command = action["command"]
-        weight = action["weight"]
+        # Handle the case where multiple commands (pumps) are given
+        if "commands" in action and "weights" in action:
+            commands = action["commands"]
+            weights = action["weights"]
 
-        # Check for calibration actions
-        if "calibration" in action and action["calibration"]:
-            print(f"Calibration step detected for {command}.")
-            if calibration_callback:
-                calibration_callback()  # Call the calibration function
-            else:
-                print("Error: No calibration callback provided.")
-                return
+            # Check for calibration actions
+            if "calibration" in action and action["calibration"]:
+                print(f"Calibration step detected for {commands}.")
+                if calibration_callback:
+                    calibration_callback()  # Call the calibration function
+                else:
+                    print("Error: No calibration callback provided.")
+                    return
 
-        # Execute the command after calibration (if applicable)
-        if not execute_command(command, weight, flow_rates):
-            print(f"Error: Failed to execute command {command}.")
-            break
+            # Execute the commands simultaneously
+            if not execute_commands(commands, weights, flow_rates):
+                print(f"Error: Failed to execute commands {commands}.")
+                break
+        else:
+            command = action["command"]
+            weight = action["weight"]
+
+            # Check for calibration actions
+            if "calibration" in action and action["calibration"]:
+                print(f"Calibration step detected for {command}.")
+                if calibration_callback:
+                    calibration_callback()  # Call the calibration function
+                else:
+                    print("Error: No calibration callback provided.")
+                    return
+
+            # Execute the command
+            if not execute_command(command, weight, flow_rates):
+                print(f"Error: Failed to execute command {command}.")
+                break
 
         time.sleep(1)  # Small delay to prevent overwhelming the system
 
