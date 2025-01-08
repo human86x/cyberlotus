@@ -221,14 +221,45 @@ def save_sensor_data(data, filename=SENSOR_DATA_FILE):
 def read_ph():
     return None  # Placeholder for pH sensor
 
-# Main loop to keep reading sensors
-def run_sensor_service():
-    while True:
-        sensor_data = read_sensors()
-        print(f"Sensor Data: {sensor_data}")
+def collect_ec_reading():
+    # Collect EC readings
+    ec_readings = []
+    for _ in range(10):  # Assuming you're taking 10 readings
+        reading = get_ec_value_from_sensor()
+        if reading:
+            ec_readings.append(reading)
+    
+    # Process and calculate the median of valid readings
+    if ec_readings:
+        valid_readings = [r for r in ec_readings if isinstance(r, (int, float))]  # Ensure valid data
+        if valid_readings:
+            median_ec = median(valid_readings)
+            return median_ec
+    return None
 
-        save_sensor_data(sensor_data)
-        time.sleep(5)  # Adjust as needed
+def run_sensor_service():
+    global sensor_data  # Ensure sensor_data is accessible
+    last_ec_timestamp = sensor_data.get('ec_last_updated')
+
+    # Check the time difference between the last EC timestamp and current time
+    current_time = datetime.now()
+    if last_ec_timestamp:
+        last_ec_time = datetime.fromisoformat(last_ec_timestamp)
+        time_difference = (current_time - last_ec_time).total_seconds() / 60.0
+    else:
+        time_difference = 99999  # Force reading if no previous timestamp
+
+    # Trigger reading if the time difference exceeds the threshold
+    if time_difference >= trigger_value:
+        ec_value = collect_ec_reading()
+        if ec_value:
+            sensor_data['ec'] = ec_value
+            sensor_data['ec_last_updated'] = current_time.isoformat()
+            print(f"EC reading updated: {ec_value}")
+        else:
+            print("EC reading failed.")
+    else:
+        print("EC data is recent; skipping new reading.")
 
 if __name__ == "__main__":
     run_sensor_service()
