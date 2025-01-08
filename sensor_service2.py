@@ -141,18 +141,25 @@ def get_ec_readings_from_file():
 
 # Function to read all sensor data
 def read_sensors():
+    # Attempt to get EC readings from check_ec_time
     ec_readings = check_ec_time()
     ec_value = None
     ec_timestamp = None
 
-    if ec_readings != 0:  # New EC data available
+    # If check_ec_time doesn't provide a valid EC reading, load it from the file
+    if ec_readings is not None and ec_readings != 0:  # New EC data available
         ec_value = ec_readings
         ec_timestamp = datetime.now().isoformat()
+    else:
+        print("EC reading not updated. Fetching from file.")
+        ec_value = get_ec_readings_from_file()
+        ec_timestamp = datetime.now().isoformat()
 
+    # Collect other sensor data
     return {
         "solution_temperature": read_solution_temperature(ser),
         "tank_level": read_tank_level(),
-        "ec": ec_readings,
+        "ec": ec_value,
         "ph": read_ph(),
         "timestamp": datetime.now().isoformat(),
         "ec_last_updated": ec_timestamp,
