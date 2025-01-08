@@ -232,7 +232,6 @@ def save_sensor_data(data, filename=SENSOR_DATA_FILE):
 # Placeholder function for pH sensor
 def read_ph():
     return None  # Placeholder for pH sensor
-
 def run_sensor_service():
     global sensor_data  # Ensure sensor_data is accessible
     while True:  # Keep running the sensor service indefinitely
@@ -246,9 +245,12 @@ def run_sensor_service():
         else:
             time_difference = 99999  # Force reading if no previous timestamp
 
+        print(f"Time difference in minutes: {time_difference:.2f}")
+        print(f"Trigger value (minutes): {trigger_value}")
+
         # Trigger reading if the time difference exceeds the threshold
         if time_difference >= trigger_value:
-            ec_value = check_ec_time()
+            ec_value = check_ec_time()  # Get EC reading
             if ec_value:
                 sensor_data['ec'] = ec_value
                 sensor_data['ec_last_updated'] = current_time.isoformat()
@@ -256,10 +258,10 @@ def run_sensor_service():
             else:
                 print("EC reading failed.")
         else:
-            print("EC data is recent; skipping new reading.")
+            print("EC data is recent; skipping new EC reading.")
         
         # Sleep for 1 minute before checking again
-        time.sleep(60)
+        time.sleep(1)
 
 if __name__ == "__main__":
     run_sensor_service()
