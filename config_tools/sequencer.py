@@ -20,55 +20,76 @@ import threading
 def execute_commands(commands, weights, flow_rates):
     """
     Execute multiple commands for specific weights using flow rates simultaneously.
+
+    Parameters:
+        commands (list or str): Command(s) to execute. Can be a single string or a list of strings.
+        weights (float or list): Weight(s) corresponding to each command. Can be a single float or a list of floats.
+        flow_rates (dict): Dictionary containing the flow rates for each pump command.
+
+    Returns:
+        bool: True if all commands were executed successfully, False otherwise.
     """
     print(f"Executing commands: {commands} for weights {weights}")
-    
+
     arduino_commands = []
     durations = []
+
+    # Handle single command/weight scenarios
+    if isinstance(commands, str):
+        commands = [commands]
     if isinstance(weights, float):
-        weights = [weights] * len(commands)  # Repeat the float value for all commands
-    elif isinstance(weights, dict):
-        weights = [flow_rates[cmd] for cmd in commands if cmd in flow_rates]
+        weights = [weights] * len(commands)
+
+    # Validate commands and weights alignment
+    if len(commands) != len(weights):
+        print("Error: Number of commands and weights do not match.")
+        return False
 
     # Debugging outputs
     print(f"Final Commands: {commands}")
     print(f"Final Weights: {weights}")
 
-    
     for command, weight in zip(commands, weights):
+        # Check for missing flow rates
         if command not in flow_rates:
             print(f"Error: Flow rate for '{command}' not found in flow rates file.")
             return False
 
+        # Check for invalid pump commands
         if command not in PUMP_COMMANDS:
             print(f"Error: Command '{command}' not recognized in PUMP_COMMANDS.")
             return False
 
-        # Translate the logical command to the Arduino command
+        # Translate logical command to Arduino command
         arduino_command = PUMP_COMMANDS[command]
-        
+
         # Calculate duration based on flow rate
         flow_rate = flow_rates[command]
+        if flow_rate == 0:
+            print(f"Error: Flow rate for '{command}' is zero, cannot calculate duration.")
+            return False
+
         duration = weight / flow_rate
-        
         arduino_commands.append(arduino_command)
         durations.append(duration)
-        
-        print(f"Debug: Command '{command}' translated to '{arduino_command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
-    
+
+        # Debugging: Show command translation and execution details
+        print(f"Debug: Command '{command}' translated to '{arduino_command}', "
+              f"Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
+
     # Define a function to send commands to Arduino
     def send_to_arduino(command, duration):
         print(f"Debug: Sending command '{command}' to Arduino with duration {duration:.2f}s.")
         if not send_command_with_heartbeat(command, duration):
             print(f"Error: Failed to send command '{command}'.")
-    
+
     # Start threads for simultaneous execution
     threads = []
     for arduino_command, duration in zip(arduino_commands, durations):
         thread = threading.Thread(target=send_to_arduino, args=(arduino_command, duration))
         threads.append(thread)
         thread.start()
-    
+
     # Wait for all threads to complete
     for thread in threads:
         thread.join()
@@ -76,8 +97,6 @@ def execute_commands(commands, weights, flow_rates):
     return True
 
 
-import json
-import time
 
 def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
     """
