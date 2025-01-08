@@ -57,17 +57,44 @@ def read_tank_level():
 
 # Function to get EC readings
 
+import json
+from datetime import datetime
+
+# Assuming this is the path to your JSON file
+SENSOR_DATA_FILE = "sensor_data.json"
+
 def update_ec():
+    # Get the corrected EC value
     ec = get_correct_EC()
     print(f"***********UPDATED EC----- : {ec}")
-    sensor_data = {
+    
+    # Initialize the new data to update
+    updated_data = {
         "ec": ec,
-        "timestamp": datetime.now().isoformat(),
         "ec_last_updated": datetime.now().isoformat()
     }
+    
+    # Load existing data
+    try:
+        with open(SENSOR_DATA_FILE, 'r') as file:
+            sensor_data = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Handle cases where the file doesn't exist or is corrupted
+        print("Error: Sensor data file not found or invalid. Creating a new file.")
+        sensor_data = {}
+
+    # Update only the relevant fields in the loaded data
+    sensor_data.update(updated_data)
+    
+    # Debugging: Show the updated data
     print(f"***********sensor data----- : {sensor_data}")
-    save_sensor_data(sensor_data)
+    
+    # Save the updated data back to the file
+    with open(SENSOR_DATA_FILE, 'w') as file:
+        json.dump(sensor_data, file, indent=4)
+
     return None
+
 
 def get_ec_readings():
     ec_data = {}
