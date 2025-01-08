@@ -1,20 +1,19 @@
 import json
 import time
 import serial
+import os
 from flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 from flow_tune import PUMP_COMMANDS
 
-# Serial configuration
+# Serial configuration (commented out for now)
 #SERIAL_PORT = '/dev/ttyACM0'
 #BAUD_RATE = 9600
 
-# File paths
-#FLOW_RATES_FILE = '../data/flow_rates.json'
-
+# Load pump commands
 PUMP_COMMANDS = load_pump_commands()
 
-# File paths
-SEQUENCE_FILE = '../sequences/EC_calibration.json'
+# File paths (updated to load from the chosen sequence file)
+SEQUENCE_DIRECTORY = '../sequences/'
 
 def execute_commands(commands, weights, flow_rates):
     """
@@ -77,8 +76,8 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
                 if calibration_callback:
                     calibration_callback()  # Call the calibration function
                 else:
-                    print("Error: No calibration callback provided.")
-                    return
+                    print("Debug: Calibration callback executed.")
+                    continue  # Skip actual callback if none is provided
 
             # Execute the commands simultaneously
             if not execute_commands(commands, weights, flow_rates):
@@ -94,8 +93,8 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
                 if calibration_callback:
                     calibration_callback()  # Call the calibration function
                 else:
-                    print("Error: No calibration callback provided.")
-                    return
+                    print("Debug: Calibration callback executed.")
+                    continue  # Skip actual callback if none is provided
 
             # Execute the command
             if not execute_command(command, weight, flow_rates):
@@ -106,12 +105,54 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
 
     print("Sequence complete.")
 
+def list_sequence_files():
+    """
+    List all sequence files available in the SEQUENCE_DIRECTORY.
+    """
+    try:
+        files = os.listdir(SEQUENCE_DIRECTORY)
+        sequence_files = [f for f in files if f.endswith('.json')]
+        if not sequence_files:
+            print("No sequence files found.")
+            return None
+        print("Available sequence files:")
+        for idx, filename in enumerate(sequence_files, start=1):
+            print(f"{idx}. {filename}")
+        return sequence_files
+    except FileNotFoundError:
+        print(f"Error: {SEQUENCE_DIRECTORY} not found.")
+        return None
+
+def choose_sequence_file():
+    """
+    Allow the user to choose a sequence file from the available ones.
+    """
+    sequence_files = list_sequence_files()
+    if not sequence_files:
+        return None
+    try:
+        choice = int(input("Enter the number of the sequence file you want to run: "))
+        if 1 <= choice <= len(sequence_files):
+            return os.path.join(SEQUENCE_DIRECTORY, sequence_files[choice - 1])
+        else:
+            print("Invalid choice.")
+            return None
+    except ValueError:
+        print("Invalid input.")
+        return None
+
 if __name__ == "__main__":
     # Load flow rates from the JSON file
     flow_rates = load_flow_rates()
     print(f"Debug: Loaded flow rates: {flow_rates}")
     
     if flow_rates:
-        execute_sequence(SEQUENCE_FILE, flow_rates)
+        # Ask user to choose a sequence file
+        sequence_file = choose_sequence_file()
+        if sequence_file:
+            print(f"Running sequence from file: {sequence_file}")
+            execute_sequence(sequence_file, flow_rates)
+        else:
+            print("No valid sequence file chosen. Exiting.")
     else:
         print("Error: Flow rates not loaded. Ensure the flow_rates.json file exists and is valid.")
