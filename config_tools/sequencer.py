@@ -80,6 +80,7 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
                     continue  # Skip actual callback if none is provided
 
             # Execute the commands simultaneously
+            print(f"Executing {commands} simultaneously.")
             if not execute_commands(commands, weights, flow_rates):
                 print(f"Error: Failed to execute commands {commands}.")
                 break
