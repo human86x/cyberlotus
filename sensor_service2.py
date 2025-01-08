@@ -18,6 +18,15 @@ from control_libs.temperature import read_solution_temperature
 # Establish serial connection
 global ser
 global sensor_data
+# Global variable to store sensor data
+sensor_data = {
+    'ec': None,
+    'timestamp': None,
+    'ec_last_updated': None,
+    'solution_temperature': 21.0,
+    'tank_level': 0.0,
+    'ph': None
+}
 ser = connect_to_arduino()
 time.sleep(2)  # Allow Arduino to initialize
 
