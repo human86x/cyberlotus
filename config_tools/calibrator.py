@@ -17,29 +17,47 @@ global ser
 ser = connect_to_arduino()
 
 def get_correct_EC():
-    #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    #from sensor_service import read_ec, read_solution_temperature  # Import after modifying the path
-
     """
-    Get the corrected EC value by reading the EC sensor, applying temperature correction, and using the calibration factor.
+    Get the corrected EC value by reading the EC sensor multiple times, 
+    filtering invalid readings, and applying temperature correction and calibration factor.
 
     Returns:
-        float: The corrected EC value.
+        float: The corrected EC value, or None if no valid readings were obtained.
     """
     calibration_factor = get_EC_calibration_factor()
-    raw_ec_value = get_ec(ser)
-    if raw_ec_value is None or raw_ec_value == 0:
-        print("Error: Invalid EC value read from the sensor.")
+    num_readings = 10
+    ec_values = []
+
+    print("Collecting EC readings...")
+    for _ in range(num_readings):
+        time.sleep(1)
+        raw_ec_value = get_ec(ser)
+        print(f"Retrieved EC value: '{raw_ec_value}'")
+        
+        # Validate and convert the raw EC value
+        if raw_ec_value is None or raw_ec_value == 0:
+            print("Error: Invalid EC value read from the sensor.")
+            continue
+        try:
+            raw_ec_value = float(raw_ec_value)
+        except ValueError:
+            print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
+            continue
+
+        # Only consider values within a realistic range
+        if 100 <= raw_ec_value <= 5000:
+            ec_values.append(raw_ec_value)
+    
+    # Check if we have enough valid readings
+    if len(ec_values) == 0:
+        print("Error: No valid EC readings collected.")
         return None
 
-    try:
-        raw_ec_value = float(raw_ec_value)
-    except ValueError:
-        print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
-        return None
+    # Calculate the median EC value
+    estimated_ec_value = statistics.median(ec_values)
+    print(f"Estimated EC value (median of valid readings): {estimated_ec_value}")
 
-    print(f"Raw EC value: {raw_ec_value}")
-
+    # Read solution temperature
     solution_temperature = read_solution_temperature(ser)
     try:
         solution_temperature = float(solution_temperature)
@@ -49,12 +67,14 @@ def get_correct_EC():
 
     print(f"Solution temperature: {solution_temperature}°C")
 
+    # Apply temperature correction if needed
     if solution_temperature != 25:
-        corrected_ec_value = raw_ec_value / (1 + 0.02 * (solution_temperature - 25))
+        corrected_ec_value = estimated_ec_value / (1 + 0.02 * (solution_temperature - 25))
         print(f"Corrected EC value at 25°C: {corrected_ec_value}")
     else:
-        corrected_ec_value = raw_ec_value
+        corrected_ec_value = estimated_ec_value
 
+    # Apply the calibration factor
     corrected_ec_value *= calibration_factor
     print(f"Final corrected EC value after applying calibration factor: {corrected_ec_value}")
 
