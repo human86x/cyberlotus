@@ -98,6 +98,7 @@ def update_ec():
 
 def get_ec_readings():
     ec_data = {}
+    target_ec_timing = 10
     if os.path.exists(EC_TEST_SEQUENCE_FILE):
         print(f"Found file: {EC_TEST_SEQUENCE_FILE}")
     else:
@@ -134,10 +135,10 @@ def check_ec_time():
             print(f"Last EC timestamp: {last_timestamp}")
             print(f"Current time: {datetime.now()}")
             print(f"Time difference in minutes: {time_difference:.2f}")
-            print(f"Trigger value (minutes): 0.2")
+            print(f"Trigger value (minutes): 5")
 
             # Check if the timestamp is recent (less than 0.2 minutes old)
-            if time_difference < 2:
+            if time_difference < target_ec_timing:
                 print("EC data is recent; skipping new EC reading.")
                 ec_value = get_ec_readings_from_file()
                 return ec_value  # Skip new reading if data is recent
