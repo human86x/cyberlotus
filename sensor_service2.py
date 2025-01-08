@@ -259,6 +259,7 @@ def run_sensor_service():
                 print("EC reading failed.")
         else:
             print("EC data is recent; skipping new EC reading.")
+            print(f"Sensor data> {read_sensors()}")
         
         # Sleep for 1 minute before checking again
         time.sleep(1)
