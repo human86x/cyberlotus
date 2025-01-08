@@ -6,12 +6,12 @@
     },
     {
       "commands": ["solution_EC"], 
-      "weights": [2],
+      "weights": [0.2],
       "calibration": true
     },
     {
       "commands": ["drain"], 
-      "weights": [2]
+      "weights": [2.2]
     }
   ]
 }
