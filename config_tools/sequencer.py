@@ -67,9 +67,17 @@ def execute_commands(commands, weights, flow_rates):
     return True
 
 
+import json
+import time
+
 def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
     """
     Read the sequence from a JSON file and execute the actions.
+
+    Parameters:
+        sequence_file (str): Path to the JSON file containing the sequence.
+        flow_rates (dict): Dictionary containing flow rates for each pump.
+        calibration_callback (function): Optional callback for calibration steps.
     """
     try:
         with open(sequence_file, 'r') as file:
@@ -84,41 +92,43 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
             commands = action["commands"]
             weights = action["weights"]
 
-            # Check for calibration actions
+            # Execute the commands simultaneously
+            print(f"Executing {commands} simultaneously.")
+            if not execute_commands(commands, weights, flow_rates):
+                print(f"Error: Failed to execute commands {commands}.")
+                break
+
+            # Check for calibration actions after execution
             if "calibration" in action and action["calibration"]:
                 print(f"Calibration step detected for {commands}.")
                 if calibration_callback:
                     calibration_callback()  # Call the calibration function
                 else:
                     print("Debug: Calibration callback executed.")
-                    continue  # Skip actual callback if none is provided
 
-            # Execute the commands simultaneously
-            print(f"Executing {commands} simultaneously.")
-            if not execute_commands(commands, weights, flow_rates):
-                print(f"Error: Failed to execute commands {commands}.")
-                break
         else:
+            # Handle the case of a single command
             command = action["command"]
             weight = action["weight"]
 
-            # Check for calibration actions
+            # Execute the command
+            print(f"Executing {command}.")
+            if not execute_commands(command, weight, flow_rates):
+                print(f"Error: Failed to execute command {command}.")
+                break
+
+            # Check for calibration actions after execution
             if "calibration" in action and action["calibration"]:
                 print(f"Calibration step detected for {command}.")
                 if calibration_callback:
                     calibration_callback()  # Call the calibration function
                 else:
                     print("Debug: Calibration callback executed.")
-                    continue  # Skip actual callback if none is provided
-
-            # Execute the command
-            if not execute_commands(command, weight, flow_rates):
-                print(f"Error: Failed to execute command {command}.")
-                break
 
         time.sleep(1)  # Small delay to prevent overwhelming the system
 
     print("Sequence complete.")
+
 
 def list_sequence_files():
     """
