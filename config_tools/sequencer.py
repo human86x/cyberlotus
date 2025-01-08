@@ -15,6 +15,8 @@ PUMP_COMMANDS = load_pump_commands()
 # File paths (updated to load from the chosen sequence file)
 SEQUENCE_DIRECTORY = '../sequences/'
 
+import threading
+
 def execute_commands(commands, weights, flow_rates):
     """
     Execute multiple commands for specific weights using flow rates simultaneously.
@@ -45,13 +47,25 @@ def execute_commands(commands, weights, flow_rates):
         
         print(f"Debug: Command '{command}' translated to '{arduino_command}', Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
     
-    # Send the translated commands to Arduino simultaneously
+    # Define a function to send commands to Arduino
+    def send_to_arduino(command, duration):
+        print(f"Debug: Sending command '{command}' to Arduino with duration {duration:.2f}s.")
+        if not send_command_with_heartbeat(command, duration):
+            print(f"Error: Failed to send command '{command}'.")
+    
+    # Start threads for simultaneous execution
+    threads = []
     for arduino_command, duration in zip(arduino_commands, durations):
-        print(f"Debug: Sending command '{arduino_command}' to Arduino with duration {duration:.2f}s.")
-        if not send_command_with_heartbeat(arduino_command, duration):
-            return False
+        thread = threading.Thread(target=send_to_arduino, args=(arduino_command, duration))
+        threads.append(thread)
+        thread.start()
+    
+    # Wait for all threads to complete
+    for thread in threads:
+        thread.join()
 
     return True
+
 
 def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
     """
