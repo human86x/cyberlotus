@@ -19,6 +19,7 @@ from control_libs.temperature import read_solution_temperature
 global ser
 global sensor_data
 global trigger_value
+trigger_value = 5
 # Global variable to store sensor data
 sensor_data = {
     'ec': None,
