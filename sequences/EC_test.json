@@ -2,8 +2,9 @@
   "sequence": [ 
     {
       "commands": ["solution_EC", "drain"], 
-      "weights": [1, 1]
+      "weights": [5, 5]
     },
-    {"command": "drain", "weight": 1, "calibration": true}     
+    {"command": "solution_EC", "weight": 2, "calibration": true},
+    {"command": "drain", "weight": 2}       
   ]
 }
