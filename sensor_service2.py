@@ -100,12 +100,17 @@ def check_ec_time():
                 print("Warning: 'ec_last_updated' is not a valid string. Using default timestamp.")
                 last_timestamp = datetime(1970, 1, 1)
 
-            # Debug output
+            # Calculate the time difference in minutes
+            time_difference = (datetime.now() - last_timestamp).total_seconds() / 60.0
+
+            # Debug output: print the last timestamp, current time, and the difference in minutes
             print(f"Last EC timestamp: {last_timestamp}")
             print(f"Current time: {datetime.now()}")
+            print(f"Time difference in minutes: {time_difference:.2f}")
+            print(f"Trigger value (minutes): 0.2")
 
             # Check if the timestamp is recent (less than 0.2 minutes old)
-            if datetime.now() - last_timestamp < timedelta(minutes=0.2):
+            if time_difference < 0.2:
                 print("EC data is recent; skipping new EC reading.")
                 ec_value = get_ec_readings_from_file()
                 return ec_value  # Skip new reading if data is recent
