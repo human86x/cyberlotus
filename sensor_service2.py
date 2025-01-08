@@ -204,6 +204,7 @@ def read_sensors():
         print("EC reading not updated. Fetching from file.")
         get_ec_readings_from_file()
         ec_value = updated_ec
+        print(f"+++++++++++++EC READINGS = {ec_value}")
         if ec_value is not None:
             # EC reading is valid, update it
             sensor_data["ec"] = ec_value
