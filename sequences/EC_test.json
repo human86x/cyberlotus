@@ -1,6 +1,9 @@
 {
   "sequence": [ 
-    {"command": "fresh", "weight": 0.2},  
+    {
+      "commands": ["solution_EC", "drain"], 
+      "weights": [0.2, 1]
+    },
     {"command": "drain", "weight": 1, "calibration": true}     
   ]
 }
