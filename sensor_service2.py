@@ -256,6 +256,7 @@ def run_sensor_service():
             print("EC reading failed.")
     else:
         print("EC data is recent; skipping new reading.")
+        continue
 
 if __name__ == "__main__":
     run_sensor_service()
