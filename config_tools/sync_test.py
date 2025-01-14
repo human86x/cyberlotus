@@ -10,13 +10,13 @@ ser = serial.Serial(arduino_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow time for Arduino to reset
 
 def test_pumps():
-    for i in range(18):  # Pumps 'a' to 'r'
+    for i in range(20):  # Pumps 'a' to 'r'
         pump_letter = chr(ord('a') + i)
         
         print(f"Activating Pump {pump_letter.upper()}")
         ser.write(f"{pump_letter}o".encode())  # Turn pump ON
-        time.sleep(2)  # Pump runs for 2 seconds
-        x = input("Next Pump")
+        time.sleep(1)  # Pump runs for 2 seconds
+        #x = input("Next Pump")
         print(f"Deactivating Pump {pump_letter.upper()}")
         ser.write(f"{pump_letter}f".encode())  # Turn pump OFF
         time.sleep(1)  # Short delay before the next pump
