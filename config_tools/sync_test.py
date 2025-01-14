@@ -16,7 +16,7 @@ def test_pumps():
         print(f"Activating Pump {pump_letter.upper()}")
         ser.write(f"{pump_letter}o".encode())  # Turn pump ON
         time.sleep(2)  # Pump runs for 2 seconds
-        
+        x = input("Next Pump")
         print(f"Deactivating Pump {pump_letter.upper()}")
         ser.write(f"{pump_letter}f".encode())  # Turn pump OFF
         time.sleep(1)  # Short delay before the next pump
