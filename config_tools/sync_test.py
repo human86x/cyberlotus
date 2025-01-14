@@ -9,24 +9,40 @@ baud_rate = 9600
 ser = serial.Serial(arduino_port, baud_rate, timeout=1)
 time.sleep(2)  # Allow time for Arduino to reset
 
-def test_pumps():
-    for i in range(20):  # Pumps 'a' to 'r'
-        pump_letter = chr(ord('a') + i)
-        
-        print(f"Activating Pump {pump_letter.upper()}")
-        ser.write(f"{pump_letter}o".encode())  # Turn pump ON
-        time.sleep(1)  # Pump runs for 2 seconds
-        #x = input("Next Pump")
-        print(f"Deactivating Pump {pump_letter.upper()}")
-        ser.write(f"{pump_letter}f".encode())  # Turn pump OFF
-        time.sleep(1)  # Short delay before the next pump
+def activate_pump(pump_letter):
+    ser.write(f"{pump_letter}o".encode())
+    print(f"Pump {pump_letter.upper()} ON")
 
-    print("Pump test completed.")
+def deactivate_pump(pump_letter):
+    ser.write(f"{pump_letter}f".encode())
+    print(f"Pump {pump_letter.upper()} OFF")
+
+def pump_menu():
+    while True:
+        print("\nPump Control Menu:")
+        print("[a-t]: Activate/Deactivate Pump A-T")
+        print("[x]: Exit")
+        
+        choice = input("Enter pump letter or 'x' to exit: ").lower()
+        
+        if choice == 'x':
+            print("Exiting pump control.")
+            break
+        elif 'a' <= choice <= 't':
+            action = input("Turn ON or OFF? (o/f): ").lower()
+            if action == 'o':
+                activate_pump(choice)
+            elif action == 'f':
+                deactivate_pump(choice)
+            else:
+                print("Invalid action. Enter 'o' for ON or 'f' for OFF.")
+        else:
+            print("Invalid pump selection. Please enter a letter between 'a' and 't'.")
 
 try:
-    test_pumps()
+    pump_menu()
 except KeyboardInterrupt:
-    print("Test interrupted. Shutting down all pumps.")
-    for i in range(18):
-        ser.write(f"{chr(ord('a') + i)}f".encode())  # Ensure all pumps are OFF
+    print("\nInterrupted. Turning off all pumps.")
+    for i in range(20):
+        ser.write(f"{chr(ord('a') + i)}f".encode())
     ser.close()
