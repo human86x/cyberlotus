@@ -2,7 +2,7 @@ import serial
 import time
 
 # Set the correct port and baud rate for Linux
-arduino_port = '/dev/ttyACM0'  # Replace with your actual port if different
+arduino_port = '/dev/ttyACM1'  # Replace with your actual port if different
 baud_rate = 9600
 
 # Initialize serial connection
