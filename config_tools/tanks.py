@@ -58,6 +58,7 @@ def test_tanks(tanks, serial_conn):
                 
                 fill_percentage = max(0, min(100, ((info['full_cm'] - distance) / info['full_cm']) * 100))
                 print(f"[DEBUG] Fill percentage for {name}: {fill_percentage}%")
+                print(f"[DEBUG] Total Volume of {name} tank is: {info['total_volume']} cm")
                 current_volume = (fill_percentage / 100) * info['total_volume'] 
                 print(f"[DEBUG] Current volume for {name}: {current_volume}L")
             except ValueError:
