@@ -24,27 +24,34 @@ def stop_all_pumps():
 def pump_menu():
     while True:
         print("\nPump Control Menu:")
-        print("[a-t]: Activate/Deactivate Pump A-T")
-        print("[s]: Stop all pumps")
-        print("[q]: Quit")
+        print("[1]: Activate/Deactivate Pump (A-T)")
+        print("[2]: Stop All Pumps")
+        print("[3]: Quit")
         
-        choice = input("Enter pump letter, 's' to stop all, or 'q' to quit: ").lower()
+        choice = input("Select an option (1-3): ").strip()
         
-        if choice == 'q':
+        if choice == '1':
+            pump_choice = input("Select pump (A-T): ").lower()
+            if 'a' <= pump_choice <= 't':
+                action = input("Turn ON or OFF? (o/f): ").lower()
+                if action == 'o':
+                    activate_pump(pump_choice)
+                elif action == 'f':
+                    deactivate_pump(pump_choice)
+                else:
+                    print("Invalid action. Enter 'o' for ON or 'f' for OFF.")
+            else:
+                print("Invalid pump selection. Enter a letter between A and T.")
+        
+        elif choice == '2':
+            stop_all_pumps()
+        
+        elif choice == '3':
             print("Exiting pump control.")
             break
-        elif choice == 's':
-            stop_all_pumps()
-        elif 'a' <= choice <= 't':
-            action = input("Turn ON or OFF? (o/f): ").lower()
-            if action == 'o':
-                activate_pump(choice)
-            elif action == 'f':
-                deactivate_pump(choice)
-            else:
-                print("Invalid action. Enter 'o' for ON or 'f' for OFF.")
+        
         else:
-            print("Invalid selection. Please enter a letter between 'a' and 't', 's' to stop all pumps, or 'q' to quit.")
+            print("Invalid selection. Please enter 1, 2, or 3.")
 
 try:
     pump_menu()
