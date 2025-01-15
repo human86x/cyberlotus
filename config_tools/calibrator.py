@@ -16,8 +16,11 @@ def load_tanks():
     if os.path.exists(DATA_PATH):
         with open(DATA_PATH, 'r') as file:
             print("[DEBUG] Loaded existing tank data.")
-            return json.load(file)
-    print("[DEBUG] No existing tank data found. Starting fresh.")
+            
+            temp = json.load(file)
+            print(f"[DEBUG] {name}: {distance} cm")
+            return temp
+            print("[DEBUG] No existing tank data found. Starting fresh.")
     return {}
 
 def save_tanks(tanks):
