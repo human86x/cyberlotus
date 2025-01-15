@@ -8,7 +8,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 
-DATA_PATH = '../data/tanks.json'
+# Use absolute path for data file
+base_dir = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(base_dir, '../data/tanks.json')
 
 def load_tanks():
     if os.path.exists(DATA_PATH):
@@ -69,3 +71,10 @@ if __name__ == "__main__":
         test_tanks(tanks, serial_conn)
     else:
         print("[ERROR] Invalid mode selected.")
+
+
+#print("[DEBUG] Loaded existing tank data.")
+            
+ #           temp = json.load(file)
+ #           print(f"Loaded JSON - {temp} cm")
+ #           return temp
