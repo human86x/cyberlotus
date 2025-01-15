@@ -1,0 +1,16 @@
+{
+    "sequence": [ 
+      {
+        "commands": ["fresh_EC", "drain_EC"], 
+        "weights": [0.1, 2]
+      },
+      {
+        "commands": ["fresh_EC"], 
+        "weights": [0.1]
+      },
+      {
+        "commands": ["drain_EC"], 
+        "weights": [2]
+      }
+    ]
+  }

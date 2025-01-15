@@ -6,8 +6,10 @@
     "solution_waste": "d",
     "waste_out": "q",
     "pH_cal_low": "",
-    "heater_1": "f",
+    "heater_1": "",
     "fresh": "a",
+    "fresh_EC": "s",
     "fill": "e",
+    "drain_EC": "f",
     "drain": "b"
 }
