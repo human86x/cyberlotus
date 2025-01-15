@@ -54,6 +54,8 @@ def test_tanks(tanks, serial_conn):
             try:
                 distance = float(response)
                 print(f"[DEBUG] Sensor distance for {name}: {distance} cm")
+                print(f"[DEBUG] Sensor full cm for {name}: {info['full_cm']} cm")
+                
                 fill_percentage = max(0, min(100, ((info['full_cm'] - distance) / info['full_cm']) * 100))
                 print(f"[DEBUG] Fill percentage for {name}: {fill_percentage}%")
                 current_volume = (fill_percentage / 100) * info['total_volume'] 
