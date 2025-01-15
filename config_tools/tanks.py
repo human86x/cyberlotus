@@ -16,7 +16,11 @@ def load_tanks():
     if os.path.exists(DATA_PATH):
         with open(DATA_PATH, 'r') as file:
             print("[DEBUG] Loaded existing tank data.")
-            return json.load(file)
+            temp = json.load(file)
+            print(f"Loaded JSON - {temp} cm")
+            return temp
+            
+            #return json.load(file)
     print("[DEBUG] No existing tank data found. Starting fresh.")
     return {}
 
