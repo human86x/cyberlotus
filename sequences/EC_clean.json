@@ -2,11 +2,11 @@
     "sequence": [ 
       {
         "commands": ["fresh_EC", "drain_EC"], 
-        "weights": [0.1, 2]
+        "weights": [0.4, 2]
       },
       {
         "commands": ["fresh_EC"], 
-        "weights": [0.1]
+        "weights": [0.4]
       },
       {
         "commands": ["drain_EC"], 
