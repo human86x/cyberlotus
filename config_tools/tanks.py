@@ -72,6 +72,7 @@ if __name__ == "__main__":
     if mode == '1':
         create_tank(tanks)
     elif mode == '2':
+        print(f"Loaded Taks - {tanks} cm")
         test_tanks(tanks, serial_conn)
     else:
         print("[ERROR] Invalid mode selected.")
