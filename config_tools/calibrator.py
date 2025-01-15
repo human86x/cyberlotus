@@ -18,7 +18,7 @@ def load_tanks():
             print("[DEBUG] Loaded existing tank data.")
             
             temp = json.load(file)
-            print(f"[DEBUG] {name}: {distance} cm")
+            print(f"Loaded JSON - {temp} cm")
             return temp
             print("[DEBUG] No existing tank data found. Starting fresh.")
     return {}
