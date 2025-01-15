@@ -18,23 +18,22 @@ def deactivate_pump(pump_letter):
     print(f"Pump {pump_letter.upper()} OFF")
 
 def stop_all_pumps():
-    for i in range(20):  # Loop through pumps A to T
-        ser.write(f"{chr(ord('a') + i)}f".encode())
-    print("All pumps OFF.")
+    ser.write(b'X')  # Send 'X' to Arduino to stop all pumps
+    print("Stop command sent: All pumps OFF.")
 
 def pump_menu():
     while True:
         print("\nPump Control Menu:")
         print("[a-t]: Activate/Deactivate Pump A-T")
-        print("[x]: Stop all pumps")
+        print("[s]: Stop all pumps")
         print("[q]: Quit")
         
-        choice = input("Enter pump letter, 'x' to stop all, or 'q' to quit: ").lower()
+        choice = input("Enter pump letter, 's' to stop all, or 'q' to quit: ").lower()
         
         if choice == 'q':
             print("Exiting pump control.")
             break
-        elif choice == 'x':
+        elif choice == 's':
             stop_all_pumps()
         elif 'a' <= choice <= 't':
             action = input("Turn ON or OFF? (o/f): ").lower()
@@ -45,11 +44,11 @@ def pump_menu():
             else:
                 print("Invalid action. Enter 'o' for ON or 'f' for OFF.")
         else:
-            print("Invalid pump selection. Please enter a letter between 'a' and 't'.")
+            print("Invalid selection. Please enter a letter between 'a' and 't', 's' to stop all pumps, or 'q' to quit.")
 
 try:
     pump_menu()
 except KeyboardInterrupt:
-    print("\nInterrupted. Turning off all pumps.")
+    print("\nInterrupted. Sending stop command to all pumps.")
     stop_all_pumps()
     ser.close()
