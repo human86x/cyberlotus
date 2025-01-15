@@ -36,7 +36,7 @@ def connect_to_arduino():
 def send_command_and_get_response(ser, command, retries=1):
 
     for _ in range(retries):
-        ser.write(command)
+        ser.write(command.encode())
         line = ser.readline().decode('utf-8').strip()
         if line == "HEARTBEAT":
             time.sleep(0.1)  # Short delay before retrying
