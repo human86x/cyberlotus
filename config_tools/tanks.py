@@ -17,10 +17,8 @@ def load_tanks():
         with open(DATA_PATH, 'r') as file:
             print("[DEBUG] Loaded existing tank data.")
             temp = json.load(file)
-            print(f"Loaded JSON - {temp} cm")
+            print(f"Loaded JSON - {temp}")
             return temp
-            
-            #return json.load(file)
     print("[DEBUG] No existing tank data found. Starting fresh.")
     return {}
 
@@ -31,17 +29,19 @@ def save_tanks(tanks):
 
 def create_tank(tanks):
     name = input("Enter tank name: ")
-    code = input("Enter Arduino code (L1, L2, L3): ")
+    code = input("Enter Arduino code (e.g., L1, L2, L3): ")
     total_volume = float(input("Enter total volume in liters: "))
     full_cm = float(input("Enter sensor value (cm) for 100% fill: "))
-    
+    empty_cm = float(input("Enter sensor value (cm) for 0% fill: "))
+
     tanks[name] = {
         'arduino_code': code,
         'total_volume': total_volume,
-        'full_cm': full_cm
+        'full_cm': full_cm,
+        'empty_cm': empty_cm
     }
     save_tanks(tanks)
-    print(f"[DEBUG] Tank '{name}' added with code {code}, volume {total_volume}L, full at {full_cm} cm.")
+    print(f"[DEBUG] Tank '{name}' added with code {code}, volume {total_volume}L, full at {full_cm} cm, empty at {empty_cm} cm.")
 
 def test_tanks(tanks, serial_conn):
     for name, info in tanks.items():
@@ -54,13 +54,17 @@ def test_tanks(tanks, serial_conn):
             try:
                 distance = float(response)
                 print(f"[DEBUG] Sensor distance for {name}: {distance} cm")
-                print(f"[DEBUG] Sensor full cm for {name}: {info['full_cm']} cm")
-                
-                fill_percentage = max(0, min(100, ((info['full_cm'] - distance) / info['full_cm']) * 100))
-                print(f"[DEBUG] Fill percentage for {name}: {fill_percentage}%")
-                print(f"[DEBUG] Total Volume of {name} tank is: {info['total_volume']} cm")
-                current_volume = (fill_percentage / 100) * info['total_volume'] 
-                print(f"[DEBUG] Current volume for {name}: {current_volume}L")
+                print(f"[DEBUG] Full line (100%): {info['full_cm']} cm")
+                print(f"[DEBUG] Empty line (0%): {info['empty_cm']} cm")
+
+                # Calculate fill percentage
+                fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) / 
+                                  (info['empty_cm'] - info['full_cm'])) * 100))
+                print(f"[DEBUG] Fill percentage for {name}: {fill_percentage:.2f}%")
+
+                # Calculate current volume
+                current_volume = (fill_percentage / 100) * info['total_volume']
+                print(f"[DEBUG] Current volume for {name}: {current_volume:.2f}L")
             except ValueError:
                 print(f"[ERROR] Invalid response for {name}: {response}")
         else:
@@ -75,14 +79,7 @@ if __name__ == "__main__":
     if mode == '1':
         create_tank(tanks)
     elif mode == '2':
-        print(f"Loaded Taks - {tanks} cm")
+        print(f"[DEBUG] Loaded Tanks: {tanks}")
         test_tanks(tanks, serial_conn)
     else:
         print("[ERROR] Invalid mode selected.")
-
-
-#print("[DEBUG] Loaded existing tank data.")
-            
- #           temp = json.load(file)
- #           print(f"Loaded JSON - {temp} cm")
- #           return temp
