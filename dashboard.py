@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import time
 from control_libs.arduino import connect_to_arduino
-from tanks import load_tanks, save_tanks, create_tank, test_tanks
+from config_tools.tanks import load_tanks, save_tanks, create_tank, test_tanks
 
 app = Flask(__name__)
 
