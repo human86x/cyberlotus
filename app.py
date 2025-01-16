@@ -15,7 +15,7 @@ def pumps():
 def sequences():
     return render_template('sequences.html')
 @app.route('/ec')
-def EC():
+def ec():
     return render_template('EC.html')
 @app.route('/ph')
 def ph():
