@@ -11,6 +11,23 @@ def dashboard():
 def pumps():
     return render_template('pumps.html')
 
+@app.route('/sequences')
+def sequences():
+    return render_template('sequences.html')
+@app.route('/ec')
+def EC():
+    return render_template('EC.html')
+@app.route('/ph')
+def ph():
+    return render_template('ph.html')
+@app.route('/ecosystem')
+def ecosystem():
+    return render_template('ecsystem.html')
+
+
+
+
+
 
 @app.route('/tanks')
 def tanks():
