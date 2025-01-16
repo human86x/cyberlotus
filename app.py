@@ -1,15 +1,49 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from config_tools.tank_manager import load_tanks, add_tank, test_tanks
 
+from flask import Flask, render_template, request, redirect, url_for, flash
+from config_tools.flow_tune import calibrate_pump, test_pump, load_pump_commands
+
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Needed for flash messages
+
+@app.route('/pumps', methods=['GET', 'POST'])
+def pumps():
+    pump_commands = load_pump_commands()
+    pump_names = list(pump_commands.keys())
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        pump_name = request.form.get('pump_name')
+
+        if action == 'calibrate':
+            calibrate_pump(pump_name)
+            flash(f"Calibration started for {pump_name}.", "success")
+
+        elif action == 'test':
+            weight = request.form.get('weight')
+            if weight:
+                try:
+                    weight = float(weight)
+                    test_pump(pump_name, weight)
+                    flash(f"Test started for {pump_name} with {weight}g.", "success")
+                except ValueError:
+                    flash("Invalid weight input. Please enter a number.", "error")
+            else:
+                flash("Please enter a weight to test.", "error")
+
+        return redirect(url_for('pumps'))
+
+    return render_template('pumps.html', pump_names=pump_names)
+
+
+
+
 
 @app.route('/')
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/pumps')
-def pumps():
-    return render_template('pumps.html')
 
 @app.route('/sequences')
 def sequences():

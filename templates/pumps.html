@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Pump Calibration and Testing</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form method="POST">
+    <label for="pump_name">Select Pump:</label>
+    <select name="pump_name" id="pump_name" required>
+        {% for pump in pump_names %}
+            <option value="{{ pump }}">{{ pump }}</option>
+        {% endfor %}
+    </select>
+
+    <h3>Calibration</h3>
+    <button type="submit" name="action" value="calibrate">Calibrate Pump</button>
+
+    <h3>Testing</h3>
+    <label for="weight">Enter Weight (grams):</label>
+    <input type="number" step="0.01" name="weight" id="weight">
+    <button type="submit" name="action" value="test">Test Pump</button>
+</form>
+
+<style>
+    .alert.success { color: green; }
+    .alert.error { color: red; }
+</style>
+{% endblock %}
