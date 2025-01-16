@@ -7,6 +7,11 @@ app = Flask(__name__)
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/pumps')
+def pumps():
+    return render_template('pumps.html')
+
+
 @app.route('/tanks')
 def tanks():
     tanks_data = load_tanks()
