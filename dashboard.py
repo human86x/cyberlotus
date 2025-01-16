@@ -75,7 +75,7 @@ def test_tanks():
     
     return render_template('test_tanks.html', test_results=test_results)
 
-if __name__ == '__main__':
-    try:
-        app.run(host='0.0.0.0', port=5000, debug=True)  # Run Flask server
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
     
