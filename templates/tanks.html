@@ -1,10 +1,82 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Tanks</h1>
-<p>Here you can manage your tanks.</p>
-<ul>
-    <li><a href="{{ url_for('create_tank') }}">Create a new tank</a></li>
-    <li><a href="{{ url_for('tanks') }}">View tanks</a></li>
-</ul>
+<h2>Manage Tanks</h2>
+
+<!-- Tank Creation Form -->
+<h3>Create New Tank</h3>
+<form action="{{ url_for('create_tank_route') }}" method="POST">
+    <label for="name">Tank Name:</label>
+    <input type="text" name="name" required><br>
+
+    <label for="code">Arduino Code (e.g., L1, L2):</label>
+    <input type="text" name="code" required><br>
+
+    <label for="total_volume">Total Volume (L):</label>
+    <input type="number" name="total_volume" step="0.1" required><br>
+
+    <label for="full_cm">Full Sensor Value (cm):</label>
+    <input type="number" name="full_cm" step="0.1" required><br>
+
+    <label for="empty_cm">Empty Sensor Value (cm):</label>
+    <input type="number" name="empty_cm" step="0.1" required><br>
+
+    <button type="submit">Add Tank</button>
+</form>
+
+<hr>
+
+<!-- Display Existing Tanks -->
+<h3>Existing Tanks</h3>
+{% if tanks %}
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Arduino Code</th>
+            <th>Total Volume (L)</th>
+            <th>Full (cm)</th>
+            <th>Empty (cm)</th>
+        </tr>
+        {% for name, info in tanks.items() %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ info['arduino_code'] }}</td>
+            <td>{{ info['total_volume'] }}</td>
+            <td>{{ info['full_cm'] }}</td>
+            <td>{{ info['empty_cm'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No tanks configured yet.</p>
+{% endif %}
+
+<hr>
+
+<!-- Test Tanks Button -->
+<h3>Test Tanks</h3>
+<button onclick="testTanks()">Run Test</button>
+
+<div id="test-results"></div>
+
+<script>
+function testTanks() {
+    fetch("{{ url_for('test_tanks_route') }}")
+        .then(response => response.json())
+        .then(data => {
+            let output = "<h4>Tank Test Results:</h4><ul>";
+            for (const [name, result] of Object.entries(data)) {
+                if (result.error) {
+                    output += `<li><strong>${name}:</strong> ${result.error}</li>`;
+                } else {
+                    output += `<li><strong>${name}:</strong> ${result.fill_percentage}% full, ${result.current_volume}L</li>`;
+                }
+            }
+            output += "</ul>";
+            document.getElementById("test-results").innerHTML = output;
+        })
+        .catch(err => console.error("Error testing tanks:", err));
+}
+</script>
+
 {% endblock %}
