@@ -7,7 +7,7 @@
     "waste_out": "q",
     "pH_cal_low": "",
     "heater_1": "",
-    "fresh": "a",
+    "fresh_solution": "n",
     "fresh_EC": "s",
     "fill": "e",
     "drain_EC": "f",
