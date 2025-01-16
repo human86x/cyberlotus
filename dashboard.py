@@ -78,5 +78,4 @@ def test_tanks():
 if __name__ == '__main__':
     try:
         app.run(host='0.0.0.0', port=5000, debug=True)  # Run Flask server
-    finally:
-        #ser.close()  # Ensure serial connection is closed on exit
+    
