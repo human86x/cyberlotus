@@ -31,6 +31,44 @@ pump_progress = {}
 ser = connect_to_arduino()
 
 time.sleep(2)  # Allow Arduino to initialize
+
+
+@app.route('/pumps', methods=['GET', 'POST'])
+def pumps():
+    pump_commands = load_pump_commands()
+    pump_names = list(pump_commands.keys())
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        pump_name = request.form.get('pump_name')
+
+        if action == 'calibrate':
+            calibrate_pump(pump_name)
+            flash(f"Calibration started for {pump_name}.", "success")
+
+        elif action == 'test':
+            weight = request.form.get('weight')
+            if weight:
+                try:
+                    weight = float(weight)
+                    test_pump(pump_name, weight)
+                    flash(f"Test started for {pump_name} with {weight}g.", "success")
+                except ValueError:
+                    flash("Invalid weight input. Please enter a number.", "error")
+            else:
+                flash("Please enter a weight to test.", "error")
+
+        return redirect(url_for('pumps'))
+
+    return render_template('pumps.html', pump_names=pump_names)
+
+
+
+
+
+
+
+
 @app.route('/start_pump_action', methods=['POST'])
 def start_pump_action():
     data = request.get_json()
@@ -103,37 +141,6 @@ def test_pump_with_progress(pump_name, weight):
 
 
 ################################
-@app.route('/pumps', methods=['GET', 'POST'])
-def pumps():
-    pump_commands = load_pump_commands()
-    pump_names = list(pump_commands.keys())
-
-    if request.method == 'POST':
-        action = request.form.get('action')
-        pump_name = request.form.get('pump_name')
-
-        if action == 'calibrate':
-            calibrate_pump(pump_name)
-            flash(f"Calibration started for {pump_name}.", "success")
-
-        elif action == 'test':
-            weight = request.form.get('weight')
-            if weight:
-                try:
-                    weight = float(weight)
-                    test_pump(pump_name, weight)
-                    flash(f"Test started for {pump_name} with {weight}g.", "success")
-                except ValueError:
-                    flash("Invalid weight input. Please enter a number.", "error")
-            else:
-                flash("Please enter a weight to test.", "error")
-
-        return redirect(url_for('pumps'))
-
-    return render_template('pumps.html', pump_names=pump_names)
-
-
-
 
 
 @app.route('/')
