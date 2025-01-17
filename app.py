@@ -43,18 +43,23 @@ def save_solution_level():
 
     # Update the app_config.json file with the new solution level
     try:
-        with open('data/app_config.json', 'r+') as file:
-            app_config = json.load(file)
-            app_config['solution_level'] = solution_level
-            print("***********************Writing to a config file....")
-            file.seek(0)
+        # Check if the file exists; if not, create it with a default structure
+        try:
+            with open('data/app_config.json', 'r+') as file:
+                app_config = json.load(file)
+        except FileNotFoundError:
+            # If the file doesn't exist, create it with a default structure
+            app_config = {"solution_level": 50}
+
+        app_config['solution_level'] = solution_level
+        print("***********************Writing to a config file....")
+        with open('data/app_config.json', 'w') as file:
             json.dump(app_config, file, indent=4)
+
         return jsonify({"status": "success", "message": "Solution level saved successfully."})
     except Exception as e:
-        print("***********************CANT WRITE TO A FILE...")
-
+        print(f"***********************CANT WRITE TO A FILE: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
 def delete_tank_route(tank_name):
