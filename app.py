@@ -35,15 +35,39 @@ global PUMP_COMMANDS
 
 
 
-def safe_serial_write(command):
-    """Safely write to serial with error handling."""
+def safe_serial_write(pump_name, state):
+    """
+    Safely write a pump control command to the serial port.
+
+    Args:
+        pump_name (str): Name of the pump (must be in PUMP_COMMANDS).
+        state (str): 'o' to turn ON, 'f' to turn OFF.
+    """
     try:
+        if pump_name not in PUMP_COMMANDS:
+            print(f"[ERROR] Invalid pump name: {pump_name}")
+            return
+
+        if state not in ['o', 'f']:
+            print(f"[ERROR] Invalid pump state: {state}")
+            return
+
+        command = f"{PUMP_COMMANDS[pump_name]}{state}"
+        
         if ser and ser.is_open:
             ser.write(command.encode())
+            ser.flush()
+            print(f"[INFO] Sent command: {command}")
         else:
-            print("Serial port is not open.")
+            print("[ERROR] Serial port is not open. Cannot send command.")
+
     except serial.SerialException as e:
-        print(f"Serial write failed: {e}")
+        print(f"[ERROR] Serial write failed for {pump_name}: {e}")
+        emergency_stop(pump_name)
+    except Exception as e:
+        print(f"[ERROR] Unexpected error while writing to serial: {e}")
+        emergency_stop(pump_name)
+
 
 
 
@@ -120,22 +144,21 @@ def get_progress(pump_name):
     return jsonify({'progress': progress})
 
 def calibrate_pump_with_progress(pump_name):
-    global PUMP_COMMANDS  # Ensure global access
-    """Calibrate the pump with progress updates."""
-    duration = 10  # Calibration duration in seconds
-    flow_rates = load_flow_rates()
-    if pump_name not in PUMP_COMMANDS:
-        pump_progress[pump_name] = -1  # Error state
-        return
+    duration = 10  # Duration in seconds
 
-    safe_serial_write(f"{PUMP_COMMANDS[pump_name]}f")
+    try:
+        safe_serial_write(pump_name, 'o')  # Turn ON
+        for i in range(duration * 10):
+            pump_progress[pump_name] = int((i / (duration * 10)) * 100)
+            time.sleep(0.1)
+        safe_serial_write(pump_name, 'f')  # Turn OFF
+        pump_progress[pump_name] = 100
 
-    for i in range(duration * 10):
-        pump_progress[pump_name] = int((i / (duration * 10)) * 100)
-        time.sleep(0.1)
+    except Exception as e:
+        print(f"[ERROR] Calibration failed for {pump_name}: {e}")
+        emergency_stop(pump_name)
+        pump_progress[pump_name] = -1
 
-    ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-    pump_progress[pump_name] = 100  # Complete
 
 
 
