@@ -56,25 +56,54 @@ def emergency_stop_route():
         return jsonify({'status': 'success', 'message': 'Emergency Stop activated!'})
     except Exception as e:
         print(f"[ERROR] Emergency Stop failed: {e}")
+        
+        
+
         return jsonify({'status': 'error', 'message': 'Emergency Stop failed.'}), 500
 
 
 
 
 def safe_serial_write_emergency():
-    """Safely send the emergency stop command to Arduino."""
-    try:
-        if ser and ser.is_open:
-            ser.write(b'X')
-            ser.flush()
-            print("[ALERT] 🚨 Emergency Stop command 'X' sent to Arduino.")
-        else:
-            print("[ERROR] Serial port is not open. Cannot send Emergency Stop.")
-    except serial.SerialException as e:
-        print(f"[ERROR] Serial write failed during Emergency Stop: {e}")
-    except Exception as e:
-        print(f"[ERROR] Unexpected error during Emergency Stop: {e}")
+    """Safely send the emergency stop command to Arduino with verification."""
+    max_retries = 3  # Number of retry attempts
+    attempt = 0
 
+    while attempt < max_retries:
+        try:
+            if ser and ser.is_open:
+                ser.write(b'X')
+                ser.flush()
+                print(f"[ALERT] 🚨 Emergency Stop command 'X' sent to Arduino. Attempt {attempt + 1}")
+
+                # Wait for Arduino response
+                response = ser.readline().decode().strip()
+                print(f"[INFO] Arduino response: {response}")
+
+                if response == "All pumps turned OFF":
+                    print("[SUCCESS] ✅ Arduino confirmed: All pumps are OFF.")
+                    return  # Exit function if successful
+                else:
+                    print("[WARNING] ⚠️ Unexpected response. Reconnecting and retrying...")
+
+            else:
+                print("[ERROR] Serial port is not open. Attempting to reconnect...")
+
+            # Reconnect and retry
+            connect_to_arduino()
+            attempt += 1
+
+        except serial.SerialException as e:
+            print(f"[ERROR] Serial write failed during Emergency Stop: {e}. Reconnecting and retrying...")
+            connect_to_arduino()
+            attempt += 1
+
+        except Exception as e:
+            print(f"[ERROR] Unexpected error during Emergency Stop: {e}. Reconnecting and retrying...")
+            connect_to_arduino()
+            attempt += 1
+
+    print("[FAILURE] ❌ Emergency Stop failed after multiple attempts. Manual intervention may be required.")
 
 
 def safe_serial_write(pump_name, state):
