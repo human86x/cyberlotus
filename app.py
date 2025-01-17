@@ -121,6 +121,7 @@ def calibrate_pump_with_progress(pump_name):
 def test_pump_with_progress(pump_name, weight):
     """Test the pump with progress updates."""
     flow_rates = load_flow_rates()
+    print(f"******pump_name======={pump_name}")
     if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
         pump_progress[pump_name] = -1  # Error state
         return
