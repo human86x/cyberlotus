@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from control_libs.arduino import connect_to_arduino, send_command_and_get_response
+from control_libs.arduino import get_serial_connection, close_serial_connection, connect_to_arduino, send_command_and_get_response
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(base_dir, '../data/tanks.json')
@@ -27,9 +27,11 @@ def add_tank(name, code, total_volume, full_cm, empty_cm):
     save_tanks(tanks)
 
 def test_tanks():
-    global ser 
+    #global ser 
     results = {}
     tanks = load_tanks()
+    global ser
+    ser = get_serial_connection()
     serial_conn = ser#connect_to_arduino()
     time.sleep(2)
 
