@@ -33,6 +33,21 @@ ser = connect_to_arduino()
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
+
+
+def safe_serial_write(command):
+    """Safely write to serial with error handling."""
+    try:
+        if ser and ser.is_open:
+            ser.write(command.encode())
+        else:
+            print("Serial port is not open.")
+    except serial.SerialException as e:
+        print(f"Serial write failed: {e}")
+
+
+
+
 @app.route('/pumps', methods=['GET', 'POST'])
 def pumps():
     global PUMP_COMMANDS  # Ensure global access
@@ -113,13 +128,31 @@ def calibrate_pump_with_progress(pump_name):
         pump_progress[pump_name] = -1  # Error state
         return
 
-    ser.write(f"{PUMP_COMMANDS[pump_name]}o".encode())
+    safe_serial_write(f"{PUMP_COMMANDS[pump_name]}f")
+
     for i in range(duration * 10):
         pump_progress[pump_name] = int((i / (duration * 10)) * 100)
         time.sleep(0.1)
 
     ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
     pump_progress[pump_name] = 100  # Complete
+
+
+
+def emergency_stop(pump_name):
+    """Immediately stop the specified pump in case of error."""
+    try:
+        print(f"[EMERGENCY] Stopping {pump_name} immediately!")
+        if ser and ser.is_open:
+            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
+            ser.flush()
+        else:
+            print("[ERROR] Serial port is not open. Attempting reconnection...")
+            reconnect_arduino()
+            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
+    except Exception as e:
+        print(f"[CRITICAL] Failed to stop {pump_name}: {e}")
+
 
 def test_pump_with_progress(pump_name, weight):
     """Test the pump with progress updates."""
