@@ -46,11 +46,11 @@
             <td>{{ info['full_cm'] }}</td>
             <td>{{ info['empty_cm'] }}</td>
             <td>
-                <!-- Display a vertical fill bar -->
+                <!-- Fill percentage -->
                 <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
                     <div style="position: absolute; bottom: 0; width: 100%; background-color: green; height: {{ tanks[name].fill_percentage }}%;"></div>
                 </div>
-                <p>{{ tanks[name].fill_percentage }}%</p>
+                <p>{{ tanks[name].fill_percentage }}%</p> <!-- Display fill percentage -->
             </td>
         </tr>
         {% endfor %}
