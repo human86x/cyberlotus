@@ -41,7 +41,7 @@
 
 <!-- Display Existing Tanks -->
 <h3>Existing Tanks</h3>
-<div id="tanks-display"></div>
+<div id="tanks-display" style="display: flex; overflow-x: auto;"></div>
 
 <hr>
 
@@ -51,7 +51,21 @@
 
 <div id="test-results"></div>
 
+<hr>
+
+<!-- Solution Level Control -->
+<h3>Adjust Solution Level</h3>
+<input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
+<span id="solution-level-display">50%</span>
+
 <script>
+let solution_level = 50;
+
+document.getElementById("solution-level-slider").addEventListener("input", function(event) {
+    solution_level = event.target.value;
+    document.getElementById("solution-level-display").textContent = solution_level + "%";
+});
+
 function fetchTankData() {
     fetch("{{ url_for('test_tanks_route') }}")
         .then(response => response.json())
