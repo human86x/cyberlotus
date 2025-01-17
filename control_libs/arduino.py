@@ -1,7 +1,10 @@
 import serial
 import time
 
+ser = None
+
 def connect_to_arduino():
+    global ser
     """
     Ensures only one connection is created and reused.
     """
@@ -13,12 +16,30 @@ def connect_to_arduino():
                 connect_to_arduino.connection = serial.Serial(port, baudrate=9600, timeout=1)
                 time.sleep(2)  # Allow time for the Arduino to reset
                 print(f"Connected successfully to {port}")
+                ser = connect_to_arduino.connection
                 return connect_to_arduino.connection
             except serial.SerialException:
                 print(f"Failed to connect to {port}.")
                 continue
         raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
     return connect_to_arduino.connection
+
+
+def get_serial_connection():
+    global ser
+    if ser and ser.is_open:
+        return ser
+    else:
+        print("[ERROR] Serial connection is not established.")
+        return None
+
+def close_serial_connection():
+    global ser
+    if ser and ser.is_open:
+        ser.close()
+        print("[INFO] Serial connection closed.")
+
+
 
 # Usage example
 #t#ry:

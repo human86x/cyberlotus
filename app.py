@@ -15,7 +15,7 @@ import time
 import os
 import sys
 
-from control_libs.arduino import connect_to_arduino, send_command_and_get_response
+from control_libs.arduino import get_serial_connection, close_serial_connection ,connect_to_arduino, send_command_and_get_response
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
 
@@ -28,7 +28,7 @@ from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates,
 # Store progress globally
 pump_progress = {}
 
-ser = connect_to_arduino()
+#ser = connect_to_arduino()
 
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
@@ -65,6 +65,8 @@ def emergency_stop_route():
 
 
 def safe_serial_write_emergency():
+    global ser
+    ser = get_serial_connection()
     """Safely send the emergency stop command to Arduino with verification."""
     max_retries = 3  # Number of retry attempts
     attempt = 0
@@ -109,6 +111,8 @@ def safe_serial_write_emergency():
 import time
 
 def safe_serial_write(pump_name, state, retries=1, timeout=2):
+    global ser
+    ser = get_serial_connection()
     """
     Safely write a pump control command to the serial port and verify Arduino response.
 
@@ -265,6 +269,8 @@ def calibrate_pump_with_progress(pump_name):
 
 
 def emergency_stop(pump_name):
+    global ser
+    ser = get_serial_connection()
     """Immediately stop the specified pump in case of error."""
     try:
         print(f"[EMERGENCY] Stopping {pump_name} immediately!")
@@ -280,6 +286,8 @@ def emergency_stop(pump_name):
 
 
 def test_pump_with_progress(pump_name, weight):
+    global ser
+    ser = get_serial_connection()
     """Test the pump with progress updates."""
     global PUMP_COMMANDS  # Ensure global access
     flow_rates = load_flow_rates()
