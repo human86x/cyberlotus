@@ -41,62 +41,50 @@
 
 <!-- Display Existing Tanks -->
 <h3>Existing Tanks</h3>
-{% if tanks %}
-    <div class="tanks-container" style="display: flex; gap: 20px;">
-        {% for name, info in tanks.items() %}
-        <div class="tank-card" style="text-align: center;">
-            <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
-                <div id="{{ name }}-fill-bar" style="position: absolute; bottom: 0; width: 100%; background-color: green; height: {{ tanks[name].fill_percentage }}%;"></div>
-            </div>
-            <h4>{{ name }}</h4>
-            <p>Arduino Code: {{ info['arduino_code'] }}</p>
-            <p>Total Volume: {{ info['total_volume'] }} L</p>
-            <p>Full: {{ info['full_cm'] }} cm</p>
-            <p>Empty: {{ info['empty_cm'] }} cm</p>
-            <p>Fill Level: {{ tanks[name].fill_percentage }}%</p>
-        </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <p>No tanks configured yet.</p>
-{% endif %}
+<div id="tanks-display"></div>
 
 <hr>
 
 <!-- Test Tanks Button -->
 <h3>Test Tanks</h3>
-<button onclick="testTanks()">Run Test</button>
+<button onclick="fetchTankData()">Run Test</button>
 
 <div id="test-results"></div>
 
 <script>
-function testTanks() {
+function fetchTankData() {
     fetch("{{ url_for('test_tanks_route') }}")
         .then(response => response.json())
         .then(data => {
-            let testResultsDiv = document.getElementById("test-results");
-            testResultsDiv.innerHTML = '';
+            let tanksDisplay = document.getElementById("tanks-display");
+            tanksDisplay.innerHTML = '';
             
             Object.keys(data).forEach(tank => {
                 let result = data[tank];
-                let resultDiv = document.createElement("div");
-                resultDiv.innerHTML = `
-                    <strong>${tank}:</strong>
-                    ${result.error ? result.error : `
-                        Distance: ${result.distance} cm, 
-                        Fill: ${result.fill_percentage}%, 
-                        Volume: ${result.current_volume} L
-                    `}
+                let tankDiv = document.createElement("div");
+                tankDiv.className = "tank-card";
+                tankDiv.style = "text-align: center; margin: 10px; display: inline-block;";
+                tankDiv.innerHTML = `
+                    <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
+                        <div id="${tank}-fill-bar" style="position: absolute; bottom: 0; width: 100%; background-color: green; height: ${result.fill_percentage}%;"></div>
+                    </div>
+                    <h4>${tank}</h4>
+                    <p>Arduino Code: ${result.arduino_code}</p>
+                    <p>Total Volume: ${result.total_volume} L</p>
+                    <p>Full: ${result.full_cm} cm</p>
+                    <p>Empty: ${result.empty_cm} cm</p>
+                    <p>Fill Level: ${result.fill_percentage}%</p>
                 `;
-                testResultsDiv.appendChild(resultDiv);
-
-                let fillBar = document.getElementById(tank + '-fill-bar');
-                if (fillBar) {
-                    fillBar.style.height = result.fill_percentage + '%';
-                }
+                tanksDisplay.appendChild(tankDiv);
             });
+        })
+        .catch(error => {
+            console.error("Error fetching tank data:", error);
         });
 }
+
+// Load tank data on page load
+window.onload = fetchTankData;
 </script>
 
 {% endblock %}
