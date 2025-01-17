@@ -50,10 +50,10 @@ def test_tanks():
                     'distance': distance,
                     'fill_percentage': round(fill_percentage, 2),
                     'current_volume': round(current_volume, 2),
-                    'arduino_code': tanks['arduino_code'],
-                    'total_volume': tanks['total_volume'],
-                    'full_cm': tanks['full_cm'],
-                    'empty_cm': tanks['empty_cm']
+                    'arduino_code': info['arduino_code'],
+                    'total_volume': info['total_volume'],
+                    'full_cm': info['full_cm'],
+                    'empty_cm': info['empty_cm']
                     
                 }
             except ValueError:
