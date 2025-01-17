@@ -36,7 +36,6 @@
             <th>Total Volume (L)</th>
             <th>Full (cm)</th>
             <th>Empty (cm)</th>
-            <th>Actions</th>
         </tr>
         {% for name, info in tanks.items() %}
         <tr>
@@ -45,9 +44,6 @@
             <td>{{ info['total_volume'] }}</td>
             <td>{{ info['full_cm'] }}</td>
             <td>{{ info['empty_cm'] }}</td>
-            <td>
-                <button onclick="deleteTank('{{ name }}')">Delete</button>
-            </td>
         </tr>
         {% endfor %}
     </table>
@@ -65,45 +61,26 @@
 
 <script>
 function testTanks() {
-    document.getElementById("test-results").innerHTML = "Running tests...";
     fetch("{{ url_for('test_tanks_route') }}")
         .then(response => response.json())
         .then(data => {
-            let resultHTML = "<h4>Test Results:</h4><table border='1'><tr><th>Tank</th><th>Distance (cm)</th><th>Fill (%)</th><th>Current Volume (L)</th><th>Status</th></tr>";
-            for (let tank in data) {
-                if (data[tank].error) {
-                    resultHTML += `<tr><td>${tank}</td><td colspan="3">Error</td><td>${data[tank].error}</td></tr>`;
+            let resultHTML = "<h4>Test Results:</h4>";
+            for (const [name, result] of Object.entries(data)) {
+                resultHTML += `<p><strong>${name}</strong><br>`;
+                if (result.error) {
+                    resultHTML += `Error: ${result.error}</p>`;
                 } else {
-                    resultHTML += `<tr>
-                        <td>${tank}</td>
-                        <td>${data[tank].distance}</td>
-                        <td>${data[tank].fill_percentage}%</td>
-                        <td>${data[tank].current_volume} L</td>
-                        <td>✅</td>
-                    </tr>`;
+                    resultHTML += `Distance: ${result.distance} cm<br>
+                                    Fill Percentage: ${result.fill_percentage}%<br>
+                                    Current Volume: ${result.current_volume} L</p>`;
                 }
             }
-            resultHTML += "</table>";
             document.getElementById("test-results").innerHTML = resultHTML;
         })
-        .catch(err => {
-            document.getElementById("test-results").innerHTML = "Error running test.";
+        .catch(error => {
+            console.error('Error testing tanks:', error);
+            document.getElementById("test-results").innerHTML = "<p>Failed to retrieve test results. Please try again.</p>";
         });
-}
-
-function deleteTank(tankName) {
-    if (confirm(`Are you sure you want to delete the tank: ${tankName}?`)) {
-        fetch(`/tanks/delete/${tankName}`, { method: 'DELETE' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert(data.message);
-                }
-            });
-    }
 }
 </script>
 {% endblock %}
