@@ -39,6 +39,7 @@ global PUMP_COMMANDS
 def save_solution_level():
     data = request.get_json()
     solution_level = data.get('solution_level')
+    print("***********************save_solution_level....")
 
     # Update the app_config.json file with the new solution level
     try:
