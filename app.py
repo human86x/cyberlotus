@@ -251,6 +251,22 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+@app.route('/get_tank_data')
+def get_tank_data():
+    # Simulate getting fresh ultrasonic readings
+    test_tanks = {
+        'fresh': {'arduino_code': 'L3', 'total_volume': 4.0, 'full_cm': 8.0, 'empty_cm': 18.0, 'fill_percentage': 49.3},
+        'solution': {'arduino_code': 'L1', 'total_volume': 4.0, 'full_cm': 8.0, 'empty_cm': 18.0, 'fill_percentage': 32.2},
+        'waste': {'arduino_code': 'L2', 'total_volume': 4.0, 'full_cm': 8.0, 'empty_cm': 18.0, 'fill_percentage': 35.1},
+    }
+    
+    # In practice, fetch real data here, e.g., from sensors
+    return jsonify(test_tanks)
+
+
+
+
+
 @app.route('/sequences')
 def sequences():
     return render_template('sequences.html')
