@@ -51,6 +51,8 @@ def save_solution_level():
             json.dump(app_config, file, indent=4)
         return jsonify({"status": "success", "message": "Solution level saved successfully."})
     except Exception as e:
+        print("***********************CANT WRITE TO A FILE...")
+
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
