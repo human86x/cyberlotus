@@ -45,10 +45,16 @@ def test_tanks():
                 fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) /
                                   (info['empty_cm'] - info['full_cm'])) * 100))
                 current_volume = (fill_percentage / 100) * info['total_volume']
+                
                 results[name] = {
                     'distance': distance,
                     'fill_percentage': round(fill_percentage, 2),
-                    'current_volume': round(current_volume, 2)
+                    'current_volume': round(current_volume, 2),
+                    'arduino_code': tanks['arduino_code'],
+                    'total_volume': tanks['total_volume'],
+                    'full_cm': tanks['full_cm'],
+                    'empty_cm': tanks['empty_cm']
+                    
                 }
             except ValueError:
                 results[name] = {'error': f"Invalid sensor response: {response}"}
