@@ -42,37 +42,20 @@
 <!-- Display Existing Tanks -->
 <h3>Existing Tanks</h3>
 {% if tanks %}
-    <div class="tanks-table">
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Arduino Code</th>
-                    <th>Total Volume (L)</th>
-                    <th>Full (cm)</th>
-                    <th>Empty (cm)</th>
-                    <th>Fill Level</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for name, info in tanks.items() %}
-                <tr>
-                    <td>{{ name }}</td>
-                    <td>{{ info['arduino_code'] }}</td>
-                    <td>{{ info['total_volume'] }}</td>
-                    <td>{{ info['full_cm'] }}</td>
-                    <td>{{ info['empty_cm'] }}</td>
-                    <td>
-                        <!-- Fill percentage -->
-                        <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
-                            <div style="position: absolute; bottom: 0; width: 100%; background-color: green; height: {{ tanks[name].fill_percentage }}%;"></div>
-                        </div>
-                        <p>{{ tanks[name].fill_percentage }}%</p> <!-- Display fill percentage -->
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="tanks-container" style="display: flex; gap: 20px;">
+        {% for name, info in tanks.items() %}
+        <div class="tank-card" style="text-align: center;">
+            <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
+                <div id="{{ name }}-fill-bar" style="position: absolute; bottom: 0; width: 100%; background-color: green; height: {{ tanks[name].fill_percentage }}%;"></div>
+            </div>
+            <h4>{{ name }}</h4>
+            <p>Arduino Code: {{ info['arduino_code'] }}</p>
+            <p>Total Volume: {{ info['total_volume'] }} L</p>
+            <p>Full: {{ info['full_cm'] }} cm</p>
+            <p>Empty: {{ info['empty_cm'] }} cm</p>
+            <p>Fill Level: {{ tanks[name].fill_percentage }}%</p>
+        </div>
+        {% endfor %}
     </div>
 {% else %}
     <p>No tanks configured yet.</p>
@@ -107,7 +90,6 @@ function testTanks() {
                 `;
                 testResultsDiv.appendChild(resultDiv);
 
-                // Update the fill bar dynamically
                 let fillBar = document.getElementById(tank + '-fill-bar');
                 if (fillBar) {
                     fillBar.style.height = result.fill_percentage + '%';
@@ -116,60 +98,5 @@ function testTanks() {
         });
 }
 </script>
-
-<body>
-
-    <h1>Tanks Information</h1>
-    
-    <!-- Refresh Button -->
-    <button id="refreshButton">Refresh Readings</button>
-
-    <div class="tanks-container" id="tanksContainer">
-        <!-- Tanks will be populated here dynamically -->
-    </div>
-
-    <script>
-        // Function to fetch new data and update the tanks
-        function updateTankData() {
-            $.ajax({
-                url: '/get_tank_data',
-                method: 'GET',
-                success: function(data) {
-                    var tanksContainer = $('#tanksContainer');
-                    tanksContainer.empty();  // Clear the existing content
-
-                    // Loop through the tanks and update the DOM
-                    for (var tank in data) {
-                        var tankData = data[tank];
-                        var tankCard = `
-                            <div class="tank-card">
-                                <div class="tank-bar" style="height: ${tankData.fill_percentage}%"></div>
-                                <h3>${tank.charAt(0).toUpperCase() + tank.slice(1)}</h3>
-                                <p>Arduino Code: ${tankData.arduino_code}</p>
-                                <p>Total Volume: ${tankData.total_volume} L</p>
-                                <p>Full: ${tankData.full_cm} cm</p>
-                                <p>Empty: ${tankData.empty_cm} cm</p>
-                                <p>Fill Level: ${tankData.fill_percentage}%</p>
-                            </div>
-                        `;
-                        tanksContainer.append(tankCard);  // Append new tank card
-                    }
-                },
-                error: function() {
-                    alert("Failed to fetch tank data.");
-                }
-            });
-        }
-
-        // Event listener for the Refresh button
-        $('#refreshButton').click(function() {
-            updateTankData();  // Update tank data on button click
-        });
-
-        // Fetch initial tank data on page load
-        $(document).ready(function() {
-            updateTankData();
-        });
-    </script>
 
 {% endblock %}
