@@ -12,6 +12,8 @@ app.secret_key = 'your_secret_key'  # Needed for flash messages
 from flask import jsonify
 import threading
 import time
+import os
+import sys
 
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.electric_conductivity import get_ec
