@@ -31,11 +31,11 @@ pump_progress = {}
 ser = connect_to_arduino()
 
 time.sleep(2)  # Allow Arduino to initialize
-global pump_commands
+global PUMP_COMMANDS
 
 @app.route('/pumps', methods=['GET', 'POST'])
 def pumps():
-    pump_commands = load_pump_commands()
+    PUMP_COMMANDS = load_pump_commands()
     pump_names = list(pump_commands.keys())
 
     if request.method == 'POST':
