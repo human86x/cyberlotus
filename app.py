@@ -272,7 +272,8 @@ def ecosystem():
 @app.route('/tanks')
 def tanks():
     tanks_data = load_tanks()
-    return render_template('tanks.html', tanks=tanks_data)
+    return render_template('tanks.html', tanks=test_tanks())
+    #return render_template('tanks.html', tanks=tanks_data)
 
 @app.route('/tanks/create', methods=['POST'])
 def create_tank_route():
