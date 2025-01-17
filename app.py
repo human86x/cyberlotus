@@ -33,6 +33,16 @@ pump_progress = {}
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
+@app.route('/get_solution_level', methods=['GET'])
+def get_solution_level():
+    try:
+        with open('data/app_config.json', 'r') as file:
+            app_config = json.load(file)
+            solution_level = app_config.get('solution_level', 50)  # Default to 50 if not found
+        return jsonify({"solution_level": solution_level})
+    except Exception as e:
+        print(f"Error reading config file: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route('/save_solution_level', methods=['POST'])

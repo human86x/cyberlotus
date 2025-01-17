@@ -62,6 +62,54 @@
 <script>
 let solution_level = 50;
 
+// Function to load the solution level on page load
+function loadSolutionLevel() {
+    fetch("{{ url_for('get_solution_level') }}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.solution_level !== undefined) {
+                solution_level = data.solution_level;
+                document.getElementById("solution-level-slider").value = solution_level;
+                document.getElementById("solution-level-display").textContent = solution_level + "%";
+            }
+        })
+        .catch(error => {
+            console.error("Error loading solution level:", error);
+        });
+}
+
+document.getElementById("solution-level-slider").addEventListener("input", function(event) {
+    solution_level = event.target.value;
+    document.getElementById("solution-level-display").textContent = solution_level + "%";
+});
+
+document.getElementById("save-solution-level-button").addEventListener("click", function() {
+    // Send the current solution level to the server to save to JSON
+    fetch("{{ url_for('save_solution_level_route') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ solution_level: solution_level })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Solution level saved successfully!");
+    })
+    .catch(error => {
+        console.error("Error saving solution level:", error);
+    });
+});
+
+
+
+
+
+
+
+
+
+
 document.getElementById("solution-level-slider").addEventListener("input", function(event) {
     solution_level = event.target.value;
     document.getElementById("solution-level-display").textContent = solution_level + "%";
@@ -120,6 +168,8 @@ function fetchTankData() {
 
 // Load tank data on page load
 window.onload = fetchTankData;
+// Load solution level when the page loads
+window.onload = loadSolutionLevel;
 </script>
 
 {% endblock %}
