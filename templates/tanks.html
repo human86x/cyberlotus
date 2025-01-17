@@ -57,6 +57,7 @@
 <h3>Adjust Solution Level</h3>
 <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
 <span id="solution-level-display">50%</span>
+<button id="save-solution-level-button">Save Level</button>
 
 <script>
 let solution_level = 50;
@@ -65,6 +66,26 @@ document.getElementById("solution-level-slider").addEventListener("input", funct
     solution_level = event.target.value;
     document.getElementById("solution-level-display").textContent = solution_level + "%";
 });
+
+document.getElementById("save-solution-level-button").addEventListener("click", function() {
+    // Send the current solution level to the server to save to JSON
+    fetch("{{ url_for('save_solution_level_route') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ solution_level: solution_level })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Solution level saved successfully!");
+    })
+    .catch(error => {
+        console.error("Error saving solution level:", error);
+    });
+});
+
+
 
 function fetchTankData() {
     fetch("{{ url_for('test_tanks_route') }}")

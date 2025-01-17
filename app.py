@@ -14,7 +14,7 @@ import threading
 import time
 import os
 import sys
-
+import json
 from control_libs.arduino import get_serial_connection, close_serial_connection ,connect_to_arduino, send_command_and_get_response
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
@@ -32,6 +32,24 @@ pump_progress = {}
 
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
+
+
+
+@app.route('/save_solution_level', methods=['POST'])
+def save_solution_level():
+    data = request.get_json()
+    solution_level = data.get('solution_level')
+
+    # Update the app_config.json file with the new solution level
+    try:
+        with open('data/app_config.json', 'r+') as file:
+            app_config = json.load(file)
+            app_config['solution_level'] = solution_level
+            file.seek(0)
+            json.dump(app_config, file, indent=4)
+        return jsonify({"status": "success", "message": "Solution level saved successfully."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
