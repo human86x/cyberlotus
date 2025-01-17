@@ -36,7 +36,7 @@ global PUMP_COMMANDS
 @app.route('/pumps', methods=['GET', 'POST'])
 def pumps():
     PUMP_COMMANDS = load_pump_commands()
-    pump_names = list(pump_commands.keys())
+    pump_names = list(PUMP_COMMANDS.keys())
 
     if request.method == 'POST':
         action = request.form.get('action')
