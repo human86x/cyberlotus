@@ -34,6 +34,35 @@ time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
 
+@app.route('/emergency_stop', methods=['POST'])
+def emergency_stop_route():
+    """Emergency stop for all pumps."""
+    try:
+        safe_serial_write_emergency()
+        flash("🚨 Emergency Stop activated! All pumps stopped.", "error")
+        return jsonify({'status': 'success', 'message': 'Emergency Stop activated!'})
+    except Exception as e:
+        print(f"[ERROR] Emergency Stop failed: {e}")
+        return jsonify({'status': 'error', 'message': 'Emergency Stop failed.'}), 500
+
+
+
+
+def safe_serial_write_emergency():
+    """Safely send the emergency stop command to Arduino."""
+    try:
+        if ser and ser.is_open:
+            ser.write(b'X')
+            ser.flush()
+            print("[ALERT] 🚨 Emergency Stop command 'X' sent to Arduino.")
+        else:
+            print("[ERROR] Serial port is not open. Cannot send Emergency Stop.")
+    except serial.SerialException as e:
+        print(f"[ERROR] Serial write failed during Emergency Stop: {e}")
+    except Exception as e:
+        print(f"[ERROR] Unexpected error during Emergency Stop: {e}")
+
+
 
 def safe_serial_write(pump_name, state):
     """
@@ -249,4 +278,5 @@ def test_tanks_route():
     return jsonify(results)
 
 if __name__ == '__main__':
+    app.jinja_env.cache = {}
     app.run(host='0.0.0.0', port=5000, debug=True)
