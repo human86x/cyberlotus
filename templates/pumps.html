@@ -11,7 +11,7 @@
   {% endif %}
 {% endwith %}
 
-<form method="POST">
+<form id="pumpForm">
     <label for="pump_name">Select Pump:</label>
     <select name="pump_name" id="pump_name" required>
         {% for pump in pump_names %}
@@ -20,13 +20,80 @@
     </select>
 
     <h3>Calibration</h3>
-    <button type="submit" name="action" value="calibrate">Calibrate Pump</button>
+    <button type="button" onclick="startAction('calibrate')">Calibrate Pump</button>
 
     <h3>Testing</h3>
     <label for="weight">Enter Weight (grams):</label>
     <input type="number" step="0.01" name="weight" id="weight">
-    <button type="submit" name="action" value="test">Test Pump</button>
+    <button type="button" onclick="startAction('test')">Test Pump</button>
 </form>
+
+<!-- Progress Bar -->
+<div id="progressContainer" style="display:none; margin-top:20px;">
+    <label for="progressBar">Progress:</label>
+    <div style="width: 100%; background-color: #ccc;">
+        <div id="progressBar" style="width: 0%; height: 30px; background-color: green; text-align: center; color: white;">
+            0%
+        </div>
+    </div>
+</div>
+
+<script>
+function startAction(action) {
+    const pumpName = document.getElementById('pump_name').value;
+    const weight = document.getElementById('weight').value;
+
+    if (!pumpName) {
+        alert('Please select a pump.');
+        return;
+    }
+
+    const data = { pump_name: pumpName, action: action };
+    if (action === 'test') {
+        if (!weight) {
+            alert('Please enter a weight for testing.');
+            return;
+        }
+        data.weight = weight;
+    }
+
+    document.getElementById('progressContainer').style.display = 'block';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressBar').innerText = '0%';
+
+    fetch('/start_pump_action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(() => trackProgress(pumpName))
+    .catch(error => console.error('Error:', error));
+}
+
+function trackProgress(pumpName) {
+    const interval = setInterval(() => {
+        fetch(`/get_progress/${pumpName}`)
+            .then(response => response.json())
+            .then(data => {
+                const progress = data.progress;
+                const progressBar = document.getElementById('progressBar');
+                progressBar.style.width = progress + '%';
+                progressBar.innerText = progress + '%';
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('progressContainer').style.display = 'none';
+                    }, 2000);
+                } else if (progress === -1) {
+                    clearInterval(interval);
+                    alert('Error occurred during the operation.');
+                }
+            });
+    }, 500);
+}
+</script>
 
 <style>
     .alert.success { color: green; }
