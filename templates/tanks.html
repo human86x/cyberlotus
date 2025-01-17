@@ -69,7 +69,7 @@ document.getElementById("solution-level-slider").addEventListener("input", funct
 
 document.getElementById("save-solution-level-button").addEventListener("click", function() {
     // Send the current solution level to the server to save to JSON
-    fetch("{{ url_for('save_solution_level_route') }}", {
+    fetch("{{ url_for('save_solution_level') }}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
