@@ -12,12 +12,16 @@ app.secret_key = 'your_secret_key'  # Needed for flash messages
 from flask import jsonify
 import threading
 import time
-from config_tools.sequencer import execute_sequence
-from config_tools.calibrator import get_correct_EC
-from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
+
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(script_dir, "config_tools"))
+from config_tools.sequencer import execute_sequence
+from config_tools.calibrator import get_correct_EC
+from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 
 # Store progress globally
 pump_progress = {}
