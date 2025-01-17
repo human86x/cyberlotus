@@ -37,6 +37,7 @@
             <th>Full (cm)</th>
             <th>Empty (cm)</th>
             <th>Fill Level</th>
+            <th>Control</th>  <!-- Add Control Column -->
         </tr>
         {% for name, info in tanks.items() %}
         <tr>
@@ -51,6 +52,11 @@
                     <div style="position: absolute; bottom: 0; width: 100%; background-color: green; height: {{ tanks[name].fill_percentage }}%;"></div>
                 </div>
                 <p>{{ tanks[name].fill_percentage }}%</p> <!-- Display fill percentage -->
+            </td>
+            <td>
+                <!-- Control Buttons for Fill and Drain -->
+                <button onclick="controlTank('{{ name }}', 'fill')">Fill</button>
+                <button onclick="controlTank('{{ name }}', 'drain')">Drain</button>
             </td>
         </tr>
         {% endfor %}
@@ -68,6 +74,26 @@
 <div id="test-results"></div>
 
 <script>
+// Function to control the tank (fill or drain)
+function controlTank(tankName, action) {
+    fetch(`{{ url_for('control_tank_route') }}?tank=${tankName}&action=${action}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`${tankName} is now ${action}ing.`);
+            // Optionally, update the UI here (e.g., by calling updateTankData())
+        } else {
+            alert('Error performing action on tank.');
+        }
+    })
+    .catch(err => {
+        alert('Error communicating with server.');
+        console.error(err);
+    });
+}
+
 function testTanks() {
     fetch("{{ url_for('test_tanks_route') }}")
         .then(response => response.json())
@@ -131,6 +157,8 @@ function testTanks() {
                                 <p>Full: ${tankData.full_cm} cm</p>
                                 <p>Empty: ${tankData.empty_cm} cm</p>
                                 <p>Fill Level: ${tankData.fill_percentage}%</p>
+                                <button onclick="controlTank('${tank}', 'fill')">Fill</button>
+                                <button onclick="controlTank('${tank}', 'drain')">Drain</button>
                             </div>
                         `;
                         tanksContainer.append(tankCard);  // Append new tank card
@@ -152,7 +180,5 @@ function testTanks() {
             updateTankData();
         });
     </script>
-
-
 
 {% endblock %}

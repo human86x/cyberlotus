@@ -1,7 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from config_tools.tank_manager import load_tanks, add_tank, test_tanks
-
-from flask import flash
 from config_tools.flow_tune import calibrate_pump, test_pump, load_pump_commands
 
 app = Flask(__name__)
@@ -9,12 +7,10 @@ app.secret_key = 'your_secret_key'  # Needed for flash messages
 
 ###################################
 
-from flask import jsonify
 import threading
 import time
 import os
 import sys
-
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
@@ -29,10 +25,8 @@ from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates,
 pump_progress = {}
 
 ser = connect_to_arduino()
-
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
-
 
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
 def delete_tank_route(tank_name):
@@ -44,9 +38,6 @@ def delete_tank_route(tank_name):
     else:
         return jsonify({'status': 'error', 'message': f'Tank "{tank_name}" not found.'}), 404
 
-
-
-
 @app.route('/emergency_stop', methods=['POST'])
 def emergency_stop_route():
     """Emergency stop for all pumps."""
@@ -57,9 +48,6 @@ def emergency_stop_route():
     except Exception as e:
         print(f"[ERROR] Emergency Stop failed: {e}")
         return jsonify({'status': 'error', 'message': 'Emergency Stop failed.'}), 500
-
-
-
 
 def safe_serial_write_emergency():
     """Safely send the emergency stop command to Arduino."""
@@ -74,8 +62,6 @@ def safe_serial_write_emergency():
         print(f"[ERROR] Serial write failed during Emergency Stop: {e}")
     except Exception as e:
         print(f"[ERROR] Unexpected error during Emergency Stop: {e}")
-
-
 
 def safe_serial_write(pump_name, state):
     """
@@ -110,10 +96,6 @@ def safe_serial_write(pump_name, state):
         print(f"[ERROR] Unexpected error while writing to serial: {e}")
         emergency_stop(pump_name)
 
-
-
-
-
 @app.route('/pumps', methods=['GET', 'POST'])
 def pumps():
     global PUMP_COMMANDS  # Ensure global access
@@ -143,13 +125,6 @@ def pumps():
         return redirect(url_for('pumps'))
 
     return render_template('pumps.html', pump_names=pump_names)
-
-
-
-
-
-
-
 
 @app.route('/start_pump_action', methods=['POST'])
 def start_pump_action():
@@ -201,111 +176,55 @@ def calibrate_pump_with_progress(pump_name):
         emergency_stop(pump_name)
         pump_progress[pump_name] = -1
 
+@app.route('/fill_tank', methods=['POST'])
+def fill_tank():
+    tank_name = request.form['tank_name']
+    pump_name = request.form['pump_name']
+
+    if not tank_name or not pump_name:
+        flash("Tank name or Pump name not provided.", "error")
+        return redirect(url_for('dashboard'))
+
+    # Start filling the tank
+    safe_serial_write(pump_name, 'o')  # Turn ON pump
+    flash(f"Filling {tank_name} with pump {pump_name} started.", "success")
+
+    # Run a function to monitor fill progress and stop when the tank is full
+    def monitor_fill():
+        # Simulate monitoring the tank fill progress
+        time.sleep(10)  # Simulate fill time
+        safe_serial_write(pump_name, 'f')  # Turn OFF pump
+        flash(f"Filling of {tank_name} completed.", "success")
+
+    threading.Thread(target=monitor_fill).start()
+
+    return redirect(url_for('dashboard'))
+
+@app.route('/drain_tank', methods=['POST'])
+def drain_tank():
+    tank_name = request.form['tank_name']
+    pump_name = request.form['pump_name']
+
+    if not tank_name or not pump_name:
+        flash("Tank name or Pump name not provided.", "error")
+        return redirect(url_for('dashboard'))
+
+    # Start draining the tank
+    safe_serial_write(pump_name, 'o')  # Turn ON pump
+    flash(f"Draining {tank_name} with pump {pump_name} started.", "success")
+
+    # Run a function to monitor drain progress and stop when the tank is empty
+    def monitor_drain():
+        # Simulate monitoring the tank drain progress
+        time.sleep(10)  # Simulate drain time
+        safe_serial_write(pump_name, 'f')  # Turn OFF pump
+        flash(f"Draining of {tank_name} completed.", "success")
+
+    threading.Thread(target=monitor_drain).start()
+
+    return redirect(url_for('dashboard'))
 
 
-
-def emergency_stop(pump_name):
-    """Immediately stop the specified pump in case of error."""
-    try:
-        print(f"[EMERGENCY] Stopping {pump_name} immediately!")
-        if ser and ser.is_open:
-            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-            ser.flush()
-        else:
-            print("[ERROR] Serial port is not open. Attempting reconnection...")
-            reconnect_arduino()
-            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-    except Exception as e:
-        print(f"[CRITICAL] Failed to stop {pump_name}: {e}")
-
-
-def test_pump_with_progress(pump_name, weight):
-    """Test the pump with progress updates."""
-    global PUMP_COMMANDS  # Ensure global access
-    flow_rates = load_flow_rates()
-    print(f"******pump_name======={pump_name}")
-    if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
-        pump_progress[pump_name] = -1  # Error state
-        return
-
-    flow_rate = flow_rates[pump_name]
-    duration = weight / flow_rate
-
-    ser.write(f"{PUMP_COMMANDS[pump_name]}o".encode())
-    for i in range(int(duration * 10)):
-        pump_progress[pump_name] = int((i / (duration * 10)) * 100)
-        time.sleep(0.1)
-
-    ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-    pump_progress[pump_name] = 100  # Complete
-
-
-
-
-
-################################
-
-
-@app.route('/')
-def dashboard():
-    return render_template('dashboard.html')
-
-
-@app.route('/get_tank_data')
-def get_tank_data():
-    # Simulate getting fresh ultrasonic readings
-    test_tanks = {
-        'fresh': {'arduino_code': 'L3', 'total_volume': 4.0, 'full_cm': 8.0, 'empty_cm': 18.0, 'fill_percentage': 49.3},
-        'solution': {'arduino_code': 'L1', 'total_volume': 4.0, 'full_cm': 8.0, 'empty_cm': 18.0, 'fill_percentage': 32.2},
-        'waste': {'arduino_code': 'L2', 'total_volume': 4.0, 'full_cm': 8.0, 'empty_cm': 18.0, 'fill_percentage': 35.1},
-    }
-    
-    # In practice, fetch real data here, e.g., from sensors
-    return jsonify(test_tanks)
-
-
-
-
-
-@app.route('/sequences')
-def sequences():
-    return render_template('sequences.html')
-@app.route('/ec')
-def ec():
-    return render_template('EC.html')
-@app.route('/ph')
-def ph():
-    return render_template('ph.html')
-@app.route('/ecosystem')
-def ecosystem():
-    return render_template('ecsystem.html')
-
-
-
-
-
-
-@app.route('/tanks')
-def tanks():
-    tanks_data = load_tanks()
-    return render_template('tanks.html', tanks=test_tanks())
-    #return render_template('tanks.html', tanks=tanks_data)
-
-@app.route('/tanks/create', methods=['POST'])
-def create_tank_route():
-    name = request.form['name']
-    code = request.form['code']
-    total_volume = float(request.form['total_volume'])
-    full_cm = float(request.form['full_cm'])
-    empty_cm = float(request.form['empty_cm'])
-
-    add_tank(name, code, total_volume, full_cm, empty_cm)
-    return redirect(url_for('tanks'))
-
-@app.route('/tanks/test', methods=['GET'])
-def test_tanks_route():
-    results = test_tanks()
-    return jsonify(results)
 
 if __name__ == '__main__':
     app.jinja_env.cache = {}
