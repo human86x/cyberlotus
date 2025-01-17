@@ -45,6 +45,7 @@ def save_solution_level():
         with open('data/app_config.json', 'r+') as file:
             app_config = json.load(file)
             app_config['solution_level'] = solution_level
+            print("***********************Writing to a config file....")
             file.seek(0)
             json.dump(app_config, file, indent=4)
         return jsonify({"status": "success", "message": "Solution level saved successfully."})
