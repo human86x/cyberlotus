@@ -53,5 +53,12 @@
     <div class="content">
         {% block content %}{% endblock %}
     </div>
+
+    <li>
+        <form action="{{ url_for('emergency_stop_route') }}" method="post">
+            <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
+        </form>
+    </li>
+    
 </body>
 </html>

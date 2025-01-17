@@ -4,3 +4,25 @@
 <h1>Dashboard</h1>
 <p>Welcome to the CyberLotus Project dashboard.</p>
 {% endblock %}
+<!-- Emergency Stop Button -->
+<form id="emergencyStopForm" action="{{ url_for('emergency_stop_route') }}" method="post">
+    <button type="submit" class="btn btn-danger btn-lg" onclick="confirmEmergencyStop()">🚨 EMERGENCY STOP</button>
+</form>
+
+<script>
+function confirmEmergencyStop() {
+    if (confirm("⚠️ Are you sure you want to activate the EMERGENCY STOP? This will immediately stop all pumps!")) {
+        fetch('/emergency_stop', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                alert("❌ Failed to send Emergency Stop command.");
+                console.error('Error:', error);
+            });
+    } else {
+        event.preventDefault();  // Cancel if user cancels the confirmation
+    }
+}
+</script>
