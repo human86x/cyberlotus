@@ -58,8 +58,8 @@ def save_solution_level():
 
         return jsonify({"status": "success", "message": "Solution level saved successfully."})
     except Exception as e:
-    print(f"Error: {e}")
-    return jsonify({"status": "error", "message": str(e)}), 500
+        print(f"Error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
