@@ -27,9 +27,10 @@ def add_tank(name, code, total_volume, full_cm, empty_cm):
     save_tanks(tanks)
 
 def test_tanks():
+    global ser 
     results = {}
     tanks = load_tanks()
-    serial_conn = connect_to_arduino()
+    serial_conn = ser#connect_to_arduino()
     time.sleep(2)
 
     for name, info in tanks.items():
