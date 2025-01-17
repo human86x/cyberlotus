@@ -35,6 +35,7 @@ global PUMP_COMMANDS
 
 @app.route('/pumps', methods=['GET', 'POST'])
 def pumps():
+    global PUMP_COMMANDS  # Ensure global access
     PUMP_COMMANDS = load_pump_commands()
     pump_names = list(PUMP_COMMANDS.keys())
 
@@ -71,6 +72,7 @@ def pumps():
 
 @app.route('/start_pump_action', methods=['POST'])
 def start_pump_action():
+    global PUMP_COMMANDS  # Ensure global access
     data = request.get_json()
     pump_name = data.get('pump_name')
     action = data.get('action')
@@ -103,6 +105,7 @@ def get_progress(pump_name):
     return jsonify({'progress': progress})
 
 def calibrate_pump_with_progress(pump_name):
+    global PUMP_COMMANDS  # Ensure global access
     """Calibrate the pump with progress updates."""
     duration = 10  # Calibration duration in seconds
     flow_rates = load_flow_rates()
@@ -120,6 +123,7 @@ def calibrate_pump_with_progress(pump_name):
 
 def test_pump_with_progress(pump_name, weight):
     """Test the pump with progress updates."""
+    global PUMP_COMMANDS  # Ensure global access
     flow_rates = load_flow_rates()
     print(f"******pump_name======={pump_name}")
     if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
