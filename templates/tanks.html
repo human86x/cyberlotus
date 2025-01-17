@@ -36,6 +36,7 @@
             <th>Total Volume (L)</th>
             <th>Full (cm)</th>
             <th>Empty (cm)</th>
+            <th>Fill Level</th>
         </tr>
         {% for name, info in tanks.items() %}
         <tr>
@@ -44,6 +45,13 @@
             <td>{{ info['total_volume'] }}</td>
             <td>{{ info['full_cm'] }}</td>
             <td>{{ info['empty_cm'] }}</td>
+            <td>
+                <!-- Display a vertical fill bar -->
+                <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
+                    <div style="position: absolute; bottom: 0; width: 100%; background-color: green; height: {{ tanks[name].fill_percentage }}%;"></div>
+                </div>
+                <p>{{ tanks[name].fill_percentage }}%</p>
+            </td>
         </tr>
         {% endfor %}
     </table>
@@ -64,23 +72,30 @@ function testTanks() {
     fetch("{{ url_for('test_tanks_route') }}")
         .then(response => response.json())
         .then(data => {
-            let resultHTML = "<h4>Test Results:</h4>";
-            for (const [name, result] of Object.entries(data)) {
-                resultHTML += `<p><strong>${name}</strong><br>`;
-                if (result.error) {
-                    resultHTML += `Error: ${result.error}</p>`;
-                } else {
-                    resultHTML += `Distance: ${result.distance} cm<br>
-                                    Fill Percentage: ${result.fill_percentage}%<br>
-                                    Current Volume: ${result.current_volume} L</p>`;
+            let testResultsDiv = document.getElementById("test-results");
+            testResultsDiv.innerHTML = '';
+            
+            Object.keys(data).forEach(tank => {
+                let result = data[tank];
+                let resultDiv = document.createElement("div");
+                resultDiv.innerHTML = `
+                    <strong>${tank}:</strong>
+                    ${result.error ? result.error : `
+                        Distance: ${result.distance} cm, 
+                        Fill: ${result.fill_percentage}%, 
+                        Volume: ${result.current_volume} L
+                    `}
+                `;
+                testResultsDiv.appendChild(resultDiv);
+
+                // Update the fill bar dynamically
+                let fillBar = document.getElementById(tank + '-fill-bar');
+                if (fillBar) {
+                    fillBar.style.height = result.fill_percentage + '%';
                 }
-            }
-            document.getElementById("test-results").innerHTML = resultHTML;
-        })
-        .catch(error => {
-            console.error('Error testing tanks:', error);
-            document.getElementById("test-results").innerHTML = "<p>Failed to retrieve test results. Please try again.</p>";
+            });
         });
 }
 </script>
+
 {% endblock %}
