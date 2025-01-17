@@ -34,6 +34,19 @@ time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
 
+@app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
+def delete_tank_route(tank_name):
+    tanks = load_tanks()
+    if tank_name in tanks:
+        del tanks[tank_name]
+        save_tanks(tanks)
+        return jsonify({'status': 'success', 'message': f'Tank "{tank_name}" deleted successfully.'})
+    else:
+        return jsonify({'status': 'error', 'message': f'Tank "{tank_name}" not found.'}), 404
+
+
+
+
 @app.route('/emergency_stop', methods=['POST'])
 def emergency_stop_route():
     """Emergency stop for all pumps."""
