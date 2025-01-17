@@ -31,7 +31,7 @@ pump_progress = {}
 ser = connect_to_arduino()
 
 time.sleep(2)  # Allow Arduino to initialize
-
+global pump_commands
 
 @app.route('/pumps', methods=['GET', 'POST'])
 def pumps():
