@@ -34,6 +34,66 @@ time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
 
+
+from app import test_pump_with_progress
+import json
+@app.route('/adjust_solution_tank', methods=['POST'])
+def adjust_solution_tank():
+    return adjust_tank_level('solution')
+
+def adjust_tank_level(tank_name):
+    print(f"Adjusting tank level for {tank_name}...")
+
+    try:
+        # Load configuration from app_config.json
+        with open('data/app_config.json', 'r') as file:
+            app_config = json.load(file)
+        
+        # Retrieve the pumps to be used for fill or drain actions
+        fill_pump = app_config.get('fill_pump', 'fresh_solution')
+        drain_pump = app_config.get('drain_pump', 'solution_waste')
+        solution_level = float(app_config.get('solution_level', 50))  # Default 50 if not found
+        
+        # Fetch the tank levels from `tank_manager.py`
+        tank_results = test_tanks()  # This function will give you the current levels
+        print(f"Tank data fetched****{tank_results}")
+        
+        # Get the data for the specific tank
+        tank_data = tank_results.get(tank_name)
+        
+        if not tank_data:
+            print(f"Tank {tank_name} not found in the results.")
+            return jsonify({"status": "error", "message": f"Tank {tank_name} not found"}), 400
+
+        current_volume = tank_data['current_volume']
+        total_volume = tank_data['total_volume']
+
+        # Calculate the volume to add or drain
+        stored_volume = (solution_level / 100) * total_volume
+        volume_difference = current_volume - stored_volume
+
+        if volume_difference > 0:
+            # Need to drain liquid
+            print(f"Draining {volume_difference:.2f} L of solution from {tank_name}.")
+            weight_to_drain = volume_difference * 100  # Convert to weight (multiply by 100)
+            test_pump_with_progress(drain_pump, weight_to_drain)
+        elif volume_difference < 0:
+            # Need to add liquid
+            print(f"Adding {-volume_difference:.2f} L of solution to {tank_name}.")
+            weight_to_add = -volume_difference * 100  # Convert to weight (multiply by 100)
+            test_pump_with_progress(fill_pump, weight_to_add)
+        else:
+            print(f"Tank {tank_name} is already at the correct level.")
+
+        return jsonify({"status": "success", "message": f"Tank {tank_name} adjusted successfully"})
+
+    except Exception as e:
+        print(f"Error adjusting tank level: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+
+
 @app.route('/compare_solution_level', methods=['GET'])
 def compare_solution_level():
     print("Compare solution level function started*************")
