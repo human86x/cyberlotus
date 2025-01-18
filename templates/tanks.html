@@ -51,6 +51,32 @@
 
 
 
+<!-- Solution Level Control -->
+
+
+
+<!-- Button to trigger solution level comparison -->
+<h3>Check Solution Level Adjustment</h3>
+<button onclick="compareSolutionLevel()">Check Adjustment</button>
+
+<div id="adjustment-results"></div>
+
+
+
+
+<h3>Adjust Solution Tank Level</h3>
+<div>
+    <button id="adjustTankButton">Adjust Solution Tank</button>
+    <div id="responseMessage"></div> <!-- To display success or error messages -->
+    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
+    <span id="solution-level-display">50%</span>
+    <button id="save-solution-level-button">Save Level</button>
+</div>
+
+
+
+
+
 
 <!-- Tank Creation Form -->
 <div class="form-container">
@@ -86,32 +112,6 @@
 </div>
 
 <hr>
-
-<!-- Solution Level Control -->
-
-
-
-<!-- Button to trigger solution level comparison -->
-<h3>Check Solution Level Adjustment</h3>
-<button onclick="compareSolutionLevel()">Check Adjustment</button>
-
-<div id="adjustment-results"></div>
-
-
-
-
-<h3>Adjust Solution Tank Level</h3>
-<div>
-    <button id="adjustTankButton">Adjust Solution Tank</button>
-    <div id="responseMessage"></div> <!-- To display success or error messages -->
-    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
-    <span id="solution-level-display">50%</span>
-    <button id="save-solution-level-button">Save Level</button>
-</div>
-
-
-
-
 
 
 
