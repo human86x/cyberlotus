@@ -315,9 +315,6 @@ def emergency_stop_route():
 
         return jsonify({'status': 'error', 'message': 'Emergency Stop failed.'}), 500
 
-
-
-
 def safe_serial_write_emergency():
     global ser
     ser = get_serial_connection()
