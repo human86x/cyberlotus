@@ -120,11 +120,11 @@ def compare_solution_level():
             print(f"Target volume - {stored_volume}")
             if current_volume > stored_volume:
                 # Need to drain liquid
-                volume_to_drain = (current_volume - stored_volume)*10
+                volume_to_drain = current_volume - stored_volume
                 changes_needed[tank] = {'action': 'drain', 'volume_liters': volume_to_drain}
             elif current_volume < stored_volume:
                 # Need to add liquid
-                volume_to_add = (stored_volume - current_volume)*10
+                volume_to_add = stored_volume - current_volume
                 changes_needed[tank] = {'action': 'add', 'volume_liters': volume_to_add}
         
         return jsonify(changes_needed)
