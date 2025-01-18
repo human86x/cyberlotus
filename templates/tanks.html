@@ -237,7 +237,7 @@ document.getElementById('pumpForm').addEventListener('submit', function(event) {
 <div id="adjustment-results"></div>
 
 <script>
-    
+
 function compareSolutionLevel() {
     fetch("{{ url_for('compare_solution_level') }}")
         .then(response => response.json())
@@ -314,5 +314,28 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
     });
 });
 </script>
+<button id="adjustTankButton">Adjust Solution Tank</button>
+    <div id="responseMessage"></div> <!-- To display success or error messages -->
 
+    <script>
+        document.getElementById('adjustTankButton').addEventListener('click', function() {
+            // Send a POST request to the '/adjust_solution_tank' route
+            fetch("{{ url_for('adjust_solution_tank') }}", {
+                method: "POST"
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the result message
+                const responseMessageDiv = document.getElementById("responseMessage");
+                if (data.status === "success") {
+                    responseMessageDiv.innerHTML = `<p>Success: ${data.message}</p>`;
+                } else {
+                    responseMessageDiv.innerHTML = `<p>Error: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Error calling adjust_tank_level:", error);
+            });
+        });
+    </script>
 {% endblock %}
