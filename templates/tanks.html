@@ -1,44 +1,44 @@
-<link rel="stylesheet" type="text/css" href="static/style.css" />
 {% extends "base.html" %}
 
 {% block content %}
 <h1>Tank Calibration</h1>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert {{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-<form id="tankForm">
+<form id="calibrationForm">
     <label for="tank_name">Tank Name:</label>
-    <input type="text" name="tank_name" id="tank_name" required>
+    <select name="tank_name" id="tank_name" style="width: 200px;" required>
+        {% for tank in tank_names %}
+            <option value="{{ tank }}">{{ tank }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
 
     <label for="sensor_name">Sensor Name:</label>
-    <select name="sensor_name" id="sensor_name" required>
-        {% for sensor in sensors %}
+    <select name="sensor_name" id="sensor_name" style="width: 200px;" required>
+        {% for sensor in sensor_names %}
             <option value="{{ sensor }}">{{ sensor }}</option>
         {% endfor %}
     </select>
+    <br><br>
 
     <label for="drain_pump">Select Draining Pump:</label>
-    <select name="drain_pump" id="drain_pump" required>
+    <select name="drain_pump" id="drain_pump" style="width: 200px;" required>
         {% for pump in pump_names %}
             <option value="{{ pump }}">{{ pump }}</option>
         {% endfor %}
     </select>
+    <br><br>
 
     <label for="fill_pump">Select Filling Pump:</label>
-    <select name="fill_pump" id="fill_pump" required>
+    <select name="fill_pump" id="fill_pump" style="width: 200px;" required>
         {% for pump in pump_names %}
             <option value="{{ pump }}">{{ pump }}</option>
         {% endfor %}
     </select>
+    <br><br>
 
     <h3>Calibration</h3>
     <button type="button" onclick="startCalibration()">Start Calibration</button>
+    <button type="button" onclick="emergencyStop()" style="color: red;">🚨 Emergency Stop</button>
 </form>
 
 <!-- Progress Bar -->
@@ -59,11 +59,16 @@ function startCalibration() {
     const fillPump = document.getElementById('fill_pump').value;
 
     if (!tankName || !sensorName || !drainPump || !fillPump) {
-        alert('Please fill out all fields.');
+        alert('Please fill in all fields.');
         return;
     }
 
-    const data = { tank_name: tankName, sensor_name: sensorName, drain_pump: drainPump, fill_pump: fillPump };
+    const data = {
+        tank_name: tankName,
+        sensor_name: sensorName,
+        drain_pump: drainPump,
+        fill_pump: fillPump
+    };
 
     document.getElementById('progressContainer').style.display = 'block';
     document.getElementById('progressBar').style.width = '0%';
@@ -96,10 +101,16 @@ function trackProgress(tankName) {
                     }, 2000);
                 } else if (progress === -1) {
                     clearInterval(interval);
-                    alert('Error occurred during the operation.');
+                    alert('Error occurred during the calibration.');
                 }
             });
     }, 500);
+}
+
+function emergencyStop() {
+    fetch('/emergency_stop', { method: 'POST' })
+        .then(() => alert('Emergency stop activated!'))
+        .catch(error => console.error('Error:', error));
 }
 </script>
 
