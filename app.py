@@ -310,8 +310,8 @@ def emergency_stop_route():
     except Exception as e:
         print(f"[ERROR] Emergency Stop failed: {e}")
         connect_to_arduino()
-        attempt += 1
-        print(f"Reconnection attemp N: {attemp}")
+        #attempt += 1
+        #print(f"Reconnection attemp N: {attemp}")
 
         return jsonify({'status': 'error', 'message': 'Emergency Stop failed.'}), 500
 
