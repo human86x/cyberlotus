@@ -76,7 +76,7 @@
 
 <h3>Adjust Solution Tank Level</h3>
 <div>
-    <button onclick="adjustTankLevel()">Adjust Tank Level</button>
+    <button id="adjustTankButton">Adjust Tank Level</button>
 
     <div id="responseMessage"></div> <!-- To display success or error messages -->
     <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
@@ -441,23 +441,61 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
 </script>
     <script>
         document.getElementById('adjustTankButton').addEventListener('click', function() {
-            // Send a POST request to the '/adjust_solution_tank' route
-            fetch("{{ url_for('adjust_solution_tank') }}", {
-                method: "POST"
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Display the result message
-                const responseMessageDiv = document.getElementById("responseMessage");
-                if (data.status === "success") {
-                    responseMessageDiv.innerHTML = `<p>Success: ${data.message}</p>`;
-                } else {
-                    responseMessageDiv.innerHTML = `<p>Error: ${data.message}</p>`;
-                }
-            })
-            .catch(error => {
-                console.error("Error calling adjust_tank_level:", error);
-            });
-        });
+    // Show the progress bar
+    const progressContainer = document.getElementById("progress-container");
+    const progressBar = document.getElementById("progress-bar");
+    progressContainer.style.display = "block";
+    progressBar.style.width = "0%";
+
+    // Simulate progress while waiting for the server response
+    let width = 0;
+    const progressInterval = setInterval(() => {
+        if (width < 90) {  // Simulate up to 90% until server responds
+            width += 1;
+            progressBar.style.width = width + "%";
+        }
+    }, 100);  // Adjust speed if needed
+
+    // Send a POST request to the '/adjust_solution_tank' route
+    fetch("{{ url_for('adjust_solution_tank') }}", {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(data => {
+        clearInterval(progressInterval);  // Stop the simulated progress
+
+        // Instantly complete the progress bar
+        progressBar.style.width = "100%";
+
+        // Display the result message
+        const responseMessageDiv = document.getElementById("responseMessage");
+        if (data.status === "success") {
+            responseMessageDiv.innerHTML = `<p>✅ Success: ${data.message}</p>`;
+        } else {
+            responseMessageDiv.innerHTML = `<p>❌ Error: ${data.message}</p>`;
+        }
+
+        // Hide the progress bar after a short delay
+        setTimeout(() => {
+            progressContainer.style.display = "none";
+            progressBar.style.width = "0%";
+        }, 1000);  // 1-second delay before hiding
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        console.error("Error calling adjust_tank_level:", error);
+
+        // Show error feedback
+        const responseMessageDiv = document.getElementById("responseMessage");
+        responseMessageDiv.innerHTML = `<p>❌ Error: Failed to adjust tank level.</p>`;
+
+        // Hide the progress bar after a short delay
+        setTimeout(() => {
+            progressContainer.style.display = "none";
+            progressBar.style.width = "0%";
+        }, 1000);
+    });
+});
+
     </script>
 {% endblock %}
