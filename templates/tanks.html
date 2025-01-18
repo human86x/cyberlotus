@@ -227,6 +227,46 @@ document.getElementById('pumpForm').addEventListener('submit', function(event) {
 <hr>
 
 <!-- Solution Level Control -->
+
+
+
+<!-- Button to trigger solution level comparison -->
+<h3>Check Solution Level Adjustment</h3>
+<button onclick="compareSolutionLevel()">Check Adjustment</button>
+
+<div id="adjustment-results"></div>
+
+<script>
+function compareSolutionLevel() {
+    fetch("{{ url_for('compare_solution_level') }}")
+        .then(response => response.json())
+        .then(data => {
+            let resultsDisplay = document.getElementById("adjustment-results");
+            resultsDisplay.innerHTML = '';  // Clear previous results
+
+            Object.keys(data).forEach(tank => {
+                let result = data[tank];
+                let resultDiv = document.createElement("div");
+                resultDiv.className = "tank-result";
+                resultDiv.style = "margin: 10px; padding: 10px; border: 1px solid #ccc;";
+                resultDiv.innerHTML = `
+                    <h4>${tank}</h4>
+                    <p>Action: ${result.action}</p>
+                    <p>Volume to ${result.action === 'drain' ? 'drain' : 'add'}: ${result.volume_liters.toFixed(2)} L</p>
+                `;
+                resultsDisplay.appendChild(resultDiv);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching solution level comparison:", error);
+        });
+}
+</script>
+
+
+
+
+
 <h3>Adjust Solution Tank Level</h3>
 <div>
     <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>

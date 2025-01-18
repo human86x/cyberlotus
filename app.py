@@ -33,6 +33,87 @@ pump_progress = {}
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
+
+@app.route('/compare_solution_level', methods=['GET'])
+def compare_solution_level():
+    try:
+        # Load the current solution level
+        with open('data/app_config.json', 'r') as file:
+            app_config = json.load(file)
+            stored_level = app_config.get('solution_level', 50)  # Default 50 if not found
+
+        # Fetch the tank levels from `tank_manager.py`
+        tank_results = test_tanks()  # This function will give you the current levels
+
+        changes_needed = {}
+
+        for tank, data in tank_results.items():
+            current_volume = data['current_volume']
+            total_volume = data['total_volume']
+
+            # Calculate the difference between current volume and stored solution level
+            stored_volume = (stored_level / 100) * total_volume
+            if current_volume > stored_volume:
+                # Need to drain liquid
+                volume_to_drain = current_volume - stored_volume
+                changes_needed[tank] = {'action': 'drain', 'volume_liters': volume_to_drain}
+            elif current_volume < stored_volume:
+                # Need to add liquid
+                volume_to_add = stored_volume - current_volume
+                changes_needed[tank] = {'action': 'add', 'volume_liters': volume_to_add}
+        
+        return jsonify(changes_needed)
+
+    except Exception as e:
+        print(f"Error comparing solution levels: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+def compare_and_calculate_difference(current_level, tank_name):
+    # Load stored tanks data
+    tanks = load_tanks()
+    if tank_name not in tanks:
+        return {"error": f"Tank '{tank_name}' not found."}
+
+    tank_info = tanks[tank_name]
+    total_volume = tank_info['total_volume']
+    
+    # Get the stored solution level (default to 50 if not found in config file)
+    try:
+        with open('data/app_config.json', 'r') as file:
+            app_config = json.load(file)
+            stored_solution_level = app_config.get('solution_level', 50)
+    except Exception as e:
+        return {"error": f"Error reading config file: {e}"}
+    
+    # Calculate the difference between current level and stored level
+    if current_level > stored_solution_level:
+        # Drain the solution
+        difference = current_level - stored_solution_level
+        volume_to_drain = (difference / 100) * total_volume
+        action = "drain"
+    else:
+        # Add the solution
+        difference = stored_solution_level - current_level
+        volume_to_add = (difference / 100) * total_volume
+        action = "add"
+    
+    return {
+        "tank_name": tank_name,
+        "current_level": current_level,
+        "stored_solution_level": stored_solution_level,
+        "difference": round(difference, 2),
+        "action": action,
+        "volume_to_adjust": round(volume_to_drain if action == "drain" else volume_to_add, 2)
+    }
+
+
+
+
+
+
+
+
+
 @app.route('/get_solution_level', methods=['GET'])
 def get_solution_level():
     try:
