@@ -39,6 +39,7 @@ def adjust_solution_tank():
     return adjust_tank_level('solution')
 
 def adjust_tank_level(tank_name):
+    global PUMP_COMMANDS
     print(f"Adjusting tank level for {tank_name}...")
 
     try:
