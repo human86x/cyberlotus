@@ -97,11 +97,13 @@ def save_pump_assignment():
 
 @app.route('/get_saved_pumps', methods=['GET'])
 def get_saved_pumps():
+    print("Reading the assignment fle...")
     try:
         # Load the app configuration from your config file
-        with open('app_config.json', 'r') as config_file:
+        with open('data/app_config.json', 'r') as config_file:
             config = json.load(config_file)
-        
+        print("OK...")
+    
         # Assuming 'fill_pump' and 'drain_pump' are stored in your config
         return jsonify({
             'fill_pump': config.get('fill_pump'),
