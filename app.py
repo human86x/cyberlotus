@@ -41,7 +41,8 @@ def compare_solution_level():
         # Load the current solution level
         with open('data/app_config.json', 'r') as file:
             app_config = json.load(file)
-            stored_level = app_config.get('solution_level', 50)  # Default 50 if not found
+            # Ensure stored_level is a float
+            stored_level = float(app_config.get('solution_level', 50))  # Default to 50 if not found
 
         # Fetch the tank levels from `tank_manager.py`
         tank_results = test_tanks()  # This function will give you the current levels
