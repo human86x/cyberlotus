@@ -380,6 +380,10 @@ def ecosystem():
 @app.route('/tanks')
 def tanks():
     tanks_data = load_tanks()
+    global PUMP_COMMANDS  # Ensure global access
+    PUMP_COMMANDS = load_pump_commands()
+    pump_names = list(PUMP_COMMANDS.keys())
+
     return render_template('tanks.html', tanks=test_tanks())
     #return render_template('tanks.html', tanks=tanks_data)
 
