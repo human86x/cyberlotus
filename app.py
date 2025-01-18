@@ -72,12 +72,12 @@ def save_solution_level():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@app.route('/save_pump_assigment', methods=['POST'])
+@app.route('/save_pump_assignment', methods=['POST'])
 def save_pump_assignment():
     data = request.get_json()
     fill_pump = data.get('fill_pump')
     drain_pump = data.get('drain_pump')
-
+    print("saving function***********")
     try:
         with open('data/app_config.json', 'r+') as file:
             app_config = json.load(file)
@@ -88,7 +88,7 @@ def save_pump_assignment():
 
         with open('data/app_config.json', 'w') as file:
             json.dump(app_config, file, indent=4)
-
+            print("writing to a file***********")
         return jsonify({"status": "success", "message": "Pump assignments saved successfully."})
     except Exception as e:
         print(f"Error: {e}")
