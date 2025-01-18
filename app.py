@@ -36,6 +36,7 @@ global PUMP_COMMANDS
 
 @app.route('/compare_solution_level', methods=['GET'])
 def compare_solution_level():
+    print("Compare solution level function started*************")
     try:
         # Load the current solution level
         with open('data/app_config.json', 'r') as file:
