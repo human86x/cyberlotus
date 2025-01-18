@@ -1,118 +1,198 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Tank Calibration</h1>
+<h2>Manage Tanks</h2>
+<link rel="stylesheet" type="text/css" href="static/style.css" />
 
-<form id="calibrationForm">
-    <label for="tank_name">Tank Name:</label>
-    <select name="tank_name" id="tank_name" style="width: 200px;" required>
-        {% for tank in tank_names %}
-            <option value="{{ tank }}">{{ tank }}</option>
-        {% endfor %}
-    </select>
-    <br><br>
-
-    <label for="sensor_name">Sensor Name:</label>
-    <select name="sensor_name" id="sensor_name" style="width: 200px;" required>
-        {% for sensor in sensor_names %}
-            <option value="{{ sensor }}">{{ sensor }}</option>
-        {% endfor %}
-    </select>
-    <br><br>
-
-    <label>Select Draining Pumps:</label><br>
-    {% for pump in pump_names %}
-        <input type="checkbox" name="drain_pumps" value="{{ pump }}"> {{ pump }}<br>
-    {% endfor %}
-    <br>
-
-    <label>Select Filling Pumps:</label><br>
-    {% for pump in pump_names %}
-        <input type="checkbox" name="fill_pumps" value="{{ pump }}"> {{ pump }}<br>
-    {% endfor %}
-    <br>
-
-    <h3>Calibration</h3>
-    <button type="button" onclick="startCalibration()">Start Calibration</button>
-    <button type="button" onclick="emergencyStop()" style="color: red;">🚨 Emergency Stop</button>
-</form>
-
-<!-- Progress Bar -->
-<div id="progressContainer" style="display:none; margin-top:20px;">
-    <label for="progressBar">Progress:</label>
-    <div style="width: 100%; background-color: #ccc;">
-        <div id="progressBar" style="width: 0%; height: 30px; background-color: green; text-align: center; color: white;">
-            0%
+<!-- Tank Creation Form -->
+<div class="form-container">
+    <h3>Create New Tank</h3>
+    <form action="{{ url_for('create_tank_route') }}" method="POST">
+        <div class="form-group">
+            <label for="name">Tank Name:</label>
+            <input type="text" name="name" required>
         </div>
-    </div>
+
+        <div class="form-group">
+            <label for="code">Arduino Code (e.g., L1, L2):</label>
+            <input type="text" name="code" required>
+        </div>
+
+        <div class="form-group">
+            <label for="total_volume">Total Volume (L):</label>
+            <input type="number" name="total_volume" step="0.1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="full_cm">Full Sensor Value (cm):</label>
+            <input type="number" name="full_cm" step="0.1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="empty_cm">Empty Sensor Value (cm):</label>
+            <input type="number" name="empty_cm" step="0.1" required>
+        </div>
+
+        <button type="submit">Add Tank</button>
+    </form>
+</div>
+
+<hr>
+
+<!-- Display Existing Tanks -->
+<h3>Existing Tanks</h3>
+<div id="tanks-display" style="display: flex; overflow-x: auto;"></div>
+
+<hr>
+
+<!-- Test Tanks Button -->
+<h3>Check Tanks Levels</h3>
+<button onclick="fetchTankData()">Refresh</button>
+
+<div id="test-results"></div>
+
+<hr>
+
+<!-- Solution Level Control -->
+<h3>Adjust Solution Tank Level</h3>
+<div>
+    <form id="pumpForm">
+        <label for="pump_name">Select Pump:</label>
+        <select name="fill_pump" id="fill_pump" required>
+            {% for pump in pump_names %}
+                <option value="{{ pump }}">{{ pump }}</option>
+            {% endfor %}
+        </select>
+        <select name="drain_pump" id="drain_pump" required></select>
+            {% for pump in pump_names %}
+                <option value="{{ pump }}">{{ pump }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="button" onclick="startAction('test')">Adjust the Level</button>
+    </form>
+
+    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
+    <span id="solution-level-display">50%</span>
+    <button id="save-solution-level-button">Save Level</button>
 </div>
 
 <script>
-function startCalibration() {
-    const tankName = document.getElementById('tank_name').value;
-    const sensorName = document.getElementById('sensor_name').value;
+let solution_level = 50;
 
-    const drainPumps = Array.from(document.querySelectorAll('input[name="drain_pumps"]:checked')).map(cb => cb.value);
-    const fillPumps = Array.from(document.querySelectorAll('input[name="fill_pumps"]:checked')).map(cb => cb.value);
+// Function to load the solution level on page load
+function loadSolutionLevel() {
+    fetch("{{ url_for('get_solution_level') }}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.solution_level !== undefined) {
+                solution_level = data.solution_level;
+                document.getElementById("solution-level-slider").value = solution_level;
+                document.getElementById("solution-level-display").textContent = solution_level + "%";
+            }
+        })
+        .catch(error => {
+            console.error("Error loading solution level:", error);
+        });
+}
 
-    if (!tankName || !sensorName || drainPumps.length === 0 || fillPumps.length === 0) {
-        alert('Please fill in all fields.');
+// Load pump names dynamically into dropdowns
+function loadPumpNames() {
+    fetch("{{ url_for('pumps') }}")
+        .then(response => response.json())
+        .then(data => {
+            let drainingPumpSelect = document.getElementById("draining-pump");
+            let fillingPumpSelect = document.getElementById("filling-pump");
+
+            data.pump_names.forEach(pump => {
+                let drainingOption = document.createElement("option");
+                drainingOption.value = pump;
+                drainingOption.textContent = pump;
+                drainingPumpSelect.appendChild(drainingOption);
+
+                let fillingOption = document.createElement("option");
+                fillingOption.value = pump;
+                fillingOption.textContent = pump;
+                fillingPumpSelect.appendChild(fillingOption);
+            });
+        })
+        .catch(error => {
+            console.error("Error loading pump names:", error);
+        });
+}
+
+document.getElementById("solution-level-slider").addEventListener("input", function(event) {
+    solution_level = event.target.value;
+    document.getElementById("solution-level-display").textContent = solution_level + "%";
+});
+
+document.getElementById("save-solution-level-button").addEventListener("click", function() {
+    const drainingPump = document.getElementById("draining-pump").value;
+    const fillingPump = document.getElementById("filling-pump").value;
+
+    if (!drainingPump || !fillingPump) {
+        alert("Please select both draining and filling pumps.");
         return;
     }
 
-    const data = {
-        tank_name: tankName,
-        sensor_name: sensorName,
-        drain_pumps: drainPumps,
-        fill_pumps: fillPumps
-    };
-
-    document.getElementById('progressContainer').style.display = 'block';
-    document.getElementById('progressBar').style.width = '0%';
-    document.getElementById('progressBar').innerText = '0%';
-
-    fetch('/start_calibration', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+    // Send the current solution level and pump selections to the server to save to JSON
+    fetch("{{ url_for('save_solution_level') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+            solution_level: solution_level,
+            draining_pump: drainingPump,
+            filling_pump: fillingPump
+        })
     })
     .then(response => response.json())
-    .then(() => trackProgress(tankName))
-    .catch(error => console.error('Error:', error));
-}
+    .then(data => {
+        alert("Solution level and pump settings saved successfully!");
+    })
+    .catch(error => {
+        console.error("Error saving solution level:", error);
+    });
+});
 
-function trackProgress(tankName) {
-    const interval = setInterval(() => {
-        fetch(`/get_progress/${tankName}`)
-            .then(response => response.json())
-            .then(data => {
-                const progress = data.progress;
-                const progressBar = document.getElementById('progressBar');
-                progressBar.style.width = progress + '%';
-                progressBar.innerText = progress + '%';
-
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        document.getElementById('progressContainer').style.display = 'none';
-                    }, 2000);
-                } else if (progress === -1) {
-                    clearInterval(interval);
-                    alert('Error occurred during the calibration.');
-                }
+function fetchTankData() {
+    fetch("{{ url_for('test_tanks_route') }}")
+        .then(response => response.json())
+        .then(data => {
+            let tanksDisplay = document.getElementById("tanks-display");
+            tanksDisplay.innerHTML = '';
+            
+            Object.keys(data).forEach(tank => {
+                let result = data[tank];
+                let tankDiv = document.createElement("div");
+                tankDiv.className = "tank-card";
+                tankDiv.style = "text-align: center; margin: 10px; display: inline-block;";
+                tankDiv.innerHTML = `
+                    <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
+                        <div id="${tank}-fill-bar" style="position: absolute; bottom: 0; width: 100%; background-color: green; height: ${result.fill_percentage}%;"></div>
+                    </div>
+                    <h4>${tank}</h4>
+                    <p>Arduino Code: ${result.arduino_code}</p>
+                    <p>Total Volume: ${result.total_volume} L</p>
+                    <p>Full: ${result.full_cm} cm</p>
+                    <p>Empty: ${result.empty_cm} cm</p>
+                    <p>Fill Level: ${result.fill_percentage}%</p>
+                `;
+                tanksDisplay.appendChild(tankDiv);
             });
-    }, 500);
+        })
+        .catch(error => {
+            console.error("Error fetching tank data:", error);
+        });
 }
 
-function emergencyStop() {
-    fetch('/emergency_stop', { method: 'POST' })
-        .then(() => alert('Emergency stop activated!'))
-        .catch(error => console.error('Error:', error));
-}
+// Load tank data and pump names on page load
+window.onload = function() {
+    fetchTankData();
+    loadSolutionLevel();
+    loadPumpNames();
+};
 </script>
 
-<style>
-    .alert.success { color: green; }
-    .alert.error { color: red; }
-</style>
 {% endblock %}
