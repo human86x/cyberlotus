@@ -3,7 +3,7 @@
 {% block content %}
 <h2>Manage Tanks</h2>
 <link rel="stylesheet" type="text/css" href="static/style.css" />
-   
+
 <!-- Tank Creation Form -->
 <div class="form-container">
     <h3>Create New Tank</h3>
@@ -54,10 +54,22 @@
 <hr>
 
 <!-- Solution Level Control -->
-<h3>Adjust Solution Level</h3>
-<input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
-<span id="solution-level-display">50%</span>
-<button id="save-solution-level-button">Save Level</button>
+<h3>Adjust Solution Tank Level</h3>
+<div>
+    <label for="draining-pump">Select Draining Pump:</label>
+    <select id="draining-pump" name="draining-pump">
+        <!-- Options will be loaded dynamically -->
+    </select>
+
+    <label for="filling-pump">Select Filling Pump:</label>
+    <select id="filling-pump" name="filling-pump">
+        <!-- Options will be loaded dynamically -->
+    </select>
+
+    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
+    <span id="solution-level-display">50%</span>
+    <button id="save-solution-level-button">Save Level</button>
+</div>
 
 <script>
 let solution_level = 50;
@@ -78,37 +90,30 @@ function loadSolutionLevel() {
         });
 }
 
-document.getElementById("solution-level-slider").addEventListener("input", function(event) {
-    solution_level = event.target.value;
-    document.getElementById("solution-level-display").textContent = solution_level + "%";
-});
+// Load pump names dynamically into dropdowns
+function loadPumpNames() {
+    fetch("{{ url_for('pumps') }}")
+        .then(response => response.json())
+        .then(data => {
+            let drainingPumpSelect = document.getElementById("draining-pump");
+            let fillingPumpSelect = document.getElementById("filling-pump");
 
-document.getElementById("save-solution-level-button").addEventListener("click", function() {
-    // Send the current solution level to the server to save to JSON
-    fetch("{{ url_for('save_solution_level') }}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ solution_level: solution_level })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert("Solution level saved successfully!");
-    })
-    .catch(error => {
-        console.error("Error saving solution level:", error);
-    });
-});
+            data.pump_names.forEach(pump => {
+                let drainingOption = document.createElement("option");
+                drainingOption.value = pump;
+                drainingOption.textContent = pump;
+                drainingPumpSelect.appendChild(drainingOption);
 
-
-
-
-
-
-
-
-
+                let fillingOption = document.createElement("option");
+                fillingOption.value = pump;
+                fillingOption.textContent = pump;
+                fillingPumpSelect.appendChild(fillingOption);
+            });
+        })
+        .catch(error => {
+            console.error("Error loading pump names:", error);
+        });
+}
 
 document.getElementById("solution-level-slider").addEventListener("input", function(event) {
     solution_level = event.target.value;
@@ -116,24 +121,34 @@ document.getElementById("solution-level-slider").addEventListener("input", funct
 });
 
 document.getElementById("save-solution-level-button").addEventListener("click", function() {
-    // Send the current solution level to the server to save to JSON
+    const drainingPump = document.getElementById("draining-pump").value;
+    const fillingPump = document.getElementById("filling-pump").value;
+
+    if (!drainingPump || !fillingPump) {
+        alert("Please select both draining and filling pumps.");
+        return;
+    }
+
+    // Send the current solution level and pump selections to the server to save to JSON
     fetch("{{ url_for('save_solution_level') }}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ solution_level: solution_level })
+        body: JSON.stringify({ 
+            solution_level: solution_level,
+            draining_pump: drainingPump,
+            filling_pump: fillingPump
+        })
     })
     .then(response => response.json())
     .then(data => {
-        alert("Solution level saved successfully!");
+        alert("Solution level and pump settings saved successfully!");
     })
     .catch(error => {
         console.error("Error saving solution level:", error);
     });
 });
-
-
 
 function fetchTankData() {
     fetch("{{ url_for('test_tanks_route') }}")
@@ -166,10 +181,12 @@ function fetchTankData() {
         });
 }
 
-// Load tank data on page load
-window.onload = fetchTankData;
-// Load solution level when the page loads
-window.onload = loadSolutionLevel;
+// Load tank data and pump names on page load
+window.onload = function() {
+    fetchTankData();
+    loadSolutionLevel();
+    loadPumpNames();
+};
 </script>
 
 {% endblock %}
