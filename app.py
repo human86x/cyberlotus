@@ -112,9 +112,12 @@ def compare_solution_level():
         for tank, data in tank_results.items():
             current_volume = data['current_volume']
             total_volume = data['total_volume']
-
+            print(f"Current volume - {current_volume}")
+            print(f"Total volume - {total_volume}")
+            
             # Calculate the difference between current volume and stored solution level
             stored_volume = (stored_level / 100) * total_volume
+            print(f"Target volume - {stored_volume}")
             if current_volume > stored_volume:
                 # Need to drain liquid
                 volume_to_drain = current_volume - stored_volume
