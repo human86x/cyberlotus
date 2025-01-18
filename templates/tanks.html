@@ -60,7 +60,9 @@
 <button onclick="compareSolutionLevel()">Check Adjustment</button>
 
 <div id="adjustment-results"></div>
-
+<div id="progress-container" style="width: 100%; margin-top: 20px; display: none;"></div>
+    <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50;"></div>
+</div>
 
 
 
@@ -269,13 +271,36 @@ document.getElementById('pumpForm').addEventListener('submit', function(event) {
 <script>
 
 function compareSolutionLevel() {
+    // Show the progress bar container
+    let progressContainer = document.getElementById("progress-container");
+    let progressBar = document.getElementById("progress-bar");
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';  // Reset progress
+
+    // Simulate progress for 5 seconds (adjust as needed)
+    let duration = 5000;  // 5 seconds
+    let intervalTime = 100;  // Update every 100ms
+    let elapsedTime = 0;
+
+    // Start the progress animation
+    let progressInterval = setInterval(() => {
+        elapsedTime += intervalTime;
+        let progress = Math.min((elapsedTime / duration) * 100, 100);
+        progressBar.style.width = progress + '%';
+
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+        }
+    }, intervalTime);
+
+    // Fetch solution level comparison data
     fetch("{{ url_for('compare_solution_level') }}")
         .then(response => response.json())
         .then(data => {
             let resultsDisplay = document.getElementById("adjustment-results");
             resultsDisplay.innerHTML = '';  // Clear previous results
 
-            // Only display the 'solution' tank results
+            // Display only the 'solution' tank results
             if (data.solution) {
                 let result = data.solution;
                 let resultDiv = document.createElement("div");
@@ -288,9 +313,17 @@ function compareSolutionLevel() {
                 `;
                 resultsDisplay.appendChild(resultDiv);
             }
+
+            // Hide the progress bar after completion
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+            }, 500);  // Slight delay for smooth transition
         })
         .catch(error => {
             console.error("Error fetching solution level comparison:", error);
+            
+            // Hide the progress bar on error
+            progressContainer.style.display = 'none';
         });
 }
 
