@@ -76,11 +76,15 @@
 
 <h3>Adjust Solution Tank Level</h3>
 <div>
-    <button id="adjustTankButton">Adjust Solution Tank</button>
+    <button onclick="adjustTankLevel()">Adjust Tank Level</button>
+
     <div id="responseMessage"></div> <!-- To display success or error messages -->
     <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
     <span id="solution-level-display">50%</span>
     <button id="save-solution-level-button">Save Level</button>
+</div>
+<div id="progress-container" style="display:none; width: 100%; background-color: #f3f3f3; border-radius: 5px; margin-top: 10px;">
+    <div id="progress-bar2" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 5px;"></div>
 </div>
 
 
@@ -126,6 +130,39 @@
 
 
 <script>
+
+function adjustTankLevel() {
+    // Show the progress bar
+    document.getElementById("progress-container").style.display = "block";
+    var progressBar = document.getElementById("progress-bar");
+    var width = 0;
+
+    // Simulate progress
+    var progressInterval = setInterval(function() {
+        if (width >= 100) {
+            clearInterval(progressInterval);
+            
+            // Refresh tank information after adjustment is complete
+            fetch('/refresh_tank_info')  // Replace with actual endpoint
+                .then(response => response.json())
+                .then(data => updateTankDisplay(data))  // Define this function to update UI
+                .catch(error => console.error('Error:', error));
+
+            // Hide progress bar after a delay
+            setTimeout(() => {
+                document.getElementById("progress-container").style.display = "none";
+                progressBar.style.width = "0%";
+            }, 1000);
+        } else {
+            width++;
+            progressBar.style.width = width + "%";
+        }
+    }, 50);  // Adjust speed if necessary
+}
+
+
+
+
 
 function drainWaste() {
     let resultDisplay = document.getElementById("drain-result");
