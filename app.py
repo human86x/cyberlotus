@@ -348,7 +348,7 @@ def safe_serial_write_emergency():
             connect_to_arduino()
             attempt += 1
 
-        except serial.SerialException as e:
+        except ser.SerialException as e:
             print(f"[ERROR] Serial write failed during Emergency Stop: {e}. Reconnecting and retrying...")
             connect_to_arduino()
             attempt += 1
@@ -422,7 +422,7 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
         print("[ERROR] Failed to confirm command after retries. Attempting emergency stop.")
         emergency_stop(pump_name)
 
-    except serial.SerialException as e:
+    except ser.SerialException as e:
         print(f"[ERROR] Serial write failed for {pump_name}: {e}")
         emergency_stop(pump_name)
     except Exception as e:
