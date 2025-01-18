@@ -68,16 +68,18 @@ def adjust_tank_level(tank_name):
         # Calculate the volume to add or drain
         stored_volume = (solution_level / 100) * total_volume
         volume_difference = current_volume - stored_volume
-
+        print(f"Volume Difference {volume_difference}...")
         if volume_difference > 0:
             # Need to drain liquid
             print(f"Draining {volume_difference:.2f} L of solution from {tank_name}.")
             weight_to_drain = volume_difference * 100  # Convert to weight (multiply by 100)
+            print(f"Weight to drain {weight_to_drain}...")
             test_pump_with_progress(drain_pump, weight_to_drain)
         elif volume_difference < 0:
             # Need to add liquid
             print(f"Adding {-volume_difference:.2f} L of solution to {tank_name}.")
             weight_to_add = -volume_difference * 100  # Convert to weight (multiply by 100)
+            print(f"Weight_to_add {weight_to_add}...")
             test_pump_with_progress(fill_pump, weight_to_add)
         else:
             print(f"Tank {tank_name} is already at the correct level.")
