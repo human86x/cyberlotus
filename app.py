@@ -95,23 +95,21 @@ def save_pump_assignment():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@app.route('/get_pump_assignment', methods=['GET'])
-def get_pump_assignment():
+@app.route('/get_pump_assignments', methods=['GET'])
+def get_pump_assignments():
     try:
-        with open('data/app_config.json', 'r') as file:
-            app_config = json.load(file)
-            fill_pump = app_config.get('fill_pump', "")
-            drain_pump = app_config.get('drain_pump', "")
-
+        # Load the app configuration from your config file
+        with open('app_config.json', 'r') as config_file:
+            config = json.load(config_file)
+        
+        # Assuming 'fill_pump' and 'drain_pump' are stored in your config
         return jsonify({
-            "fill_pump": fill_pump,
-            "drain_pump": drain_pump
+            'fill_pump': config.get('fill_pump'),
+            'drain_pump': config.get('drain_pump')
         })
     except Exception as e:
-        print(f"Error reading config file: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
+        return jsonify({'error': str(e)}), 500
+    
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
 def delete_tank_route(tank_name):
     tanks = load_tanks()

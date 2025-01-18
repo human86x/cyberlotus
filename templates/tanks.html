@@ -73,7 +73,7 @@
     </form>
     <br><br>
     <!-- Save Pump Assignments Button -->
-<button type="button" onclick="savePumpAssignments()">Save Pump Assignments</button>
+    <button type="button" onclick="savePumpAssignments()">Save Pump Assignments</button>
 
 <script>
 function savePumpAssignments() {
@@ -106,20 +106,6 @@ function savePumpAssignments() {
         console.error('Error saving pump assignments:', error);
     });
 }
-</script>
-
-    
-    
-    
-    <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
-
-    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
-    <span id="solution-level-display">50%</span>
-    <button id="save-solution-level-button">Save Level</button>
-</div>
-
-<script>
-let solution_level = 50;
 
 // Function to load the solution level on page load
 function loadSolutionLevel() {
@@ -156,47 +142,30 @@ function loadPumpNames() {
                 fillingOption.textContent = pump;
                 fillingPumpSelect.appendChild(fillingOption);
             });
+
+            // Load saved pump selections from app_config.json
+            loadSavedPumpSelections();
         })
         .catch(error => {
             console.error("Error loading pump names:", error);
         });
 }
 
-document.getElementById("solution-level-slider").addEventListener("input", function(event) {
-    solution_level = event.target.value;
-    document.getElementById("solution-level-display").textContent = solution_level + "%";
-});
-
-document.getElementById("save-solution-level-button").addEventListener("click", function() {
-    const drainingPump = document.getElementById("drain_pump").value;
-    const fillingPump = document.getElementById("fill_pump").value;
-
-    if (!drainingPump || !fillingPump) {
-        alert("Please select both draining and filling pumps.");
-        return;
-    }
-
-    // Send the current solution level and pump selections to the server to save to JSON
-    fetch("{{ url_for('save_solution_level') }}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ 
-            solution_level: solution_level,
-            draining_pump: drainingPump,
-            filling_pump: fillingPump
+function loadSavedPumpSelections() {
+    fetch("{{ url_for('get_saved_pumps') }}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.fill_pump && data.drain_pump) {
+                document.getElementById('fill_pump').value = data.fill_pump;
+                document.getElementById('drain_pump').value = data.drain_pump;
+            }
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert("Solution level and pump settings saved successfully!");
-    })
-    .catch(error => {
-        console.error("Error saving solution level:", error);
-    });
-});
+        .catch(error => {
+            console.error("Error loading saved pump selections:", error);
+        });
+}
 
+// Function to fetch and display tank data
 function fetchTankData() {
     fetch("{{ url_for('test_tanks_route') }}")
         .then(response => response.json())
@@ -251,7 +220,54 @@ document.getElementById('pumpForm').addEventListener('submit', function(event) {
     .then(data => alert(data.message))
     .catch(error => console.error('Error saving pump assignments:', error));
 });
+</script>
 
+<hr>
+
+<!-- Solution Level Control -->
+<h3>Adjust Solution Tank Level</h3>
+<div>
+    <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
+    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
+    <span id="solution-level-display">50%</span>
+    <button id="save-solution-level-button">Save Level</button>
+</div>
+
+<script>
+document.getElementById("solution-level-slider").addEventListener("input", function(event) {
+    solution_level = event.target.value;
+    document.getElementById("solution-level-display").textContent = solution_level + "%";
+});
+
+document.getElementById("save-solution-level-button").addEventListener("click", function() {
+    const drainingPump = document.getElementById("drain_pump").value;
+    const fillingPump = document.getElementById("fill_pump").value;
+
+    if (!drainingPump || !fillingPump) {
+        alert("Please select both draining and filling pumps.");
+        return;
+    }
+
+    // Send the current solution level and pump selections to the server to save to JSON
+    fetch("{{ url_for('save_solution_level') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+            solution_level: solution_level,
+            draining_pump: drainingPump,
+            filling_pump: fillingPump
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Solution level and pump settings saved successfully!");
+    })
+    .catch(error => {
+        console.error("Error saving solution level:", error);
+    });
+});
 </script>
 
 {% endblock %}
