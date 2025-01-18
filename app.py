@@ -507,13 +507,14 @@ def emergency_stop(pump_name):
 
 
 def test_pump_with_progress(pump_name, weight):
+    #global PUMP_COMMANDS  # Ensure global access
     global PUMP_COMMANDS  # Ensure global access
     PUMP_COMMANDS = load_pump_commands()
     #pump_names = list(PUMP_COMMANDS.keys())
     global ser
     ser = get_serial_connection()
     """Test the pump with progress updates."""
-    global PUMP_COMMANDS  # Ensure global access
+    
     flow_rates = load_flow_rates()
     print(f"******pump_name======={pump_name}")
     if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
