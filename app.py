@@ -377,14 +377,38 @@ def ecosystem():
 
 
 
-@app.route('/tanks')
+@app.route('/tanks', methods=['GET', 'POST'])
 def tanks():
     tanks_data = load_tanks()
     global PUMP_COMMANDS  # Ensure global access
     PUMP_COMMANDS = load_pump_commands()
     pump_names = list(PUMP_COMMANDS.keys())
 
-    return render_template('tanks.html', tanks=test_tanks())
+    if request.method == 'POST':
+        action = request.form.get('action')
+        pump_name = request.form.get('pump_name')
+
+        if action == 'calibrate':
+            calibrate_pump(pump_name)
+            flash(f"Calibration started for {pump_name}.", "success")
+
+        elif action == 'test':
+            weight = request.form.get('weight')
+            if weight:
+                try:
+                    weight = float(weight)
+                    test_pump(pump_name, weight)
+                    flash(f"Test started for {pump_name} with {weight}g.", "success")
+                except ValueError:
+                    flash("Invalid weight input. Please enter a number.", "error")
+            else:
+                flash("Please enter a weight to test.", "error")
+
+        return redirect(url_for('tanks'))
+
+    #return render_template('pumps.html', pump_names=pump_names)
+
+    return render_template('tanks.html', tanks=test_tanks(), pump_names=pump_names)
     #return render_template('tanks.html', tanks=tanks_data)
 
 @app.route('/tanks/create', methods=['POST'])
