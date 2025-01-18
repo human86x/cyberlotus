@@ -45,7 +45,7 @@ def compare_solution_level():
 
         # Fetch the tank levels from `tank_manager.py`
         tank_results = test_tanks()  # This function will give you the current levels
-
+        print(f"Tank data fetched****{tank_results}")
         changes_needed = {}
 
         for tank, data in tank_results.items():
