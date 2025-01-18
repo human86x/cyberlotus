@@ -13,8 +13,16 @@
 <!-- Test Tanks Button -->
 <h3>Check Tanks Levels</h3>
 <button onclick="fetchTankData()">Refresh</button>
-
 <div id="test-results"></div>
+
+<button onclick="drainWaste()" style="margin: 10px; padding: 10px 20px; background-color: #e74c3c; color: white; border: none; cursor: pointer;">
+    Drain Waste Tank
+</button>
+
+<!-- Display result -->
+<div id="drain-result" style="margin-top: 10px; font-weight: bold;"></div>
+
+
 
 <hr>
 
@@ -118,6 +126,32 @@
 
 
 <script>
+
+function drainWaste() {
+    let resultDisplay = document.getElementById("drain-result");
+    resultDisplay.textContent = "Starting waste drain...";
+
+    fetch("{{ url_for('drain_waste') }}", {
+        method: "POST",
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            resultDisplay.textContent = `Waste drained successfully using ${data.pump_used}!`;
+        } else {
+            resultDisplay.textContent = `Error: ${data.message}`;
+        }
+    })
+    .catch(error => {
+        console.error("Error draining waste:", error);
+        resultDisplay.textContent = "Error starting drain process.";
+    });
+}
+
+
+
+
+
 function savePumpAssignments() {
     // Get the selected values from the dropdowns
     const fillPump = document.getElementById('fill_pump').value;

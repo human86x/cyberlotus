@@ -34,6 +34,35 @@ time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
 
+
+@app.route('/drain_waste', methods=['POST'])
+def drain_waste():
+    try:
+        # Load the pump configuration from app_config.json
+        with open('data/app_config.json', 'r') as file:
+            app_config = json.load(file)
+            waste_pump = app_config.get('waste_pump')
+
+        if not waste_pump:
+            return jsonify({"status": "error", "message": "No waste pump configured."}), 400
+
+        # Example drain volume, adjust as needed
+        drain_volume_liters = 1.0  # Drain 1 liter
+        weight_to_drain = drain_volume_liters * 1000  # Convert liters to pump units
+
+        # Activate the pump
+        test_pump_with_progress(waste_pump, weight_to_drain)
+
+        return jsonify({"status": "success", "pump_used": waste_pump})
+
+    except Exception as e:
+        print(f"Error during waste drain: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+
+
+
 @app.route('/adjust_solution_tank', methods=['POST'])
 def adjust_solution_tank():
     return adjust_tank_level('solution')
