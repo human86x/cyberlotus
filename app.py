@@ -73,7 +73,7 @@ def save_solution_level():
 
 
 @app.route('/save_pump_assigment', methods=['POST'])
-def save_pump_assigment():
+def save_pump_assignment():
     data = request.get_json()
     fill_pump = data.get('fill_pump')
     drain_pump = data.get('drain_pump')
@@ -86,7 +86,8 @@ def save_pump_assigment():
         app_config['fill_pump'] = fill_pump
         app_config['drain_pump'] = drain_pump
 
-        with open('data/app_config.json', 'w') as file:
+        with open('data/app_con<button type="button" onclick="startAction('save_pumps')">Save Pump Assigments</button>
+   fig.json', 'w') as file:
             json.dump(app_config, file, indent=4)
 
         return jsonify({"status": "success", "message": "Pump assignments saved successfully."})
