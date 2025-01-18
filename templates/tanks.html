@@ -72,7 +72,45 @@
         </select>
     </form>
     <br><br>
-    <button type="button" onclick="startAction('save_pumps')">Save Pump Assigments</button>
+    <!-- Save Pump Assignments Button -->
+<button type="button" onclick="savePumpAssignments()">Save Pump Assignments</button>
+
+<script>
+function savePumpAssignments() {
+    // Get the selected values from the dropdowns
+    const fillPump = document.getElementById('fill_pump').value;
+    const drainPump = document.getElementById('drain_pump').value;
+
+    if (!fillPump || !drainPump) {
+        alert("Please select both filling and draining pumps.");
+        return;
+    }
+
+    // Send the selected pump assignments to the server via POST request
+    fetch("{{ url_for('save_pump_assignment') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fill_pump: fillPump,
+            drain_pump: drainPump
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Handle the response from the server
+        alert("Pump assignments saved successfully!");
+    })
+    .catch(error => {
+        console.error('Error saving pump assignments:', error);
+    });
+}
+</script>
+
+    
+    
+    
     <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
 
     <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
