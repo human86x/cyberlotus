@@ -95,8 +95,8 @@ def save_pump_assignment():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@app.route('/get_pump_assignments', methods=['GET'])
-def get_pump_assignments():
+@app.route('/get_saved_pumps', methods=['GET'])
+def get_saved_pumps():
     try:
         # Load the app configuration from your config file
         with open('app_config.json', 'r') as config_file:
