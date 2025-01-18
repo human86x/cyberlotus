@@ -507,6 +507,9 @@ def emergency_stop(pump_name):
 
 
 def test_pump_with_progress(pump_name, weight):
+    global PUMP_COMMANDS  # Ensure global access
+    PUMP_COMMANDS = load_pump_commands()
+    #pump_names = list(PUMP_COMMANDS.keys())
     global ser
     ser = get_serial_connection()
     """Test the pump with progress updates."""
