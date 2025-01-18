@@ -4,7 +4,6 @@
 <h2>Manage Tanks</h2>
 <link rel="stylesheet" type="text/css" href="static/style.css" />
 
-
 <!-- Tank Creation Form -->
 <div class="form-container">
     <h3>Create New Tank</h3>
@@ -74,8 +73,7 @@
     </form>
     <br><br>
     <button type="button" onclick="startAction('save_pumps')">Save Pump Assigments</button>
-        <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
-    </form>
+    <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
 
     <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
     <span id="solution-level-display">50%</span>
@@ -106,8 +104,8 @@ function loadPumpNames() {
     fetch("{{ url_for('pumps') }}")
         .then(response => response.json())
         .then(data => {
-            let drainingPumpSelect = document.getElementById("draining-pump");
-            let fillingPumpSelect = document.getElementById("filling-pump");
+            let drainingPumpSelect = document.getElementById("drain_pump");
+            let fillingPumpSelect = document.getElementById("fill_pump");
 
             data.pump_names.forEach(pump => {
                 let drainingOption = document.createElement("option");
@@ -132,8 +130,8 @@ document.getElementById("solution-level-slider").addEventListener("input", funct
 });
 
 document.getElementById("save-solution-level-button").addEventListener("click", function() {
-    const drainingPump = document.getElementById("draining-pump").value;
-    const fillingPump = document.getElementById("filling-pump").value;
+    const drainingPump = document.getElementById("drain_pump").value;
+    const fillingPump = document.getElementById("fill_pump").value;
 
     if (!drainingPump || !fillingPump) {
         alert("Please select both draining and filling pumps.");
@@ -199,21 +197,6 @@ window.onload = function() {
     loadPumpNames();
 };
 
-
-
-
-
-// Load pump assignments on page load
-window.onload = function() {
-    fetch('/get_pump_assignment')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('fill_pump').value = data.fill_pump;
-            document.getElementById('drain_pump').value = data.drain_pump;
-        })
-        .catch(error => console.error('Error loading pump assignments:', error));
-};
-
 // Save pump assignments on form submission
 document.getElementById('pumpForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -230,12 +213,6 @@ document.getElementById('pumpForm').addEventListener('submit', function(event) {
     .then(data => alert(data.message))
     .catch(error => console.error('Error saving pump assignments:', error));
 });
-
-
-
-
-
-
 
 </script>
 

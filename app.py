@@ -72,27 +72,20 @@ def save_solution_level():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@app.route('/save_pump_assignment', methods=['POST'])
-def save_pump_assignment():
+@app.route('/save_pump_assigment', methods=['POST'])
+def save_pump_assigment():
     data = request.get_json()
     fill_pump = data.get('fill_pump')
     drain_pump = data.get('drain_pump')
 
-    print("***********************Saving pump assignments....")
-
     try:
-        # Load or create the config file
-        try:
-            with open('data/app_config.json', 'r+') as file:
-                app_config = json.load(file)
-        except FileNotFoundError:
-            app_config = {"solution_level": 50, "fill_pump": "", "drain_pump": ""}
+        with open('data/app_config.json', 'r+') as file:
+            app_config = json.load(file)
 
-        # Update pump assignments
+        # Update pump assignments in the config
         app_config['fill_pump'] = fill_pump
         app_config['drain_pump'] = drain_pump
 
-        print("***********************Writing pump assignments to config file....")
         with open('data/app_config.json', 'w') as file:
             json.dump(app_config, file, indent=4)
 
