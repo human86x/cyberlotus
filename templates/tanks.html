@@ -4,41 +4,6 @@
 <h2>Manage Tanks</h2>
 <link rel="stylesheet" type="text/css" href="static/style.css" />
 
-<!-- Tank Creation Form -->
-<div class="form-container">
-    <h3>Create New Tank</h3>
-    <form action="{{ url_for('create_tank_route') }}" method="POST">
-        <div class="form-group">
-            <label for="name">Tank Name:</label>
-            <input type="text" name="name" required>
-        </div>
-
-        <div class="form-group">
-            <label for="code">Arduino Code (e.g., L1, L2):</label>
-            <input type="text" name="code" required>
-        </div>
-
-        <div class="form-group">
-            <label for="total_volume">Total Volume (L):</label>
-            <input type="number" name="total_volume" step="0.1" required>
-        </div>
-
-        <div class="form-group">
-            <label for="full_cm">Full Sensor Value (cm):</label>
-            <input type="number" name="full_cm" step="0.1" required>
-        </div>
-
-        <div class="form-group">
-            <label for="empty_cm">Empty Sensor Value (cm):</label>
-            <input type="number" name="empty_cm" step="0.1" required>
-        </div>
-
-        <button type="submit">Add Tank</button>
-    </form>
-</div>
-
-<hr>
-
 <!-- Display Existing Tanks -->
 <h3>Existing Tanks</h3>
 <div id="tanks-display" style="display: flex; overflow-x: auto;"></div>
@@ -75,6 +40,80 @@
     <!-- Save Pump Assignments Button -->
     <button type="button" onclick="savePumpAssignments()">Save Pump Assignments</button>
     <button type="button" onclick="loadSavedPumpSelections();">Load Pump Assignments</button>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Tank Creation Form -->
+<div class="form-container">
+    <h3>Create New Tank</h3>
+    <form action="{{ url_for('create_tank_route') }}" method="POST">
+        <div class="form-group">
+            <label for="name">Tank Name:</label>
+            <input type="text" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="code">Arduino Code (e.g., L1, L2):</label>
+            <input type="text" name="code" required>
+        </div>
+
+        <div class="form-group">
+            <label for="total_volume">Total Volume (L):</label>
+            <input type="number" name="total_volume" step="0.1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="full_cm">Full Sensor Value (cm):</label>
+            <input type="number" name="full_cm" step="0.1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="empty_cm">Empty Sensor Value (cm):</label>
+            <input type="number" name="empty_cm" step="0.1" required>
+        </div>
+
+        <button type="submit">Add Tank</button>
+    </form>
+</div>
+
+<hr>
+
+<!-- Solution Level Control -->
+
+
+
+<!-- Button to trigger solution level comparison -->
+<h3>Check Solution Level Adjustment</h3>
+<button onclick="compareSolutionLevel()">Check Adjustment</button>
+
+<div id="adjustment-results"></div>
+
+
+
+
+<h3>Adjust Solution Tank Level</h3>
+<div>
+    <button id="adjustTankButton">Adjust Solution Tank</button>
+    <div id="responseMessage"></div> <!-- To display success or error messages -->
+    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
+    <span id="solution-level-display">50%</span>
+    <button id="save-solution-level-button">Save Level</button>
+</div>
+
+
+
+
+
+
 
 <script>
 function savePumpAssignments() {
@@ -226,15 +265,6 @@ document.getElementById('pumpForm').addEventListener('submit', function(event) {
 
 <hr>
 
-<!-- Solution Level Control -->
-
-
-
-<!-- Button to trigger solution level comparison -->
-<h3>Check Solution Level Adjustment</h3>
-<button onclick="compareSolutionLevel()">Check Adjustment</button>
-
-<div id="adjustment-results"></div>
 
 <script>
 
@@ -268,15 +298,6 @@ function compareSolutionLevel() {
 
 
 
-
-
-<h3>Adjust Solution Tank Level</h3>
-<div>
-    <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
-    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
-    <span id="solution-level-display">50%</span>
-    <button id="save-solution-level-button">Save Level</button>
-</div>
 
 <script>
 document.getElementById("solution-level-slider").addEventListener("input", function(event) {
@@ -314,9 +335,6 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
     });
 });
 </script>
-<button id="adjustTankButton">Adjust Solution Tank</button>
-    <div id="responseMessage"></div> <!-- To display success or error messages -->
-
     <script>
         document.getElementById('adjustTankButton').addEventListener('click', function() {
             // Send a POST request to the '/adjust_solution_tank' route

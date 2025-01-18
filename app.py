@@ -73,13 +73,13 @@ def adjust_tank_level(tank_name):
         if volume_difference > 0:
             # Need to drain liquid
             print(f"Draining {volume_difference:.2f} L of solution from {tank_name}.")
-            weight_to_drain = volume_difference * 100  # Convert to weight (multiply by 100)
+            weight_to_drain = volume_difference * 1000  # Convert to weight (multiply by 100)
             print(f"Weight to drain {weight_to_drain}...")
             test_pump_with_progress(drain_pump, weight_to_drain)
         elif volume_difference < 0:
             # Need to add liquid
             print(f"Adding {-volume_difference:.2f} L of solution to {tank_name}.")
-            weight_to_add = -volume_difference * 100  # Convert to weight (multiply by 100)
+            weight_to_add = -volume_difference * 1000  # Convert to weight (multiply by 100)
             print(f"Weight_to_add {weight_to_add}...")
             test_pump_with_progress(fill_pump, weight_to_add)
         else:
@@ -120,11 +120,11 @@ def compare_solution_level():
             print(f"Target volume - {stored_volume}")
             if current_volume > stored_volume:
                 # Need to drain liquid
-                volume_to_drain = current_volume - stored_volume
+                volume_to_drain = (current_volume - stored_volume)*10
                 changes_needed[tank] = {'action': 'drain', 'volume_liters': volume_to_drain}
             elif current_volume < stored_volume:
                 # Need to add liquid
-                volume_to_add = stored_volume - current_volume
+                volume_to_add = (stored_volume - current_volume)*10
                 changes_needed[tank] = {'action': 'add', 'volume_liters': volume_to_add}
         
         return jsonify(changes_needed)
