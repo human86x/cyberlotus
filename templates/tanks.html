@@ -57,19 +57,23 @@
 <h3>Adjust Solution Tank Level</h3>
 <div>
     <form id="pumpForm">
-        <label for="pump_name">Select Pump:</label>
+        <label for="fill_pump">Fill Pump:</label>
         <select name="fill_pump" id="fill_pump" required>
             {% for pump in pump_names %}
                 <option value="{{ pump }}">{{ pump }}</option>
             {% endfor %}
         </select>
-        <select name="drain_pump" id="drain_pump" required></select>
+    
+        <label for="drain_pump">Drain Pump:</label>
+        <select name="drain_pump" id="drain_pump" required>
             {% for pump in pump_names %}
                 <option value="{{ pump }}">{{ pump }}</option>
             {% endfor %}
         </select>
-        
-        <button type="button" onclick="startAction('test')">Adjust the Level</button>
+    </form>
+    
+    <button type="button" onclick="startAction('save_pumps')">Save Pump Assigments</button>
+        <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
     </form>
 
     <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
