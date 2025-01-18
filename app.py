@@ -34,9 +34,6 @@ time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
 
-
-from app import test_pump_with_progress
-import json
 @app.route('/adjust_solution_tank', methods=['POST'])
 def adjust_solution_tank():
     return adjust_tank_level('solution')
