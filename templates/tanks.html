@@ -4,6 +4,7 @@
 <h2>Manage Tanks</h2>
 <link rel="stylesheet" type="text/css" href="static/style.css" />
 
+
 <!-- Tank Creation Form -->
 <div class="form-container">
     <h3>Create New Tank</h3>
@@ -71,7 +72,7 @@
             {% endfor %}
         </select>
     </form>
-    
+    <br><br>
     <button type="button" onclick="startAction('save_pumps')">Save Pump Assigments</button>
         <button type="button" onclick="startAction('adjust_level')">Adjust the Level</button>
     </form>
@@ -197,6 +198,45 @@ window.onload = function() {
     loadSolutionLevel();
     loadPumpNames();
 };
+
+
+
+
+
+// Load pump assignments on page load
+window.onload = function() {
+    fetch('/get_pump_assignment')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('fill_pump').value = data.fill_pump;
+            document.getElementById('drain_pump').value = data.drain_pump;
+        })
+        .catch(error => console.error('Error loading pump assignments:', error));
+};
+
+// Save pump assignments on form submission
+document.getElementById('pumpForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const fillPump = document.getElementById('fill_pump').value;
+    const drainPump = document.getElementById('drain_pump').value;
+
+    fetch('/save_pump_assignment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ fill_pump: fillPump, drain_pump: drainPump })
+    })
+    .then(response => response.json())
+    .then(data => alert(data.message))
+    .catch(error => console.error('Error saving pump assignments:', error));
+});
+
+
+
+
+
+
+
 </script>
 
 {% endblock %}

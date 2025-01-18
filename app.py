@@ -72,6 +72,53 @@ def save_solution_level():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+@app.route('/save_pump_assignment', methods=['POST'])
+def save_pump_assignment():
+    data = request.get_json()
+    fill_pump = data.get('fill_pump')
+    drain_pump = data.get('drain_pump')
+
+    print("***********************Saving pump assignments....")
+
+    try:
+        # Load or create the config file
+        try:
+            with open('data/app_config.json', 'r+') as file:
+                app_config = json.load(file)
+        except FileNotFoundError:
+            app_config = {"solution_level": 50, "fill_pump": "", "drain_pump": ""}
+
+        # Update pump assignments
+        app_config['fill_pump'] = fill_pump
+        app_config['drain_pump'] = drain_pump
+
+        print("***********************Writing pump assignments to config file....")
+        with open('data/app_config.json', 'w') as file:
+            json.dump(app_config, file, indent=4)
+
+        return jsonify({"status": "success", "message": "Pump assignments saved successfully."})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/get_pump_assignment', methods=['GET'])
+def get_pump_assignment():
+    try:
+        with open('data/app_config.json', 'r') as file:
+            app_config = json.load(file)
+            fill_pump = app_config.get('fill_pump', "")
+            drain_pump = app_config.get('drain_pump', "")
+
+        return jsonify({
+            "fill_pump": fill_pump,
+            "drain_pump": drain_pump
+        })
+    except Exception as e:
+        print(f"Error reading config file: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
 def delete_tank_route(tank_name):
     tanks = load_tanks()
