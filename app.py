@@ -47,8 +47,8 @@ def drain_waste():
             return jsonify({"status": "error", "message": "No waste pump configured."}), 400
 
         # Example drain volume, adjust as needed
-        drain_volume_liters = 1.0  # Drain 1 liter
-        weight_to_drain = drain_volume_liters * 1000  # Convert liters to pump units
+        drain_volume_liters = 3.5  # Drain 1 liter
+        weight_to_drain = drain_volume_liters * 100  # Convert liters to pump units
 
         # Activate the pump
         test_pump_with_progress(waste_pump, weight_to_drain)
