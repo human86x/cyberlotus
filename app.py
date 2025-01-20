@@ -42,7 +42,6 @@ global PUMP_COMMANDS
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for flash messages
 socketio = SocketIO(app)  # This is where you initialize socketio
-
 # Get the corrected EC value
 @app.route('/get_ec', methods=['GET'])
 def get_ec_value():
@@ -52,7 +51,8 @@ def get_ec_value():
     else:
         return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
 
-# Calibrate EC sensoref calibrate_ec_sensor():
+# Calibrate EC sensor 
+def calibrate_ec_sensor():
     for step in range(4):  # 4 steps
         # Simulating calibration process
         time.sleep(3)
@@ -60,9 +60,6 @@ def get_ec_value():
         if step == 3:
             socketio.emit('progress', {'step': step, 'status': 'completed'})
 
-@socketio.on('start_calibration')
-def handle_start_calibration():
-    calibrate_ec_sensor()
 @app.route('/calibrate', methods=['POST'])
 def calibrate():
     try:
@@ -80,19 +77,19 @@ def set_baseline():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
-def calibrate_ec_sensor():
-    for step in range(4):  # 4 steps
-        # Simulating calibration process
-        time.sleep(3)
-        socketio.emit('progress', {'step': step, 'status': 'in-progress'})
-        if step == 3:
-            socketio.emit('progress', {'step': step, 'status': 'completed'})
-
 @socketio.on('start_calibration')
 def handle_start_calibration():
     calibrate_ec_sensor()
 
-
+# Test sequence trigger (this is where you'd need to implement your test logic)
+@app.route('/start_test_sequence/<sequence>', methods=['GET'])
+def start_test_sequence(sequence):
+    try:
+        # Here you can handle different test sequences
+        print(f"Starting test sequence: {sequence}")
+        return jsonify({'status': 'success', 'message': f'Started {sequence} test sequence'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
 
 ###################SEQUENCER########################
 
