@@ -8,6 +8,7 @@ def connect_to_arduino():
     """
     Ensures only one connection is created and reused.
     """
+    print(f"trying to reconnect***********************")
     if not hasattr(connect_to_arduino, "connection"):
         for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
             port = f"/dev/ttyACM{i}"
