@@ -63,11 +63,15 @@ def get_correct_EC():
 
     # Read solution temperature
     solution_temperature = read_solution_temperature(ser)
-    try:
-        solution_temperature = float(solution_temperature)
-    except ValueError:
-        print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
-        return None
+    if solution_temperature is None:
+        print("Error: Failed to read solution temperature.")
+        return None  # or handle the error gracefully, e.g., retry
+    else:
+        try:
+            solution_temperature = float(solution_temperature)
+        except ValueError:
+            print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
+            return None
 
     print(f"Solution temperature: {solution_temperature}°C")
 
