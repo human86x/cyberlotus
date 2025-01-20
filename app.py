@@ -25,6 +25,10 @@ from config_tools.sequencer import execute_sequence
 from config_tools.calibrator import get_correct_EC
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 
+
+from flask import Flask, request, send_from_directory
+from config_tools.sequencer import execute_sequence, list_sequence_files
+
 # Store progress globally
 pump_progress = {}
 
@@ -32,6 +36,68 @@ pump_progress = {}
 
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
+
+
+
+
+
+
+
+
+#app = Flask(__name__)
+
+SEQUENCE_DIRECTORY = '../sequences/'
+
+@app.route('/list_sequences', methods=['GET'])
+def list_sequences():
+    """
+    API to list all available sequence files.
+    """
+    sequence_files = list_sequence_files()
+    if sequence_files:
+        return jsonify({"status": "success", "files": sequence_files})
+    return jsonify({"status": "error", "message": "No sequence files found."})
+
+@app.route('/load_sequence', methods=['GET'])
+def load_sequence():
+    """
+    API to load and return the content of a sequence file.
+    """
+    filename = request.args.get('filename')
+    if not filename:
+        return jsonify({"status": "error", "message": "No filename provided."})
+    filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
+    try:
+        with open(filepath, 'r') as file:
+            content = file.read()
+        return jsonify({"status": "success", "content": content})
+    except FileNotFoundError:
+        return jsonify({"status": "error", "message": "File not found."})
+
+@app.route('/execute_sequence', methods=['POST'])
+def execute_sequence_route():
+    """
+    API to execute a sequence file.
+    """
+    data = request.json
+    filename = data.get('filename')
+    if not filename:
+        return jsonify({"status": "error", "message": "No filename provided."})
+
+    flow_rates = load_flow_rates()
+    filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
+
+    def run_sequence():
+        execute_sequence(filepath, flow_rates)
+
+    threading.Thread(target=run_sequence).start()
+    return jsonify({"status": "success", "message": f"Sequence {filename} started."})
+
+
+
+
+
+
 
 
 
