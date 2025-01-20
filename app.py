@@ -21,7 +21,7 @@ from control_libs.temperature import read_solution_temperature
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
-from config_tools.sequencer import execute_sequence
+
 from config_tools.calibrator import get_correct_EC
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 
@@ -655,7 +655,7 @@ def ph():
 def ecosystem():
     return render_template('ecosystem.html')
 
-@app.route('/atomatisation')
+@app.route('/automatisation')
 def automatisation():
     return render_template('automatisation.html')
 
