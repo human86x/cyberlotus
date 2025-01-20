@@ -13,7 +13,7 @@ from flow_tune import PUMP_COMMANDS
 PUMP_COMMANDS = load_pump_commands()
 
 # File paths (updated to load from the chosen sequence file)
-SEQUENCE_DIRECTORY = '../sequences/'
+SEQUENCE_DIRECTORY = 'sequences/'
 
 import threading
 
