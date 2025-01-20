@@ -10,7 +10,7 @@ def connect_to_arduino():
     """
     print(f"trying to reconnect***********************")
     if hasattr(connect_to_arduino, "connection"):
-        print(f"Closing arduino connection***********************")
+        print(f"Closing arduino connection***********************{connect_to_arduino}")
         connect_to_arduino.connection.close()
 
     if not hasattr(connect_to_arduino, "connection"):
