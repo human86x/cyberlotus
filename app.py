@@ -42,7 +42,7 @@ socketio = SocketIO(app)  # This is where you initialize socketio
 #time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
-
+#execute_sequence(EC_BASELINE_FILE, load_flow_rates(), set_baseline_ec)
 
 
 
@@ -160,11 +160,12 @@ def handle_start_calibration():
     calibrate_ec_sensor()
 
 # Test sequence trigger (this is where you'd need to implement your test logic)
-@app.route('/start_test_sequence/<sequence>', methods=['GET'])
-def start_test_sequence(sequence):
+@app.route('/start_callback_sequence/<sequence>', methods=['GET'])
+def start_callback_sequence(sequence):
     try:
         # Here you can handle different test sequences
         print(f"Starting test sequence: {sequence}")
+        execute_sequence(sequence, load_flow_rates(), get_correct_EC)
         return jsonify({'status': 'success', 'message': f'Started {sequence} test sequence'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
