@@ -54,16 +54,29 @@ def close_serial_connection():
 #time.sleep(2)  # Allow Arduino to initialize
 
 # Function to send a command and handle "HEARTBEAT" responses
-def send_command_and_get_response(ser, command, retries=1):
-    for _ in range(retries):
-        print(f"Send command and get response-> the command>>> {command}")
+import time
+
+def send_command_and_get_response(ser, command, expected_response=None, retries=5, timeout=1):
+    attempt = 0
+    while attempt < retries:
+        print(f"Send command and get response -> the command >>> {command}")
     
         ser.write(command)  # No need to encode if command is already bytes
         line = ser.readline().decode('utf-8').strip()
-        print(f"Send command and get response-> the response>>> {command}")
+        print(f"Send command and get response -> the response >>> {line}")
+        
+        # Check for expected response
         if line == "HEARTBEAT":
-            time.sleep(0.1)  # Short delay before retrying
+            time.sleep(timeout)  # Short delay before retrying
+            attempt += 1
             continue
-        return line
-    print(f"Error: No valid response for command {command.decode('utf-8')}")
+        
+        if expected_response is None or line == expected_response:
+            return line  # Valid response
+        else:
+            print(f"Error: Invalid response: {line}, expected: {expected_response}")
+            attempt += 1
+            time.sleep(timeout)  # Retry delay
+    
+    print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
     return None
