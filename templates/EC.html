@@ -5,36 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EC Calibration</title>
-    <!-- Link to static CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
-        /* Style for the dashboard section */
-        .dashboard {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-item {
-            text-align: center;
-            background-color: #f3f3f3;
-            padding: 15px;
-            border-radius: 10px;
-            width: 30%;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .dashboard-item h3 {
-            margin: 10px 0;
-        }
-
-        .dashboard-item span {
-            font-size: 2em;
-            font-weight: bold;
-        }
-        
-        /* Progress Bar Style */
+        /* Style for progress bar */
         #progressBarWrapper {
             width: 100%;
             background-color: #f3f3f3;
@@ -42,15 +15,28 @@
             height: 30px;
             margin-bottom: 20px;
         }
-
         #progressBar {
             height: 100%;
             width: 0;
             background-color: #4caf50;
             border-radius: 10px;
         }
-        
-        /* Step Visualization Styles */
+
+        /* Dashboard style */
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #f4f4f9;
+            border-radius: 8px;
+        }
+        .dashboard div {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Style for steps */
         .step {
             padding: 10px;
             background-color: #f0f0f0;
@@ -74,25 +60,20 @@
 <body>
     <h1>EC Calibration Process</h1>
 
-    <!-- Dashboard for EC Value, Temperature, and Base EC -->
-    <div class="dashboard">
-        <div class="dashboard-item">
-            <h3>EC Value</h3>
-            <span id="ecValue">Loading...</span>
-        </div>
-        <div class="dashboard-item">
-            <h3>Temperature</h3>
-            <span id="temperatureValue">Loading...</span> °C
-        </div>
-        <div class="dashboard-item">
-            <h3>Base EC</h3>
-            <span id="baseECValue">Loading...</span>
-        </div>
-    </div>
-
     <!-- Progress Bar -->
     <div id="progressBarWrapper">
         <div id="progressBar"></div>
+    </div>
+
+    <!-- EC and Temperature Dashboard -->
+    <div class="dashboard">
+        <div>
+            <h3>EC Value: <span id="ecValue">Loading...</span></h3>
+            <p>Base Line EC: <span id="baseEC">2.0</span> mS/cm</p>
+        </div>
+        <div>
+            <h3>Solution Temperature: <span id="temperature">Loading...</span> °C</h3>
+        </div>
     </div>
 
     <!-- Calibration Sequence Dropdown -->
@@ -127,8 +108,8 @@
         const progressBar = document.getElementById('progressBar');
         const steps = document.getElementsByClassName('step');
         const ecValueElement = document.getElementById('ecValue');
-        const temperatureValueElement = document.getElementById('temperatureValue');
-        const baseECValueElement = document.getElementById('baseECValue');
+        const temperatureElement = document.getElementById('temperature');
+        const baseECElement = document.getElementById('baseEC');
 
         function updateProgressBar() {
             let progress = (currentStep / totalSteps) * 100;
@@ -160,26 +141,14 @@
                 });
         }
 
-        function fetchTemperatureValue() {
+        function fetchTemperature() {
             fetch('/get_temperature')
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        temperatureValueElement.textContent = data.temperature;
+                        temperatureElement.textContent = data.temperature;
                     } else {
-                        temperatureValueElement.textContent = "Error fetching temperature";
-                    }
-                });
-        }
-
-        function fetchBaseECValue() {
-            fetch('/get_base_ec')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        baseECValueElement.textContent = data.base_ec_value;
-                    } else {
-                        baseECValueElement.textContent = "Error fetching Base EC value";
+                        temperatureElement.textContent = "Error fetching temperature";
                     }
                 });
         }
@@ -214,10 +183,9 @@
                 });
         }
 
-        // Fetch EC, Temperature, and Base EC values initially
+        // Fetch EC value and temperature initially
         fetchECValue();
-        fetchTemperatureValue();
-        fetchBaseECValue();
+        fetchTemperature();
     </script>
 </body>
 </html>
