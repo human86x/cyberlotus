@@ -32,7 +32,9 @@ from flask_socketio import SocketIO, emit
 
 # Store progress globally
 pump_progress = {}
-
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Needed for flash messages
+socketio = SocketIO(app)  # This is where you initialize socketio
 #ser = connect_to_arduino()
 
 #time.sleep(2)  # Allow Arduino to initialize
@@ -58,9 +60,7 @@ def get_temperature():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 #####################EC#####################
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Needed for flash messages
-socketio = SocketIO(app)  # This is where you initialize socketio
+
 # Get the corrected EC value
 @app.route('/get_ec', methods=['GET'])
 def get_ec_value():
