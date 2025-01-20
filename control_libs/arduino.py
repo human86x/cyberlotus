@@ -3,28 +3,40 @@ import time
 
 ser = None
 
+import serial
+import time
+
+ser = None  # Define the global variable for the serial connection
+
 def connect_to_arduino():
-    global ser
+    global ser  # Access the global serial connection variable
     """
     Ensures only one connection is created and reused.
+    Reconnects if the connection is lost or invalid.
     """
-    print("started**********hasattr*******")
-    if not hasattr(connect_to_arduino, "connection"):
-        print("ended******************")
-        for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
-            port = f"/dev/ttyACM{i}"
-            try:
-                print(f"Trying to connect to {port}...")
-                connect_to_arduino.connection = serial.Serial(port, baudrate=9600, timeout=1)
-                time.sleep(2)  # Allow time for the Arduino to reset
-                print(f"Connected successfully to {port}")
-                ser = connect_to_arduino.connection
-                return connect_to_arduino.connection
-            except serial.SerialException:
-                print(f"Failed to connect to {port}.")
-                continue
-        raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
-    return connect_to_arduino.connection
+    print("Checking Arduino connection...")
+
+    # Check if a valid connection already exists
+    if ser and ser.is_open:
+        print(f"Arduino is already connected on {ser.port}.")
+        return ser
+
+    # Try to establish a new connection
+    for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
+        port = f"/dev/ttyACM{i}"
+        try:
+            print(f"Trying to connect to {port}...")
+            ser = serial.Serial(port, baudrate=9600, timeout=1)  # Set a 1-second timeout
+            time.sleep(2)  # Allow time for Arduino to reset
+            print(f"Connected successfully to {port}")
+            return ser
+        except serial.SerialException as e:
+            print(f"Failed to connect to {port}: {e}")
+            continue
+
+    # Raise an exception if no ports work
+    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
+
 
 
 def get_serial_connection():
