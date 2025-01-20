@@ -5,8 +5,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EC Calibration</title>
+    <!-- Link to static CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <style>
-        /* Style for progress bar */
+        /* Style for the dashboard section */
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-item {
+            text-align: center;
+            background-color: #f3f3f3;
+            padding: 15px;
+            border-radius: 10px;
+            width: 30%;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-item h3 {
+            margin: 10px 0;
+        }
+
+        .dashboard-item span {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        /* Progress Bar Style */
         #progressBarWrapper {
             width: 100%;
             background-color: #f3f3f3;
@@ -14,6 +42,7 @@
             height: 30px;
             margin-bottom: 20px;
         }
+
         #progressBar {
             height: 100%;
             width: 0;
@@ -21,7 +50,7 @@
             border-radius: 10px;
         }
         
-        /* Style for steps */
+        /* Step Visualization Styles */
         .step {
             padding: 10px;
             background-color: #f0f0f0;
@@ -45,14 +74,25 @@
 <body>
     <h1>EC Calibration Process</h1>
 
+    <!-- Dashboard for EC Value, Temperature, and Base EC -->
+    <div class="dashboard">
+        <div class="dashboard-item">
+            <h3>EC Value</h3>
+            <span id="ecValue">Loading...</span>
+        </div>
+        <div class="dashboard-item">
+            <h3>Temperature</h3>
+            <span id="temperatureValue">Loading...</span> °C
+        </div>
+        <div class="dashboard-item">
+            <h3>Base EC</h3>
+            <span id="baseECValue">Loading...</span>
+        </div>
+    </div>
+
     <!-- Progress Bar -->
     <div id="progressBarWrapper">
         <div id="progressBar"></div>
-    </div>
-
-    <!-- EC Value -->
-    <div>
-        <h3>EC Value: <span id="ecValue">Loading...</span></h3>
     </div>
 
     <!-- Calibration Sequence Dropdown -->
@@ -87,6 +127,8 @@
         const progressBar = document.getElementById('progressBar');
         const steps = document.getElementsByClassName('step');
         const ecValueElement = document.getElementById('ecValue');
+        const temperatureValueElement = document.getElementById('temperatureValue');
+        const baseECValueElement = document.getElementById('baseECValue');
 
         function updateProgressBar() {
             let progress = (currentStep / totalSteps) * 100;
@@ -114,6 +156,30 @@
                         ecValueElement.textContent = data.ec_value;
                     } else {
                         ecValueElement.textContent = "Error fetching EC value";
+                    }
+                });
+        }
+
+        function fetchTemperatureValue() {
+            fetch('/get_temperature')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        temperatureValueElement.textContent = data.temperature;
+                    } else {
+                        temperatureValueElement.textContent = "Error fetching temperature";
+                    }
+                });
+        }
+
+        function fetchBaseECValue() {
+            fetch('/get_base_ec')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        baseECValueElement.textContent = data.base_ec_value;
+                    } else {
+                        baseECValueElement.textContent = "Error fetching Base EC value";
                     }
                 });
         }
@@ -148,10 +214,11 @@
                 });
         }
 
-        // Fetch EC value initially
+        // Fetch EC, Temperature, and Base EC values initially
         fetchECValue();
+        fetchTemperatureValue();
+        fetchBaseECValue();
     </script>
 </body>
 </html>
 {% endblock %}
-
