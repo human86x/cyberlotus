@@ -55,17 +55,17 @@ def close_serial_connection():
 
 # Function to send a command and handle "HEARTBEAT" responses
 
+import time
 
 def send_command_and_get_response(ser, command, retries=5, timeout=1):
     attempt = 0
     
-    # Ensure serial connection is open
     while attempt < retries:
-        # Check if the serial port is open, if not, try to reconnect
+        # Ensure serial connection is open
         if not ser.is_open:
             print("Serial port is not open, attempting to reconnect...")
             ser = connect_to_arduino()  # Ensure you have a function to reconnect to Arduino
-            if ser is None:
+            if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
                 return None
         
