@@ -37,7 +37,26 @@ pump_progress = {}
 
 #time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
-
+######################TEMPERATURE##############
+@app.route('/get_temperature')
+def get_temperature():
+    try:
+        # Initialize the serial connection here
+        ser = connect_to_arduino()  # Adjust this based on your actual connection method
+        
+        # Read temperature using the function from temperature.py
+        temperature = read_solution_temperature(ser)
+        
+        # Close the serial connection after reading
+        ser.close()
+        
+        if temperature is not None:
+            return jsonify({"status": "success", "temperature": temperature})
+        else:
+            return jsonify({"status": "error", "message": "Failed to read temperature"})
+    
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 #####################EC#####################
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for flash messages
