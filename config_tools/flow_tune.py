@@ -74,7 +74,7 @@ def send_command_with_heartbeat(command, duration=None, port="COM3"):
     # Try to connect to Arduino if the port is not open
     if not ser.is_open:
         print("Arduino port not open. Attempting to reconnect...")
-        ser = connect_to_arduino(port)
+        ser = connect_to_arduino()
         if not ser:
             print("Error: Unable to connect to Arduino. Aborting command.")
             return False
