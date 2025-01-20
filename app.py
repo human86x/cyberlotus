@@ -42,7 +42,7 @@ global PUMP_COMMANDS
 
 
 
-
+###################SEQUENCER########################
 
 #app = Flask(__name__)
 
@@ -66,15 +66,54 @@ def load_sequence():
     filename = request.args.get('filename')
     if not filename:
         return jsonify({"status": "error", "message": "No filename provided."})
-    #filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
     filepath = SEQUENCE_DIRECTORY + '/' + filename
     print(f"Sequence dir is - {SEQUENCE_DIRECTORY}")
     try:
         with open(filepath, 'r') as file:
             content = file.read()
-        return jsonify({"status": "success", "content": content})
+        return jsonify({"status": "success", "content": content, "filename": filename})
     except FileNotFoundError:
         return jsonify({"status": "error", "message": "File not found."})
+
+@app.route('/save_sequence', methods=['POST'])
+def save_sequence():
+    """
+    API to save or create a new sequence file.
+    """
+    data = request.json
+    filename = data.get('filename')
+    content = data.get('content')
+    if not filename or not content:
+        return jsonify({"status": "error", "message": "Filename or content not provided."})
+
+    filepath = SEQUENCE_DIRECTORY + '/' + filename
+    try:
+        with open(filepath, 'w') as file:
+            file.write(content)
+        return jsonify({"status": "success", "message": f"Sequence saved to {filename}."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Failed to save sequence: {str(e)}"})
+
+@app.route('/create_sequence', methods=['POST'])
+def create_sequence():
+    """
+    API to create a new sequence file.
+    """
+    data = request.json
+    filename = data.get('filename')
+    content = data.get('content')
+    if not filename or not content:
+        return jsonify({"status": "error", "message": "Filename or content not provided."})
+
+    filepath = SEQUENCE_DIRECTORY + '/' + filename
+    try:
+        if os.path.exists(filepath):
+            return jsonify({"status": "error", "message": f"File {filename} already exists."})
+        with open(filepath, 'w') as file:
+            file.write(content)
+        return jsonify({"status": "success", "message": f"New sequence {filename} created."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Failed to create sequence: {str(e)}"})
 
 @app.route('/execute_sequence', methods=['POST'])
 def execute_sequence_route():
@@ -87,8 +126,8 @@ def execute_sequence_route():
         return jsonify({"status": "error", "message": "No filename provided."})
 
     flow_rates = load_flow_rates()
-    #filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
     filepath = SEQUENCE_DIRECTORY + '/' + filename
+
     def run_sequence():
         execute_sequence(filepath, flow_rates)
 
@@ -99,6 +138,8 @@ def execute_sequence_route():
 
 
 
+
+###########sequencer ends#################
 
 
 

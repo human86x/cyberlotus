@@ -17,6 +17,7 @@
             line-height: 20px;
             color: white;
         }
+        textarea { width: 100%; height: 200px; }
     </style>
 </head>
 <body>
@@ -27,16 +28,26 @@
         <button id="loadButton">Load</button>
         <button id="playButton">Play</button>
     </div>
+
     <div>
         <h2>Sequence Content</h2>
         <pre id="sequenceContent"></pre>
     </div>
+
+    <div>
+        <h2>Edit Sequence</h2>
+        <textarea id="editSequenceContent" placeholder="Edit your sequence here..."></textarea><br>
+        <button id="saveButton">Save Changes</button>
+        <button id="createButton">Create New Sequence</button>
+    </div>
+
     <div>
         <h2>Progress</h2>
         <div id="progressBar">
             <div></div>
         </div>
     </div>
+
     <script>
         // Populate dropdown with sequence files
         function loadSequenceFiles() {
@@ -66,8 +77,10 @@
                 .then(response => response.json())
                 .then(data => {
                     const contentDiv = document.getElementById('sequenceContent');
+                    const editDiv = document.getElementById('editSequenceContent');
                     if (data.status === 'success') {
                         contentDiv.textContent = data.content;
+                        editDiv.value = data.content; // Populate the editor with the content for editing
                     } else {
                         contentDiv.textContent = data.message;
                     }
@@ -102,6 +115,43 @@
                     }
                 })
                 .catch(error => console.error('Error executing sequence:', error));
+        });
+
+        // Save edited sequence
+        document.getElementById('saveButton').addEventListener('click', () => {
+            const filename = document.getElementById('sequenceDropdown').value;
+            const content = document.getElementById('editSequenceContent').value;
+
+            fetch('/save_sequence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename, content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadSequenceFiles(); // Refresh the sequence list
+            })
+            .catch(error => console.error('Error saving sequence:', error));
+        });
+
+        // Create new sequence
+        document.getElementById('createButton').addEventListener('click', () => {
+            const filename = prompt('Enter filename for new sequence:');
+            if (filename) {
+                const content = prompt('Enter content for new sequence:');
+                fetch('/create_sequence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename, content })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    loadSequenceFiles(); // Refresh the sequence list
+                })
+                .catch(error => console.error('Error creating new sequence:', error));
+            }
         });
 
         // Load sequence files on page load
