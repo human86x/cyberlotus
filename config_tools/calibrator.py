@@ -26,10 +26,10 @@ def get_correct_EC():
     filtering invalid readings, and applying temperature correction and calibration factor.
 
     Returns:
-        float: The corrected EC value, or None if no valid readings were obtained.
+        int: The corrected EC value as an integer, or None if no valid readings were obtained.
     """
     calibration_factor = get_EC_calibration_factor()
-    num_readings = 10
+    num_readings = 4  # Change number of readings to 4
     ec_values = []
 
     print("Collecting EC readings...")
@@ -86,8 +86,10 @@ def get_correct_EC():
     corrected_ec_value *= calibration_factor
     print(f"Final corrected EC value after applying calibration factor: {corrected_ec_value}")
 
-    return corrected_ec_value
+    # Convert the final EC value to an integer before returning
+    corrected_ec_value = int(round(corrected_ec_value))
 
+    return corrected_ec_value
 def get_EC_calibration_factor():
     try:
         with open(CALIBRATION_FILE, "r") as file:
