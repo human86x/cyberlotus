@@ -101,7 +101,7 @@
 
     <button onclick="startCalibration()">Start Calibration</button>
     <button onclick="startTestSequence()">Start Test Sequence</button>
-    
+    <button onclick="saveConfig()">Save to Config file</button>
     <!-- Instant EC Button -->
     <button onclick="fetchECValue()">Get EC Value</button>
 
@@ -221,6 +221,63 @@
                     }
                 });
         }
+
+
+
+// Load configuration on page load
+function loadAppConfig() {
+            fetch('/get_app_config')
+                .then(response => response.json())
+                .then(config => {
+                    if (config.EC_calibration_sequence) {
+                        document.getElementById('calibrationSequence').value = config.EC_calibration_sequence;
+                    }
+                    if (config.EC_test_sequence) {
+                        document.getElementById('testSequence').value = config.EC_test_sequence;
+                    }
+                    if (config.EC_baseline_sequence) {
+                        document.getElementById('baselineSequence').value = config.EC_baseline_sequence;
+                    }
+                })
+                .catch(error => console.error('Error loading app config:', error));
+        }
+
+        // Save selected values to config
+        function saveConfig() {
+            const configData = {
+                EC_calibration_sequence: document.getElementById('calibrationSequence').value,
+                EC_test_sequence: document.getElementById('testSequence').value,
+                EC_baseline_sequence: document.getElementById('baselineSequence').value
+            };
+
+            fetch('/save_app_config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(configData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Configuration saved successfully.');
+                } else {
+                    alert('Error saving configuration.');
+                }
+            })
+            .catch(error => console.error('Error saving config:', error));
+        }
+
+        // Call this function to save the configuration when needed (e.g., on form submit)
+        // saveConfig();
+
+        // Fetch initial data and load sequences
+        loadAppConfig();
+        loadCalibrationData();
+
+
+
+
+
+
 
         // Fetch initial data and load sequences
         fetchECValue();
