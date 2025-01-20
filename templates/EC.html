@@ -96,27 +96,6 @@
         </select>
     </div>
 
-    <!-- Pump Selection Form -->
-    <div>
-        <form id="pumpForm">
-            <label for="fill_pump">Fill Pump:</label>
-            <select name="fill_pump" id="fill_pump" required>
-                {% for pump in pump_names %}
-                    <option value="{{ pump }}">{{ pump }}</option>
-                {% endfor %}
-            </select>
-        
-            <label for="drain_pump">Drain Pump:</label>
-            <select name="drain_pump" id="drain_pump" required>
-                {% for pump in pump_names %}
-                    <option value="{{ pump }}">{{ pump }}</option>
-                {% endfor %}
-            </select>
-        </form>
-    </div>
-
-    <br><br>
-
     <button onclick="startCalibration()">Start Calibration</button>
     <button onclick="startTestSequence()">Start Test Sequence</button>
     
