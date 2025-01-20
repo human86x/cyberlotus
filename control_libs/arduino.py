@@ -4,6 +4,7 @@ import time
 ser = None
 
 def connect_to_arduino():
+    global ser
     """
     Ensures only one connection is created and reused.
     """
@@ -15,6 +16,7 @@ def connect_to_arduino():
                 connect_to_arduino.connection = serial.Serial(port, baudrate=9600, timeout=1)
                 time.sleep(2)  # Allow time for the Arduino to reset
                 print(f"Connected successfully to {port}")
+                ser = connect_to_arduino.connection
                 return connect_to_arduino.connection
             except serial.SerialException:
                 print(f"Failed to connect to {port}.")
