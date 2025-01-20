@@ -83,6 +83,13 @@
             <!-- Options will be dynamically loaded -->
         </select>
     </div>
+    <!-- Baseline Sequence Dropdown -->
+    <div>
+        <label for="bselineSequence">Select Base Line Sequence:</label>
+        <select id="baselineSequence">
+            <!-- Options will be dynamically loaded -->
+        </select>
+    </div>
 
     <!-- Test Sequence Dropdown -->
     <div>
@@ -166,9 +173,10 @@
                     if (data.status === 'success') {
                         const calibrationDropdown = document.getElementById('calibrationSequence');
                         const testDropdown = document.getElementById('testSequence');
+                        const baselineDropdown = document.getElementById('baselineSequence');
                         calibrationDropdown.innerHTML = '';
                         testDropdown.innerHTML = '';
-
+                        baselineDropdown.innerHTML = '';
                         data.files.forEach(file => {
                             const option = document.createElement('option');
                             option.value = file;
@@ -177,6 +185,8 @@
                             // Add options to both dropdowns
                             calibrationDropdown.appendChild(option.cloneNode(true));
                             testDropdown.appendChild(option.cloneNode(true));
+                            baselineDropdown.appendChild(option.cloneNode(true));
+                            
                         });
                     } else {
                         alert(data.message);
