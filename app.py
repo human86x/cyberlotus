@@ -4,8 +4,6 @@ from config_tools.tank_manager import load_tanks, add_tank, test_tanks
 from flask import flash
 from config_tools.flow_tune import calibrate_pump, test_pump, load_pump_commands
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Needed for flash messages
 
 ###################################
 
@@ -37,10 +35,13 @@ pump_progress = {}
 
 #ser = connect_to_arduino()
 
-time.sleep(2)  # Allow Arduino to initialize
+#time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
 #####################EC#####################
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Needed for flash messages
+socketio = SocketIO(app)  # This is where you initialize socketio
 
 # Get the corrected EC value
 @app.route('/get_ec', methods=['GET'])
