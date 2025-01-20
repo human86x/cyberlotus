@@ -68,7 +68,7 @@ def load_sequence():
         return jsonify({"status": "error", "message": "No filename provided."})
     #filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
     filepath = SEQUENCE_DIRECTORY + '/' + filename
-
+    prnt(f"Sequence dir is - {SEQUENCE_DIRECTORY}")
     try:
         with open(filepath, 'r') as file:
             content = file.read()
