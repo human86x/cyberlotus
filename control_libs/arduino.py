@@ -3,7 +3,7 @@ import time
 
 ser = None
 
-ef connect_to_arduino():
+def connect_to_arduino():
     """
     Ensures only one connection is created and reused.
     """
