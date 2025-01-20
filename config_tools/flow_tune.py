@@ -65,6 +65,7 @@ def save_flow_rates(flow_rates):
         json.dump(flow_rates, file, indent=4)
 
 def send_command_with_heartbeat(command, duration=None, port="COM3"):
+    global ser
     """
     Send a command to Arduino with heartbeat checks before and during operation.
     If duration is provided, the command assumes a timed operation (e.g., dosing).
