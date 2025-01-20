@@ -10,9 +10,11 @@ def connect_to_arduino():
     """
     print(f"trying to reconnect***********************")
     if hasattr(connect_to_arduino, "connection"):
+        print(f"Closing arduino connection***********************")
         connect_to_arduino.connection.close()
 
     if not hasattr(connect_to_arduino, "connection"):
+        print(f"not hasattr{connect_to_arduino}***********************")
         for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
             port = f"/dev/ttyACM{i}"
             try:
