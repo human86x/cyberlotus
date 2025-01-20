@@ -80,9 +80,7 @@
     <div>
         <label for="calibrationSequence">Select Calibration Sequence:</label>
         <select id="calibrationSequence">
-            <option value="sequence1">Sequence 1</option>
-            <option value="sequence2">Sequence 2</option>
-            <option value="sequence3">Sequence 3</option>
+            <!-- Options will be dynamically loaded -->
         </select>
     </div>
 
@@ -90,9 +88,7 @@
     <div>
         <label for="testSequence">Select Test Sequence:</label>
         <select id="testSequence">
-            <option value="test1">Test 1</option>
-            <option value="test2">Test 2</option>
-            <option value="test3">Test 3</option>
+            <!-- Options will be dynamically loaded -->
         </select>
     </div>
 
@@ -106,27 +102,12 @@
         let currentStep = 0;
         const totalSteps = 4;
         const progressBar = document.getElementById('progressBar');
-        const steps = document.getElementsByClassName('step');
         const ecValueElement = document.getElementById('ecValue');
         const temperatureElement = document.getElementById('temperature');
-        const baseECElement = document.getElementById('baseEC');
 
         function updateProgressBar() {
             let progress = (currentStep / totalSteps) * 100;
             progressBar.style.width = progress + '%';
-        }
-
-        function updateStepVisualization() {
-            for (let i = 0; i < totalSteps; i++) {
-                steps[i].classList.remove('completed', 'in-progress', 'not-started');
-                if (i < currentStep) {
-                    steps[i].classList.add('completed');
-                } else if (i === currentStep) {
-                    steps[i].classList.add('in-progress');
-                } else {
-                    steps[i].classList.add('not-started');
-                }
-            }
         }
 
         function fetchECValue() {
@@ -153,23 +134,46 @@
                 });
         }
 
+        function loadSequenceFiles() {
+            fetch('/list_sequences')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const calibrationDropdown = document.getElementById('calibrationSequence');
+                        const testDropdown = document.getElementById('testSequence');
+                        calibrationDropdown.innerHTML = '';
+                        testDropdown.innerHTML = '';
+
+                        data.files.forEach(file => {
+                            const option = document.createElement('option');
+                            option.value = file;
+                            option.textContent = file;
+
+                            // Add options to both dropdowns
+                            calibrationDropdown.appendChild(option.cloneNode(true));
+                            testDropdown.appendChild(option.cloneNode(true));
+                        });
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error fetching sequence files:', error));
+        }
+
         function startCalibration() {
             currentStep = 0;
             updateProgressBar();
-            updateStepVisualization();
             runCalibrationStep();
         }
 
         function runCalibrationStep() {
             if (currentStep >= totalSteps) return;
 
-            // Simulate the calibration process with a timeout
             setTimeout(() => {
                 currentStep++;
                 updateProgressBar();
-                updateStepVisualization();
                 runCalibrationStep();
-            }, 3000); // 3 seconds per step (for demonstration purposes)
+            }, 3000);
         }
 
         function startTestSequence() {
@@ -178,14 +182,15 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        fetchECValue();  // Get EC value when test is triggered
+                        fetchECValue();
                     }
                 });
         }
 
-        // Fetch EC value and temperature initially
+        // Fetch initial data and load sequences
         fetchECValue();
         fetchTemperature();
+        loadSequenceFiles();
     </script>
 </body>
 </html>
