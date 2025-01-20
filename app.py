@@ -66,7 +66,9 @@ def load_sequence():
     filename = request.args.get('filename')
     if not filename:
         return jsonify({"status": "error", "message": "No filename provided."})
-    filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
+    #filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
+    filepath = SEQUENCE_DIRECTORY + '/' + filename
+
     try:
         with open(filepath, 'r') as file:
             content = file.read()
@@ -85,8 +87,8 @@ def execute_sequence_route():
         return jsonify({"status": "error", "message": "No filename provided."})
 
     flow_rates = load_flow_rates()
-    filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
-
+    #filepath = os.path.join(SEQUENCE_DIRECTORY, filename)
+    filepath = SEQUENCE_DIRECTORY + '/' + filename
     def run_sequence():
         execute_sequence(filepath, flow_rates)
 
