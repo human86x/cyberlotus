@@ -56,8 +56,11 @@ def close_serial_connection():
 # Function to send a command and handle "HEARTBEAT" responses
 def send_command_and_get_response(ser, command, retries=1):
     for _ in range(retries):
+        print(f"Send command and get response-> the command>>> {command}")
+    
         ser.write(command)  # No need to encode if command is already bytes
         line = ser.readline().decode('utf-8').strip()
+        print(f"Send command and get response-> the response>>> {command}")
         if line == "HEARTBEAT":
             time.sleep(0.1)  # Short delay before retrying
             continue
