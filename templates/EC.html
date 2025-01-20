@@ -58,6 +58,28 @@
         <div class="step not-started" id="step4">4. Calibration Complete</div>
     </div>
 
+    <!-- EC Value Visualization -->
+    <h3>Current EC Value: <span id="ecValue">0.0</span> mS/cm</h3>
+    <button onclick="getECReadings()">Get EC Readings</button>
+
+    <!-- Dropdown for Calibration Sequence -->
+    <h3>Select Calibration Sequence:</h3>
+    <select id="calibrationSequence">
+        <option value="sequence1">Sequence 1</option>
+        <option value="sequence2">Sequence 2</option>
+        <option value="sequence3">Sequence 3</option>
+    </select>
+
+    <!-- Dropdown for Test Sequence -->
+    <h3>Select Test Sequence:</h3>
+    <select id="testSequence">
+        <option value="test1">Test 1</option>
+        <option value="test2">Test 2</option>
+    </select>
+
+    <!-- Button to trigger Test Sequence -->
+    <button onclick="triggerTestSequence()">Start Test Sequence</button>
+
     <button onclick="startCalibration()">Start Calibration</button>
 
     <script>
@@ -65,6 +87,7 @@
         const totalSteps = 4;
         const progressBar = document.getElementById('progressBar');
         const steps = document.getElementsByClassName('step');
+        const ecValueDisplay = document.getElementById('ecValue');
 
         function updateProgressBar() {
             let progress = (currentStep / totalSteps) * 100;
@@ -101,6 +124,30 @@
                 updateStepVisualization();
                 runCalibrationStep();
             }, 3000); // 3 seconds per step (for demonstration purposes)
+        }
+
+        function getECReadings() {
+            // Simulate getting EC readings, replace with real function call
+            const ecValue = Math.random() * 10;  // Random EC value for simulation
+            ecValueDisplay.textContent = ecValue.toFixed(2);
+            // Call a function to get the real EC value from your backend (calibrator.py)
+            // For example: socket.emit('get_ec_value');
+        }
+
+        function triggerTestSequence() {
+            const selectedTestSequence = document.getElementById('testSequence').value;
+            console.log("Starting test sequence:", selectedTestSequence);
+
+            // Call backend function to trigger the test sequence and get readings (via WebSocket or AJAX)
+            // For example: socket.emit('start_test_sequence', { sequence: selectedTestSequence });
+
+            if (selectedTestSequence === "test1") {
+                // Simulate measuring the readings when the test reaches a certain point
+                setTimeout(() => {
+                    console.log("Test sequence 'test1' completed!");
+                    // You can handle the callback here (e.g., update the UI, store the readings, etc.)
+                }, 5000); // Wait for 5 seconds as an example
+            }
         }
     </script>
 </body>
