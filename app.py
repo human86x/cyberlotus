@@ -46,7 +46,7 @@ def get_temperature():
         
         # Read temperature using the function from temperature.py
         temperature = read_solution_temperature(ser)
-        
+        print(f"Flash temperature update****{temperature}")
         # Close the serial connection after reading
         ser.close()
         
