@@ -29,6 +29,9 @@ from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates,
 from flask import Flask, request, send_from_directory
 from config_tools.sequencer import execute_sequence, list_sequence_files
 
+from config_tools.calibrator import get_correct_EC, calibrate_ec_sensor, set_baseline_ec
+from flask_socketio import SocketIO, emit
+
 # Store progress globally
 pump_progress = {}
 
@@ -37,8 +40,56 @@ pump_progress = {}
 time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
 
+#####################EC#####################
 
+# Get the corrected EC value
+@app.route('/get_ec', methods=['GET'])
+def get_ec_value():
+    ec_value = get_correct_EC()
+    if ec_value is not None:
+        return jsonify({'status': 'success', 'ec_value': ec_value})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
 
+# Calibrate EC sensoref calibrate_ec_sensor():
+    for step in range(4):  # 4 steps
+        # Simulating calibration process
+        time.sleep(3)
+        socketio.emit('progress', {'step': step, 'status': 'in-progress'})
+        if step == 3:
+            socketio.emit('progress', {'step': step, 'status': 'completed'})
+
+@socketio.on('start_calibration')
+def handle_start_calibration():
+    calibrate_ec_sensor()
+@app.route('/calibrate', methods=['POST'])
+def calibrate():
+    try:
+        calibrate_ec_sensor()
+        return jsonify({'status': 'success', 'message': 'EC sensor calibration completed'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+# Set EC baseline
+@app.route('/set_baseline', methods=['POST'])
+def set_baseline():
+    try:
+        set_baseline_ec()
+        return jsonify({'status': 'success', 'message': 'EC baseline set successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+def calibrate_ec_sensor():
+    for step in range(4):  # 4 steps
+        # Simulating calibration process
+        time.sleep(3)
+        socketio.emit('progress', {'step': step, 'status': 'in-progress'})
+        if step == 3:
+            socketio.emit('progress', {'step': step, 'status': 'completed'})
+
+@socketio.on('start_calibration')
+def handle_start_calibration():
+    calibrate_ec_sensor()
 
 
 

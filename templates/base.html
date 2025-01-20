@@ -60,6 +60,26 @@
             <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
         </form>
     </li>
+
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+    
+        socket.on('progress', (data) => {
+            currentStep = data.step;
+            updateProgressBar();
+            updateStepVisualization();
+        });
+    
+        function startCalibration() {
+            socket.emit('start_calibration');
+        }
+    </script>
+    
+
+
+
     
 </body>
 </html>

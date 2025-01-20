@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EC Calibration</title>
+    <style>
+        /* Style for progress bar */
+        #progressBarWrapper {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 10px;
+            height: 30px;
+            margin-bottom: 20px;
+        }
+        #progressBar {
+            height: 100%;
+            width: 0;
+            background-color: #4caf50;
+            border-radius: 10px;
+        }
+        
+        /* Style for steps */
+        .step {
+            padding: 10px;
+            background-color: #f0f0f0;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .completed {
+            background-color: #4caf50;
+            color: white;
+        }
+        .in-progress {
+            background-color: #ff9800;
+            color: white;
+        }
+        .not-started {
+            background-color: #e0e0e0;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>EC Calibration Process</h1>
+
+    <!-- Progress Bar -->
+    <div id="progressBarWrapper">
+        <div id="progressBar"></div>
+    </div>
+
+    <!-- Steps visualization -->
+    <div id="steps">
+        <div class="step not-started" id="step1">1. Collect EC Readings</div>
+        <div class="step not-started" id="step2">2. Apply Calibration Factor</div>
+        <div class="step not-started" id="step3">3. Set Baseline EC</div>
+        <div class="step not-started" id="step4">4. Calibration Complete</div>
+    </div>
+
+    <button onclick="startCalibration()">Start Calibration</button>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 4;
+        const progressBar = document.getElementById('progressBar');
+        const steps = document.getElementsByClassName('step');
+
+        function updateProgressBar() {
+            let progress = (currentStep / totalSteps) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function updateStepVisualization() {
+            for (let i = 0; i < totalSteps; i++) {
+                steps[i].classList.remove('completed', 'in-progress', 'not-started');
+                if (i < currentStep) {
+                    steps[i].classList.add('completed');
+                } else if (i === currentStep) {
+                    steps[i].classList.add('in-progress');
+                } else {
+                    steps[i].classList.add('not-started');
+                }
+            }
+        }
+
+        function startCalibration() {
+            currentStep = 0;
+            updateProgressBar();
+            updateStepVisualization();
+            runCalibrationStep();
+        }
+
+        function runCalibrationStep() {
+            if (currentStep >= totalSteps) return;
+
+            // Simulate the calibration process with a timeout
+            setTimeout(() => {
+                currentStep++;
+                updateProgressBar();
+                updateStepVisualization();
+                runCalibrationStep();
+            }, 3000); // 3 seconds per step (for demonstration purposes)
+        }
+    </script>
+</body>
+</html>
+{% endblock %}
