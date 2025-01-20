@@ -64,18 +64,30 @@ def save_flow_rates(flow_rates):
     with open(FLOW_RATES_FILE, 'w') as file:
         json.dump(flow_rates, file, indent=4)
 
-def send_command_with_heartbeat(command, duration=None):
+def send_command_with_heartbeat(command, duration=None, port="COM3"):
     """
     Send a command to Arduino with heartbeat checks before and during operation.
     If duration is provided, the command assumes a timed operation (e.g., dosing).
+    Includes reconnection attempts if the serial port is not open.
     """
+    # Try to connect to Arduino if the port is not open
+    if not ser.is_open:
+        print("Arduino port not open. Attempting to reconnect...")
+        ser = connect_to_arduino(port)
+        if not ser:
+            print("Error: Unable to connect to Arduino. Aborting command.")
+            return False
+
     print(f"Preparing to send command '{command}' to Arduino...")
-    #if not wait_for_heartbeat():
-    #    print("Error: No heartbeat detected. Arduino may not be responding.")
-    #    return False
+
+    # Simulate heartbeat verification (this could be uncommented if you have a heartbeat check function)
+    # if not wait_for_heartbeat():
+    #     print("Error: No heartbeat detected. Arduino may not be responding.")
+    #     return False
 
     print("Heartbeat verified. Sending command to Arduino...")
     ser.write(f"{command}o".encode())  # Turn on the pump
+
     if duration:
         start_time = time.time()
         while time.time() - start_time < duration:
@@ -83,13 +95,16 @@ def send_command_with_heartbeat(command, duration=None):
             progress = min(int((time_elapsed / duration) * 100), 100)  # Ensure max progress is 100%
             print(f"Operation in progress... {progress}% complete.", end="\r")
 
-            # Check for heartbeat during operation
-            #if not wait_for_heartbeat(timeout=1):
-            #    print("\nWarning: Arduino heartbeat delay detected during operation!")
-            #    break
+            # Simulate heartbeat check during operation (uncomment if needed)
+            # if not wait_for_heartbeat(timeout=1):
+            #     print("\nWarning: Arduino heartbeat delay detected during operation!")
+            #     break
+
             time.sleep(0.1)  # Small delay to avoid excessive CPU usage
+
         ser.write(f"{command}f".encode())  # Turn off the pump
         print("\nOperation complete.")
+
     return True
 
 def calibrate_pump(pump_name):
