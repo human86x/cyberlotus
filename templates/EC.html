@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EC Calibration</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         /* Style for progress bar */
         #progressBarWrapper {
@@ -111,6 +111,24 @@
         <label for="calibrationData">Calibration Data:</label>
         <textarea id="calibrationData" rows="10" cols="50" readonly></textarea>
     </div>
+
+
+
+ 
+        <h1>Real-Time EC Updates</h1>
+        <div id="content">Waiting for updates...</div>
+    
+        <script>
+            const eventSource = new EventSource('/stream');
+            eventSource.onmessage = function(event) {
+                document.getElementById('content').innerText = event.data;
+            };
+        </script>
+
+
+
+
+
 
     <script>
         function loadCalibrationData() {

@@ -167,14 +167,75 @@ def start_callback_sequence(sequence):
     try:
         # Here you can handle different test sequences
         print(f"Starting test sequence: {sequence}")
-        execute_sequence(sequence, load_flow_rates(), get_correct_EC)
+        execute_sequence(sequence, load_flow_rates(), trigger)
         return jsonify({'status': 'success', 'message': f'Started {sequence} test sequence'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############ SSE - ####################
+
+# SSE stream route
+@app.route('/stream')
+def stream():
+    def generate():
+        while True:
+            # Wait for a new event in the queue
+            event = event_queue.get()  # This blocks until an item is added to the queue
+            yield f"data: {event}\n\n"
+    return Response(generate(), mimetype='text/event-stream')
+
+# Trigger function internally
+@app.route('/trigger')
+def trigger():
+    # Call the function and send its result to the event stream
+    result = get_correct_EC()
+    event_queue.put(result)  # Add the result to the queue
+    return f"Triggered and sent: {result}"
+
+
+
+
+
 ###################SEQUENCER########################
 
 #app = Flask(__name__)
+
+
+
+
+@app.route('/refresh_ec', methods=['GET'])
+def refresh_EC():
+
+    ec = get_correct_EC()
+    #temperature = get_temperature()
+
+    return ec
+
+
+
+    data = request.json
+    config = load_app_config()  # Load existing configuration
+    config.update(data)  # Update the configuration with new data
+    #save_app_config(config)  # Save the updated configuration
+    return jsonify({"status": "success", "message": "Configuration saved successfully"})
+
+
+
+
 
 SEQUENCE_DIRECTORY = 'sequences/'
 
@@ -597,8 +658,6 @@ def safe_serial_write_emergency():
 
     print("[FAILURE] ❌ Emergency Stop failed after multiple attempts. Manual intervention may be required.")
 
-
-import time
 
 def safe_serial_write(pump_name, state, retries=1, timeout=2):
     global ser
