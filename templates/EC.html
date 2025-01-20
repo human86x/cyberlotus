@@ -98,6 +98,34 @@
     <!-- Instant EC Button -->
     <button onclick="fetchECValue()">Get EC Value</button>
 
+
+
+    <!-- Add a Textbox to Display Calibration Data -->
+<div>
+    <label for="calibrationData">Calibration Data:</label>
+    <textarea id="calibrationData" rows="10" cols="50" readonly></textarea>
+</div>
+
+<script>
+    function loadCalibrationData() {
+        fetch('/get_calibration_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const calibrationData = JSON.stringify(data.data, null, 2); // Pretty print JSON
+                    document.getElementById('calibrationData').value = calibrationData;
+                } else {
+                    alert('Failed to load calibration data.');
+                }
+            })
+            .catch(error => console.error('Error fetching calibration data:', error));
+    }
+
+    // Load calibration data on page load
+    document.addEventListener('DOMContentLoaded', loadCalibrationData);
+</script>
+
+
     <script>
         let currentStep = 0;
         const totalSteps = 4;

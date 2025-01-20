@@ -27,7 +27,7 @@ from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates,
 from flask import Flask, request, send_from_directory
 from config_tools.sequencer import execute_sequence, list_sequence_files
 
-from config_tools.calibrator import get_correct_EC, calibrate_ec_sensor, set_baseline_ec
+from config_tools.calibrator import get_correct_EC,load_calibration_data, calibrate_ec_sensor, set_baseline_ec
 from flask_socketio import SocketIO, emit
 
 # Store progress globally
@@ -41,6 +41,16 @@ socketio = SocketIO(app)  # This is where you initialize socketio
 
 #time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS
+
+
+@app.route('/get_calibration_data', methods=['GET'])
+def get_calibration_data():
+    data = load_calibration_data()
+    return jsonify({"status": "success", "data": data})
+
+
+
+
 ######################TEMPERATURE##############
 @app.route('/get_temperature')
 def get_temperature():
