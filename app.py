@@ -653,9 +653,11 @@ def ph():
     return render_template('ph.html')
 @app.route('/ecosystem')
 def ecosystem():
-    return render_template('ecsystem.html')
+    return render_template('ecosystem.html')
 
-
+@app.route('/atomatisation')
+def automatisation():
+    return render_template('automatisation.html')
 
 
 
