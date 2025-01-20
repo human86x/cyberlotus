@@ -50,6 +50,7 @@ CONFIG_FILE_PATH = 'data/app_config.json'
 
 # Function to load app configuration from the JSON file
 def load_app_config():
+    print("Loading app config to EC page")
     try:
         with open(CONFIG_FILE_PATH, 'r') as f:
             return json.load(f)
