@@ -56,7 +56,9 @@ def close_serial_connection():
 # Function to send a command and handle "HEARTBEAT" responses
 import time
 
-def send_command_and_get_response(ser, command, expected_response=None, retries=5, timeout=1):
+import time
+
+def send_command_and_get_response(ser, command, retries=5, timeout=1):
     attempt = 0
     while attempt < retries:
         print(f"Send command and get response -> the command >>> {command}")
@@ -65,18 +67,15 @@ def send_command_and_get_response(ser, command, expected_response=None, retries=
         line = ser.readline().decode('utf-8').strip()
         print(f"Send command and get response -> the response >>> {line}")
         
-        # Check for expected response
-        if line == "HEARTBEAT":
-            time.sleep(timeout)  # Short delay before retrying
-            attempt += 1
-            continue
+        # Check if response is a valid float
+        try:
+            value = float(line)
+            return value  # Valid response, return the float
+        except ValueError:
+            print(f"Error: Invalid response: {line}, not a valid float")
         
-        if expected_response is None or line == expected_response:
-            return line  # Valid response
-        else:
-            print(f"Error: Invalid response: {line}, expected: {expected_response}")
-            attempt += 1
-            time.sleep(timeout)  # Retry delay
+        attempt += 1
+        time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
     return None
