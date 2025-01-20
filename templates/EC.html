@@ -271,7 +271,7 @@ function loadAppConfig() {
         // saveConfig();
 
         // Fetch initial data and load sequences
-        loadAppConfig();
+        
         loadCalibrationData();
 
 
@@ -284,6 +284,7 @@ function loadAppConfig() {
         fetchECValue();
         fetchTemperature();
         loadSequenceFiles();
+        loadAppConfig();
     </script>
 </body>
 {% endblock %}
