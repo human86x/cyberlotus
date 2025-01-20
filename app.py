@@ -162,6 +162,8 @@ def handle_start_calibration():
 # Test sequence trigger (this is where you'd need to implement your test logic)
 @app.route('/start_callback_sequence/<sequence>', methods=['GET'])
 def start_callback_sequence(sequence):
+    sequence = SEQUENCE_DIRECTORY + '/' + sequence
+
     try:
         # Here you can handle different test sequences
         print(f"Starting test sequence: {sequence}")

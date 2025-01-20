@@ -107,7 +107,7 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
         flow_rates (dict): Dictionary containing flow rates for each pump.
         calibration_callback (function): Optional callback for calibration steps.
     """
-    sequence_file = "sequences/" + sequence_file 
+    #sequence_file = "sequences/" + sequence_file 
     try:
         with open(sequence_file, 'r') as file:
             data = json.load(file)
