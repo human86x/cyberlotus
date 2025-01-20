@@ -4,6 +4,8 @@ from config_tools.tank_manager import load_tanks, add_tank, test_tanks
 from flask import flash
 from config_tools.flow_tune import calibrate_pump, test_pump, load_pump_commands
 
+from flask import Response
+from queue import Queue
 
 ###################################
 
@@ -187,7 +189,8 @@ def start_callback_sequence(sequence):
 
 
 ############ SSE - ####################
-
+# Create a queue to store events
+event_queue = Queue()
 # SSE stream route
 @app.route('/stream')
 def stream():
