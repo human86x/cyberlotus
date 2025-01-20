@@ -1,64 +1,188 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberLotus Project</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-        .sidebar {
-            width: 250px;
-            background-color: #333;
-            color: #fff;
-            height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .sidebar a {
-            display: block;
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 0;
-            margin: 10px 0;
-            border-bottom: 1px solid #555;
-        }
-        .sidebar a:hover {
-            background-color: #555;
-        }
-        .content {
-            flex: 1;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #333;
-        }
-    </style>
-</head>
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Manage Tanks</h2>
+
+<!-- Reconnect Button -->
+<div id="arduino-connection">
+    <button id="reconnectButton" onclick="reconnectArduino()">Reconnect to Arduino</button>
+    <span id="connection-status" style="color: red;">Disconnected</span>
+</div>
+
+<!-- Tank Creation Form -->
+<h3>Create New Tank</h3>
+<form action="{{ url_for('create_tank_route') }}" method="POST">
+    <label for="name">Tank Name:</label>
+    <input type="text" name="name" required><br>
+
+    <label for="code">Arduino Code (e.g., L1, L2):</label>
+    <input type="text" name="code" required><br>
+
+    <label for="total_volume">Total Volume (L):</label>
+    <input type="number" name="total_volume" step="0.1" required><br>
+
+    <label for="full_cm">Full Sensor Value (cm):</label>
+    <input type="number" name="full_cm" step="0.1" required><br>
+
+    <label for="empty_cm">Empty Sensor Value (cm):</label>
+    <input type="number" name="empty_cm" step="0.1" required><br>
+
+    <button type="submit">Add Tank</button>
+</form>
+
+<hr>
+
+<!-- Display Existing Tanks -->
+<h3>Existing Tanks</h3>
+{% if tanks %}
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Arduino Code</th>
+            <th>Total Volume (L)</th>
+            <th>Full (cm)</th>
+            <th>Empty (cm)</th>
+            <th>Fill Level</th>
+        </tr>
+        {% for name, info in tanks.items() %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ info['arduino_code'] }}</td>
+            <td>{{ info['total_volume'] }}</td>
+            <td>{{ info['full_cm'] }}</td>
+            <td>{{ info['empty_cm'] }}</td>
+            <td>
+                <!-- Fill percentage -->
+                <div style="height: 200px; width: 50px; background-color: #ddd; border: 1px solid #333; position: relative;">
+                    <div style="position: absolute; bottom: 0; width: 100%; background-color: green; height: {{ tanks[name].fill_percentage }}%;"></div>
+                </div>
+                <p>{{ tanks[name].fill_percentage }}%</p> <!-- Display fill percentage -->
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No tanks configured yet.</p>
+{% endif %}
+
+<hr>
+
+<!-- Test Tanks Button -->
+<h3>Test Tanks</h3>
+<button onclick="testTanks()">Run Test</button>
+
+<div id="test-results"></div>
+
+<script>
+function testTanks() {
+    fetch("{{ url_for('test_tanks_route') }}")
+        .then(response => response.json())
+        .then(data => {
+            let testResultsDiv = document.getElementById("test-results");
+            testResultsDiv.innerHTML = '';
+            
+            Object.keys(data).forEach(tank => {
+                let result = data[tank];
+                let resultDiv = document.createElement("div");
+                resultDiv.innerHTML = `
+                    <strong>${tank}:</strong>
+                    ${result.error ? result.error : `
+                        Distance: ${result.distance} cm, 
+                        Fill: ${result.fill_percentage}%, 
+                        Volume: ${result.current_volume} L
+                    `}
+                `;
+                testResultsDiv.appendChild(resultDiv);
+
+                // Update the fill bar dynamically
+                let fillBar = document.getElementById(tank + '-fill-bar');
+                if (fillBar) {
+                    fillBar.style.height = result.fill_percentage + '%';
+                }
+            });
+        });
+}
+
+function reconnectArduino() {
+    fetch("{{ url_for('arduino_connect') }}")
+        .then(response => response.json())
+        .then(data => {
+            let statusElement = document.getElementById("connection-status");
+            if (data.connected) {
+                statusElement.innerHTML = 'Connected';
+                statusElement.style.color = 'green';
+            } else {
+                statusElement.innerHTML = 'Disconnected';
+                statusElement.style.color = 'red';
+            }
+        })
+        .catch(error => {
+            alert("Error connecting to Arduino.");
+            let statusElement = document.getElementById("connection-status");
+            statusElement.innerHTML = 'Disconnected';
+            statusElement.style.color = 'red';
+        });
+}
+
+// Fetch initial Arduino connection status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    reconnectArduino();
+});
+</script>
+
 <body>
-    <div class="sidebar">
-        <h2>CyberLotus</h2>
-        <a href="{{ url_for('dashboard') }}">Dashboard</a>
-        <a href="{{ url_for('tanks') }}">Tanks</a>
-        <a href="{{ url_for('pumps') }}">Pumps</a>
-        <a href="{{ url_for('sequences') }}">Sequences</a>
-        <a href="{{ url_for('ph') }}">pH</a>
-        <a href="{{ url_for('ec') }}">EC</a>
-        <a href="{{ url_for('ecosystem') }}">Ecosystem</a>
-    </div>
-    <div class="content">
-        {% block content %}{% endblock %}
+
+    <h1>Tanks Information</h1>
+    
+    <!-- Refresh Button -->
+    <button id="refreshButton">Refresh Readings</button>
+
+    <div class="tanks-container" id="tanksContainer">
+        <!-- Tanks will be populated here dynamically -->
     </div>
 
-    <li>
-        <form action="{{ url_for('emergency_stop_route') }}" method="post">
-            <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
-        </form>
-    </li>
-    
-</body>
-</html>
+    <script>
+        // Function to fetch new data and update the tanks
+        function updateTankData() {
+            $.ajax({
+                url: '/get_tank_data',
+                method: 'GET',
+                success: function(data) {
+                    var tanksContainer = $('#tanksContainer');
+                    tanksContainer.empty();  // Clear the existing content
+
+                    // Loop through the tanks and update the DOM
+                    for (var tank in data) {
+                        var tankData = data[tank];
+                        var tankCard = `
+                            <div class="tank-card">
+                                <div class="tank-bar" style="height: ${tankData.fill_percentage}%"></div>
+                                <h3>${tank.charAt(0).toUpperCase() + tank.slice(1)}</h3>
+                                <p>Arduino Code: ${tankData.arduino_code}</p>
+                                <p>Total Volume: ${tankData.total_volume} L</p>
+                                <p>Full: ${tankData.full_cm} cm</p>
+                                <p>Empty: ${tankData.empty_cm} cm</p>
+                                <p>Fill Level: ${tankData.fill_percentage}%</p>
+                            </div>
+                        `;
+                        tanksContainer.append(tankCard);  // Append new tank card
+                    }
+                },
+                error: function() {
+                    alert("Failed to fetch tank data.");
+                }
+            });
+        }
+
+        // Event listener for the Refresh button
+        $('#refreshButton').click(function() {
+            updateTankData();  // Update tank data on button click
+        });
+
+        // Fetch initial tank data on page load
+        $(document).ready(function() {
+            updateTankData();
+        });
+    </script>
+
+{% endblock %}
