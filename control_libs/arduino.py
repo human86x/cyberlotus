@@ -3,18 +3,11 @@ import time
 
 ser = None
 
-def connect_to_arduino():
-    global ser
+ef connect_to_arduino():
     """
     Ensures only one connection is created and reused.
     """
-    print(f"trying to reconnect***********************")
-    if hasattr(connect_to_arduino, "connection"):
-        print(f"Closing arduino connection***********************{connect_to_arduino}")
-        connect_to_arduino.connection.close()
-
     if not hasattr(connect_to_arduino, "connection"):
-        print(f"not hasattr{connect_to_arduino}***********************")
         for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
             port = f"/dev/ttyACM{i}"
             try:
@@ -22,7 +15,6 @@ def connect_to_arduino():
                 connect_to_arduino.connection = serial.Serial(port, baudrate=9600, timeout=1)
                 time.sleep(2)  # Allow time for the Arduino to reset
                 print(f"Connected successfully to {port}")
-                ser = connect_to_arduino.connection
                 return connect_to_arduino.connection
             except serial.SerialException:
                 print(f"Failed to connect to {port}.")
