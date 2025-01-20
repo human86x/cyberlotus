@@ -1,192 +1,155 @@
 {% extends "base.html" %}
 
 {% block content %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EC Calibration</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        /* Style for progress bar */
-        #progressBarWrapper {
-            width: 100%;
-            background-color: #f3f3f3;
-            border-radius: 10px;
-            height: 30px;
-            margin-bottom: 20px;
-        }
-        #progressBar {
-            height: 100%;
-            width: 0;
-            background-color: #4caf50;
-            border-radius: 10px;
-        }
+<h2>Manage Tanks</h2>
+<link rel="stylesheet" type="text/css" href="static/style.css" />
 
-        /* Dashboard style */
-        .dashboard {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            margin-top: 20px;
-            background-color: #f4f4f9;
-            border-radius: 8px;
-        }
-        .dashboard div {
-            font-size: 18px;
-            font-weight: bold;
-        }
+<!-- Display Existing Tanks -->
+<h3>Existing Tanks</h3>
+<div id="tanks-display" style="display: flex; overflow-x: auto;"></div>
 
-        /* Style for steps */
-        .step {
-            padding: 10px;
-            background-color: #f0f0f0;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .completed {
-            background-color: #4caf50;
-            color: white;
-        }
-        .in-progress {
-            background-color: #ff9800;
-            color: white;
-        }
-        .not-started {
-            background-color: #e0e0e0;
-            color: #888;
-        }
-    </style>
-</head>
-<body>
-    <h1>EC Calibration Process</h1>
+<hr>
 
-    <!-- Progress Bar -->
-    <div id="progressBarWrapper">
-        <div id="progressBar"></div>
-    </div>
+<!-- Test Tanks Button -->
+<h3>Check Tanks Levels</h3>
+<button onclick="fetchTankData()">Refresh</button>
+<div id="test-results"></div>
 
-    <!-- EC and Temperature Dashboard -->
-    <div class="dashboard">
-        <div>
-            <h3>EC Value: <span id="ecValue">Loading...</span></h3>
-            <p>Base Line EC: <span id="baseEC">2.0</span> mS/cm</p>
-        </div>
-        <div>
-            <h3>Solution Temperature: <span id="temperature">Loading...</span> °C</h3>
-        </div>
-    </div>
+<button onclick="drainWaste()" style="margin: 10px; padding: 10px 20px; background-color: #e74c3c; color: white; border: none; cursor: pointer;">
+    Drain Waste Tank
+</button>
 
-    <!-- Calibration Sequence Dropdown -->
-    <div>
-        <label for="calibrationSequence">Select Calibration Sequence:</label>
-        <select id="calibrationSequence">
-            <option value="sequence1">Sequence 1</option>
-            <option value="sequence2">Sequence 2</option>
-            <option value="sequence3">Sequence 3</option>
+<!-- Display result -->
+<div id="drain-result" style="margin-top: 10px; font-weight: bold;"></div>
+
+<hr>
+
+<!-- Solution Level Control -->
+<h3>Adjust Solution Tank Level</h3>
+<div>
+    <form id="pumpForm">
+        <label for="fill_pump">Fill Pump:</label>
+        <select name="fill_pump" id="fill_pump" required>
+            {% for pump in pump_names %}
+                <option value="{{ pump }}">{{ pump }}</option>
+            {% endfor %}
         </select>
-    </div>
-
-    <!-- Test Sequence Dropdown -->
-    <div>
-        <label for="testSequence">Select Test Sequence:</label>
-        <select id="testSequence">
-            <option value="test1">Test 1</option>
-            <option value="test2">Test 2</option>
-            <option value="test3">Test 3</option>
-        </select>
-    </div>
-
-    <button onclick="startCalibration()">Start Calibration</button>
-    <button onclick="startTestSequence()">Start Test Sequence</button>
     
-    <!-- Instant EC Button -->
-    <button onclick="fetchECValue()">Get EC Value</button>
+        <label for="drain_pump">Drain Pump:</label>
+        <select name="drain_pump" id="drain_pump" required>
+            {% for pump in pump_names %}
+                <option value="{{ pump }}">{{ pump }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <br><br>
+    <!-- Save Pump Assignments Button -->
+    <button type="button" onclick="savePumpAssignments()">Save Pump Assignments</button>
+    <button type="button" onclick="loadSavedPumpSelections();">Load Pump Assignments</button>
 
-    <script>
-        let currentStep = 0;
-        const totalSteps = 4;
-        const progressBar = document.getElementById('progressBar');
-        const steps = document.getElementsByClassName('step');
-        const ecValueElement = document.getElementById('ecValue');
-        const temperatureElement = document.getElementById('temperature');
-        const baseECElement = document.getElementById('baseEC');
+    <!-- Solution Level Control -->
+    <h3>Check Solution Level Adjustment</h3>
+    <button onclick="compareSolutionLevel()">Check Adjustment</button>
 
-        function updateProgressBar() {
-            let progress = (currentStep / totalSteps) * 100;
-            progressBar.style.width = progress + '%';
-        }
+    <div id="adjustment-results"></div>
+    <div id="progress-container" style="width: 100%; margin-top: 20px; display: none;"></div>
+    <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50;"></div>
+</div>
 
-        function updateStepVisualization() {
-            for (let i = 0; i < totalSteps; i++) {
-                steps[i].classList.remove('completed', 'in-progress', 'not-started');
-                if (i < currentStep) {
-                    steps[i].classList.add('completed');
-                } else if (i === currentStep) {
-                    steps[i].classList.add('in-progress');
-                } else {
-                    steps[i].classList.add('not-started');
-                }
-            }
-        }
+<h3>Adjust Solution Tank Level</h3>
+<div>
+    <button id="adjustTankButton">Adjust Tank Level</button>
 
-        function fetchECValue() {
-            fetch('/get_ec')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        ecValueElement.textContent = data.ec_value;
-                    } else {
-                        ecValueElement.textContent = "Error fetching EC value";
-                    }
-                });
-        }
+    <div id="responseMessage"></div> <!-- To display success or error messages -->
+    <input type="range" id="solution-level-slider" min="0" max="100" value="50" style="width: 300px;">
+    <span id="solution-level-display">50%</span>
+    <button id="save-solution-level-button">Save Level</button>
+</div>
 
-        function fetchTemperature() {
-            fetch('/get_temperature')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        temperatureElement.textContent = data.temperature;
-                    } else {
-                        temperatureElement.textContent = "Error fetching temperature";
-                    }
-                });
-        }
+<div id="progress-container" style="display:none; width: 100%; background-color: #f3f3f3; border-radius: 5px; margin-top: 10px;">
+    <div id="progress-bar2" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 5px;"></div>
+</div>
 
-        function startCalibration() {
-            currentStep = 0;
-            updateProgressBar();
-            updateStepVisualization();
-            runCalibrationStep();
-        }
+<!-- Tank Creation Form -->
+<div class="form-container">
+    <h3>Create New Tank</h3>
+    <form action="{{ url_for('create_tank_route') }}" method="POST">
+        <div class="form-group">
+            <label for="name">Tank Name:</label>
+            <input type="text" name="name" required>
+        </div>
 
-        function runCalibrationStep() {
-            if (currentStep >= totalSteps) return;
+        <div class="form-group">
+            <label for="code">Arduino Code (e.g., L1, L2):</label>
+            <input type="text" name="code" required>
+        </div>
 
-            // Simulate the calibration process with a timeout
-            setTimeout(() => {
-                currentStep++;
-                updateProgressBar();
-                updateStepVisualization();
-                runCalibrationStep();
-            }, 3000); // 3 seconds per step (for demonstration purposes)
-        }
+        <div class="form-group">
+            <label for="total_volume">Total Volume (L):</label>
+            <input type="number" name="total_volume" step="0.1" required>
+        </div>
 
-        function startTestSequence() {
-            const selectedTestSequence = document.getElementById('testSequence').value;
-            fetch(`/start_test_sequence/${selectedTestSequence}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        fetchECValue();  // Get EC value when test is triggered
-                    }
-                });
-        }
+        <div class="form-group">
+            <label for="full_cm">Full Sensor Value (cm):</label>
+            <input type="number" name="full_cm" step="0.1" required>
+        </div>
 
-        // Fetch EC value and temperature initially
-        fetchECValue();
-        fetchTemperature();
-    </script>
-</body>
-</html>
+        <div class="form-group">
+            <label for="empty_cm">Empty Sensor Value (cm):</label>
+            <input type="number" name="empty_cm" step="0.1" required>
+        </div>
+
+        <button type="submit">Add Tank</button>
+    </form>
+</div>
+
+<hr>
+
+<script>
+// Function to handle saving pump assignments
+function savePumpAssignments() {
+    const fillPump = document.getElementById('fill_pump').value;
+    const drainPump = document.getElementById('drain_pump').value;
+
+    if (!fillPump || !drainPump) {
+        alert("Please select both filling and draining pumps.");
+        return;
+    }
+
+    fetch("{{ url_for('save_pump_assignment') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fill_pump: fillPump,
+            drain_pump: drainPump
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Pump assignments saved successfully!");
+    })
+    .catch(error => {
+        console.error('Error saving pump assignments:', error);
+    });
+}
+
+// Function to fetch tank data
+function fetchTankData() {
+    // Make a request to the server to get tank data
+    fetch("/get_tank_data")
+    .then(response => response.json())
+    .then(data => {
+        // Update the tanks display
+        const tanksDisplay = document.getElementById('tanks-display');
+        tanksDisplay.innerHTML = "";
+        data.tanks.forEach(tank => {
+            const tankDiv = document.createElement('div');
+            tankDiv.textContent = `Tank: ${tank.name} - Code: ${tank.code}`;
+            tanksDisplay.appendChild(tankDiv);
+        });
+    });
+}
+</script>
 {% endblock %}
