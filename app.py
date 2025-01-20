@@ -46,7 +46,7 @@ global PUMP_COMMANDS
 
 #app = Flask(__name__)
 
-SEQUENCE_DIRECTORY = '../sequences/'
+SEQUENCE_DIRECTORY = 'sequences/'
 
 @app.route('/list_sequences', methods=['GET'])
 def list_sequences():
