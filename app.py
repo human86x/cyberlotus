@@ -43,6 +43,52 @@ socketio = SocketIO(app)  # This is where you initialize socketio
 global PUMP_COMMANDS
 
 
+
+
+
+CONFIG_FILE_PATH = 'data/app_config.json'
+
+# Function to load app configuration from the JSON file
+def load_app_config():
+    try:
+        with open(CONFIG_FILE_PATH, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}  # Return empty dict if the file does not exist
+    except Exception as e:
+        print(f"Error loading config file: {e}")
+        return {}
+
+# Route to get the stored configuration
+@app.route('/get_app_config', methods=['GET'])
+def get_app_config():
+    config = load_app_config()
+    return jsonify(config)
+
+# Function to save app configuration to the JSON file
+def save_app_config(config):
+    try:
+        with open(CONFIG_FILE_PATH, 'w') as f:
+            json.dump(config, f, indent=2)
+    except Exception as e:
+        print(f"Error saving config file: {e}")
+
+# Route to save the configuration
+@app.route('/save_app_config', methods=['POST'])
+def save_configuration():
+    data = request.json
+    config = load_app_config()  # Load existing configuration
+    config.update(data)  # Update the configuration with new data
+    save_app_config(config)  # Save the updated configuration
+    return jsonify({"status": "success", "message": "Configuration saved successfully"})
+
+
+
+
+
+
+
+
 @app.route('/get_calibration_data', methods=['GET'])
 def get_calibration_data():
     data = load_calibration_data()
