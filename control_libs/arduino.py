@@ -3,7 +3,7 @@ import time
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 
-from config_tools.flow_tune import PUMP_COMMANDS
+#from config_tools.flow_tune import PUMP_COMMANDS
 
 ser = None  # Define the global variable for the serial connection
 
@@ -66,16 +66,16 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
         timeout (int): Time in seconds to wait for Arduino response.
     """
     try:
-        if pump_name not in PUMP_COMMANDS:
-            print(f"[ERROR] Invalid pump name: {pump_name}")
-            return
+    #    if pump_name not in PUMP_COMMANDS:
+    #        print(f"[ERROR] Invalid pump name: {pump_name}")
+    #        return
 
-        if state not in ['o', 'f']:
-            print(f"[ERROR] Invalid pump state: {state}")
-            return
+    #    if state not in ['o', 'f']:
+    #        print(f"[ERROR] Invalid pump state: {state}")
+    #        return
 
-        command = f"{PUMP_COMMANDS[pump_name]}{state}"
-        expected_response = f"{'ON' if state == 'o' else 'OFF'}_{PUMP_COMMANDS[pump_name]}"
+        command = f"{pump_name}{state}"
+        expected_response = f"{'ON' if state == 'o' else 'OFF'}_{pump_name}"
         
         attempt = 0
 
@@ -100,7 +100,7 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
                     
                     time.sleep(0.1)  # Small delay to avoid CPU overuse
 
-                # If no valid response, retry
+                    # If no valid response, retry
                 print(f"[ERROR] No valid response. Retrying... (Attempt {attempt + 1}/{retries})")
                 attempt += 1
 
@@ -121,6 +121,21 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
 
 
 
+def emergency_stop(pump_name):
+    global ser
+    ser = get_serial_connection()
+    """Immediately stop the specified pump in case of error."""
+    try:
+        print(f"[EMERGENCY] Stopping {pump_name} immediately!")
+        if ser and ser.is_open:
+            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
+            ser.flush()
+        else:
+            print("[ERROR] Serial port is not open. Attempting reconnection...")
+            reconnect_arduino()
+            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
+    except Exception as e:
+        print(f"[CRITICAL] Failed to stop {pump_name}: {e}")
 
 
 # Usage example

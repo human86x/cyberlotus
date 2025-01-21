@@ -18,7 +18,7 @@ import json
 from control_libs.arduino import get_serial_connection, close_serial_connection ,connect_to_arduino, send_command_and_get_response
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
-from control_libs.arduino import safe_serial_write
+from control_libs.arduino import safe_serial_write, emergency_stop
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
@@ -756,21 +756,6 @@ def calibrate_pump_with_progress(pump_name):
 
 
 
-def emergency_stop(pump_name):
-    global ser
-    ser = get_serial_connection()
-    """Immediately stop the specified pump in case of error."""
-    try:
-        print(f"[EMERGENCY] Stopping {pump_name} immediately!")
-        if ser and ser.is_open:
-            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-            ser.flush()
-        else:
-            print("[ERROR] Serial port is not open. Attempting reconnection...")
-            reconnect_arduino()
-            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-    except Exception as e:
-        print(f"[CRITICAL] Failed to stop {pump_name}: {e}")
 
 
 def test_pump_with_progress(pump_name, weight):

@@ -87,7 +87,7 @@ def send_command_with_heartbeat(command, duration=None):
     #     print("Error: No heartbeat detected. Arduino may not be responding.")
     #     return False
 
-    print("Heartbeat verified. Sending command to Arduino...")
+    #print("Heartbeat verified. Sending command to Arduino...")
     #ser.write(f"{command}".encode(),"o")  # Turn on the pump
     safe_serial_write(f"{command}".encode(),"o")
 
