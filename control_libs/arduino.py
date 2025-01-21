@@ -1,6 +1,9 @@
 import serial
 import time
-from config_tools import PUMP_COMMANDS
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#from control_libs.arduino import connect_to_arduino, send_command_and_get_response
+
+from config_tools.flow_tune import PUMP_COMMANDS
 
 ser = None  # Define the global variable for the serial connection
 
