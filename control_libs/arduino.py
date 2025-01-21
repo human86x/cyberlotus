@@ -78,9 +78,9 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
 
         while attempt <= retries:
             if ser and ser.is_open:
-                ser.reset_input_buffer()  # Clear any previous data
+                #ser.reset_input_buffer()  # Clear any previous data
                 ser.write(command.encode())
-                ser.flush()
+                ser.flushOutput()
                 print(f"[INFO] Sent command: {command}, waiting for response...")
 
                 start_time = time.time()
