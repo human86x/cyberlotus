@@ -777,13 +777,13 @@ def test_pump_with_progress(pump_name, weight):
     duration = weight / flow_rate
 
     #ser.write(f"{PUMP_COMMANDS[pump_name]}o".encode())
-    safe_serial_write(pump_name, 'o')  # Turn ON
+    safe_serial_write(PUMP_COMMANDS[pump_name], 'o')  # Turn ON
     for i in range(int(duration * 10)):
         pump_progress[pump_name] = int((i / (duration * 10)) * 100)
         time.sleep(0.1)
 
     #ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-    safe_serial_write(pump_name, 'f')  # Turn ON
+    safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn ON
     pump_progress[pump_name] = 100  # Complete
 
 
