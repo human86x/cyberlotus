@@ -50,6 +50,75 @@ def close_serial_connection():
         print("[INFO] Serial connection closed.")
 
 
+def safe_serial_write(pump_name, state, retries=1, timeout=2):
+    global ser
+    ser = get_serial_connection()
+    """
+    Safely write a pump control command to the serial port and verify Arduino response.
+
+    Args:
+        pump_name (str): Name of the pump (must be in PUMP_COMMANDS).
+        state (str): 'o' to turn ON, 'f' to turn OFF.
+        retries (int): Number of retries if no valid response is received.
+        timeout (int): Time in seconds to wait for Arduino response.
+    """
+    try:
+        if pump_name not in PUMP_COMMANDS:
+            print(f"[ERROR] Invalid pump name: {pump_name}")
+            return
+
+        if state not in ['o', 'f']:
+            print(f"[ERROR] Invalid pump state: {state}")
+            return
+
+        command = f"{PUMP_COMMANDS[pump_name]}{state}"
+        expected_response = f"{'ON' if state == 'o' else 'OFF'}_{PUMP_COMMANDS[pump_name]}"
+        
+        attempt = 0
+
+        while attempt <= retries:
+            if ser and ser.is_open:
+                ser.reset_input_buffer()  # Clear any previous data
+                ser.write(command.encode())
+                ser.flush()
+                print(f"[INFO] Sent command: {command}, waiting for response...")
+
+                start_time = time.time()
+                while time.time() - start_time < timeout:
+                    if ser.in_waiting > 0:
+                        response = ser.readline().decode().strip()
+                        print(f"[INFO] Received response: {response}")
+
+                        if response == expected_response:
+                            print(f"[SUCCESS] Arduino confirmed action: {response}")
+                            return  # Exit after successful confirmation
+                        else:
+                            print(f"[WARNING] Unexpected response: {response}")
+                    
+                    time.sleep(0.1)  # Small delay to avoid CPU overuse
+
+                # If no valid response, retry
+                print(f"[ERROR] No valid response. Retrying... (Attempt {attempt + 1}/{retries})")
+                attempt += 1
+
+            else:
+                print("[ERROR] Serial port is not open. Cannot send command.")
+                return
+
+        # After retries fail
+        print("[ERROR] Failed to confirm command after retries. Attempting emergency stop.")
+        emergency_stop(pump_name)
+
+    except ser.SerialException as e:
+        print(f"[ERROR] Serial write failed for {pump_name}: {e}")
+        emergency_stop(pump_name)
+    except Exception as e:
+        print(f"[ERROR] Unexpected error while writing to serial: {e}")
+        emergency_stop(pump_name)
+
+
+
+
 
 # Usage example
 #t#ry:
