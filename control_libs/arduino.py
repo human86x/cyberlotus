@@ -74,7 +74,7 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
     #        print(f"[ERROR] Invalid pump state: {state}")
     #        return
 
-        command = f"{pump_name}{state}"
+        command = pump_name + state
         expected_response = f"{'ON' if state == 'o' else 'OFF'}_{pump_name}"
         
         attempt = 0
@@ -128,12 +128,12 @@ def emergency_stop(pump_name):
     try:
         print(f"[EMERGENCY] Stopping {pump_name} immediately!")
         if ser and ser.is_open:
-            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
+            ser.write(f"{pump_name}f".encode())
             ser.flush()
         else:
             print("[ERROR] Serial port is not open. Attempting reconnection...")
-            reconnect_arduino()
-            ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
+            connect_to_arduino()
+            ser.write(f"{pump_name}f".encode())
     except Exception as e:
         print(f"[CRITICAL] Failed to stop {pump_name}: {e}")
 
