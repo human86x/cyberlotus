@@ -63,8 +63,8 @@ def save_flow_rates(flow_rates):
     """Save updated flow rates to JSON file."""
     with open(FLOW_RATES_FILE, 'w') as file:
         json.dump(flow_rates, file, indent=4)
-
-def send_command_with_heartbeat(command, duration=None, port="COM3"):
+from app import safe_serial_write
+def send_command_with_heartbeat(command, duration=None):
     global ser
     """
     Send a command to Arduino with heartbeat checks before and during operation.
@@ -88,6 +88,7 @@ def send_command_with_heartbeat(command, duration=None, port="COM3"):
 
     print("Heartbeat verified. Sending command to Arduino...")
     ser.write(f"{command}o".encode())  # Turn on the pump
+    safe_serial_write(f"{command}o".encode())
 
     if duration:
         start_time = time.time()
@@ -103,7 +104,7 @@ def send_command_with_heartbeat(command, duration=None, port="COM3"):
 
             time.sleep(0.1)  # Small delay to avoid excessive CPU usage
 
-        ser.write(f"{command}f".encode())  # Turn off the pump
+        safe_serial_write(f"{command}o".encode())  # Turn off the pump
         print("\nOperation complete.")
 
     return True
