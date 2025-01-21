@@ -80,11 +80,11 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1):
                 return None
         
         # Clear the input buffer
-        while ser.in_waiting > 0:
-            ser.read(1)
+        #while ser.in_waiting > 0:
+            #ser.read(1)
         
         # Clear the output buffer
-        ser.flushOutput()
+        #ser.flushOutput()
         
         print(f"Send command and get response -> the command >>> {command}")
         ser.write(command)  # No need to encode if command is already bytes
