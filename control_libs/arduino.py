@@ -1,10 +1,6 @@
 import serial
 import time
 
-ser = None
-
-import serial
-import time
 
 ser = None  # Define the global variable for the serial connection
 
@@ -77,11 +73,18 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1):
     while attempt < retries:
         # Ensure serial connection is open
         if not ser.is_open:
-            print("Serial port is not open, attempting to reconnect...")
+            #print("Serial port is not open, attempting to reconnect...")
             ser = connect_to_arduino()  # Ensure you have a function to reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
                 return None
+        
+        # Clear the input buffer
+        while ser.in_waiting > 0:
+            ser.read(1)
+        
+        # Clear the output buffer
+        ser.flushOutput()
         
         print(f"Send command and get response -> the command >>> {command}")
         ser.write(command)  # No need to encode if command is already bytes
