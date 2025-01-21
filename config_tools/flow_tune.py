@@ -88,8 +88,8 @@ def send_command_with_heartbeat(command, duration=None):
     #     return False
 
     print("Heartbeat verified. Sending command to Arduino...")
-    ser.write(f"{command}o".encode())  # Turn on the pump
-    safe_serial_write(f"{command}o".encode())
+    #ser.write(f"{command}".encode(),"o")  # Turn on the pump
+    safe_serial_write(f"{command}".encode(),"o")
 
     if duration:
         start_time = time.time()
@@ -105,7 +105,7 @@ def send_command_with_heartbeat(command, duration=None):
 
             time.sleep(0.1)  # Small delay to avoid excessive CPU usage
 
-        safe_serial_write(f"{command}o".encode())  # Turn off the pump
+        safe_serial_write(f"{command}".encode(),"f")  # Turn off the pump
         print("\nOperation complete.")
 
     return True
