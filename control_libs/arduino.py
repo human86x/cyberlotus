@@ -1,6 +1,6 @@
 import serial
 import time
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 
 from config_tools.flow_tune import PUMP_COMMANDS
