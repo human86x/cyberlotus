@@ -8,7 +8,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.electric_conductivity import get_ec
 #from control_libs.temperature import read_solution_temperature
-from control_libs.arduino import connect_to_arduino, send_command_and_get_response
+from control_libs.arduino import connect_to_arduino, safe_serial_write, send_command_and_get_response
 
 # Serial configuration
 #SERIAL_PORT = '/dev/ttyACM0'
@@ -63,7 +63,8 @@ def save_flow_rates(flow_rates):
     """Save updated flow rates to JSON file."""
     with open(FLOW_RATES_FILE, 'w') as file:
         json.dump(flow_rates, file, indent=4)
-from app import safe_serial_write
+
+
 def send_command_with_heartbeat(command, duration=None):
     global ser
     """
