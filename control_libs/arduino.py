@@ -1,6 +1,6 @@
 import serial
 import time
-
+from config_tools import PUMP_COMMANDS
 
 ser = None  # Define the global variable for the serial connection
 
