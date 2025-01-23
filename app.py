@@ -50,7 +50,7 @@ global PUMP_COMMANDS
 
 
 CONFIG_FILE_PATH = 'data/app_config.json'
-
+DATA_DIRECTORY = "data"
 ##################SYSTEM CURRENT READINGS AND PUMP STATES###############
 
 from control_libs.system_stats import system_state
