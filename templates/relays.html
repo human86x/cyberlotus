@@ -58,17 +58,20 @@
 
         // Load relay names JSON
         function loadRelayNames() {
-            fetch('/load_relay_names')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        document.getElementById('relayEditor').value = JSON.stringify(data.content, null, 4); // Format JSON
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => console.error('Error loading relay names:', error));
-        }
+    fetch('/load_relay_names')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Format JSON and render newlines properly
+                const formattedJson = JSON.stringify(data.content, null, 4);
+                document.getElementById('relayEditor').value = formattedJson;
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error loading relay names:', error));
+}
+
 
         // Save relay names JSON
         document.getElementById('saveButton').addEventListener('click', () => {
