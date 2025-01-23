@@ -12,7 +12,14 @@
     <button type="submit" class="btn btn-danger btn-lg" onclick="confirmEmergencyStop()">🚨 EMERGENCY STOP</button>
 </form>
 
+
+
+
 <script>
+
+getSystemStats();
+
+
 function confirmEmergencyStop() {
     if (confirm("⚠️ Are you sure you want to activate the EMERGENCY STOP? This will immediately stop all pumps!")) {
         fetch('/emergency_stop', { method: 'POST' })
@@ -28,4 +35,17 @@ function confirmEmergencyStop() {
         event.preventDefault();  // Cancel if user cancels the confirmation
     }
 }
+
+
+function getSystemStats() {
+  fetch("/sys_state")
+   .then(response => response.json())
+   .then(data => {
+      console.log(data);
+      updateReadings(); // Make another request to update the readings
+
+
+
+
+
 </script>

@@ -51,6 +51,23 @@ global PUMP_COMMANDS
 
 CONFIG_FILE_PATH = 'data/app_config.json'
 
+##################SYSTEM CURRENT READINGS AND PUMP STATES###############
+
+from control_libs.system_stats import system_state
+
+
+
+# Define a route that returns the readings dictionary as a JSON response
+@app.route("/sys_state", methods=["GET"])
+def get_system_state():
+    return jsonify(system_state)
+
+
+
+
+
+####################END OF SYSTEM READINGS AND PUMP STATES###############
+
 # Function to load app configuration from the JSON file
 def load_app_config():
     print("Loading app config to EC page")
