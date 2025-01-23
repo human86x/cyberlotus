@@ -12,8 +12,7 @@ def get_ec(ser):
             #print(f"------------Reading EC:{response}")
             #return float(response)
             
-            system_state["ec"]["value"] = response
-            system_state["ec"]["timestamp"] = int(time.time())
+            
 
             return response
         except ValueError:

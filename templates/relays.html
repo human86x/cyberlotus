@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relay Manager</title>
+    <style>
+        textarea { width: 100%; height: 300px; }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        .combobox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Relay Manager</h1>
+
+        <div>
+            <h2>Edit Relay Names</h2>
+            <textarea id="relayEditor" placeholder="Relay names data will be loaded here..."></textarea><br>
+            <button id="saveButton">Save Changes</button>
+        </div>
+
+        <div class="combobox-container">
+            <label for="letterDropdown">Select a Letter:</label>
+            <select id="letterDropdown"></select>
+            <button id="actionButton">Perform Action</button>
+        </div>
+    </div>
+
+    <script>
+        // Populate combobox with letters A-Z
+        function populateLetterDropdown() {
+            const dropdown = document.getElementById('letterDropdown');
+            for (let i = 65; i <= 90; i++) { // ASCII codes for A-Z
+                const option = document.createElement('option');
+                option.value = String.fromCharCode(i);
+                option.textContent = String.fromCharCode(i);
+                dropdown.appendChild(option);
+            }
+        }
+
+        // Load relay names JSON
+        function loadRelayNames() {
+            fetch('/load_relay_names')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('relayEditor').value = JSON.stringify(data.content, null, 4);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error loading relay names:', error));
+        }
+
+        // Save relay names JSON
+        document.getElementById('saveButton').addEventListener('click', () => {
+            const content = document.getElementById('relayEditor').value;
+            try {
+                const parsedContent = JSON.parse(content); // Validate JSON format
+                fetch('/save_relay_names', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: parsedContent })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => console.error('Error saving relay names:', error));
+            } catch (e) {
+                alert('Invalid JSON format. Please correct the data.');
+            }
+        });
+
+        // Perform action on combobox selection
+        document.getElementById('actionButton').addEventListener('click', () => {
+            const selectedLetter = document.getElementById('letterDropdown').value;
+            alert(`Action performed for selected letter: ${selectedLetter}`);
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            populateLetterDropdown();
+            loadRelayNames();
+        });
+    </script>
+</body>
+
+{% endblock %}

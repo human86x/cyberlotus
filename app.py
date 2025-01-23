@@ -306,6 +306,14 @@ def save_sequence():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Failed to save sequence: {str(e)}"})
 
+
+
+
+
+
+
+
+
 @app.route('/create_sequence', methods=['POST'])
 def create_sequence():
     """
@@ -352,6 +360,52 @@ def execute_sequence_route():
 
 
 ###########sequencer ends#################
+
+
+
+
+
+@app.route('/load_relay_names', methods=['GET'])
+def load_relay_names():
+    """
+    API to load and return the content of a sequence file.
+    """
+    filename = request.args.get('filename')
+    if not filename:
+        return jsonify({"status": "error", "message": "No filename provided."})
+    filepath = DATA_DIRECTORY + '/' + filename
+    print(f"Sequence dir is - {DATA_DIRECTORY}")
+    try:
+        with open(filepath, 'r') as file:
+            content = file.read()
+        return jsonify({"status": "success", "content": content, "filename": filename})
+    except FileNotFoundError:
+        return jsonify({"status": "error", "message": "File not found."})
+
+@app.route('/save_relay_names', methods=['POST'])
+def save_relay_names():
+    """
+    API to save or create a new sequence file.
+    """
+    data = request.json
+    filename = data.get('filename')
+    content = data.get('content')
+    if not filename or not content:
+        return jsonify({"status": "error", "message": "Filename or content not provided."})
+
+    filepath = DATA_DIRECTORY + '/' + filename
+    try:
+        with open(filepath, 'w') as file:
+            file.write(content)
+        return jsonify({"status": "success", "message": f"Sequence saved to {filename}."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Failed to save sequence: {str(e)}"})
+
+
+
+
+
+
 
 
 
