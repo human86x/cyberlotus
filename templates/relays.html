@@ -7,7 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relay Manager</title>
     <style>
-        textarea { width: 100%; height: 300px; }
+        textarea {
+            width: 100%;
+            height: 300px;
+            font-family: monospace; /* Use monospace font for better readability */
+            white-space: pre; /* Preserve spaces and line breaks */
+            overflow: auto; /* Allow scrolling for large content */
+        }
         .container {
             max-width: 800px;
             margin: auto;
@@ -56,7 +62,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        document.getElementById('relayEditor').value = JSON.stringify(data.content, null, 4);
+                        document.getElementById('relayEditor').value = JSON.stringify(data.content, null, 4); // Format JSON
                     } else {
                         alert(data.message);
                     }
