@@ -1,6 +1,6 @@
 import serial
 import time
-from control_libs import system_stats
+from control_libs.system_stats import system_state
 #i#mport SerialException
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.arduino import connect_to_arduino, send_command_and_get_response
@@ -83,12 +83,12 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
         attempt = 0
         cur_time = int(time.time())
         
-        print(f"system_stats[relay_states][pump_{pump_name}][state] = ON")
-        print(f"system_stats[relay_states][pump_{pump_name}][timestamp] = {cur_time}")
+        print(f"system_state[relay_states][pump_{pump_name}][state] = ON")
+        print(f"system_state[relay_states][pump_{pump_name}][timestamp] = {cur_time}")
         
         
-        system_stats["relay_states"]["pump_" + pump_name]["state"] = "ON"
-        system_stats["relay_states"]["pump_" + pump_name]["timestamp"] = int(time.time())
+        system_state["relay_states"]["pump_" + pump_name]["state"] = "ON"
+        system_state["relay_states"]["pump_" + pump_name]["timestamp"] = int(time.time())
        #system_stats["relay_states"]["pump_" + pump_name]["state"] = new_state
        #system_stats["relay_states"]["pump_" + pump_name]["timestamp"] = int(time.time())
         
