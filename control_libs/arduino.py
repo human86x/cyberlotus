@@ -102,15 +102,15 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
                         print(f"[INFO] Received response: {response}")
 
                         if response == expected_response:
-                            print(f"[booSUCCESS] Arduino confirmed action: {response}")
+                            print(f"[SUCCESS] Arduino confirmed action: {response}")
                             
+                            cur_state = f"{'ON' if state == 'o' else 'OFF'}"
                             
-                            
-                            print(f"system_state[relay_states][relay_{pump_name}][state] = {state}")
+                            print(f"system_state[relay_states][relay_{pump_name}][state] = {cur_state}")
                             print(f"system_state[relay_states][relay_{pump_name}][timestamp] = {cur_time}")
         
         
-                            system_state["relay_states"]["relay_" + pump_name]["state"] = state
+                            system_state["relay_states"]["relay_" + pump_name]["state"] = cur_state
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = int(time.time())
       
                             
