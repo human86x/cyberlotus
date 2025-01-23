@@ -81,9 +81,17 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
         expected_response = f"{'ON' if state == 'o' else 'OFF'}_{pump_name}"
         
         attempt = 0
+        cur_time = int(time.time())
+        
+        print(f"system_stats[relay_states][pump_{pump_name}][state] = ON")
+        print(f"system_stats[relay_states][pump_{pump_name}][timestamp] = {cur_time}")
+        
+        
         system_stats["relay_states"]["pump_" + pump_name]["state"] = "ON"
         system_stats["relay_states"]["pump_" + pump_name]["timestamp"] = int(time.time())
-
+       #system_stats["relay_states"]["pump_" + pump_name]["state"] = new_state
+       #system_stats["relay_states"]["pump_" + pump_name]["timestamp"] = int(time.time())
+        
         #system_stats["relay_states"][relay_name]["timestamp"] = int(time.time())
 
         while attempt <= retries:
