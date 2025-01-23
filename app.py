@@ -882,6 +882,10 @@ def ph():
 def ecosystem():
     return render_template('ecosystem.html')
 
+@app.route('/relays')
+def ecosystem():
+    return render_template('relays.html')
+
 @app.route('/automatisation')
 def automatisation():
     return render_template('automatisation.html')
