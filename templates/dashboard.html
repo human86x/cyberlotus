@@ -8,21 +8,28 @@
 <p>Welcome to the CyberLotus Project dashboard.</p>
 
 <!-- Emergency Stop Button -->
-<form id="emergencyStopForm" action="{{ url_for('emergency_stop_route') }}" method="post">
-    <button type="submit" class="btn btn-danger btn-lg" onclick="confirmEmergencyStop()"> EMERGENCY STOP</button>
-</form>
+
 
 <button onclick="getSystemStats()">getSystemStats</button>
+
+<table id="systemStatsTable">
+  <tr>
+    <th>Sensor/Relay</th>
+    <th>Value</th>
+    <th>Timestamp</th>
+  </tr>
+</table>
 
 <script>
 // Define the getSystemStats function
 function getSystemStats() {
   fetch("/sys_state")
-  .then(response => response.json())
-  .then(data => {
+.then(response => response.json())
+.then(data => {
       console.log(data);
+      updateTable(data);
    })
-  .catch(error => {
+.catch(error => {
       console.error('Error:', error);
    });
 }
@@ -31,17 +38,57 @@ function getSystemStats() {
 function confirmEmergencyStop() {
     if (confirm(" Are you sure you want to activate the EMERGENCY STOP? This will immediately stop all pumps!")) {
         fetch('/emergency_stop', { method: 'POST' })
-           .then(response => response.json())
-           .then(data => {
+         .then(response => response.json())
+         .then(data => {
                 alert(data.message);
             })
-           .catch(error => {
+         .catch(error => {
                 alert(" Failed to send Emergency Stop command.");
                 console.error('Error:', error);
             });
     } else {
         event.preventDefault();  // Cancel if user cancels the confirmation
     }
+}
+
+// Define the updateTable function
+function updateTable(data) {
+  const table = document.getElementById("systemStatsTable");
+  // Clear the table
+  while (table.rows.length > 1) {
+    table.deleteRow(1);
+  }
+
+  // Add rows for each sensor and relay
+  Object.keys(data).forEach(key => {
+    if (key === "ec" || key === "ph" || key === "temperature") {
+      const row = table.insertRow();
+      const cell1 = row.insertCell();
+      const cell2 = row.insertCell();
+      const cell3 = row.insertCell();
+      cell1.innerHTML = key.toUpperCase();
+      cell2.innerHTML = data[key].value;
+      cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
+    } else if (key === "tank_1" || key === "tank_2" || key === "tank_3") {
+      const row = table.insertRow();
+      const cell1 = row.insertCell();
+      const cell2 = row.insertCell();
+      const cell3 = row.insertCell();
+      cell1.innerHTML = key.toUpperCase();
+      cell2.innerHTML = data[key].level;
+      cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
+    } else if (key === "relay_states") {
+      Object.keys(data[key]).forEach(relayKey => {
+        const row = table.insertRow();
+        const cell1 = row.insertCell();
+        const cell2 = row.insertCell();
+        const cell3 = row.insertCell();
+        cell1.innerHTML = relayKey.toUpperCase();
+        cell2.innerHTML = data[key][relayKey].state;
+        cell3.innerHTML = new Date(data[key][relayKey].timestamp * 1000).toLocaleString();
+      });
+    }
+  });
 }
 
 // Call the getSystemStats function initially
