@@ -1,5 +1,7 @@
 import serial
 import time
+from control_libs import system_stats
+#i#mport SerialException
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 
@@ -55,6 +57,7 @@ def close_serial_connection():
 
 def safe_serial_write(pump_name, state, retries=1, timeout=2):
     global ser
+    global system_stats
     ser = get_serial_connection()
     """
     Safely write a pump control command to the serial port and verify Arduino response.
@@ -78,6 +81,10 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
         expected_response = f"{'ON' if state == 'o' else 'OFF'}_{pump_name}"
         
         attempt = 0
+        system_stats["relay_states"]["pump_" + pump_name]["state"] = "ON"
+        system_stats["relay_states"]["pump_" + pump_name]["timestamp"] = int(time.time())
+
+        #system_stats["relay_states"][relay_name]["timestamp"] = int(time.time())
 
         while attempt <= retries:
             if ser and ser.is_open:
