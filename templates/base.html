@@ -163,7 +163,9 @@
             }
         });
     }
-        getSystemStats();
+         // Call getSystemStats every 5 seconds
+        setInterval(getSystemStats, 1000);
+        //getSystemStats();
     </script>
 </body>
 </html>
