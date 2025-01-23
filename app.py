@@ -370,11 +370,12 @@ def load_relay_names():
     """
     API to load and return the content of a sequence file.
     """
-    filename = request.args.get('filename')
+    filename = "relay_names.json"
+
     if not filename:
         return jsonify({"status": "error", "message": "No filename provided."})
     filepath = DATA_DIRECTORY + '/' + filename
-    print(f"Sequence dir is - {DATA_DIRECTORY}")
+    print(f"Data dir is - {DATA_DIRECTORY}")
     try:
         with open(filepath, 'r') as file:
             content = file.read()
