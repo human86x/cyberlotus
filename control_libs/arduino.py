@@ -102,7 +102,7 @@ def safe_serial_write(pump_name, state, retries=1, timeout=2):
                         print(f"[INFO] Received response: {response}")
 
                         if response == expected_response:
-                            print(f"[SUCCESS] Arduino confirmed action: {response}")
+                            print(f"[booSUCCESS] Arduino confirmed action: {response}")
                             
                             
                             
