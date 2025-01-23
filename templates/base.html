@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <div class="container">
-        <div class="main-content">
-            <title>CyberLotus Project</title>
+    <title>CyberLotus Project</title>
     <style>
         .container {
-    display: flex;
-    flex-direction: row;
-}
+            display: flex;
+            flex-direction: row;
+        }
 
-.main-content {
-    width: 80%;
-}
+        .main-content {
+            width: 80%;
+        }
 
-.right-sidebar {
-    width: 20%;
-    background-color: #f0f0f0;
-    padding: 20px;
-    border: 1px solid #ddd;
-}
+        .right-sidebar {
+            width: 20%;
+            background-color: #f0f0f0;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
 
-.right-sidebar h1 {
-    margin-top: 0;
-}
+        .right-sidebar h1 {
+            margin-top: 0;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
         }
+
         .sidebar {
             width: 250px;
             background-color: #333;
@@ -41,6 +40,7 @@
             padding: 20px;
             box-sizing: border-box;
         }
+
         .sidebar a {
             display: block;
             color: #fff;
@@ -49,13 +49,16 @@
             margin: 10px 0;
             border-bottom: 1px solid #555;
         }
+
         .sidebar a:hover {
             background-color: #555;
         }
+
         .content {
             flex: 1;
             padding: 20px;
         }
+
         h1, h2 {
             color: #333;
         }
@@ -71,123 +74,110 @@
         <a href="{{ url_for('ph') }}">pH</a>
         <a href="{{ url_for('ec') }}">EC</a>
         <a href="{{ url_for('ecosystem') }}">Ecosystem</a>
-        <a href="{{ url_for('automatisation') }}">Automtisation</a>
+        <a href="{{ url_for('automatisation') }}">Automatisation</a>
     </div>
     <div class="content">
         {% block content %}{% endblock %}
-    </div>
 
-    <li>
         <form action="{{ url_for('emergency_stop_route') }}" method="post">
             <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
         </form>
-    </li>
+    </div>
 
+    <div class="container">
+        <div class="main-content">
+            <h1>Dashboard</h1>
+            <p>Welcome to the CyberLotus Project dashboard.</p>
 
-        </script>
-    
+            <button onclick="getSystemStats()">Get System Stats</button>
 
+            <table id="systemStatsTable">
+                <tr>
+                    <th>Sensor/Relay</th>
+                    <th>Value</th>
+                    <th>Timestamp</th>
+                </tr>
+            </table>
+
+            <script>
+                // Define the getSystemStats function
+                function getSystemStats() {
+                    fetch("/sys_state")
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            updateTable(data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
+
+                // Define the confirmEmergencyStop function
+                function confirmEmergencyStop() {
+                    if (confirm("Are you sure you want to activate the EMERGENCY STOP? This will immediately stop all pumps!")) {
+                        fetch('/emergency_stop', { method: 'POST' })
+                            .then(response => response.json())
+                            .then(data => {
+                                alert(data.message);
+                            })
+                            .catch(error => {
+                                alert("Failed to send Emergency Stop command.");
+                                console.error('Error:', error);
+                            });
+                    } else {
+                        event.preventDefault(); // Cancel if user cancels the confirmation
+                    }
+                }
+
+                // Define the updateTable function
+                function updateTable(data) {
+                    const table = document.getElementById("systemStatsTable");
+                    // Clear the table
+                    while (table.rows.length > 1) {
+                        table.deleteRow(1);
+                    }
+
+                    // Add rows for each sensor and relay
+                    Object.keys(data).forEach(key => {
+                        if (key === "ec" || key === "ph" || key === "temperature") {
+                            const row = table.insertRow();
+                            const cell1 = row.insertCell();
+                            const cell2 = row.insertCell();
+                            const cell3 = row.insertCell();
+                            cell1.innerHTML = key.toUpperCase();
+                            cell2.innerHTML = data[key].value;
+                            cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
+                        } else if (key === "tank_1" || key === "tank_2" || key === "tank_3") {
+                            const row = table.insertRow();
+                            const cell1 = row.insertCell();
+                            const cell2 = row.insertCell();
+                            const cell3 = row.insertCell();
+                            cell1.innerHTML = key.toUpperCase();
+                            cell2.innerHTML = data[key].level;
+                            cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
+                        } else if (key === "relay_states") {
+                            Object.keys(data[key]).forEach(relayKey => {
+                                const row = table.insertRow();
+                                const cell1 = row.insertCell();
+                                const cell2 = row.insertCell();
+                                const cell3 = row.insertCell();
+                                cell1.innerHTML = relayKey.toUpperCase();
+                                cell2.innerHTML = data[key][relayKey].state;
+                                cell3.innerHTML = new Date(data[key][relayKey].timestamp * 1000).toLocaleString();
+                            });
+                        }
+                    });
+                }
+
+                // Call the getSystemStats function initially
+                getSystemStats();
+            </script>
         </div>
         <div class="right-sidebar">
-
-    <h1>Dashboard</h1>
-<p>Welcome to the CyberLotus Project dashboard.</p>
-
-<!-- Emergency Stop Button -->
-
-
-<button onclick="getSystemStats()">getSystemStats</button>
-
-<table id="systemStatsTable">
-  <tr>
-    <th>Sensor/Relay</th>
-    <th>Value</th>
-    <th>Timestamp</th>
-  </tr>
-</table>
-
-<script>
-// Define the getSystemStats function
-function getSystemStats() {
-  fetch("/sys_state")
-.then(response => response.json())
-.then(data => {
-      console.log(data);
-      updateTable(data);
-   })
-.catch(error => {
-      console.error('Error:', error);
-   });
-}
-
-// Define the confirmEmergencyStop function
-function confirmEmergencyStop() {
-    if (confirm(" Are you sure you want to activate the EMERGENCY STOP? This will immediately stop all pumps!")) {
-        fetch('/emergency_stop', { method: 'POST' })
-         .then(response => response.json())
-         .then(data => {
-                alert(data.message);
-            })
-         .catch(error => {
-                alert(" Failed to send Emergency Stop command.");
-                console.error('Error:', error);
-            });
-    } else {
-        event.preventDefault();  // Cancel if user cancels the confirmation
-    }
-}
-
-// Define the updateTable function
-function updateTable(data) {
-  const table = document.getElementById("systemStatsTable");
-  // Clear the table
-  while (table.rows.length > 1) {
-    table.deleteRow(1);
-  }
-
-  // Add rows for each sensor and relay
-  Object.keys(data).forEach(key => {
-    if (key === "ec" || key === "ph" || key === "temperature") {
-      const row = table.insertRow();
-      const cell1 = row.insertCell();
-      const cell2 = row.insertCell();
-      const cell3 = row.insertCell();
-      cell1.innerHTML = key.toUpperCase();
-      cell2.innerHTML = data[key].value;
-      cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
-    } else if (key === "tank_1" || key === "tank_2" || key === "tank_3") {
-      const row = table.insertRow();
-      const cell1 = row.insertCell();
-      const cell2 = row.insertCell();
-      const cell3 = row.insertCell();
-      cell1.innerHTML = key.toUpperCase();
-      cell2.innerHTML = data[key].level;
-      cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
-    } else if (key === "relay_states") {
-      Object.keys(data[key]).forEach(relayKey => {
-        const row = table.insertRow();
-        const cell1 = row.insertCell();
-        const cell2 = row.insertCell();
-        const cell3 = row.insertCell();
-        cell1.innerHTML = relayKey.toUpperCase();
-        cell2.innerHTML = data[key][relayKey].state;
-        cell3.innerHTML = new Date(data[key][relayKey].timestamp * 1000).toLocaleString();
-      });
-    }
-  });
-}
-
-// Call the getSystemStats function initially
-getSystemStats();
-</script>
-
-
-
-
-
+            <h1>Dashboard</h1>
+            <p>Welcome to the CyberLotus Project dashboard.</p>
         </div>
-</div>
-
-    
+    </div>
 </body>
 </html>
