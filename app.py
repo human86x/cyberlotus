@@ -878,12 +878,13 @@ def ec():
 @app.route('/ph')
 def ph():
     return render_template('ph.html')
+
 @app.route('/ecosystem')
 def ecosystem():
     return render_template('ecosystem.html')
 
 @app.route('/relays')
-def ecosystem():
+def relays():
     return render_template('relays.html')
 
 @app.route('/automatisation')
