@@ -106,7 +106,7 @@
         // Perform action on combobox selection
         document.getElementById('actionButton').addEventListener('click', () => {
             const selectedLetter = document.getElementById('letterDropdown').value;
-            const stateToggle = document.getElementById('stateToggle').checked ? "on" : "off"; // State as 'on' or 'off'
+            const stateToggle = document.getElementById('stateToggle').checked ? "o" : "f"; // State as 'on' or 'off'
 
             // Send the letter and state separately to the backend
             fetch('/relay_direct', {
