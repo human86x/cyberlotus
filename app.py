@@ -396,9 +396,11 @@ def save_relay_names():
 
     filepath = DATA_DIRECTORY + '/' + filename
     try:
+        # Convert the dictionary to a JSON string before writing
         with open(filepath, 'w') as file:
-            file.write(content)
+            json.dump(content, file, indent=4)  # Use json.dump for proper formatting
         return jsonify({"status": "success", "message": f"Sequence saved to {filename}."})
+    
     except Exception as e:
         return jsonify({"status": "error", "message": f"Failed to save sequence: {str(e)}"})
 
