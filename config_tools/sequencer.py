@@ -91,17 +91,17 @@ def execute_commands(commands, weights, flow_rates):
             print(f"Error: Failed to send command '{command}'.")
 
         # Start threads for simultaneous execution
-        threads = []
-        for arduino_command, duration in zip(arduino_commands, durations):
-            thread = threading.Thread(target=send_to_arduino, args=(arduino_command, duration))
-            threads.append(thread)
-            thread.start()
+    threads = []
+    for arduino_command, duration in zip(arduino_commands, durations):
+        thread = threading.Thread(target=send_to_arduino, args=(arduino_command, duration))
+        threads.append(thread)
+        thread.start()
 
-        # Wait for all threads to complete
-        for thread in threads:
-            thread.join()
+    # Wait for all threads to complete
+    for thread in threads:
+        thread.join()
 
-        return True
+    return True
 
 
 
