@@ -52,7 +52,7 @@
         // Populate combobox with letters A-Z
         function populateLetterDropdown() {
             const dropdown = document.getElementById('letterDropdown');
-            for (let i = 65; i <= 90; i++) { // ASCII codes for A-Z
+            for (let i = 97; i <= 122; i++) { // ASCII codes for A-Z
                 const option = document.createElement('option');
                 option.value = String.fromCharCode(i);
                 option.textContent = String.fromCharCode(i);
