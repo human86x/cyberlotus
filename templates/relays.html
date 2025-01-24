@@ -62,8 +62,20 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Format JSON and render newlines properly
-                const formattedJson = JSON.stringify(data.content, null, 4);
+                // Check for and handle pre-escaped JSON strings
+                let content = data.content;
+
+                // If content is a string, parse it to ensure it's an object
+                if (typeof content === 'string') {
+                    try {
+                        content = JSON.parse(content); // Parse if it's pre-escaped
+                    } catch (e) {
+                        console.error('Failed to parse JSON:', e);
+                    }
+                }
+
+                // Format and render JSON into the textarea
+                const formattedJson = JSON.stringify(content, null, 4);
                 document.getElementById('relayEditor').value = formattedJson;
             } else {
                 alert(data.message);
@@ -71,6 +83,7 @@
         })
         .catch(error => console.error('Error loading relay names:', error));
 }
+
 
 
         // Save relay names JSON
