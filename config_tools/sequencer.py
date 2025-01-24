@@ -79,16 +79,29 @@ def execute_commands(commands, weights, flow_rates):
 
     # Define a function to send commands to Arduino
     def send_to_arduino(command, duration):
+        """
+        Send a command to the Arduino with the specified duration. If the duration is >= 9 seconds,
+        use the heartbeat-enabled function instead.
+    
+        Args:
+            command (str): The command to send (e.g., pump name).
+            duration (float): Duration in seconds.
+        """
         print(f"Debug: Sending command '{command}' to Arduino with duration {duration:.2f}s.")
         # Convert duration to milliseconds and round to nearest integer
         duration_ms = int(round(duration * 1000))
-    
+
         if duration_ms <= 0:
             print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
             return
 
-        if not safe_serial_write_precise(command, duration_ms):
-            print(f"Error: Failed to send command '{command}'.")
+        if duration_ms >= 9000:
+            print(f"Debug: Duration {duration:.2f}s exceeds threshold. Using heartbeat-enabled function.")
+            send_command_with_heartbeat(command, duration)
+        else:
+            if not safe_serial_write_precise(command, duration_ms):
+                print(f"Error: Failed to send command '{command}'.")
+
 
         # Start threads for simultaneous execution
     threads = []
