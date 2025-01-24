@@ -400,12 +400,8 @@ def save_relay_names():
         with open(filepath, 'w') as file:
             json.dump(content, file, indent=4)  # Use json.dump for proper formatting
         return jsonify({"status": "success", "message": f"Sequence saved to {filename}."})
-    
     except Exception as e:
         return jsonify({"status": "error", "message": f"Failed to save sequence: {str(e)}"})
-
-
-
 
 
 
