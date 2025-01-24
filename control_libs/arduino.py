@@ -183,7 +183,7 @@ def safe_serial_write_emergency():
             connect_to_arduino()
             attempt += 1
 
-        except ser.SerialException as e:
+        except serial.SerialException as e:
             print(f"[ERROR] Serial write failed during Emergency Stop: {e}. Reconnecting and retrying...")
             connect_to_arduino()
             attempt += 1
