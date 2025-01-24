@@ -57,7 +57,6 @@ def close_serial_connection():
         print("[INFO] Serial connection closed.")
 
 
-import serial  # Ensure this is at the top of your file
 
 def safe_serial_write(pump_name, state, retries=5, timeout=2):
     global ser
@@ -119,6 +118,67 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
         print(f"[ERROR] Unexpected error while writing to serial: {e}")
         safe_serial_write_emergency()
 
+def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
+    global ser
+    global system_state
+    ser = get_serial_connection()
+    """
+    Safely write a precise pump control command to the serial port and verify Arduino response.
+
+    Args:
+        pump_name (str): Name of the pump (must be in PUMP_COMMANDS).
+        duration (int): Duration in milliseconds for which the pump should remain ON.
+        retries (int): Number of retries if no valid response is received.
+        timeout (int): Time in seconds to wait for Arduino response.
+    """
+    try:
+        if not isinstance(duration, int) or duration <= 0:
+            print(f"[ERROR] Invalid duration value: {duration}. Must be a positive integer.")
+            return
+
+        command = f"{pump_name}{duration}"  # Combine pump name and duration
+        expected_response = f"ON_{pump_name}_for_{duration}ms"  # Adjust expected response
+        attempt = 0
+
+        while attempt <= retries:
+            if ser and ser.is_open:
+                ser.flushOutput()
+                ser.write(command.encode())
+
+                print(f"[INFO] Sent precise delivery command: {command}, waiting for response...")
+
+                start_time = time.time()
+                while time.time() - start_time < timeout:
+                    if ser.in_waiting > 0:
+                        response = ser.readline().decode().strip()
+                        print(f"[INFO] Received response: {response}")
+
+                        if response == expected_response:
+                            print(f"[SUCCESS] Arduino confirmed action: {response}")
+                            system_state["relay_states"]["relay_" + pump_name]["state"] = f"ON for {duration}ms"
+                            system_state["relay_states"]["relay_" + pump_name]["timestamp"] = int(time.time())
+                            return  # Exit after successful confirmation
+                        else:
+                            print(f"[WARNING] Unexpected response: {response}")
+
+                    time.sleep(0.1)  # Small delay to avoid CPU overuse
+
+                print(f"[ERROR] No valid response. Retrying... (Attempt {attempt + 1}/{retries})")
+                attempt += 1
+            else:
+                print("[ERROR] Serial port is not open. Cannot send command.")
+                return
+
+        # After retries fail
+        print("[ERROR] Failed to confirm precise delivery command after retries. Attempting emergency stop.")
+        safe_serial_write_emergency()
+
+    except serial.SerialException as e:  # Corrected line
+        print(f"[ERROR] Serial write failed for {pump_name}: {e}")
+        safe_serial_write_emergency()
+    except Exception as e:
+        print(f"[ERROR] Unexpected error while writing to serial: {e}")
+        safe_serial_write_emergency()
 
 
 

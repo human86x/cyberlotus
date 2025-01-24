@@ -4,7 +4,7 @@ import serial
 import os
 from flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 from flow_tune import PUMP_COMMANDS
-
+from control_libs.arduino import safe_serial_write_precise
 # Serial configuration (commented out for now)
 #SERIAL_PORT = '/dev/ttyACM0'
 #BAUD_RATE = 9600
@@ -80,7 +80,7 @@ def execute_commands(commands, weights, flow_rates):
     # Define a function to send commands to Arduino
     def send_to_arduino(command, duration):
         print(f"Debug: Sending command '{command}' to Arduino with duration {duration:.2f}s.")
-        if not send_command_with_heartbeat(command, duration):
+        if not safe_serial_write_precise(command, duration):
             print(f"Error: Failed to send command '{command}'.")
 
     # Start threads for simultaneous execution
