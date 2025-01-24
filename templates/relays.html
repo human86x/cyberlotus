@@ -137,9 +137,9 @@
 
             for (const relay of relays) {
                 await performRelayAction(relay, "o"); // Turn it ON
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 1 second
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 1 second
                 await performRelayAction(relay, "f"); // Turn it OFF
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Optional: Wait before the next relay
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Optional: Wait before the next relay
             }
         });
 
