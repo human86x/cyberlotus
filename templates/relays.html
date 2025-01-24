@@ -46,6 +46,11 @@
             
             <button id="actionButton">Perform Action</button>
         </div>
+
+        <!-- New Button to Turn On/Off All Relays A-Z -->
+        <div class="combobox-container">
+            <button id="toggleAllRelaysButton">Toggle All Relays A-Z</button>
+        </div>
     </div>
 
     <script>
@@ -125,6 +130,36 @@
             })
             .catch(error => console.error('Error performing action:', error));
         });
+
+        // New function to toggle all relays A-Z on and off for 1 second
+        document.getElementById('toggleAllRelaysButton').addEventListener('click', () => {
+            const relays = Array.from(Array(26).keys()).map(i => String.fromCharCode(97 + i)); // Letters A-Z
+
+            // Loop through each relay and toggle it
+            relays.forEach(async (relay) => {
+                await performRelayAction(relay, "o");  // Turn it on
+                setTimeout(() => performRelayAction(relay, "f"), 1000); // Turn it off after 1 second
+            });
+        });
+
+        // Helper function to perform relay action (on or off)
+        function performRelayAction(relay, state) {
+            return fetch('/relay_direct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    letter: relay,
+                    state: state
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                //console.log(`Relay ${relay} turned ${state}`);
+            })
+            .catch(error => console.error(`Error toggling relay ${relay}:`, error));
+        }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
