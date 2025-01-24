@@ -133,15 +133,15 @@
 
         // New function to toggle all relays A-Z on and off for 1 second
         document.getElementById('toggleAllRelaysButton').addEventListener('click', async () => {
-    const relays = Array.from(Array(26).keys()).map(i => String.fromCharCode(97 + i)); // Letters A-Z
+            const relays = Array.from(Array(26).keys()).map(i => String.fromCharCode(97 + i)); // Letters A-Z
 
-    for (const relay of relays) {
-        await performRelayAction(relay, "o"); // Turn it ON
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
-        await performRelayAction(relay, "f"); // Turn it OFF
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Optional: Wait before the next relay
-    }
-});
+            for (const relay of relays) {
+                await performRelayAction(relay, "o"); // Turn it ON
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 1 second
+                await performRelayAction(relay, "f"); // Turn it OFF
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Optional: Wait before the next relay
+            }
+        });
 
         // Helper function to perform relay action (on or off)
         function performRelayAction(relay, state) {
