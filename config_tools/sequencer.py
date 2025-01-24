@@ -80,21 +80,28 @@ def execute_commands(commands, weights, flow_rates):
     # Define a function to send commands to Arduino
     def send_to_arduino(command, duration):
         print(f"Debug: Sending command '{command}' to Arduino with duration {duration:.2f}s.")
-        if not safe_serial_write_precise(command, duration):
+        # Convert duration to milliseconds and round to nearest integer
+        duration_ms = int(round(duration * 1000))
+    
+        if duration_ms <= 0:
+            print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
+            return
+
+        if not safe_serial_write_precise(command, duration_ms):
             print(f"Error: Failed to send command '{command}'.")
 
-    # Start threads for simultaneous execution
-    threads = []
-    for arduino_command, duration in zip(arduino_commands, durations):
-        thread = threading.Thread(target=send_to_arduino, args=(arduino_command, duration))
-        threads.append(thread)
-        thread.start()
+        # Start threads for simultaneous execution
+        threads = []
+        for arduino_command, duration in zip(arduino_commands, durations):
+            thread = threading.Thread(target=send_to_arduino, args=(arduino_command, duration))
+            threads.append(thread)
+            thread.start()
 
-    # Wait for all threads to complete
-    for thread in threads:
-        thread.join()
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
 
-    return True
+        return True
 
 
 
