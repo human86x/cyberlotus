@@ -413,7 +413,7 @@ def control_relay_directly():
     if letter and state:
         # Send the letter and state separately to the serial write function
         safe_serial_write(letter, state)
-        return jsonify({"status": "success", "message": f"Relay {letter} turned {'ON' if state == 'on' else 'OFF'}"})
+        return jsonify({"status": "success", "message": f"Relay {letter} turned {'ON' if state == 'o' else 'OFF'}"})
     else:
         return jsonify({"status": "error", "message": "Invalid data. Both 'letter' and 'state' are required."})
 
