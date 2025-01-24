@@ -59,7 +59,7 @@ def close_serial_connection():
 
 import serial  # Ensure this is at the top of your file
 
-def safe_serial_write(pump_name, state, retries=50, timeout=2):
+def safe_serial_write(pump_name, state, retries=5, timeout=2):
     global ser
     global system_stats
     ser = get_serial_connection()
@@ -81,8 +81,9 @@ def safe_serial_write(pump_name, state, retries=50, timeout=2):
 
         while attempt <= retries:
             if ser and ser.is_open:
-                ser.write(command.encode())
                 ser.flushOutput()
+                ser.write(command.encode())
+                
                 print(f"[INFO] Sent command: {command}, waiting for response...")
 
                 start_time = time.time()
