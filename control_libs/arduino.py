@@ -55,6 +55,8 @@ def close_serial_connection():
         print("[INFO] Serial connection closed.")
 
 
+import serial  # Ensure this is at the top of your file
+
 def safe_serial_write(pump_name, state, retries=50, timeout=2):
     global ser
     global system_stats
@@ -69,28 +71,14 @@ def safe_serial_write(pump_name, state, retries=50, timeout=2):
         timeout (int): Time in seconds to wait for Arduino response.
     """
     try:
-    #    if pump_name not in PUMP_COMMANDS:
-    #        print(f"[ERROR] Invalid pump name: {pump_name}")
-    #        return
-
-    #    if state not in ['o', 'f']:
-    #        print(f"[ERROR] Invalid pump state: {state}")
-    #        return
-
         command = pump_name + state
         expected_response = f"{'ON' if state == 'o' else 'OFF'}_{pump_name}"
         
         attempt = 0
         cur_time = int(time.time())
-        
-         #system_stats["relay_states"]["pump_" + pump_name]["state"] = new_state
-       #system_stats["relay_states"]["pump_" + pump_name]["timestamp"] = int(time.time())
-        
-        #system_stats["relay_states"][relay_name]["timestamp"] = int(time.time())
 
         while attempt <= retries:
             if ser and ser.is_open:
-                #ser.reset_input_buffer()  # Clear any previous data
                 ser.write(command.encode())
                 ser.flushOutput()
                 print(f"[INFO] Sent command: {command}, waiting for response...")
@@ -103,27 +91,16 @@ def safe_serial_write(pump_name, state, retries=50, timeout=2):
 
                         if response == expected_response:
                             print(f"[SUCCESS] Arduino confirmed action: {response}")
-                            
-                            cur_state = f"{'ON' if state == 'o' else 'OFF'}"
-                            
-                            print(f"system_state[relay_states][relay_{pump_name}][state] = {cur_state}")
-                            print(f"system_state[relay_states][relay_{pump_name}][timestamp] = {cur_time}")
-        
-        
-                            system_state["relay_states"]["relay_" + pump_name]["state"] = cur_state
+                            system_state["relay_states"]["relay_" + pump_name]["state"] = f"{'ON' if state == 'o' else 'OFF'}"
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = int(time.time())
-      
-                            
                             return  # Exit after successful confirmation
                         else:
                             print(f"[WARNING] Unexpected response: {response}")
-                    
+
                     time.sleep(0.1)  # Small delay to avoid CPU overuse
 
-                    # If no valid response, retry
                 print(f"[ERROR] No valid response. Retrying... (Attempt {attempt + 1}/{retries})")
                 attempt += 1
-
             else:
                 print("[ERROR] Serial port is not open. Cannot send command.")
                 return
@@ -132,12 +109,13 @@ def safe_serial_write(pump_name, state, retries=50, timeout=2):
         print("[ERROR] Failed to confirm command after retries. Attempting emergency stop.")
         safe_serial_write_emergency()
 
-    except ser.SerialException as e:
+    except serial.SerialException as e:  # Corrected line
         print(f"[ERROR] Serial write failed for {pump_name}: {e}")
         safe_serial_write_emergency()
     except Exception as e:
         print(f"[ERROR] Unexpected error while writing to serial: {e}")
         safe_serial_write_emergency()
+
 
 
 
