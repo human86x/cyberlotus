@@ -406,10 +406,16 @@ def save_relay_names():
 
 @app.route('/relay_direct', methods=['POST'])
 def control_relay_directly():
-   
     data = request.json
-    safe_serial_write(data)
-    return
+    letter = data.get('letter')  # The letter (e.g., 'a', 'b', 'g')
+    state = data.get('state')    # The state ("on" or "off")
+    
+    if letter and state:
+        # Send the letter and state separately to the serial write function
+        safe_serial_write(letter, state)
+        return jsonify({"status": "success", "message": f"Relay {letter} turned {'ON' if state == 'on' else 'OFF'}"})
+    else:
+        return jsonify({"status": "error", "message": "Invalid data. Both 'letter' and 'state' are required."})
 
 
 @app.route('/drain_waste', methods=['POST'])

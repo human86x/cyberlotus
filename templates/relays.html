@@ -66,10 +66,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Check for and handle pre-escaped JSON strings
                         let content = data.content;
-
-                        // If content is a string, parse it to ensure it's an object
                         if (typeof content === 'string') {
                             try {
                                 content = JSON.parse(content); // Parse if it's pre-escaped
@@ -77,8 +74,6 @@
                                 console.error('Failed to parse JSON:', e);
                             }
                         }
-
-                        // Format and render JSON into the textarea
                         const formattedJson = JSON.stringify(content, null, 4);
                         document.getElementById('relayEditor').value = formattedJson;
                     } else {
@@ -92,7 +87,7 @@
         document.getElementById('saveButton').addEventListener('click', () => {
             const content = document.getElementById('relayEditor').value;
             try {
-                const parsedContent = JSON.parse(content); // Validate JSON format
+                const parsedContent = JSON.parse(content);
                 fetch('/save_relay_names', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -111,16 +106,18 @@
         // Perform action on combobox selection
         document.getElementById('actionButton').addEventListener('click', () => {
             const selectedLetter = document.getElementById('letterDropdown').value;
-            const stateToggle = document.getElementById('stateToggle').checked ? "o" : "f"; // Determine state (on/off)
-            
-            const dataToSend = selectedLetter + stateToggle; // Construct the command like "ao", "bf", etc.
+            const stateToggle = document.getElementById('stateToggle').checked ? "on" : "off"; // State as 'on' or 'off'
 
+            // Send the letter and state separately to the backend
             fetch('/relay_direct', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ command: dataToSend }) // Send the command to the server
+                body: JSON.stringify({
+                    letter: selectedLetter,  // Relay letter
+                    state: stateToggle       // State: "on" or "off"
+                })
             })
             .then(response => response.json())
             .then(data => {
