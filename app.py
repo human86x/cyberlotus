@@ -389,7 +389,7 @@ def save_relay_names():
     API to save or create a new sequence file.
     """
     data = request.json
-    filename = data.get('filename')
+    filename = "relay_names.json"
     content = data.get('content')
     if not filename or not content:
         return jsonify({"status": "error", "message": "Filename or content not provided."})
