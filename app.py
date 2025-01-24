@@ -404,9 +404,12 @@ def save_relay_names():
         return jsonify({"status": "error", "message": f"Failed to save sequence: {str(e)}"})
 
 
-
-
-
+@app.route('/relay_direct', methods=['POST'])
+def control_relay_directly():
+   
+    data = request.json
+    safe_serial_write(data)
+    return
 
 
 @app.route('/drain_waste', methods=['POST'])

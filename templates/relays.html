@@ -40,6 +40,10 @@
         <div class="combobox-container">
             <label for="letterDropdown">Select a Letter:</label>
             <select id="letterDropdown"></select>
+            
+            <label for="stateToggle">State:</label>
+            <input type="checkbox" id="stateToggle"> ON/OFF
+            
             <button id="actionButton">Perform Action</button>
         </div>
     </div>
@@ -58,33 +62,31 @@
 
         // Load relay names JSON
         function loadRelayNames() {
-    fetch('/load_relay_names')
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Check for and handle pre-escaped JSON strings
-                let content = data.content;
+            fetch('/load_relay_names')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Check for and handle pre-escaped JSON strings
+                        let content = data.content;
 
-                // If content is a string, parse it to ensure it's an object
-                if (typeof content === 'string') {
-                    try {
-                        content = JSON.parse(content); // Parse if it's pre-escaped
-                    } catch (e) {
-                        console.error('Failed to parse JSON:', e);
+                        // If content is a string, parse it to ensure it's an object
+                        if (typeof content === 'string') {
+                            try {
+                                content = JSON.parse(content); // Parse if it's pre-escaped
+                            } catch (e) {
+                                console.error('Failed to parse JSON:', e);
+                            }
+                        }
+
+                        // Format and render JSON into the textarea
+                        const formattedJson = JSON.stringify(content, null, 4);
+                        document.getElementById('relayEditor').value = formattedJson;
+                    } else {
+                        alert(data.message);
                     }
-                }
-
-                // Format and render JSON into the textarea
-                const formattedJson = JSON.stringify(content, null, 4);
-                document.getElementById('relayEditor').value = formattedJson;
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => console.error('Error loading relay names:', error));
-}
-
-
+                })
+                .catch(error => console.error('Error loading relay names:', error));
+        }
 
         // Save relay names JSON
         document.getElementById('saveButton').addEventListener('click', () => {
@@ -109,7 +111,22 @@
         // Perform action on combobox selection
         document.getElementById('actionButton').addEventListener('click', () => {
             const selectedLetter = document.getElementById('letterDropdown').value;
-            alert(`Action performed for selected letter: ${selectedLetter}`);
+            const stateToggle = document.getElementById('stateToggle').checked ? "o" : "f"; // Determine state (on/off)
+            
+            const dataToSend = selectedLetter + stateToggle; // Construct the command like "ao", "bf", etc.
+
+            fetch('/relay_direct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: dataToSend }) // Send the command to the server
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Action performed: ' + data.message);
+            })
+            .catch(error => console.error('Error performing action:', error));
         });
 
         // Initialize on page load
