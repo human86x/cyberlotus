@@ -1,8 +1,9 @@
-<style>
-    /* General styles */
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
+    background-color: #f7f7f7;
+    color: #333;
 }
 
 h2, h3 {
@@ -39,17 +40,22 @@ button {
     cursor: pointer;
     border-radius: 4px;
     font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
     background-color: #45a049;
 }
 
-/* Tanks Table Styles */
+/* Table Styles */
 .tanks-table table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .tanks-table th, .tanks-table td {
@@ -60,9 +66,15 @@ button:hover {
 
 .tanks-table th {
     background-color: #f2f2f2;
+    color: #333;
+    font-weight: bold;
 }
 
-/* Tanks Card Styles */
+.tanks-table td {
+    color: #555;
+}
+
+/* Tank Card Styles */
 .tanks-container {
     display: flex;
     flex-wrap: wrap;
@@ -79,6 +91,12 @@ button:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     box-sizing: border-box;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tank-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .tank-bar {
@@ -86,14 +104,36 @@ button:hover {
     background-color: #ddd;
     border: 1px solid #333;
     position: relative;
+    border-radius: 5px;
+    overflow: hidden;
 }
 
 .tank-card h3 {
     margin: 10px 0;
+    color: #4CAF50;
 }
 
 .tank-card p {
     margin: 5px 0;
+    color: #666;
+}
+
+/* Progress Bar */
+#progress-container {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    width: 0%;
+    height: 20px;
+    background-color: #4CAF50;
+    text-align: center;
+    line-height: 20px;
+    color: white;
+    transition: width 0.3s ease;
 }
 
 /* Responsive Design */
@@ -109,20 +149,17 @@ button:hover {
     }
 }
 
-    #progress-container {
-        width: 100%;
-        background-color: #ddd;
-        border-radius: 5px;
-        overflow: hidden;
-    }
+/* Icon Styles for Relay States */
+.relay-icon {
+    display: inline-block;
+    font-size: 18px;
+    margin-right: 8px;
+}
 
-    #progress-bar {
-        width: 0%;
-        height: 20px;
-        background-color: #4CAF50;
-        text-align: center;
-        line-height: 20px;
-        color: white;
-        transition: width 0.1s ease-in-out;
-    }
+.relay-icon.on {
+    color: #4CAF50;
+}
 
+.relay-icon.off {
+    color: #e74c3c;
+}

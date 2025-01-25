@@ -1,5 +1,5 @@
 <link rel="stylesheet" type="text/css" href="static/style.css" />
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 {% extends "base.html" %}
 
@@ -8,106 +8,91 @@
 <p>Welcome to the CyberLotus Project dashboard.</p>
 
 <!-- Emergency Stop Button -->
+<button class="btn btn-danger" onclick="confirmEmergencyStop()">Emergency Stop</button>
+<button class="btn btn-primary" onclick="getSystemStats()">Refresh Stats</button>
 
-
-<button onclick="getSystemStats()">getSystemStats</button>
-
-<table id="systemStatsTable">
-  <tr>
-    <th>Sensor/Relay</th>
-    <th>Value</th>
-    <th>Timestamp</th>
-  </tr>
-</table>
+<div class="dashboard-panel">
+  <table id="systemStatsTable">
+    <thead>
+      <tr>
+        <th>Sensor/Relay</th>
+        <th>Value</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows will be dynamically added -->
+    </tbody>
+  </table>
+</div>
 
 <script>
-// Define the getSystemStats function
 function getSystemStats() {
   fetch("/sys_state")
-.then(response => response.json())
-.then(data => {
+    .then(response => response.json())
+    .then(data => {
       console.log(data);
       updateTable(data);
-   })
-.catch(error => {
+    })
+    .catch(error => {
       console.error('Error:', error);
-   });
+    });
 }
 
-// Define the confirmEmergencyStop function
 function confirmEmergencyStop() {
-    if (confirm(" Are you sure you want to activate the EMERGENCY STOP? This will immediately stop all pumps!")) {
-        fetch('/emergency_stop', { method: 'POST' })
-         .then(response => response.json())
-         .then(data => {
-                alert(data.message);
-            })
-         .catch(error => {
-                alert(" Failed to send Emergency Stop command.");
-                console.error('Error:', error);
-            });
-    } else {
-        event.preventDefault();  // Cancel if user cancels the confirmation
-    }
+  if (confirm("Are you sure you want to activate the EMERGENCY STOP? This will immediately stop all pumps!")) {
+    fetch('/emergency_stop', { method: 'POST' })
+      .then(response => response.json())
+      .then(data => alert(data.message))
+      .catch(error => {
+        alert("Failed to send Emergency Stop command.");
+        console.error('Error:', error);
+      });
+  }
 }
 
-// Define the updateTable function
 function updateTable(data) {
-  const table = document.getElementById("systemStatsTable");
+  const tableBody = document.getElementById("systemStatsTable").getElementsByTagName("tbody")[0];
+  
+  // Clear existing rows
+  tableBody.innerHTML = "";
 
-  // Clear the table
-  while (table.rows.length > 1) {
-    table.deleteRow(1);
-  }
-
-  // Add rows for each sensor and relay
+  // Add rows dynamically
   Object.keys(data).forEach(key => {
-    if (key === "ec" || key === "ph" || key === "temperature") {
-      // Add sensor data rows
-      const row = table.insertRow();
-      const cell1 = row.insertCell();
-      const cell2 = row.insertCell();
-      const cell3 = row.insertCell();
-      cell1.innerHTML = key.toUpperCase();
-      cell2.innerHTML = data[key].value;
-      cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
-    } else if (key === "tank_1" || key === "tank_2" || key === "tank_3") {
-      // Add tank level rows
-      const row = table.insertRow();
-      const cell1 = row.insertCell();
-      const cell2 = row.insertCell();
-      const cell3 = row.insertCell();
-      cell1.innerHTML = key.toUpperCase();
-      cell2.innerHTML = data[key].level;
-      cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
+    if (["ec", "ph", "temperature"].includes(key)) {
+      addRow(tableBody, key.toUpperCase(), data[key].value, data[key].timestamp);
+    } else if (["tank_1", "tank_2", "tank_3"].includes(key)) {
+      addRow(tableBody, key.toUpperCase(), `${data[key].level}%`, data[key].timestamp);
     } else if (key === "relay_states") {
-      // Add relay state rows
       Object.keys(data[key]).forEach(relayKey => {
-        const row = table.insertRow();
-        const cell1 = row.insertCell();
-        const cell2 = row.insertCell();
-        const cell3 = row.insertCell();
-        cell1.innerHTML = relayKey.toUpperCase();
-        cell2.innerHTML = data[key][relayKey].state;
-        cell3.innerHTML = new Date(data[key][relayKey].timestamp * 1000).toLocaleString();
+        const state = data[key][relayKey].state === "ON" 
+          ? `<i class="fas fa-toggle-on" style="color: green;"></i> ON` 
+          : `<i class="fas fa-toggle-off" style="color: red;"></i> OFF`;
+        addRow(tableBody, relayKey.toUpperCase(), state, data[key][relayKey].timestamp);
       });
     } else if (key === "ec_calibration") {
-      // Add EC calibration factor rows
       Object.keys(data[key]).forEach(calibrationKey => {
-        const row = table.insertRow();
-        const cell1 = row.insertCell();
-        const cell2 = row.insertCell();
-        const cell3 = row.insertCell();
-        cell1.innerHTML = calibrationKey.toUpperCase();
-        cell2.innerHTML = data[key][calibrationKey].factor; // Assuming 'factor' contains the calibration data
-        cell3.innerHTML = new Date(data[key][calibrationKey].timestamp * 1000).toLocaleString();
+        addRow(
+          tableBody, 
+          calibrationKey.toUpperCase(), 
+          data[key][calibrationKey]?.value || "N/A", 
+          data[key][calibrationKey]?.timestamp
+        );
       });
     }
   });
 }
 
+function addRow(tableBody, name, value, timestamp) {
+  const row = tableBody.insertRow();
+  row.insertCell(0).textContent = name;
+  row.insertCell(1).innerHTML = value || "N/A";
+  row.insertCell(2).textContent = timestamp 
+    ? new Date(timestamp * 1000).toLocaleString() 
+    : "N/A";
+}
 
-// Call the getSystemStats function initially
+// Initial fetch
 getSystemStats();
 </script>
 
