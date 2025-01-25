@@ -97,7 +97,7 @@ def save_app_config(config):
 @app.route('/save_app_config', methods=['POST'])
 def save_configuration():
     data = request.json
-    config = load_app_config()  # Load existing configuration
+    config = load_config()  # Load existing configuration
     config.update(data)  # Update the configuration with new data
     save_app_config(config)  # Save the updated configuration
     return jsonify({"status": "success", "message": "Configuration saved successfully"})
