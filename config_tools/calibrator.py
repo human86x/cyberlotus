@@ -6,7 +6,7 @@ import statistics
 from config_tools.sequencer import execute_sequence
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from control_libs.electric_conductivity import get_ec, calibrate_ec_sensor, get_correct_EC, get_EC_calibration_factor
+#from control_libs.electric_conductivity import get_ec, calibrate_ec_sensor, get_correct_EC, get_EC_calibration_factor
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state
@@ -40,65 +40,35 @@ def load_calibration_data():
         return {}
 
 
-def set_baseline_ec():
-    print("Setting EC baseline...")
-    num_readings = 15
-    ec_values = []
-    for _ in range(num_readings):
-        time.sleep(1)
-        ec_value = get_correct_EC()
-        print(f"Retrieved EC value: '{ec_value}'")
-        if ec_value is None or ec_value == 0:
-            print("Error: Invalid EC value read from the sensor.")
-            continue
-        try:
-            ec_value = float(ec_value)
-        except ValueError:
-            print(f"Error: Invalid EC value '{ec_value}' received, cannot convert to float.")
-            continue
-        if 0 <= ec_value <= 10000:
-            ec_values.append(ec_value)
 
-    if len(ec_values) == 0:
-        print("Error: No valid EC readings collected.")
-        return
+#def main():
+#    while True:
+#        print("\n--- Calibration Menu ---")
+#        print("1. Calibrate EC Sensor")
+#        print("2. Set Calibration Solution Value")
+#        print("3. Read EC Value")
+#        print("4. Set Water EC Baseline")
+#        print("5. Exit")#
+#
+#        choice = input("Select an option: ")
 
-    estimated_ec_value = statistics.median(ec_values)
-    print(f"Baseline EC value: {estimated_ec_value}")
-
-    calibration_data = load_calibration_data()
-    calibration_data["EC_baseline"] = estimated_ec_value
-    save_calibration_data(calibration_data)
-    print("EC baseline set and saved.")
-
-def main():
-    while True:
-        print("\n--- Calibration Menu ---")
-        print("1. Calibrate EC Sensor")
-        print("2. Set Calibration Solution Value")
-        print("3. Read EC Value")
-        print("4. Set Water EC Baseline")
-        print("5. Exit")
-
-        choice = input("Select an option: ")
-
-        if choice == "1":
-            temp = load_flow_rates()
-            print(f"flow rates: {temp}")
-
-            execute_sequence(EC_SEQUENCE_FILE, load_flow_rates(), calibrate_ec_sensor)
-        elif choice == "2":
-            set_calibration_solution()
-        elif choice == "3":
-            ec_value = get_correct_EC()
-            print(f"Current EC value: {ec_value}")
-        elif choice == "4":
-            execute_sequence(EC_BASELINE_FILE, load_flow_rates(), set_baseline_ec)
-        elif choice == "5":
-            print("Exiting calibration tool. Goodbye!")
-            break
-        else:
-            print("Invalid option. Please try again.")
+        #if choice == "1":
+        #    temp = load_flow_rates()
+        #    print(f"flow rates: {temp}")#
+#
+#            execute_sequence(EC_SEQUENCE_FILE, load_flow_rates(), calibrate_ec_sensor)
+#        elif choice == "2":
+#            set_calibration_solution()
+#        elif choice == "3":
+#            ec_value = get_correct_EC()
+#            print(f"Current EC value: {ec_value}")
+#        elif choice == "4":
+#            execute_sequence(EC_BASELINE_FILE, load_flow_rates(), set_baseline_ec)
+#        elif choice == "5":
+#            print("Exiting calibration tool. Goodbye!")
+#            break
+#        else:
+#            print("Invalid option. Please try again.")
 
 if __name__ == "__main__":
     main()

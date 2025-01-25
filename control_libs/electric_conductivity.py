@@ -8,7 +8,7 @@ from control_libs.arduino import get_serial_connection, connect_to_arduino, send
 from control_libs.system_stats import system_state
 from control_libs.app_core import load_config, CALIBRATION_FILE
 from config_tools.sequencer import execute_sequence
-#from config_tools.calibrator import get_correct_EC
+from config_tools.calibrator import load_calibration_data, save_calibration_data
 from control_libs.system_stats import system_state
 from control_libs.app_core import SEQUENCE_DIR
 from config_tools.flow_tune import load_flow_rates
@@ -302,3 +302,38 @@ def calibrate_ec_sensor():
     except Exception as e:
         print(f"Error during EC sensor calibration: {e}")
         return {"status": "error", "message": f"Unexpected error: {e}"}
+
+
+
+
+
+def set_baseline_ec():
+    print("Setting EC baseline...")
+    num_readings = 15
+    ec_values = []
+    for _ in range(num_readings):
+        time.sleep(1)
+        ec_value = get_correct_EC()
+        print(f"Retrieved EC value: '{ec_value}'")
+        if ec_value is None or ec_value == 0:
+            print("Error: Invalid EC value read from the sensor.")
+            continue
+        try:
+            ec_value = float(ec_value)
+        except ValueError:
+            print(f"Error: Invalid EC value '{ec_value}' received, cannot convert to float.")
+            continue
+        if 0 <= ec_value <= 10000:
+            ec_values.append(ec_value)
+
+    if len(ec_values) == 0:
+        print("Error: No valid EC readings collected.")
+        return
+
+    estimated_ec_value = statistics.median(ec_values)
+    print(f"Baseline EC value: {estimated_ec_value}")
+
+    calibration_data = load_calibration_data()
+    calibration_data["EC_baseline"] = estimated_ec_value
+    save_calibration_data(calibration_data)
+    print("EC baseline set and saved.")

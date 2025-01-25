@@ -8,7 +8,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.electric_conductivity import get_ec
 #from control_libs.temperature import read_solution_temperature
-from control_libs.arduino import connect_to_arduino, safe_serial_write, send_command_and_get_response
+from control_libs.arduino import connect_to_arduino, get_serial_connection , safe_serial_write, send_command_and_get_response
 
 # Serial configuration
 #SERIAL_PORT = '/dev/ttyACM0'
@@ -24,7 +24,7 @@ PUMP_COMMANDS_FILE = os.path.join(current_dir, '../data/relay_names.json')
 FLOW_RATES_FILE = os.path.join(current_dir, '../data/flow_rates.json')
 
 # Initialize serial connection
-ser = connect_to_arduino() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+ser = get_serial_connection() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
 def load_pump_commands():
     """Load pump commands from JSON file."""
