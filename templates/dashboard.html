@@ -54,6 +54,7 @@ function confirmEmergencyStop() {
 // Define the updateTable function
 function updateTable(data) {
   const table = document.getElementById("systemStatsTable");
+
   // Clear the table
   while (table.rows.length > 1) {
     table.deleteRow(1);
@@ -62,6 +63,7 @@ function updateTable(data) {
   // Add rows for each sensor and relay
   Object.keys(data).forEach(key => {
     if (key === "ec" || key === "ph" || key === "temperature") {
+      // Add sensor data rows
       const row = table.insertRow();
       const cell1 = row.insertCell();
       const cell2 = row.insertCell();
@@ -70,6 +72,7 @@ function updateTable(data) {
       cell2.innerHTML = data[key].value;
       cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
     } else if (key === "tank_1" || key === "tank_2" || key === "tank_3") {
+      // Add tank level rows
       const row = table.insertRow();
       const cell1 = row.insertCell();
       const cell2 = row.insertCell();
@@ -78,6 +81,7 @@ function updateTable(data) {
       cell2.innerHTML = data[key].level;
       cell3.innerHTML = new Date(data[key].timestamp * 1000).toLocaleString();
     } else if (key === "relay_states") {
+      // Add relay state rows
       Object.keys(data[key]).forEach(relayKey => {
         const row = table.insertRow();
         const cell1 = row.insertCell();
@@ -87,9 +91,21 @@ function updateTable(data) {
         cell2.innerHTML = data[key][relayKey].state;
         cell3.innerHTML = new Date(data[key][relayKey].timestamp * 1000).toLocaleString();
       });
+    } else if (key === "ec_calibration") {
+      // Add EC calibration factor rows
+      Object.keys(data[key]).forEach(calibrationKey => {
+        const row = table.insertRow();
+        const cell1 = row.insertCell();
+        const cell2 = row.insertCell();
+        const cell3 = row.insertCell();
+        cell1.innerHTML = calibrationKey.toUpperCase();
+        cell2.innerHTML = data[key][calibrationKey].factor; // Assuming 'factor' contains the calibration data
+        cell3.innerHTML = new Date(data[key][calibrationKey].timestamp * 1000).toLocaleString();
+      });
     }
   });
 }
+
 
 // Call the getSystemStats function initially
 getSystemStats();

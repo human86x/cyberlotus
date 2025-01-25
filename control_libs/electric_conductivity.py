@@ -288,7 +288,7 @@ def calibrate_ec_sensor():
 
         # Update system state
         system_state["ec_calibration"] = {
-            "factor": calibration_factor,
+            "value": calibration_factor,
             "timestamp": int(time.time())
         }
 

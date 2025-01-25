@@ -24,7 +24,7 @@ PUMP_COMMANDS_FILE = os.path.join(current_dir, '../data/relay_names.json')
 FLOW_RATES_FILE = os.path.join(current_dir, '../data/flow_rates.json')
 
 # Initialize serial connection
-ser = get_serial_connection() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+ser = connect_to_arduino()#get_serial_connection() #serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
 def load_pump_commands():
     """Load pump commands from JSON file."""
