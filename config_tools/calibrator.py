@@ -6,31 +6,19 @@ import statistics
 from config_tools.sequencer import execute_sequence
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from control_libs.electric_conductivity import get_ec, get_correct_EC
+from control_libs.electric_conductivity import get_ec, get_correct_EC, get_EC_calibration_factor
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state
 base_dir = os.path.dirname(os.path.abspath(__file__))
-
+from control_libs.app_core import CALIBRATION_FILE
 # Use absolute paths for file locations
 EC_SEQUENCE_FILE = os.path.join(base_dir, '../sequences/EC_calibration.json')
 EC_BASELINE_FILE = os.path.join(base_dir, '../sequences/EC_baseline.json')
-CALIBRATION_FILE = os.path.join(base_dir, '../data/calibration.json')
 
 global ser
 ser = connect_to_arduino()
 
-def get_EC_calibration_factor():
-    try:
-        with open(CALIBRATION_FILE, "r") as file:
-            calibration_data = json.load(file)
-            return float(calibration_data.get("EC_calibration_factor", 1.0))
-    except FileNotFoundError:
-        print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
-        return 1.0
-    except Exception as e:
-        print(f"Error loading calibration factor: {e}")
-        return 1.0
 
 def save_calibration_data(data):
     try:

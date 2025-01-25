@@ -4,10 +4,23 @@ import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state
-from control_libs.app_core import load_config
+from control_libs.app_core import load_config, CALIBRATION_FILE
 from config_tools.sequencer import execute_sequence
 #from config_tools.calibrator import get_correct_EC
 from control_libs.system_stats import system_state
+
+def get_EC_calibration_factor():
+    try:
+        with open(CALIBRATION_FILE, "r") as file:
+            calibration_data = json.load(file)
+            return float(calibration_data.get("EC_calibration_factor", 1.0))
+    except FileNotFoundError:
+        print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
+        return 1.0
+    except Exception as e:
+        print(f"Error loading calibration factor: {e}")
+        return 1.0
+
 
 def get_correct_EC():
     """
