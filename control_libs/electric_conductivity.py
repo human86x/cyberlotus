@@ -137,10 +137,10 @@ def get_complex_ec_reading():
         sequence = load_config("EC_test_sequence")
 
         # Get the correct EC flow rates (assumes get_correct_EC is implemented elsewhere)
-        flow_rates = get_correct_EC()
+        #flow_rates = get_correct_EC()
 
         # Execute the sequence and return the readings
-        readings = execute_sequence(sequence, flow_rates, calibration_callback=None)
+        readings = execute_sequence(sequence, calibration_callback=None)
         
          ##########################################################
     

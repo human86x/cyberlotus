@@ -8,7 +8,7 @@ from control_libs.arduino import safe_serial_write_precise
 # Serial configuration (commented out for now)
 #SERIAL_PORT = '/dev/ttyACM0'
 #BAUD_RATE = 9600
-
+FLOW_RATES = load_flow_rates
 # Load pump commands
 PUMP_COMMANDS = load_pump_commands()
 
@@ -118,7 +118,7 @@ def execute_commands(commands, weights, flow_rates):
 
 
 
-def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
+def execute_sequence(sequence_file, flow_rates=FLOW_RATES, calibration_callback=None):
     """
     Read the sequence from a JSON file and execute the actions.
 
