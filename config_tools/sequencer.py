@@ -118,7 +118,7 @@ def execute_commands(commands, weights, flow_rates):
 
 
 
-def execute_sequence(sequence_file, flow_rates=FLOW_RATES, calibration_callback=None):
+def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
     """
     Read the sequence from a JSON file and execute the actions.
 
@@ -128,6 +128,9 @@ def execute_sequence(sequence_file, flow_rates=FLOW_RATES, calibration_callback=
         calibration_callback (function): Optional callback for calibration steps.
     """
     #sequence_file = "sequences/" + sequence_file 
+    if flow_rates is None:
+        flow_rates = FLOW_RATES
+        
     try:
         with open(sequence_file, 'r') as file:
             data = json.load(file)
