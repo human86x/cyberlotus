@@ -113,6 +113,36 @@
     </div>
     <button onclick="get_complex_ec()">Complex EC reading</button>
 
+    <title>EC Sensor Calibration</title>
+    <script>
+        // Function to trigger EC sensor calibration
+        async function calibrateECSensor() {
+            try {
+                const response = await fetch('/calibrate_ec_sensor', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Request failed:', error);
+                alert('An error occurred while trying to calibrate the EC sensor.');
+            }
+        }
+    </script>
+
+    <h1>EC Sensor Calibration</h1>
+    <button onclick="calibrateECSensor()">Calibrate EC Sensor</button>
+
+
 
  
         <h1>Real-Time EC Updates</h1>

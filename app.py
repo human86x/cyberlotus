@@ -149,22 +149,6 @@ def get_ec_value():
     else:
         return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
 
-# Calibrate EC sensor 
-def calibrate_ec_sensor():
-    for step in range(4):  # 4 steps
-        # Simulating calibration process
-        time.sleep(3)
-        socketio.emit('progress', {'step': step, 'status': 'in-progress'})
-        if step == 3:
-            socketio.emit('progress', {'step': step, 'status': 'completed'})
-
-@app.route('/calibrate', methods=['POST'])
-def calibrate():
-    try:
-        calibrate_ec_sensor()
-        return jsonify({'status': 'success', 'message': 'EC sensor calibration completed'})
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
 
 # Set EC baseline
 @app.route('/set_baseline', methods=['POST'])
@@ -205,27 +189,6 @@ def start_callback_sequence(sequence):
 
 
 
-
-############ SSE - ####################
-# Create a queue to store events
-event_queue = Queue()
-# SSE stream route
-@app.route('/stream')
-def stream():
-    def generate():
-        while True:
-            # Wait for a new event in the queue
-            event = event_queue.get()  # This blocks until an item is added to the queue
-            yield f"data: {event}\n\n"
-    return Response(generate(), mimetype='text/event-stream')
-
-# Trigger function internally
-@app.route('/trigger')
-def trigger():
-    # Call the function and send its result to the event stream
-    result = get_correct_EC()
-    event_queue.put(result)  # Add the result to the queue
-    return f"Triggered and sent: {result}"
 
 
 
@@ -684,7 +647,22 @@ def get_complex_ec():
         return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
     except Exception as e:
         return jsonify({'error': f"An error occurred: {str(e)}"}), 500
-
+from control_libs.electric_conductivity import get_complex_ec_calibration
+@app.route('/calibrate_ec_sensor', methods=['POST'])
+def calibrate_ec_sensor_route():
+    """
+    Flask route to calibrate the EC sensor.
+    """
+    try:
+        # Call the calibration function
+        get_complex_ec_calibration()
+        return jsonify({'status': 'success', 'message': 'EC sensor calibration complete.'})
+    except KeyError as e:
+        return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
+    except ValueError as e:
+        return jsonify({'error': f"Value error: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
 
 
 

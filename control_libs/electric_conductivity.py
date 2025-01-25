@@ -13,6 +13,7 @@ from control_libs.system_stats import system_state
 from control_libs.app_core import SEQUENCE_DIR
 from config_tools.flow_tune import load_flow_rates
 from control_libs.temperature import read_solution_temperature
+
 ser = get_serial_connection()
 
 
@@ -166,3 +167,138 @@ def get_complex_ec_reading():
     except Exception as e:
         print(f"Error while retrieving EC readings: {e}")
         raise
+
+def get_complex_ec_calibration():
+    global SEQUENCE_DIR
+    """
+    Retrieve EC readings by executing the sequence defined in the configuration.
+
+    Returns:
+        dict: The readings from the sequence execution.
+    """
+    try:
+        # Load the EC testing sequence from the configuration
+        sequence = load_config("EC_calibration_sequence")
+        SEQUENCE_FILE = SEQUENCE_DIR + sequence
+        
+        # Load flow rates from the configuration
+        flow_rates = load_flow_rates()  # This loads the flow rates as intended
+
+        if not flow_rates:
+            print("Error: Flow rates not loaded.")
+            return {}
+
+        # Execute the sequence and return the readings
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ec_sensor)
+
+        # Ensure readings are returned or handle case where no readings are received
+        if not readings:
+            print("Error: No readings returned from the sequence.")
+            readings = {}
+
+        # Update the system state with the EC readings
+        system_state["ec"]["value"] = readings
+        system_state["ec"]["timestamp"] = int(time.time())
+        print(f"Updated the EC values from complex reading using {SEQUENCE_FILE} sequence.")
+        
+        return readings
+
+    except Exception as e:
+        print(f"Error while retrieving EC readings: {e}")
+        raise
+
+
+def calibrate_ec_sensor():
+    global ser
+    """
+    Calibrate the EC sensor by determining the calibration factor.
+    The function performs multiple readings, applies temperature correction, 
+    and calculates the calibration factor based on the target EC value.
+
+    Returns:
+        dict: Calibration data containing the calibration factor and status.
+    """
+    print("Starting EC sensor calibration...")
+    
+    try:
+        calibration_data = load_calibration_data()
+        target_ec_value = calibration_data.get("EC_calibration_solution", 2000)
+        print(f"Target EC value (calibration solution): {target_ec_value}")
+
+        num_readings = 15
+        ec_values = []
+
+        # Collect EC readings
+        print("Collecting EC readings...")
+        for _ in range(num_readings):
+            time.sleep(1)
+            raw_ec_value = get_ec(ser)
+            print(f"Retrieved EC value: '{raw_ec_value}'")
+
+            if raw_ec_value is None or raw_ec_value == 0:
+                print("Error: Invalid EC value read from the sensor.")
+                continue
+
+            try:
+                raw_ec_value = float(raw_ec_value)
+            except ValueError:
+                print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
+                continue
+
+            if 100 <= raw_ec_value <= 5000:
+                ec_values.append(raw_ec_value)
+
+        # Check for valid readings
+        if len(ec_values) == 0:
+            print("Error: No valid EC readings collected.")
+            return {"status": "error", "message": "No valid EC readings collected."}
+
+        # Calculate the median EC value
+        estimated_ec_value = statistics.median(ec_values)
+        print(f"Estimated EC value (median of valid readings): {estimated_ec_value}")
+
+        # Read solution temperature
+        solution_temperature = read_solution_temperature(ser)
+        if solution_temperature is None:
+            print("Error: Failed to read solution temperature.")
+            return {"status": "error", "message": "Failed to read solution temperature."}
+
+        try:
+            solution_temperature = float(solution_temperature)
+        except ValueError:
+            print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
+            return {"status": "error", "message": "Invalid temperature value received."}
+
+        print(f"Solution temperature: {solution_temperature}°C")
+
+        # Apply temperature correction
+        if solution_temperature != 25:
+            corrected_ec_value = estimated_ec_value / (1 + 0.02 * (solution_temperature - 25))
+            print(f"Corrected EC value at 25°C: {corrected_ec_value}")
+        else:
+            corrected_ec_value = estimated_ec_value
+
+        # Calculate calibration factor
+        calibration_factor = target_ec_value / corrected_ec_value
+        print(f"Calibration factor: {calibration_factor}")
+
+        # Save the calibration data
+        calibration_data["EC_calibration_factor"] = calibration_factor
+        save_calibration_data(calibration_data)
+
+        # Update system state
+        system_state["ec_calibration"] = {
+            "factor": calibration_factor,
+            "timestamp": int(time.time())
+        }
+
+        print("EC sensor calibration complete.")
+        return {
+            "status": "success",
+            "calibration_factor": calibration_factor,
+            "message": "EC sensor calibration complete."
+        }
+
+    except Exception as e:
+        print(f"Error during EC sensor calibration: {e}")
+        return {"status": "error", "message": f"Unexpected error: {e}"}

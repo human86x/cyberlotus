@@ -6,7 +6,7 @@ import statistics
 from config_tools.sequencer import execute_sequence
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from control_libs.electric_conductivity import get_ec, get_correct_EC, get_EC_calibration_factor
+from control_libs.electric_conductivity import get_ec, calibrate_ec_sensor, get_correct_EC, get_EC_calibration_factor
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state
@@ -39,55 +39,6 @@ def load_calibration_data():
         print(f"Error loading calibration data: {e}")
         return {}
 
-def calibrate_ec_sensor():
-    print("Starting EC sensor calibration...")
-    calibration_data = load_calibration_data()
-    target_ec_value = calibration_data.get("EC_calibration_solution", 2000)
-    print(f"Target EC value (calibration solution): {target_ec_value}")
-
-    num_readings = 15
-    ec_values = []
-    for _ in range(num_readings):
-        time.sleep(1)
-        ec_value = get_ec(ser)
-        print(f"Retrieved EC value: '{ec_value}'")
-        if ec_value is None or ec_value == 0:
-            print("Error: Invalid EC value read from the sensor.")
-            continue
-        try:
-            ec_value = float(ec_value)
-        except ValueError:
-            print(f"Error: Invalid EC value '{ec_value}' received, cannot convert to float.")
-            continue
-        if 100 <= ec_value <= 5000:
-            ec_values.append(ec_value)
-
-    if len(ec_values) == 0:
-        print("Error: No valid EC readings collected.")
-        return
-
-    estimated_ec_value = statistics.median(ec_values)
-    print(f"Estimated EC value: {estimated_ec_value}")
-    solution_temperature = read_solution_temperature(ser)
-    try:
-        solution_temperature = float(solution_temperature)
-    except ValueError:
-        print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
-        return
-
-    print(f"Solution temperature: {solution_temperature}°C")
-
-    if solution_temperature != 25:
-        corrected_ec_value = estimated_ec_value / (1 + 0.02 * (solution_temperature - 25))
-    else:
-        corrected_ec_value = estimated_ec_value
-
-    calibration_factor = target_ec_value / corrected_ec_value
-    print(f"Calibration factor: {calibration_factor}")
-
-    calibration_data["EC_calibration_factor"] = calibration_factor
-    save_calibration_data(calibration_data)
-    print("EC sensor calibration complete.")
 
 def set_baseline_ec():
     print("Setting EC baseline...")
