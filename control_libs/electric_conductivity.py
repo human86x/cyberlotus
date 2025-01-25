@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import time
+import statistics
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.arduino import get_serial_connection, connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state
