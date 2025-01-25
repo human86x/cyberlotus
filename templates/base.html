@@ -71,7 +71,6 @@
         <h2>CyberLotus</h2>
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
         <a href="{{ url_for('relays') }}">Relays</a>
-        
         <a href="{{ url_for('tanks') }}">Tanks</a>
         <a href="{{ url_for('pumps') }}">Pumps</a>
         <a href="{{ url_for('sequences') }}">Sequences</a>
@@ -79,16 +78,12 @@
         <a href="{{ url_for('ec') }}">EC</a>
         <a href="{{ url_for('ecosystem') }}">Ecosystem</a>
         <a href="{{ url_for('automatisation') }}">Automatisation</a>
-        
     </div>
     <div class="content">
         {% block content %}{% endblock %}
-        <li>
-            <form action="{{ url_for('emergency_stop_route') }}" method="post">
-                <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
-            </form>
-        </li>
-        
+        <form action="{{ url_for('emergency_stop_route') }}" method="post">
+            <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
+        </form>
     </div>
     <div class="right-sidebar">
         <h1>Dashboard</h1>
@@ -116,58 +111,55 @@
         }
 
         function updateTable(data) {
-        const table = document.getElementById("systemStatsTable");
-        while (table.rows.length > 1) {
-            table.deleteRow(1);
+            const table = document.getElementById("systemStatsTable");
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+
+            const order = [
+                "ec", "ph", "temperature",
+                "tank_1", "tank_2", "tank_3",
+                "relay_a", "relay_b", "relay_c", "relay_d", "relay_e",
+                "relay_f", "relay_g", "relay_h", "relay_k", "relay_l",
+                "relay_m", "relay_o", "relay_p", "relay_q", "relay_r",
+                "relay_s", "relay_u", "relay_v", "relay_w", "relay_x",
+                "relay_y", "relay_z"
+            ];
+
+            order.forEach(key => {
+                if (data[key]) {
+                    const row = table.insertRow();
+                    const cell1 = row.insertCell();
+                    const cell2 = row.insertCell();
+                    const cell3 = row.insertCell();
+
+                    let value = "";
+                    if (data[key].value !== undefined) {
+                        value = data[key].value;
+                    } else if (data[key].level !== undefined) {
+                        value = data[key].level;
+                    } else if (data[key].state !== undefined) {
+                        value = data[key].state;
+                    }
+
+                    cell1.innerHTML = key.toUpperCase();
+                    cell2.innerHTML = value !== null ? value : "N/A";
+                    cell3.innerHTML = data[key].timestamp ? new Date(data[key].timestamp * 1000).toLocaleString() : "N/A";
+                } else if (data.relay_states && data.relay_states[key]) {
+                    const row = table.insertRow();
+                    const cell1 = row.insertCell();
+                    const cell2 = row.insertCell();
+                    const cell3 = row.insertCell();
+
+                    const relayState = data.relay_states[key];
+                    cell1.innerHTML = key.toUpperCase();
+                    cell2.innerHTML = relayState.state !== null ? relayState.state : "N/A";
+                    cell3.innerHTML = relayState.timestamp ? new Date(relayState.timestamp * 1000).toLocaleString() : "N/A";
+                }
+            });
         }
 
-        // Define the correct order based on system_state
-        const order = [
-            "ec", "ph", "temperature",
-            "tank_1", "tank_2", "tank_3",
-            "relay_a", "relay_b", "relay_c", "relay_d", "relay_e", 
-            "relay_f", "relay_g", "relay_h", "relay_k", "relay_l", 
-            "relay_m", "relay_o", "relay_p", "relay_q", "relay_r", 
-            "relay_s", "relay_u", "relay_v", "relay_w", "relay_x", 
-            "relay_y", "relay_z"
-        ];
-
-        // Iterate over the ordered keys
-        order.forEach(key => {
-            if (data[key]) {
-                const row = table.insertRow();
-                const cell1 = row.insertCell();
-                const cell2 = row.insertCell();
-                const cell3 = row.insertCell();
-
-                let value = "";
-                if (data[key].value !== undefined) {
-                    value = data[key].value;
-                } else if (data[key].level !== undefined) {
-                    value = data[key].level;
-                } else if (data[key].state !== undefined) {
-                    value = data[key].state;
-                }
-
-                cell1.innerHTML = key.toUpperCase();
-                cell2.innerHTML = value !== null ? value : "N/A";
-                cell3.innerHTML = data[key].timestamp ? new Date(data[key].timestamp * 1000).toLocaleString() : "N/A";
-            } else if (data.relay_states && data.relay_states[key]) {
-                const row = table.insertRow();
-                const cell1 = row.insertCell();
-                const cell2 = row.insertCell();
-                const cell3 = row.insertCell();
-
-                const relayState = data.relay_states[key];
-                cell1.innerHTML = key.toUpperCase();
-                cell2.innerHTML = relayState.state !== null ? relayState.state : "N/A";
-                cell3.innerHTML = relayState.timestamp ? new Date(relayState.timestamp * 1000).toLocaleString() : "N/A";
-            }
-        });
-    }
-         // Call getSystemStats every 5 seconds
         setInterval(getSystemStats, 1000);
-        //getSystemStats();
     </script>
 </body>
 </html>
