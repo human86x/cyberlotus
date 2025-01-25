@@ -175,7 +175,7 @@
 
 
 
-
+        function get_complex_ec(){
         fetch('/get_complex_ec')
             .then(response => response.json())
             .then(data => {
@@ -184,7 +184,7 @@
         .catch(error => {
             console.error('Error fetching EC readings:', error);
         });
-
+    }
 
 
 
