@@ -2,8 +2,8 @@ import json
 import time
 import serial
 import os
-from flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
-from flow_tune import PUMP_COMMANDS
+from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
+from config_tools.flow_tune import PUMP_COMMANDS
 from control_libs.arduino import safe_serial_write_precise
 # Serial configuration (commented out for now)
 #SERIAL_PORT = '/dev/ttyACM0'

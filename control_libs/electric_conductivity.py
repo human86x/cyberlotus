@@ -7,7 +7,7 @@ from control_libs.system_stats import system_state
 from control_libs.app_core import load_config
 from config_tools.sequencer import execute_sequence
 from config_tools.calibrator import get_correct_EC
-
+from control_libs.system_stats import system_state
 
 
 
