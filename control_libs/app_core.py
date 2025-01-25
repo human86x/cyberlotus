@@ -7,7 +7,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 
 CONFIG_FILE_PATH = 'data/app_config.json'
 CALIBRATION_FILE = os.path.join(base_dir, '../data/calibration.json')
-
+SEQUENCE_DIR = "sequences/"
 
 
 def load_config(key=None):

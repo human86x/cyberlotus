@@ -9,6 +9,7 @@ from control_libs.app_core import load_config, CALIBRATION_FILE
 from config_tools.sequencer import execute_sequence
 #from config_tools.calibrator import get_correct_EC
 from control_libs.system_stats import system_state
+from control_libs.app_core import SEQUENCE_DIR
 
 ser = get_serial_connection()
 
@@ -126,6 +127,7 @@ def get_ec(ser):
 
 
 def get_complex_ec_reading():
+    global SEQUENCE_DIR
     """
     Retrieve EC readings by executing the sequence defined in the configuration.
 
@@ -135,7 +137,7 @@ def get_complex_ec_reading():
     try:
         # Load the EC testing sequence from the configuration
         sequence = load_config("EC_test_sequence")
-
+        SEQUENCE_FILE = SEQUENCE_DIR + sequence
         # Get the correct EC flow rates (assumes get_correct_EC is implemented elsewhere)
         #flow_rates = get_correct_EC()
 
