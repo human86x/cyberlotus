@@ -12,6 +12,7 @@ from config_tools.sequencer import execute_sequence
 from control_libs.system_stats import system_state
 from control_libs.app_core import SEQUENCE_DIR
 from config_tools.flow_tune import load_flow_rates
+from control_libs.temperature import read_solution_temperature
 ser = get_serial_connection()
 
 
