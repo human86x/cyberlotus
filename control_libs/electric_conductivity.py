@@ -245,7 +245,7 @@ def calibrate_ec_sensor():
                 print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
                 continue
 
-            if 100 <= raw_ec_value <= 5000:
+            if 0 <= raw_ec_value <= 5000:
                 ec_values.append(raw_ec_value)
 
         # Check for valid readings
