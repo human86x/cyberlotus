@@ -10,7 +10,7 @@ from config_tools.sequencer import execute_sequence
 #from config_tools.calibrator import get_correct_EC
 from control_libs.system_stats import system_state
 
-ser = get_serial_connection
+ser = get_serial_connection()
 
 
 def get_EC_calibration_factor():
