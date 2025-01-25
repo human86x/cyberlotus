@@ -10,7 +10,7 @@ from config_tools.sequencer import execute_sequence
 #from config_tools.calibrator import get_correct_EC
 from control_libs.system_stats import system_state
 from control_libs.app_core import SEQUENCE_DIR
-
+from config_tools.flow_tune import load_flow_rates
 ser = get_serial_connection()
 
 
@@ -138,21 +138,29 @@ def get_complex_ec_reading():
         # Load the EC testing sequence from the configuration
         sequence = load_config("EC_test_sequence")
         SEQUENCE_FILE = SEQUENCE_DIR + sequence
-        # Get the correct EC flow rates (assumes get_correct_EC is implemented elsewhere)
-        #flow_rates = get_correct_EC()
+        
+        # Load flow rates from the configuration
+        flow_rates = load_flow_rates()  # This loads the flow rates as intended
+
+        if not flow_rates:
+            print("Error: Flow rates not loaded.")
+            return {}
 
         # Execute the sequence and return the readings
-        readings = execute_sequence(SEQUENCE_FILE, None, get_correct_EC)
-        
-         ##########################################################
-    
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_correct_EC)
+
+        # Ensure readings are returned or handle case where no readings are received
+        if not readings:
+            print("Error: No readings returned from the sequence.")
+            readings = {}
+
+        # Update the system state with the EC readings
         system_state["ec"]["value"] = readings
         system_state["ec"]["timestamp"] = int(time.time())
-        print(f"Updated the EC values from complex reading using a {SEQUENCE_FILE} sequence.")
-    
-    ##########################################################
+        print(f"Updated the EC values from complex reading using {SEQUENCE_FILE} sequence.")
         
         return readings
+
     except Exception as e:
         print(f"Error while retrieving EC readings: {e}")
         raise
