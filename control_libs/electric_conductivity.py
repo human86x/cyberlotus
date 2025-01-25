@@ -3,12 +3,15 @@ import os
 import json
 import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from control_libs.arduino import connect_to_arduino, send_command_and_get_response
+from control_libs.arduino import get_serial_connection, connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state
 from control_libs.app_core import load_config, CALIBRATION_FILE
 from config_tools.sequencer import execute_sequence
 #from config_tools.calibrator import get_correct_EC
 from control_libs.system_stats import system_state
+
+ser = get_serial_connection
+
 
 def get_EC_calibration_factor():
     try:
