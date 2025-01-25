@@ -142,13 +142,13 @@ def get_complex_ec_reading():
         #flow_rates = get_correct_EC()
 
         # Execute the sequence and return the readings
-        readings = execute_sequence(sequence, calibration_callback=None)
+        readings = execute_sequence(SEQUENCE_FILE, calibration_callback=None)
         
          ##########################################################
     
         system_state["ec"]["value"] = readings
         system_state["ec"]["timestamp"] = int(time.time())
-        print(f"Updated the EC values from complex reading using a {sequence} sequence.")
+        print(f"Updated the EC values from complex reading using a {SEQUENCE_FILE} sequence.")
     
     ##########################################################
         
