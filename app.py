@@ -30,7 +30,7 @@ from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates,
 from flask import Flask, request, send_from_directory
 from config_tools.sequencer import execute_sequence, list_sequence_files
 
-from config_tools.calibrator import get_correct_EC,load_calibration_data, calibrate_ec_sensor, set_baseline_ec
+from control_libs.electric_conductivity import get_correct_EC,load_calibration_data, calibrate_ec_sensor, set_baseline_ec
 from flask_socketio import SocketIO, emit
 from control_libs.app_core import CONFIG_FILE_PATH
 APP_CONFIG_FILE = "data/app_config.json"
