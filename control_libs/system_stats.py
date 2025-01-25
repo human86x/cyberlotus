@@ -1,6 +1,7 @@
 global system_state
 system_state = {
     "ec": {"value": None, "timestamp": None},
+    "ec_calibration": {"value": None, "timestamp": None},
     "ph": {"value": None, "timestamp": None},
     "temperature": {"value": None, "timestamp": None},
     
