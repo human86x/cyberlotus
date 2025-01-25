@@ -134,7 +134,7 @@ def get_complex_ec_reading():
     """
     try:
         # Load the EC testing sequence from the configuration
-        sequence = load_config("ec_testing_sequence")
+        sequence = load_config("EC_test_sequence")
 
         # Get the correct EC flow rates (assumes get_correct_EC is implemented elsewhere)
         flow_rates = get_correct_EC()
