@@ -142,7 +142,7 @@ def get_complex_ec_reading():
         #flow_rates = get_correct_EC()
 
         # Execute the sequence and return the readings
-        readings = execute_sequence(SEQUENCE_FILE, get_correct_EC)
+        readings = execute_sequence(SEQUENCE_FILE, None, get_correct_EC)
         
          ##########################################################
     
