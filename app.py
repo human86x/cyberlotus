@@ -68,22 +68,22 @@ def get_system_state():
 ####################END OF SYSTEM READINGS AND PUMP STATES###############
 
 # Function to load app configuration from the JSON file
-def load_app_config():
-    print("Loading app config to EC page")
-    try:
-        with open(CONFIG_FILE_PATH, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}  # Return empty dict if the file does not exist
-    except Exception as e:
-        print(f"Error loading config file: {e}")
-        return {}
+#def load_app_config():
+#    print("Loading app config to EC page")
+#    try:
+#        with open(CONFIG_FILE_PATH, 'r') as f:
+#            return json.load(f)
+#    except FileNotFoundError:
+#        return {}  # Return empty dict if the file does not exist
+#    except Exception as e:
+#        print(f"Error loading config file: {e}")
+#        return {}
 
 # Route to get the stored configuration
-@app.route('/get_app_config', methods=['GET'])
-def get_app_config():
-    config = load_app_config()
-    return jsonify(config)
+#@app.route('/get_app_config', methods=['GET'])
+#def get_app_config():
+#    config = load_app_config()
+#    return jsonify(config)
 
 # Function to save app configuration to the JSON file
 def save_app_config(config):
