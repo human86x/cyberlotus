@@ -3,8 +3,8 @@ import time
 import os
 import sys
 import statistics
-from sequencer import execute_sequence
-from flow_tune import send_command_with_heartbeat, load_flow_rates
+from config_tools.sequencer import execute_sequence
+from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.electric_conductivity import get_ec
 from control_libs.temperature import read_solution_temperature
