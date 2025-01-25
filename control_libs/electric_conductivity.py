@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
@@ -23,6 +24,7 @@ def get_EC_calibration_factor():
 
 
 def get_correct_EC():
+    global ser
     """
     Get the corrected EC value by reading the EC sensor multiple times, 
     filtering invalid readings, and applying temperature correction and calibration factor.
