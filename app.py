@@ -16,14 +16,14 @@ import os
 import sys
 import json
 from control_libs.arduino import get_serial_connection, close_serial_connection ,connect_to_arduino, send_command_and_get_response
-from control_libs.electric_conductivity import get_ec, get_complex_ec_reading
+from control_libs.electric_conductivity import get_ec, get_complex_ec_reading,  get_correct_EC
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import safe_serial_write, emergency_stop, safe_serial_write_emergency
 from control_libs.app_core import load_config
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
 
-from config_tools.calibrator import get_correct_EC
+
 from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates, load_pump_commands
 
 
