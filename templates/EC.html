@@ -111,7 +111,7 @@
         <label for="calibrationData">Calibration Data:</label>
         <textarea id="calibrationData" rows="10" cols="50" readonly></textarea>
     </div>
-
+    <button onclick="get_complex_ec()">Complex EC reading</button>
 
 
  
@@ -172,6 +172,22 @@
                     }
                 });
         }
+
+
+
+
+        fetch('/get_complex_ec')
+            .then(response => response.json())
+            .then(data => {
+                console.log('EC Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching EC readings:', error);
+        });
+
+
+
+
 
         function fetchTemperature() {
             fetch('/get_temperature')

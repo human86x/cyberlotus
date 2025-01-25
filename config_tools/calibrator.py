@@ -88,8 +88,14 @@ def get_correct_EC():
 
     # Convert the final EC value to an integer before returning
     corrected_ec_value = int(round(corrected_ec_value))
+    
+    ##########################################################
+    
     system_state["ec"]["value"] = corrected_ec_value
     system_state["ec"]["timestamp"] = int(time.time())
+    
+    ##########################################################
+    
     return corrected_ec_value
 def get_EC_calibration_factor():
     try:

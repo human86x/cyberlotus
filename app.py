@@ -16,10 +16,10 @@ import os
 import sys
 import json
 from control_libs.arduino import get_serial_connection, close_serial_connection ,connect_to_arduino, send_command_and_get_response
-from control_libs.electric_conductivity import get_ec
+from control_libs.electric_conductivity import get_ec, get_complex_ec_reading
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import safe_serial_write, emergency_stop, safe_serial_write_emergency
-
+from control_libs.app_core import load_config
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
 
@@ -32,7 +32,7 @@ from config_tools.sequencer import execute_sequence, list_sequence_files
 
 from config_tools.calibrator import get_correct_EC,load_calibration_data, calibrate_ec_sensor, set_baseline_ec
 from flask_socketio import SocketIO, emit
-
+APP_CONFIG_FILE = "data/app_config.json"
 # Store progress globally
 pump_progress = {}
 
@@ -49,7 +49,6 @@ global PUMP_COMMANDS
 
 
 
-CONFIG_FILE_PATH = 'data/app_config.json'
 DATA_DIRECTORY = "data"
 ##################SYSTEM CURRENT READINGS AND PUMP STATES###############
 
@@ -670,6 +669,48 @@ def get_saved_pumps():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+
+@app.route('/get_complex_ec', methods=['GET'])
+def get_complex_ec():
+    """
+    Flask route to retrieve complex EC readings.
+    """
+    try:
+        # Get the readings from the helper function
+        readings = get_complex_ec_reading()
+        return jsonify({'readings': readings})
+    except KeyError as e:
+        return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
+    except Exception as e:
+        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
+
+
+
+
+
+@app.route('/get_app_config', methods=['GET'])
+def get_app_config():
+    """
+    Flask route to retrieve app configuration.
+    """
+    print("Reading the configuration file...")
+    try:
+        key = request.args.get('key')
+        if key:
+            return jsonify({key: load_config(key)})
+        return jsonify(load_config())
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+
+
+
+
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
 def delete_tank_route(tank_name):
     tanks = load_tanks()

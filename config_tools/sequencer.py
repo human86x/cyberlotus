@@ -151,7 +151,7 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
             if "calibration" in action and action["calibration"]:
                 print(f"Calibration step detected for {commands}.")
                 if calibration_callback:
-                    calibration_callback()  # Call the calibration function
+                    readings = calibration_callback()  # Call the calibration function
                 else:
                     print("Debug: Calibration callback executed.")
 
@@ -177,7 +177,7 @@ def execute_sequence(sequence_file, flow_rates, calibration_callback=None):
         time.sleep(1)  # Small delay to prevent overwhelming the system
 
     print("Sequence complete.")
-
+    return readings
 
 def list_sequence_files():
     """
