@@ -207,6 +207,12 @@ def perform_ph_calibration(calibration_type):
 def get_correct_ph():
     global ser
     calibration_factor = get_ph_calibration_factor()
+    low_ph = 4.0
+    high_ph = 9.0
+    low_raw_value = get_ph_calibration_factor_low()
+    high_raw_value = get_ph_calibration_factor_high()
+
+
     num_readings = 4
     ph_values = []
 
@@ -235,7 +241,25 @@ def get_correct_ph():
 
     estimated_ph_value = statistics.median(ph_values)
     print(f"Estimated pH value (median of valid readings): {estimated_ph_value}")
+#######################
 
+
+
+    
+
+    # Calculate the slope (m) of the line connecting the two calibration points
+    slope = (high_ph - low_ph) / (high_raw_value - low_raw_value)
+
+    # Calculate the intercept (b) of the line
+    intercept = low_ph - slope * low_raw_value
+
+    # Apply the linear equation to calculate the pH value
+    estimated_ph_value = slope * raw_ph_value + intercept
+
+
+
+
+#######################
     solution_temperature = read_solution_temperature(ser)
     if solution_temperature is None:
         print("Error: Failed to read solution temperature.")
@@ -255,7 +279,7 @@ def get_correct_ph():
     else:
         corrected_ph_value = estimated_ph_value
     
-    corrected_ph_value =  corrected_ph_value / calibration_factor
+    #corrected_ph_value =  corrected_ph_value / calibration_factor
     print(f"Final corrected pH value after applying calibration factor {calibration_factor} is: {corrected_ph_value}")
 
     corrected_ph_value = round(corrected_ph_value, 2)
