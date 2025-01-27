@@ -7,6 +7,7 @@ system_state = {
     "ph_calibration": {"value": None, "timestamp": None},
     "ph_calibration_LOW": {"value": None, "timestamp": None},
     "ph_calibration_HIGH": {"value": None, "timestamp": None},
+    "ph_raw": {"value": None, "timestamp": None},
     "temperature": {"value": None, "timestamp": None},
     
     "tank_1": {"level": None, "timestamp": None},

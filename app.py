@@ -254,13 +254,27 @@ def calibrate_ec_sensor_route():
 # Get the corrected EC value
 @app.route('/get_ph', methods=['GET'])
 def get_ph_value():
-    ec_value = get_correct_ph()
+    ph_value = get_correct_ph()
     if ec_value is not None:
-        return jsonify({'status': 'success', 'ec_value': ec_value})
+        return jsonify({'status': 'success', 'ph_value': ph_value})
     else:
         return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
 
-from control_libs.ph import perform_ph_calibration
+
+from control_libs.ph import perform_ph_calibration, get_ph
+
+# Get the corrected EC value
+@app.route('/get_raw_ph', methods=['GET'])
+def get_raw_ph_value():
+    raw_ph_value = get_ph()
+    if raw_ph_value is not None:
+        return jsonify({'status': 'success', 'raw_ph_value': raw_ph_value})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
+
+
+
+
 
 
 # Get the corrected EC value

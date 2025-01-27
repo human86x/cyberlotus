@@ -12,6 +12,10 @@ ser = get_serial_connection()
 
 def get_ph(ser):
     response = send_command_and_get_response(ser, b'P')
+
+    system_state[f"ph_raw"]["value"] = response
+    system_state[f"ph_raw"]["timestamp"] = int(time.time())
+
     if response is not None:
         try:
             return response

@@ -78,6 +78,7 @@
         <div class="row">
             <button onclick="calibrate()">Calibrate</button>
             <button onclick="testPh()">Test pH</button>
+            <button onclick="rawPh()">Get raw pH</button>
             <button onclick="fetchValue()">Fetch Value</button>
         </div>
 
@@ -133,6 +134,17 @@
 }
 
 
+        
+function rawPh() {
+    fetch('/get_raw_ph')
+        .then(response => response.json())
+        .then(data => {
+            console.log('raw pH Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching raw pH readings:', error);
+        });
+}
 
 
         
