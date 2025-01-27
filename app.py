@@ -297,6 +297,16 @@ def simple_calibrate_ph_low_route():
     else:
         return jsonify({'status': 'error', 'message': 'Failed to get ph_factor'})
 
+# Get the corrected EC value
+@app.route('/simple_calibrate_ph_high', methods=['GET'])
+def simple_calibrate_ph_high_route():
+    ph_factor = calibrate_ph("HIGH")
+    if ph_factor is not None:
+        return jsonify({'status': 'success', 'ph_value': ph_factor})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get ph_factor'})
+
+
 
 
 

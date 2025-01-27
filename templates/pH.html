@@ -81,6 +81,8 @@
             <button onclick="rawPh()">Get raw pH</button>
             <button onclick="fetchValue()">Fetch Value</button>
             <button onclick="simple_cal_low_Ph()">Simple LOW calibration</button>
+            <button onclick="simple_cal_high_Ph()">Simple HIGH calibration</button>
+        
         </div>
 
         <!-- Config Load/Save -->
@@ -145,7 +147,16 @@ function simple_cal_low_Ph() {
             console.error('Error fetching raw pH readings:', error);
         });
 }
-
+function simple_cal_high_Ph() {
+    fetch('/simple_calibrate_ph_high')
+        .then(response => response.json())
+        .then(data => {
+            console.log('raw pH Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching raw pH readings:', error);
+        });
+}
 
         
 function rawPh() {
