@@ -4,6 +4,8 @@ system_state = {
     "ec_calibration": {"value": None, "timestamp": None},
     "ec_baseline": {"value": None, "timestamp": None},
     "ph": {"value": None, "timestamp": None},
+    "ph_solution": {"value": None, "timestamp": None},
+    "ph_baseline": {"value": None, "timestamp": None},
     "ph_calibration": {"value": None, "timestamp": None},
     "ph_calibration_LOW": {"value": None, "timestamp": None},
     "ph_calibration_HIGH": {"value": None, "timestamp": None},
