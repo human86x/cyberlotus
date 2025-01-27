@@ -107,8 +107,9 @@ def calibrate_ph(calibration_type):
 
     # Calculate the calibration factor
     print(f"***********Target pH value {target_ph}")
-    calibration_factor = (corrected_ph_value / target_ph)
+    calibration_factor = target_ph / corrected_ph_value
     print(f"Calculated calibration factor: {calibration_factor}")
+
 
     # Save the calibration factor to the calibration file
     try:
