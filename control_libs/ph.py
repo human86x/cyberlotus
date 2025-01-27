@@ -35,6 +35,13 @@ def get_ph_calibration_factor():
         print(f"Error loading calibration factor: {e}")
         return 1.0
 
+import time
+import statistics
+import json
+
+CALIBRATION_FILE = "calibration_data.json"
+system_state = {"ph_calibration_LOW": {}, "ph_calibration_HIGH": {}}
+
 def calibrate_ph(calibration_type):
     """
     Calibrate the pH sensor using a known calibration solution.
@@ -43,7 +50,7 @@ def calibrate_ph(calibration_type):
         calibration_type (str): "LOW" for pH 4 or "HIGH" for pH 9 calibration.
 
     Returns:
-        float: The calculated calibration factor.
+        dict: A dictionary containing slope, intercept, and calibration factor.
     """
     if calibration_type not in ["LOW", "HIGH"]:
         print("Error: Invalid calibration type. Use 'LOW' or 'HIGH'.")
@@ -83,7 +90,6 @@ def calibrate_ph(calibration_type):
 
         try:
             raw_ph_value = float(raw_ph_value)
-            print(f"***********Raw pH value {raw_ph_value}")
         except ValueError:
             print(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
             continue
@@ -105,12 +111,7 @@ def calibrate_ph(calibration_type):
     else:
         corrected_ph_value = estimated_ph_value
 
-    # Calculate the calibration factor
-    print(f"***********Target pH value {target_ph}")
-    calibration_factor = target_ph / corrected_ph_value
-    print(f"Calculated calibration factor: {calibration_factor}")
-
-    # Save the calibration factor to the calibration file
+    # Save the raw calibration data
     try:
         with open(CALIBRATION_FILE, "r") as file:
             calibration_data = json.load(file)
@@ -120,20 +121,40 @@ def calibrate_ph(calibration_type):
         print(f"Error reading calibration file: {e}")
         calibration_data = {}
 
-    calibration_data["pH_calibration_factor"] = calibration_factor
+    calibration_data[f"raw_{calibration_type}_value"] = corrected_ph_value
+    calibration_data[f"target_{calibration_type}_pH"] = target_ph
 
-    system_state[f"ph_calibration_{calibration_type}"]["value"] = calibration_factor
-    system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
-
+    # Save updated calibration data to file
     try:
         with open(CALIBRATION_FILE, "w") as file:
             json.dump(calibration_data, file, indent=4)
-        print(f"Calibration factor saved to {CALIBRATION_FILE}.")
+        print(f"Calibration data saved to {CALIBRATION_FILE}.")
     except Exception as e:
-        print(f"Error saving calibration factor: {e}")
+        print(f"Error saving calibration data: {e}")
 
-    return calibration_factor
+    if "raw_LOW_value" in calibration_data and "raw_HIGH_value" in calibration_data:
+        # Calculate the slope and intercept
+        low_reading = calibration_data["raw_LOW_value"]
+        high_reading = calibration_data["raw_HIGH_value"]
+        slope = (9.0 - 4.0) / (high_reading - low_reading)
+        intercept = 4.0 - slope * low_reading
 
+        # Save slope and intercept
+        calibration_data["slope"] = slope
+        calibration_data["intercept"] = intercept
+
+        try:
+            with open(CALIBRATION_FILE, "w") as file:
+                json.dump(calibration_data, file, indent=4)
+            print(f"Slope and intercept saved to {CALIBRATION_FILE}.")
+        except Exception as e:
+            print(f"Error saving slope and intercept: {e}")
+
+        print(f"Calibration complete. Slope: {slope}, Intercept: {intercept}")
+        return {"slope": slope, "intercept": intercept, "calibration_factor": corrected_ph_value}
+    else:
+        print(f"Waiting for both LOW and HIGH calibration to calculate slope and intercept.")
+        return None
 
 
 

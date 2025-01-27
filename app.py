@@ -255,7 +255,7 @@ def calibrate_ec_sensor_route():
 @app.route('/get_ph', methods=['GET'])
 def get_ph_value():
     ph_value = get_correct_ph()
-    if ec_value is not None:
+    if ph_value is not None:
         return jsonify({'status': 'success', 'ph_value': ph_value})
     else:
         return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
