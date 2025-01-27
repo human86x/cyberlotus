@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pH Calibration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        label {
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>pH Sensor Calibration and Monitoring</h1>
+
+        <!-- Sequence Selection -->
+        <div class="row">
+            <label for="sequence">Select Sequence:</label>
+            <select id="sequence">
+                <option value="neutral">Neutral pH Calibration</option>
+                <option value="acidic">Acidic Calibration</option>
+                <option value="alkaline">Alkaline Calibration</option>
+            </select>
+        </div>
+
+        <!-- Buttons for Calibration and Testing -->
+        <div class="row">
+            <button onclick="calibrate()">Calibrate</button>
+            <button onclick="testPh()">Test pH</button>
+            <button onclick="fetchValue()">Fetch Value</button>
+        </div>
+
+        <!-- Config Load/Save -->
+        <div class="row">
+            <button onclick="saveConfig()">Save Config</button>
+            <button onclick="loadConfig()">Load Config</button>
+        </div>
+
+        <!-- Console Output -->
+        <h2>Console Output</h2>
+        <textarea id="consoleOutput" readonly></textarea>
+    </div>
+
+    <script>
+        // Placeholder for adding actions
+
+        function logMessage(message) {
+            const output = document.getElementById('consoleOutput');
+            output.value += `\n${message}`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function calibrate() {
+            const sequence = document.getElementById('sequence').value;
+            logMessage(`Starting calibration for: ${sequence}`);
+            // Send calibration command (implement backend communication here)
+        }
+
+        function testPh() {
+            logMessage('Testing pH level...');
+            // Send testing command and handle response (implement backend communication here)
+        }
+
+        function fetchValue() {
+            logMessage('Fetching current pH value...');
+            // Fetch current pH value (implement backend communication here)
+        }
+
+        function saveConfig() {
+            logMessage('Saving pH configuration...');
+            // Save configuration to file or backend (implement here)
+        }
+
+        function loadConfig() {
+            logMessage('Loading pH configuration...');
+            // Load configuration from file or backend (implement here)
+        }
+    </script>
+</body>
+</html>

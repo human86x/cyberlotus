@@ -70,6 +70,46 @@ def get_system_state():
 
 ####################END OF SYSTEM READINGS AND PUMP STATES###############
 
+
+
+
+################################
+
+
+@app.route('/')
+def dashboard():
+    return render_template('dashboard.html')
+
+
+@app.route('/sequences')
+def sequences():
+    return render_template('sequences.html')
+@app.route('/ec')
+def ec():
+    return render_template('EC.html')
+@app.route('/ph')
+def ph():
+    return render_template('pH.html')
+
+@app.route('/ecosystem')
+def ecosystem():
+    return render_template('ecosystem.html')
+
+@app.route('/relays')
+def relays():
+    return render_template('relays.html')
+
+@app.route('/automatisation')
+def automatisation():
+    return render_template('automatisation.html')
+
+
+
+
+
+
+
+
 # Function to load app configuration from the JSON file
 def load_app_config():
     print("Loading app config to EC page")
@@ -152,6 +192,95 @@ def get_ec_value():
         return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
 
 
+  
+
+@app.route('/get_complex_ec', methods=['GET'])
+def get_complex_ec():
+    """
+    Flask route to retrieve complex EC readings.
+    """
+    try:
+        # Get the readings from the helper function
+        readings = get_complex_ec_reading()
+        return jsonify({'readings': readings})
+    except KeyError as e:
+        return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
+    except Exception as e:
+        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
+
+
+
+
+@app.route('/get_ec_baseline', methods=['GET'])
+def get_ec_baseline_route():
+    """
+    Flask route to retrieve complex EC readings.
+    """
+    try:
+        # Get the readings from the helper function
+        readings = get_ec_baseline()
+        return jsonify({'readings': readings})
+    except KeyError as e:
+        return jsonify({'error': f"Configurations key missing: {str(e)}"}), 404
+    except Exception as e:
+        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
+
+
+
+
+
+@app.route('/calibrate_ec_sensor', methods=['POST'])
+def calibrate_ec_sensor_route():
+    """
+    Flask route to calibrate the EC sensor.
+    """
+    try:
+        # Call the calibration function
+        get_complex_ec_calibration()
+        return jsonify({'status': 'success', 'message': 'EC sensor calibration complete.'})
+    except KeyError as e:
+        return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
+    except ValueError as e:
+        return jsonify({'error': f"Value error: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
+
+
+
+
+@app.route('/get_app_setting', methods=['GET'])
+def get_app_setting():
+    """
+    Flask route to retrieve app configuration.
+    """
+    print("Reading the configuration file...")
+    try:
+        key = request.args.get('key')
+        if key:
+            return jsonify({key: load_config(key)})
+        return jsonify(load_config())
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################not using############
 # Set EC baseline
 @app.route('/set_baseline', methods=['POST'])
 def set_baseline():
@@ -185,7 +314,7 @@ def start_callback_sequence(sequence):
 
 
 
-
+############################################################
 
 
 
@@ -634,83 +763,7 @@ def get_saved_pumps():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-
-@app.route('/get_complex_ec', methods=['GET'])
-def get_complex_ec():
-    """
-    Flask route to retrieve complex EC readings.
-    """
-    try:
-        # Get the readings from the helper function
-        readings = get_complex_ec_reading()
-        return jsonify({'readings': readings})
-    except KeyError as e:
-        return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
-    except Exception as e:
-        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
-
-
-
-
-@app.route('/get_ec_baseline', methods=['GET'])
-def get_ec_baseline_route():
-    """
-    Flask route to retrieve complex EC readings.
-    """
-    try:
-        # Get the readings from the helper function
-        readings = get_ec_baseline()
-        return jsonify({'readings': readings})
-    except KeyError as e:
-        return jsonify({'error': f"Configurations key missing: {str(e)}"}), 404
-    except Exception as e:
-        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
-
-
-
-
-
-@app.route('/calibrate_ec_sensor', methods=['POST'])
-def calibrate_ec_sensor_route():
-    """
-    Flask route to calibrate the EC sensor.
-    """
-    try:
-        # Call the calibration function
-        get_complex_ec_calibration()
-        return jsonify({'status': 'success', 'message': 'EC sensor calibration complete.'})
-    except KeyError as e:
-        return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
-    except ValueError as e:
-        return jsonify({'error': f"Value error: {str(e)}"}), 400
-    except Exception as e:
-        return jsonify({'error': f"An error occurred: {str(e)}"}), 500
-
-
-
-
-@app.route('/get_app_setting', methods=['GET'])
-def get_app_setting():
-    """
-    Flask route to retrieve app configuration.
-    """
-    print("Reading the configuration file...")
-    try:
-        key = request.args.get('key')
-        if key:
-            return jsonify({key: load_config(key)})
-        return jsonify(load_config())
-    except KeyError as e:
-        return jsonify({'error': str(e)}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-
-
-
-
+  
 
 
 @app.route('/tanks/delete/<tank_name>', methods=['DELETE'])
@@ -867,36 +920,7 @@ def test_pump_with_progress(pump_name, weight):
 
 
 
-################################
-
-
-@app.route('/')
-def dashboard():
-    return render_template('dashboard.html')
-
-
-@app.route('/sequences')
-def sequences():
-    return render_template('sequences.html')
-@app.route('/ec')
-def ec():
-    return render_template('EC.html')
-@app.route('/ph')
-def ph():
-    return render_template('ph.html')
-
-@app.route('/ecosystem')
-def ecosystem():
-    return render_template('ecosystem.html')
-
-@app.route('/relays')
-def relays():
-    return render_template('relays.html')
-
-@app.route('/automatisation')
-def automatisation():
-    return render_template('automatisation.html')
-
+###################
 
 
 
