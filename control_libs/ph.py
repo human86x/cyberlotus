@@ -79,6 +79,7 @@ def calibrate_ph(calibration_type):
 
         try:
             raw_ph_value = float(raw_ph_value)
+            print(f"***********Raw pH value {raw_ph_value}")
         except ValueError:
             print(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
             continue
@@ -101,6 +102,7 @@ def calibrate_ph(calibration_type):
         corrected_ph_value = estimated_ph_value
 
     # Calculate the calibration factor
+    print(f"***********Target pH value {target_ph}")
     calibration_factor = target_ph / corrected_ph_value
     print(f"Calculated calibration factor: {calibration_factor}")
 
@@ -116,7 +118,7 @@ def calibrate_ph(calibration_type):
 
     calibration_data["pH_calibration_factor"] = calibration_factor
 
-    system_state[f"ph_calibration_{calibration_type}"]["value"] = corrected_ph_value
+    system_state[f"ph_calibration_{calibration_type}"]["value"] = calibration_factor
     system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
 
     try:
