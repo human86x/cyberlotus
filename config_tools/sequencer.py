@@ -127,6 +127,7 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
         flow_rates (dict): Dictionary containing flow rates for each pump.
         calibration_callback (function): Optional callback for calibration steps.
     """
+    print("SEQUENCE FUNCTION    ENTRY POINT")
     #sequence_file = "sequences/" + sequence_file 
     if flow_rates is None:
         flow_rates = FLOW_RATES
@@ -134,6 +135,7 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
     try:
         with open(sequence_file, 'r') as file:
             data = json.load(file)
+            print(f"SEQUENCE FUNCTION {sequence_file} file LOADED data={data}")
     except FileNotFoundError:
         print(f"Error: {sequence_file} not found.")
         return
