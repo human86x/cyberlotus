@@ -27,19 +27,33 @@ def get_ph_calibration_factor_low():
     try:
         with open(CALIBRATION_FILE, "r") as file:
             calibration_data = json.load(file)
-            return float(calibration_data.get("pH_calibration_factor_LOW", 1.0))
+            x = float(calibration_data.get("pH_calibration_factor_LOW", 1.0))
+            
+            system_state[f"ph_calibration_low"]["value"] = x
+            system_state[f"ph_calibration_low"]["timestamp"] = int(time.time())
+            #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
+        
+            return x
     except FileNotFoundError:
         print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
         return 1.0
     except Exception as e:
         print(f"Error loading calibration factor: {e}")
         return 1.0
-    
+    #system_state[f"ph_calibration_{calibration_type}"]["value"] = readings
+        #system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
+        #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
+        
 def get_ph_calibration_factor_high():
     try:
         with open(CALIBRATION_FILE, "r") as file:
             calibration_data = json.load(file)
-            return float(calibration_data.get("pH_calibration_factor_HIGH", 1.0))
+            x = float(calibration_data.get("pH_calibration_factor_HIGH", 1.0))
+            system_state[f"ph_calibration_high"]["value"] = x
+            system_state[f"ph_calibration_high"]["timestamp"] = int(time.time())
+            #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
+        
+            return x
     except FileNotFoundError:
         print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
         return 1.0
