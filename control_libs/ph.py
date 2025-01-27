@@ -23,11 +23,23 @@ def get_ph(ser):
             print(f"Error reading pH: {response}")
     return None
 
-def get_ph_calibration_factor():
+def get_ph_calibration_factor_low():
     try:
         with open(CALIBRATION_FILE, "r") as file:
             calibration_data = json.load(file)
-            return float(calibration_data.get("pH_calibration_factor", 1.0))
+            return float(calibration_data.get("pH_calibration_factor_LOW", 1.0))
+    except FileNotFoundError:
+        print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
+        return 1.0
+    except Exception as e:
+        print(f"Error loading calibration factor: {e}")
+        return 1.0
+    
+def get_ph_calibration_factor_high():
+    try:
+        with open(CALIBRATION_FILE, "r") as file:
+            calibration_data = json.load(file)
+            return float(calibration_data.get("pH_calibration_factor_HIGH", 1.0))
     except FileNotFoundError:
         print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
         return 1.0
@@ -55,18 +67,18 @@ def calibrate_ph(calibration_type):
     print(f"Starting pH calibration for {calibration_type} solution (Target pH: {target_ph})...")
 
     # Read solution temperature
-    solution_temperature = read_solution_temperature(ser)
-    if solution_temperature is None:
-        print("Error: Failed to read solution temperature.")
-        return None
+    #solution_temperature = read_solution_temperature(ser)
+    #if solution_temperature is None:
+    #    print("Error: Failed to read solution temperature.")
+    #    return None
 
-    try:
-        solution_temperature = float(solution_temperature)
-    except ValueError:
-        print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
-        return None
+    #try:
+    #    solution_temperature = float(solution_temperature)
+    #except ValueError:
+    #    print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
+    #    return None
 
-    print(f"Solution temperature: {solution_temperature}°C")
+    #print(f"Solution temperature: {solution_temperature}°C")
 
     # Collect multiple pH readings
     num_readings = 4
@@ -99,16 +111,16 @@ def calibrate_ph(calibration_type):
     print(f"Estimated pH value (median of valid readings): {estimated_ph_value}")
 
     # Apply temperature correction if needed
-    if solution_temperature != 25:
-        corrected_ph_value = estimated_ph_value / (1 + 0.02 * (solution_temperature - 25))
-        print(f"Corrected pH value at 25°C: {corrected_ph_value}")
-    else:
-        corrected_ph_value = estimated_ph_value
+    #if solution_temperature != 25:
+    #    corrected_ph_value = estimated_ph_value / (1 + 0.02 * (solution_temperature - 25))
+    #    print(f"Corrected pH value at 25°C: {corrected_ph_value}")
+    #else:
+    #    corrected_ph_value = estimated_ph_value
 
     # Calculate the calibration factor
-    print(f"***********Target pH value {target_ph}")
-    calibration_factor =  corrected_ph_value / target_ph 
-    print(f"Calculated calibration factor: {calibration_factor}")
+    #print(f"***********Target pH value {target_ph}")
+    #calibration_factor =  corrected_ph_value / target_ph 
+    #print(f"Calculated calibration factor: {calibration_factor}")
 
 
     # Save the calibration factor to the calibration file
@@ -121,8 +133,9 @@ def calibrate_ph(calibration_type):
         print(f"Error reading calibration file: {e}")
         calibration_data = {}
 
-    calibration_data["pH_calibration_factor"] = calibration_factor
-
+    #calibration_data["pH_calibration_factor"] = calibration_factor
+    calibration_data[f"ph_calibration_{calibration_type}"]["value"] = estimated_ph_value
+    
     system_state[f"ph_calibration_{calibration_type}"]["value"] = calibration_factor
     system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
 
@@ -133,7 +146,7 @@ def calibrate_ph(calibration_type):
     except Exception as e:
         print(f"Error saving calibration factor: {e}")
 
-    return calibration_factor
+    return estimated_ph_value
 
 
 
@@ -242,7 +255,7 @@ def get_correct_ph():
     else:
         corrected_ph_value = estimated_ph_value
     
-    corrected_ph_value =  calibration_factor / corrected_ph_value
+    corrected_ph_value =  corrected_ph_value / calibration_factor
     print(f"Final corrected pH value after applying calibration factor {calibration_factor} is: {corrected_ph_value}")
 
     corrected_ph_value = round(corrected_ph_value, 2)
