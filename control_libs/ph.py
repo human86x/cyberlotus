@@ -102,7 +102,7 @@ def get_correct_ph():
         corrected_ph_value = estimated_ph_value
 
     # Apply the calibration factor
-    corrected_ec_value *= calibration_factor
+    corrected_ph_value *= calibration_factor
     print(f"Final corrected EC value after applying calibration factor: {corrected_ph_value}")
 
     # Convert the final EC value to an integer before returning
