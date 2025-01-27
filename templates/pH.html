@@ -69,8 +69,8 @@
             <label for="sequence">Select Sequence:</label>
             <select id="sequence">
                 <option value="neutral">Neutral pH Calibration</option>
-                <option value="acidic">Acidic Calibration</option>
-                <option value="alkaline">Alkaline Calibration</option>
+                <option value="LOW">Acidic Calibration</option>
+                <option value="HIGH">Alkaline Calibration</option>
             </select>
         </div>
 
@@ -101,11 +101,39 @@
             output.scrollTop = output.scrollHeight;
         }
 
+
+
         function calibrate() {
-            const sequence = document.getElementById('sequence').value;
-            logMessage(`Starting calibration for: ${sequence}`);
-            // Send calibration command (implement backend communication here)
-        }
+    const sequence = document.getElementById('sequence').value;
+    logMessage(`Starting calibration for: ${sequence}`);
+
+    if (sequence === "LOW") {
+        fetch('/calibrate_ph_low')
+        .then(response => response.json())
+        .then(data => {
+            console.log('pH Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching pH readings for LOW:', error);
+        });
+    } else if (sequence === "HIGH") {
+        fetch('/calibrate_ph_high')
+        .then(response => response.json())
+        .then(data => {
+            console.log('pH Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching pH readings for HIGH:', error);
+        });
+    } else {
+        console.error('Invalid calibration sequence selected.');
+    }
+
+    // Send calibration command (implement backend communication here)
+}
+
+
+
 
         
         function testPh() {

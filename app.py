@@ -260,6 +260,29 @@ def get_ph_value():
     else:
         return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
 
+from control_libs.ph import perform_ph_calibration
+
+
+# Get the corrected EC value
+@app.route('/calibrate_ph_low', methods=['GET'])
+def calibrate_ph_low_route():
+    ph_factor = perform_ph_calibration("LOW")
+    if ph_factor is not None:
+        return jsonify({'status': 'success', 'ph_value': ph_factor})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get ph_factor'})
+
+
+
+
+# Get the corrected EC value
+@app.route('/calibrate_ph_high', methods=['GET'])
+def calibrate_ph_high_route():
+    ph_factor = perform_ph_calibration("HIGH")
+    if ph_factor is not None:
+        return jsonify({'status': 'success', 'ph_value': ph_factor})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get ph_factor'})
 
 
 
