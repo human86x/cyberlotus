@@ -168,6 +168,52 @@ def get_complex_ec_reading():
         print(f"Error while retrieving EC readings: {e}")
         raise
 
+
+
+def get_ec_baseline():
+    global SEQUENCE_DIR
+    """
+    Retrieve EC readings by executing the sequence defined in the configuration.
+
+    Returns:
+        dict: The readings from the sequence execution.
+    """
+    try:
+        # Load the EC testing sequence from the configuration
+        sequence = load_config("EC_baseline_sequence")
+        SEQUENCE_FILE = SEQUENCE_DIR + sequence
+        
+        # Load flow rates from the configuration
+        flow_rates = load_flow_rates()  # This loads the flow rates as intended
+
+        if not flow_rates:
+            print("Error: Flow rates not loaded.")
+            return {}
+
+        # Execute the sequence and return the readings
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_correct_EC)
+
+        # Ensure readings are returned or handle case where no readings are received
+        if not readings:
+            print("Error: No readings returned from the sequence.")
+            readings = {}
+
+        # Update the system state with the EC readings
+        system_state["ec_baseline"]["value"] = readings
+        system_state["ec_baseline"]["timestamp"] = int(time.time())
+        print(f"Updated the EC values from complex reading using {SEQUENCE_FILE} sequence.")
+        
+        return readings
+
+    except Exception as e:
+        print(f"Error while retrieving EC readings: {e}")
+        raise
+
+
+
+
+
+
 def get_complex_ec_calibration():
     global SEQUENCE_DIR
     """
