@@ -33,7 +33,7 @@ from config_tools.sequencer import execute_sequence, list_sequence_files
 from control_libs.electric_conductivity import get_correct_EC,load_calibration_data, calibrate_ec_sensor, set_baseline_ec
 from flask_socketio import SocketIO, emit
 from control_libs.app_core import CONFIG_FILE_PATH
-from control_libs.electric_conductivity import get_complex_ec_calibration
+from control_libs.electric_conductivity import get_complex_ec_calibration, get_ec_baseline
 
 APP_CONFIG_FILE = "data/app_config.json"
 # Store progress globally
@@ -663,7 +663,7 @@ def get_ec_baseline_route():
         readings = get_ec_baseline()
         return jsonify({'readings': readings})
     except KeyError as e:
-        return jsonify({'error': f"Configuration key missing: {str(e)}"}), 404
+        return jsonify({'error': f"Configurations key missing: {str(e)}"}), 404
     except Exception as e:
         return jsonify({'error': f"An error occurred: {str(e)}"}), 500
 
