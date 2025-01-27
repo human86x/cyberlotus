@@ -107,10 +107,17 @@
             // Send calibration command (implement backend communication here)
         }
 
+        
         function testPh() {
-            logMessage('Testing pH level...');
-            // Send testing command and handle response (implement backend communication here)
-        }
+    fetch('/get_ph')
+        .then(response => response.json())
+        .then(data => {
+            console.log('pH Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching pH readings:', error);
+        });
+}
 
         function fetchValue() {
             logMessage('Fetching current pH value...');

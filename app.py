@@ -245,6 +245,35 @@ def calibrate_ec_sensor_route():
     except Exception as e:
         return jsonify({'error': f"An error occurred: {str(e)}"}), 500
 
+########################pH################################
+
+
+# Get the corrected EC value
+@app.route('/get_ph', methods=['GET'])
+def get_ph_value():
+    ec_value = get_correct_ph()
+    if ec_value is not None:
+        return jsonify({'status': 'success', 'ec_value': ec_value})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
