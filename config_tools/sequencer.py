@@ -8,7 +8,7 @@ from control_libs.arduino import safe_serial_write_precise
 # Serial configuration (commented out for now)
 #SERIAL_PORT = '/dev/ttyACM0'
 #BAUD_RATE = 9600
-FLOW_RATES = load_flow_rates
+FLOW_RATES = load_flow_rates()
 # Load pump commands
 PUMP_COMMANDS = load_pump_commands()
 
@@ -130,14 +130,14 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
     #sequence_file = "sequences/" + sequence_file 
     if flow_rates is None:
         flow_rates = FLOW_RATES
-        
+
     try:
         with open(sequence_file, 'r') as file:
             data = json.load(file)
     except FileNotFoundError:
         print(f"Error: {sequence_file} not found.")
         return
-
+    print("SEQUENCE FUNCTION IS ACTIVATED AND SEQUENCE FILE FOUND")
     for action in data["sequence"]:
         # Handle the case where multiple commands (pumps) are given
         if "commands" in action and "weights" in action:
