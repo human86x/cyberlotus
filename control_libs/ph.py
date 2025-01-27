@@ -161,7 +161,8 @@ def perform_ph_calibration(calibration_type):
         # Execute the sequence and return the readings
         print(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
         
-        readings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
+        #sreadings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, lambda: calibrate_ph(calibration_type))
 
         # Ensure readings are returned or handle case where no readings are received
         if not readings:
