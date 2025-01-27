@@ -22,6 +22,12 @@ system_state = {
         "relay_f": {"state": None, "timestamp": None},
         "relay_g": {"state": None, "timestamp": None},
         "relay_h": {"state": None, "timestamp": None},
+
+        "relay_i": {"state": None, "timestamp": None},
+        "relay_j": {"state": None, "timestamp": None},
+        
+        
+        
         "relay_k": {"state": None, "timestamp": None},
         "relay_l": {"state": None, "timestamp": None},
         "relay_m": {"state": None, "timestamp": None},
