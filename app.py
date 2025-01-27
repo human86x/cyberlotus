@@ -262,10 +262,12 @@ def get_ph_value():
 
 
 from control_libs.ph import perform_ph_calibration, get_ph
+from control_libs.arduino import get_serial_connection
 
 # Get the corrected EC value
 @app.route('/get_raw_ph', methods=['GET'])
 def get_raw_ph_value():
+    ser = get_serial_connection()
     raw_ph_value = get_ph()
     if raw_ph_value is not None:
         return jsonify({'status': 'success', 'raw_ph_value': raw_ph_value})
