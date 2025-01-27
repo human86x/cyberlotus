@@ -134,9 +134,9 @@ def calibrate_ph(calibration_type):
         calibration_data = {}
 
     #calibration_data["pH_calibration_factor"] = calibration_factor
-    calibration_data[f"pH_calibration_{calibration_type}"]["value"] = estimated_ph_value
+    calibration_data[f"pH_calibration_{calibration_type}"] = estimated_ph_value
     
-    system_state[f"ph_calibration_{calibration_type}"]["value"] = calibration_factor
+    system_state[f"ph_calibration_{calibration_type}"]["value"] = estimated_ph_value
     system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
 
     try:
