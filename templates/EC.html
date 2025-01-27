@@ -112,6 +112,7 @@
         <textarea id="calibrationData" rows="10" cols="50" readonly></textarea>
     </div>
     <button onclick="get_complex_ec()">Complex EC reading</button>
+    <button onclick="get_ec_baseline()">Get Baseline EC reading</button>
 
     <title>EC Sensor Calibration</title>
     <script>
@@ -213,6 +214,16 @@
         })
         .catch(error => {
             console.error('Error fetching EC readings:', error);
+        });
+    }
+    function get_ec_baseline(){
+        fetch('/get_ec_baseline')
+            .then(response => response.json())
+            .then(data => {
+                console.log('EC baseline:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching EC baseline:', error);
         });
     }
 

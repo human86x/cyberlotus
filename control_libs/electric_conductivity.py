@@ -195,18 +195,18 @@ def get_ec_baseline():
 
         # Ensure readings are returned or handle case where no readings are received
         if not readings:
-            print("Error: No readings returned from the sequence.")
+            print("Error: No readings returned from the baseline sequence.")
             readings = {}
 
         # Update the system state with the EC readings
         system_state["ec_baseline"]["value"] = readings
         system_state["ec_baseline"]["timestamp"] = int(time.time())
-        print(f"Updated the EC values from complex reading using {SEQUENCE_FILE} sequence.")
+        print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
         
         return readings
 
     except Exception as e:
-        print(f"Error while retrieving EC readings: {e}")
+        print(f"Error while retrieving EC baseline: {e}")
         raise
 
 
