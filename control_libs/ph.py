@@ -206,7 +206,7 @@ def perform_ph_calibration(calibration_type):
 
 def get_correct_ph():
     global ser
-    calibration_factor = get_ph_calibration_factor()
+    #calibration_factor = get_ph_calibration_factor()
     low_ph = 4.0
     high_ph = 9.0
     low_raw_value = get_ph_calibration_factor_low()
@@ -280,7 +280,7 @@ def get_correct_ph():
         corrected_ph_value = estimated_ph_value
     
     #corrected_ph_value =  corrected_ph_value / calibration_factor
-    print(f"Final corrected pH value after applying calibration factor {calibration_factor} is: {corrected_ph_value}")
+    print(f"Final corrected pH value after applying calibration factor is: {corrected_ph_value}")
 
     corrected_ph_value = round(corrected_ph_value, 2)
 
