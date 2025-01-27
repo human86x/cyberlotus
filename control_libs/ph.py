@@ -302,3 +302,62 @@ def get_correct_ph():
     system_state["ph"]["timestamp"] = int(time.time())
 
     return corrected_ph_value
+
+
+
+def perform_ph_test(test_type):
+    global SEQUENCE_DIR
+    """
+    Retrieve pH readings by executing the sequence defined in the configuration.
+
+    Returns:
+        dict: The readings from the sequence execution.
+
+    
+    """
+    if test_type == "solution":
+        sequence = load_config("pH_solution_test_sequence")
+    else:
+        sequence = load_config("pH_baseline_test_sequence")
+
+    try:
+        # Load the pH testing sequence from the configuration
+        #sequence = load_config("pH_calibration_sequence")
+        SEQUENCE_FILE = SEQUENCE_DIR + sequence
+        
+        # Load flow rates from the configuration
+        flow_rates = load_flow_rates()  # This loads the flow rates as intended
+
+        if not flow_rates:
+            print("Error: Flow rates not loaded.")
+            return {}
+
+        # Execute the sequence and return the readings
+        print(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
+        
+        #sreadings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_correct_ph)
+
+        # Ensure readings are returned or handle case where no readings are received
+        if not readings:
+            print("Error: No readings returned from the sequence.")
+            readings = {}
+
+        # Update the system state with the pH readings
+        if test_type == "solution":
+            system_state[f"ph_solution"]["value"] = readings
+            system_state[f"ph_solution"]["timestamp"] = int(time.time())
+            print(f"Updated the pH Solution values from complex reading using {SEQUENCE_FILE} sequence.")
+        else:
+            system_state[f"ph_baseline"]["value"] = readings
+            system_state[f"ph_baseline"]["timestamp"] = int(time.time())
+            print(f"Updated the pH Baseline values from complex reading using {SEQUENCE_FILE} sequence.")
+        
+        return readings
+
+    except Exception as e:
+        print(f"Error while retrieving pH readings: {e}")
+        raise
+
+
+

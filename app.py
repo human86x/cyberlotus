@@ -261,7 +261,7 @@ def get_ph_value():
         return jsonify({'status': 'error', 'message': 'Failed to get EC value'})
 
 
-from control_libs.ph import perform_ph_calibration, get_ph,calibrate_ph
+from control_libs.ph import perform_ph_calibration, get_ph,calibrate_ph, perform_ph_test
 from control_libs.arduino import get_serial_connection
 
 # Get the corrected EC value
@@ -301,6 +301,22 @@ def simple_calibrate_ph_low_route():
 @app.route('/simple_calibrate_ph_high', methods=['GET'])
 def simple_calibrate_ph_high_route():
     ph_factor = calibrate_ph("HIGH")
+    if ph_factor is not None:
+        return jsonify({'status': 'success', 'ph_value': ph_factor})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get ph_factor'})
+
+@app.route('/ph_solution_test', methods=['GET'])
+def ph_solution_test_route():
+    ph_factor = perform_ph_test("solution")
+    if ph_factor is not None:
+        return jsonify({'status': 'success', 'ph_value': ph_factor})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to get ph_factor'})
+
+@app.route('/ph_baseline_test', methods=['GET'])
+def ph_baseline_test_route():
+    ph_factor = perform_ph_test("baseline")
     if ph_factor is not None:
         return jsonify({'status': 'success', 'ph_value': ph_factor})
     else:

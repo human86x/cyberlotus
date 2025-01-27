@@ -82,6 +82,9 @@
             <button onclick="fetchValue()">Fetch Value</button>
             <button onclick="simple_cal_low_Ph()">Simple LOW calibration</button>
             <button onclick="simple_cal_high_Ph()">Simple HIGH calibration</button>
+            
+            <button onclick="solutionPh()">Solutio pH test</button>
+            <button onclick="baselinePh()">Baseline pH test</button>
         
         </div>
 
@@ -157,6 +160,30 @@ function simple_cal_high_Ph() {
             console.error('Error fetching raw pH readings:', error);
         });
 }
+
+function solutionPh() {
+    fetch('/ph_solution_test')
+        .then(response => response.json())
+        .then(data => {
+            console.log('raw pH Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching raw pH readings:', error);
+        });
+}
+
+
+function baselinePh() {
+    fetch('/ph_baseline_test')
+        .then(response => response.json())
+        .then(data => {
+            console.log('raw pH Readings:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching raw pH readings:', error);
+        });
+}
+
 
         
 function rawPh() {
