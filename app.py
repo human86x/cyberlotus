@@ -268,7 +268,7 @@ from control_libs.arduino import get_serial_connection
 @app.route('/get_raw_ph', methods=['GET'])
 def get_raw_ph_value():
     ser = get_serial_connection()
-    raw_ph_value = get_ph()
+    raw_ph_value = get_ph(ser)
     if raw_ph_value is not None:
         return jsonify({'status': 'success', 'raw_ph_value': raw_ph_value})
     else:
