@@ -203,8 +203,8 @@ def perform_ph_calibration(calibration_type):
             readings = {}
 
         # Update the system state with the pH readings
-        system_state[f"ph_calibration_{calibration_type}"]["value"] = readings
-        system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
+        #system_state[f"ph_calibration_{calibration_type}"]["value"] = readings
+        #system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
         print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
         
         return readings
@@ -227,7 +227,7 @@ def get_correct_ph():
     high_raw_value = get_ph_calibration_factor_high()
 
 
-    num_readings = 4
+    num_readings = 10
     ph_values = []
 
     print("Collecting pH readings...")
