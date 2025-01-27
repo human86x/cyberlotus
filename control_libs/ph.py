@@ -213,8 +213,20 @@ def perform_ph_calibration(calibration_type):
 
 
 def get_correct_ph():
+    """
+    Retrieve and correct pH value using saved calibration factor.
+
+    Returns:
+        float: Corrected pH value or None if an error occurs.
+    """
     global ser
+
+    # Retrieve the calibration factor
     calibration_factor = get_ph_calibration_factor()
+    if calibration_factor is None:
+        print("Error: Calibration factor not found or invalid.")
+        return None
+
     num_readings = 4
     ph_values = []
 
@@ -222,28 +234,32 @@ def get_correct_ph():
     for _ in range(num_readings):
         time.sleep(1)
         raw_ph_value = get_ph(ser)
-        print(f"Retrieved pH value: '{raw_ph_value}'")
+        print(f"Retrieved raw pH value: '{raw_ph_value}'")
 
         if raw_ph_value is None:
-            print("Error: Invalid pH value read from the sensor.")
+            print("Warning: Invalid pH value read from the sensor, skipping.")
             continue
 
         try:
             raw_ph_value = float(raw_ph_value)
         except ValueError:
-            print(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
+            print(f"Warning: Invalid pH value '{raw_ph_value}' received, skipping.")
             continue
 
         if 0 <= raw_ph_value <= 14:
             ph_values.append(raw_ph_value)
+        else:
+            print(f"Warning: Raw pH value '{raw_ph_value}' out of valid range, skipping.")
 
     if len(ph_values) == 0:
         print("Error: No valid pH readings collected.")
         return None
 
+    # Calculate the median pH value from readings
     estimated_ph_value = statistics.median(ph_values)
     print(f"Estimated pH value (median of valid readings): {estimated_ph_value}")
 
+    # Retrieve the solution temperature
     solution_temperature = read_solution_temperature(ser)
     if solution_temperature is None:
         print("Error: Failed to read solution temperature.")
@@ -257,17 +273,21 @@ def get_correct_ph():
 
     print(f"Solution temperature: {solution_temperature}°C")
 
+    # Apply temperature correction if the temperature is not 25°C
     if solution_temperature != 25:
         corrected_ph_value = estimated_ph_value / (1 + 0.02 * (solution_temperature - 25))
-        print(f"Corrected pH value at 25°C: {corrected_ph_value}")
+        print(f"Temperature-corrected pH value at 25°C: {corrected_ph_value}")
     else:
         corrected_ph_value = estimated_ph_value
 
+    # Apply the calibration factor
     corrected_ph_value *= calibration_factor
     print(f"Final corrected pH value after applying calibration factor: {corrected_ph_value}")
 
+    # Round the corrected value to two decimal places
     corrected_ph_value = round(corrected_ph_value, 2)
 
+    # Update system state
     system_state["ph"]["value"] = corrected_ph_value
     system_state["ph"]["timestamp"] = int(time.time())
 
