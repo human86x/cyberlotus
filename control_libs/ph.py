@@ -212,7 +212,7 @@ def get_correct_ph():
             print(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
             continue
 
-        if 0 <= raw_ph_value <= 14:
+        if 700 <= raw_ph_value <= 1024:
             ph_values.append(raw_ph_value)
 
     if len(ph_values) == 0:
