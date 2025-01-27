@@ -342,7 +342,9 @@ def perform_ph_test(test_type):
         if not readings:
             print("Error: No readings returned from the sequence.")
             readings = {}
-
+        
+        print(f"**********TEST TYPE IS {test_type}")
+     
         # Update the system state with the pH readings
         if test_type == "solution":
             system_state[f"ph_solution"]["value"] = readings
