@@ -1,6 +1,6 @@
 from control_libs.arduino import send_command_and_get_response, get_serial_connection
 from control_libs.system_stats import system_state
-from control_libs.app_core import load_config, CALIBRATION_FILE
+from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
 from config_tools.sequencer import execute_sequence
