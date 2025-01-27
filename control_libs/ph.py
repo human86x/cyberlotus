@@ -27,7 +27,7 @@ def get_ph_calibration_factor_low():
     try:
         with open(CALIBRATION_FILE, "r") as file:
             calibration_data = json.load(file)
-            x = float(calibration_data.get("pH_calibration_factor_LOW", 1.0))
+            x = float(calibration_data.get("pH_calibration_LOW", 1.0))
             
             system_state[f"ph_calibration_low"]["value"] = x
             system_state[f"ph_calibration_low"]["timestamp"] = int(time.time())
@@ -48,7 +48,7 @@ def get_ph_calibration_factor_high():
     try:
         with open(CALIBRATION_FILE, "r") as file:
             calibration_data = json.load(file)
-            x = float(calibration_data.get("pH_calibration_factor_HIGH", 1.0))
+            x = float(calibration_data.get("pH_calibration_HIGH", 1.0))
             system_state[f"ph_calibration_high"]["value"] = x
             system_state[f"ph_calibration_high"]["timestamp"] = int(time.time())
             #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
