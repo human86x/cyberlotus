@@ -138,10 +138,17 @@ def perform_ph_calibration(calibration_type):
 
     Returns:
         dict: The readings from the sequence execution.
+
+    
     """
+    if calibration_type == "LOW":
+        sequence = load_config("pH_calibration_low_sequence")
+    else:
+        sequence = load_config("pH_calibration_high_sequence")
+
     try:
         # Load the pH testing sequence from the configuration
-        sequence = load_config("pH_calibration_sequence")
+        #sequence = load_config("pH_calibration_sequence")
         SEQUENCE_FILE = SEQUENCE_DIR + sequence
         
         # Load flow rates from the configuration
@@ -152,7 +159,7 @@ def perform_ph_calibration(calibration_type):
             return {}
 
         # Execute the sequence and return the readings
-        readings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph)
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
 
         # Ensure readings are returned or handle case where no readings are received
         if not readings:
@@ -160,8 +167,8 @@ def perform_ph_calibration(calibration_type):
             readings = {}
 
         # Update the system state with the pH readings
-        system_state["ph_calibration"]["value"] = readings
-        system_state["ph_calibration"]["timestamp"] = int(time.time())
+        system_state[f"ph_calibration_{calibration_type}"]["value"] = readings
+        system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
         print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
         
         return readings
