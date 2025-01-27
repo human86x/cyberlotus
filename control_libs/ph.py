@@ -38,7 +38,7 @@ def get_ph_calibration_factor():
     
 
 
-def get_correct_pH():
+def get_correct_ph():
     global ser
     """
     Get the corrected EC value by reading the EC sensor multiple times, 
