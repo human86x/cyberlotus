@@ -35,6 +35,9 @@ from flask_socketio import SocketIO, emit
 from control_libs.app_core import CONFIG_FILE_PATH
 from control_libs.electric_conductivity import get_complex_ec_calibration, get_ec_baseline
 
+
+from control_libs.ph import get_correct_ph
+
 APP_CONFIG_FILE = "data/app_config.json"
 # Store progress globally
 pump_progress = {}
