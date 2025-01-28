@@ -1079,6 +1079,7 @@ def create_tank_route():
 @app.route('/tanks/test', methods=['GET'])
 def test_tanks_route():
     results = test_tanks()
+    print(f"****************test_tanks_rooute - {results}")
     return jsonify(results)
 
 if __name__ == '__main__':
