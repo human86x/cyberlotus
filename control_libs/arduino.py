@@ -80,8 +80,8 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
 
         while attempt <= retries:
             if ser and ser.is_open:
-                ser.flushInput()  # Clears the input buffer
-                ser.flushOutput()  # Clears the output buffer
+                #ser.flushInput()  # Clears the input buffer
+                #ser.flushOutput()  # Clears the output buffer
                 #print(f"Send command and get response -> the command >>> {command}")
 
         #if isinstance(command, bytes):
