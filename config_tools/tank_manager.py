@@ -79,7 +79,7 @@ def test_tanks(tanks = None, serial_conn = None):
             
             # Send the command and wait for a response
             response = send_command_and_get_response(serial_conn, info['arduino_code'])
-            
+            print(f"***value recieved response={response}")
             # Attempt to parse the response as a float
             distance = response#.strip()  # Strip any extra whitespace or newline characters
             
