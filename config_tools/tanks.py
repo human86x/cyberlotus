@@ -44,6 +44,7 @@ def test_tanks(tanks, serial_conn):
             #response = serial_conn.readline().decode().strip()
         #    try:
         distance = float(response)
+        print(f"**********distance recieved -{distance}")
         fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) / 
                               (info['empty_cm'] - info['full_cm'])) * 100))
         current_volume = (fill_percentage / 100) * info['total_volume']
