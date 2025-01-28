@@ -26,41 +26,81 @@ def add_tank(name, code, total_volume, full_cm, empty_cm):
     }
     save_tanks(tanks)
 
-def test_tanks():
-    #global ser 
-    results = {}
-    tanks = load_tanks()
-    global ser
-    ser = get_serial_connection()
-    serial_conn = ser#connect_to_arduino()
-    time.sleep(2)
+# test_tanks():
+#    #global ser 
+#    results = {}
+#    tanks = load_tanks()
+#    global ser
+#    ser = get_serial_connection()
+#    serial_conn = ser#connect_to_arduino()
+#    time.sleep(2)
 
-    for name, info in tanks.items():
+#    for name, info in tanks.items():
         
-        command = info['arduino_code']
-        command = command.encode()
-        send_command_and_get_response(serial_conn, command)
-        time.sleep(0.5)
-        if serial_conn.in_waiting:
-            response = serial_conn.readline().decode().strip()
-            try:
-                distance = float(response)
-                fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) /
-                                  (info['empty_cm'] - info['full_cm'])) * 100))
-                current_volume = (fill_percentage / 100) * info['total_volume']
-                
-                results[name] = {
-                    'distance': distance,
-                    'fill_percentage': round(fill_percentage, 2),
-                    'current_volume': round(current_volume, 2),
-                    'arduino_code': info['arduino_code'],
-                    'total_volume': info['total_volume'],
-                    'full_cm': info['full_cm'],
-                    'empty_cm': info['empty_cm']
-                    
-                }
-            except ValueError:
-                results[name] = {'error': f"Invalid sensor response: {response}"}
-        else:
-            results[name] = {'error': "No response from sensor."}
-    return results
+#        command = info['arduino_code']
+#        command = command.encode()
+#        send_command_and_get_response(serial_conn, command)
+#        time.sleep(0.5)
+#        if serial_conn.in_waiting:
+#            response = serial_conn.readline().decode().strip()
+#            try:
+#                distance = float(response)
+#                fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) /
+#                                  (info['empty_cm'] - info['full_cm'])) * 100))
+#                current_volume = (fill_percentage / 100) * info['total_volume']
+#                
+#                results[name] = {
+#                    'distance': distance,
+#                    'fill_percentage': round(fill_percentage, 2),
+#                    'current_volume': round(current_volume, 2),
+#                    'arduino_code': info['arduino_code'],
+#                    'total_volume': info['total_volume'],
+#                    'full_cm': info['full_cm'],
+#                    'empty_cm': info['empty_cm']
+#                    
+#                }
+#            except ValueError:
+#                results[name] = {'error': f"Invalid sensor response: {response}"}
+#        else:
+#            results[name] = {'error': "No response from sensor."}
+#    return results
+def test_tanks(tanks, serial_conn):
+    """Test tanks by reading sensor data and calculating fill percentage."""
+    test_results = {}
+    print(f"************TANKS LOADED - {tanks}")
+    for name, info in tanks.items():
+        try:
+            # Debugging: Log the start of the process
+            print(f"[DEBUG] Sending code {info['arduino_code']} to Arduino for {name}...")
+            
+            # Send the command and wait for a response
+            response = send_command_and_get_response(serial_conn, info['arduino_code'])
+            
+            # Attempt to parse the response as a float
+            distance = float(response.strip())  # Strip any extra whitespace or newline characters
+            
+            print(f"[DEBUG] Distance received for {name}: {distance}")
+            
+            # Calculate fill percentage
+            fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) / 
+                                              (info['empty_cm'] - info['full_cm'])) * 100))
+            current_volume = (fill_percentage / 100) * info['total_volume']
+            
+            # Store results
+            test_results[name] = {
+                'distance': distance,
+                'fill_percentage': round(fill_percentage, 2),
+                'current_volume': round(current_volume, 2)
+            }
+        
+        except ValueError as e:
+            # Handle case where the response is not a valid float
+            print(f"[ERROR] Invalid response for {name}: {response}. Error: {e}")
+            test_results[name] = {'error': f'Invalid response: {response}'}
+        
+        except Exception as e:
+            # Handle any other unexpected errors
+            print(f"[ERROR] An exception occurred for {name}: {e}")
+            test_results[name] = {'error': str(e)}
+    
+    return test_results
