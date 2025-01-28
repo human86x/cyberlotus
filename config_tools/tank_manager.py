@@ -66,9 +66,11 @@ def add_tank(name, code, total_volume, full_cm, empty_cm):
 #        else:
 #            results[name] = {'error': "No response from sensor."}
 #    return results
-def test_tanks(tanks = load_tanks, serial_conn = get_serial_connection):
+def test_tanks(tanks = None, serial_conn = None):
     """Test tanks by reading sensor data and calculating fill percentage."""
     test_results = {}
+    tanks = load_tanks()
+    serial_conn = get_serial_connection()
     print(f"************TANKS LOADED - {tanks}")
     for name, info in tanks.items():
         try:
