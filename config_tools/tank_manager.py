@@ -82,7 +82,7 @@ def test_tanks(tanks = None, serial_conn = None):
             response = send_command_and_get_response(serial_conn, code_bytes)
             print(f"***value recieved response={response}")
             # Attempt to parse the response as a float
-            distance = response#.strip()  # Strip any extra whitespace or newline characters
+            distance = float(response)#.strip()  # Strip any extra whitespace or newline characters
             
             print(f"[DEBUG] Distance received for {name}: {distance}")
             
