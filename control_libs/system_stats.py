@@ -34,6 +34,8 @@ system_state = {
         "relay_k": {"state": None, "timestamp": None},
         "relay_l": {"state": None, "timestamp": None},
         "relay_m": {"state": None, "timestamp": None},
+        "relay_n": {"state": None, "timestamp": None},
+        
         "relay_o": {"state": None, "timestamp": None},
         "relay_p": {"state": None, "timestamp": None},
         "relay_q": {"state": None, "timestamp": None},
