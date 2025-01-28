@@ -287,7 +287,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=0.5):
         ser.write(command)  # No need to encode if command is already bytes
         
         # Read response from Arduino
-        line = ser.readline().decode('utf-8').strip()
+        line = ser.readline()#.decode('utf-8').strip()
         print(f"Send command and get response -> the response >>> {line}")
         
         # Check if response is a valid float
