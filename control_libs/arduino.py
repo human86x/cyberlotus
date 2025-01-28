@@ -150,8 +150,11 @@ def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
 
         while attempt <= retries:
             if ser and ser.is_open:
-                ser.flushOutput()
+                #ser.flushOutput()
+                time.sleep(0.1)  # Small delay to avoid CPU overuse
+
                 ser.write(command.encode())
+                time.sleep(1)  # Small delay to avoid CPU overuse
 
                 print(f"[INFO] Sent precise delivery command: {command}, waiting for response...")
 
