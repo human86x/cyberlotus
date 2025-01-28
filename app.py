@@ -670,13 +670,13 @@ def adjust_tank_level(tank_name):
         print(f"Tank data fetched****{tank_results}")
         
         # Get the data for the specific tank
-        tank_data = tank_results.get(tank_name)
+        tank_data = load_tanks()
         
         if not tank_data:
             print(f"Tank {tank_name} not found in the results.")
             return jsonify({"status": "error", "message": f"Tank {tank_name} not found"}), 400
 
-        current_volume = tank_data['current_volume']
+        current_volume = tank_results['current_volume']
         total_volume = tank_data['total_volume']
 
         # Calculate the volume to add or drain
@@ -1079,7 +1079,7 @@ def create_tank_route():
 @app.route('/tanks/test', methods=['GET'])
 def test_tanks_route():
     results = test_tanks()
-    print(f"****************test_tanks_rooute - {results}")
+    print(f"****************test_tanks_route - {results}")
     return jsonify(results)
 
 if __name__ == '__main__':
