@@ -36,7 +36,7 @@ def create_tank(tanks, name, code, total_volume, full_cm, empty_cm):
 def test_tanks(tanks, serial_conn):
     """Test tanks by reading sensor data and calculating fill percentage."""
     test_results = {}
-
+    print(f"************TANKS LOADED - {tanks}")
     for name, info in tanks.items():
         try:
             # Debugging: Log the start of the process
