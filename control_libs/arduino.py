@@ -282,7 +282,8 @@ def send_command_and_get_response(ser, command, retries=5, timeout=0.5):
         
         # Clear the output buffer
         #ser.flushOutput()
-        
+        ser.flushInput()  # Clears the input buffer
+        ser.flushOutput()  # Clears the output buffer
         print(f"Send command and get response -> the command >>> {command}")
 
         #if isinstance(command, bytes):
