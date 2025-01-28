@@ -76,9 +76,10 @@ def test_tanks(tanks = None, serial_conn = None):
         try:
             # Debugging: Log the start of the process
             print(f"[DEBUG] Sending code {info['arduino_code']} to Arduino for {name}...")
-            
+            code = info['arduino_code']
             # Send the command and wait for a response
-            response = send_command_and_get_response(serial_conn, info['arduino_code'])
+            code_bytes = code.encode()  # Converts 'L1' to b'L1'
+            response = send_command_and_get_response(serial_conn, code_bytes)
             print(f"***value recieved response={response}")
             # Attempt to parse the response as a float
             distance = response#.strip()  # Strip any extra whitespace or newline characters
