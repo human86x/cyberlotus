@@ -48,7 +48,8 @@ def get_serial_connection():
         return ser
     else:
         print("[ERROR] Serial connection is not established.")
-        return None
+        ser = connect_to_arduino()
+        return ser
 
 def close_serial_connection():
     global ser
