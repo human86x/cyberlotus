@@ -676,8 +676,8 @@ def adjust_tank_level(tank_name):
             print(f"Tank {tank_name} not found in the results.")
             return jsonify({"status": "error", "message": f"Tank {tank_name} not found"}), 400
 
-        current_volume = tank_results['current_volume']
-        total_volume = tank_data['total_volume']
+        current_volume = tank_results[tank_name]['current_volume']
+        total_volume = tank_data[tank_name]['total_volume']
 
         # Calculate the volume to add or drain
         stored_volume = (solution_level / 100) * total_volume
