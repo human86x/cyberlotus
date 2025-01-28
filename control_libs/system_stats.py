@@ -12,9 +12,9 @@ system_state = {
     "ph_raw": {"value": None, "timestamp": None},
     "temperature": {"value": None, "timestamp": None},
     
-    "tank_1": {"level": None, "timestamp": None},
-    "tank_2": {"level": None, "timestamp": None},
-    "tank_3": {"level": None, "timestamp": None},
+    "solution_tank": {"level": None, "timestamp": None},
+    "fresh_tank": {"level": None, "timestamp": None},
+    "waste_tank": {"level": None, "timestamp": None},
     
     "relay_states": {
         "relay_a": {"state": None, "timestamp": None},

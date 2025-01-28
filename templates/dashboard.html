@@ -7,6 +7,162 @@
 <h1>Dashboard</h1>
 <p>Welcome to the CyberLotus Project dashboard.</p>
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .big-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; padding: 20px;">System Dashboard</h1>
+    <div class="dashboard">
+        <div class="card">
+            <h3>EC Level</h3>
+            <div class="big-number" id="ecLevel">N/A</div>
+        </div>
+        <div class="card">
+            <h3>pH Level</h3>
+            <div class="big-number" id="phLevel">N/A</div>
+        </div>
+        <div class="card">
+            <h3>Temperature</h3>
+            <div class="big-number" id="temperature">N/A</div>
+        </div>
+        <div class="card">
+            <h3>Solution Tank</h3>
+            <canvas id="solutionTankBar"></canvas>
+        </div>
+        <div class="card">
+            <h3>Relay States</h3>
+            <canvas id="relayStatesPie"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function getSystemStats() {
+            fetch("/sys_state")
+                .then(response => response.json())
+                .then(data => {
+                    updateDashboard(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updateDashboard(data) {
+            document.getElementById("ecLevel").textContent = data.ec?.value || "N/A";
+            document.getElementById("phLevel").textContent = data.ph?.value || "N/A";
+            document.getElementById("temperature").textContent = data.temperature?.value || "N/A";
+
+            updateBarChart(solutionTankBar, [
+                data.solution_tank?.value || 0,
+                data.fresh_tank?.value || 0,
+                data.waste_tank?.value || 0
+            ]);
+
+            updatePieChart(relayStatesPie, Object.values(data.relay_states || {}).map(r => r.state ? 1 : 0));
+        }
+
+        let solutionTankBar = createBarChart("solutionTankBar", "Tank Levels", ["Solution", "Fresh", "Waste"], [0, 0, 0]);
+        let relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"], [1, 0]);
+
+        function createBarChart(canvasId, title, labels, data) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+            return new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: data,
+                        backgroundColor: ["#007bff", "#28a745", "#dc3545"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function createPieChart(canvasId, title, labels, data) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+            return new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: data,
+                        backgroundColor: ["#007bff", "#dc3545"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        function updateBarChart(chart, data) {
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+
+        function updatePieChart(chart, data) {
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+
+        setInterval(getSystemStats, 1000);
+    </script>
+</body>
+</html>
+
+
+
+
 <!-- Emergency Stop Button -->
 <button class="btn btn-danger" onclick="confirmEmergencyStop()">Emergency Stop</button>
 <button class="btn btn-primary" onclick="getSystemStats()">Refresh Stats</button>
