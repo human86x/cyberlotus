@@ -298,7 +298,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=0.5):
         #    command = command.decode()
         time.sleep(timeout)  # Retry delay
 
-        ser.write(command)  # No need to encode if command is already bytes
+        ser.write(command + "\n")  # No need to encode if command is already bytes
         time.sleep(timeout)  # Retry delay
         # Read response from Arduino
         line = ser.readline().decode('utf-8').strip()
