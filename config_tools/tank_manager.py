@@ -9,7 +9,9 @@ DATA_PATH = os.path.join(base_dir, '../data/tanks.json')
 def load_tanks():
     if os.path.exists(DATA_PATH):
         with open(DATA_PATH, 'r') as file:
-            return json.load(file)
+            x = json.load(file)
+            print(f"****LOADED DATA FROM  TANKS FILE {DATA_PATH} DATA= {x}")
+            return x
     return {}
 
 def save_tanks(tanks):
