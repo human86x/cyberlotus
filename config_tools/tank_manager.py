@@ -36,7 +36,10 @@ def test_tanks():
     time.sleep(2)
 
     for name, info in tanks.items():
-        send_command_and_get_response(serial_conn, info['arduino_code'])
+        
+        command = info['arduino_code']
+        command = command.encode()
+        send_command_and_get_response(serial_conn, command)
         time.sleep(0.5)
         if serial_conn.in_waiting:
             response = serial_conn.readline().decode().strip()
