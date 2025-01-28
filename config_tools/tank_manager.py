@@ -100,7 +100,7 @@ def test_tanks(tanks = None, serial_conn = None):
                 'fill_percentage': round(fill_percentage, 2),
                 'current_volume': round(current_volume, 2)
             }
-        
+            print(f"******test results of the pump {name} - are : {test_results[name]}")
         except ValueError as e:
             # Handle case where the response is not a valid float
             print(f"[ERROR] Invalid response for {name}: {response}. Error: {e}")
