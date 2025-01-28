@@ -285,8 +285,8 @@ def send_command_and_get_response(ser, command, retries=5, timeout=0.5):
         
         print(f"Send command and get response -> the command >>> {command}")
 
-        if isinstance(command, bytes):
-            command = command.decode()
+        #if isinstance(command, bytes):
+        #    command = command.decode()
 
 
         ser.write(command)  # No need to encode if command is already bytes
