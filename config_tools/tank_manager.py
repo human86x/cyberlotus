@@ -79,6 +79,9 @@ def test_tanks(tanks = None, serial_conn = None):
             code = info['arduino_code']
             # Send the command and wait for a response
             code_bytes = code.encode()  # Converts 'L1' to b'L1'
+            
+            print(f"[DEBUG] Sending code {code_bytes} to Arduino for {name}...")
+            
             response = send_command_and_get_response(serial_conn, code_bytes)
             print(f"***value recieved response={response}")
             # Attempt to parse the response as a float
