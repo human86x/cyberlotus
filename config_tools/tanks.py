@@ -38,23 +38,20 @@ def test_tanks(tanks, serial_conn):
     test_results = {}
     for name, info in tanks.items():
         print(f"[DEBUG] Sending code {info['arduino_code']} to Arduino for {name}...")
-        send_command_and_get_response(serial_conn, info['arduino_code'])
-        time.sleep(0.5)
-        if serial_conn.in_waiting:
-            response = serial_conn.readline().decode().strip()
-            try:
-                distance = float(response)
-                fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) / 
+        response = send_command_and_get_response(serial_conn, info['arduino_code'])
+        #time.sleep(0.5)
+        #if serial_conn.in_waiting:
+            #response = serial_conn.readline().decode().strip()
+        #    try:
+        distance = float(response)
+        fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) / 
                               (info['empty_cm'] - info['full_cm'])) * 100))
-                current_volume = (fill_percentage / 100) * info['total_volume']
-                test_results[name] = {
-                    'distance': distance,
-                    'fill_percentage': fill_percentage,
-                    'current_volume': current_volume
-                }
-            except ValueError:
-                test_results[name] = {'error': 'Invalid response'}
-        else:
-            test_results[name] = {'error': 'No response from sensor'}
+        current_volume = (fill_percentage / 100) * info['total_volume']
+        test_results[name] = {
+            'distance': distance,
+            'fill_percentage': fill_percentage,
+            'current_volume': current_volume
+        }
+        
     
     return test_results
