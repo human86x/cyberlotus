@@ -59,8 +59,8 @@
         </div>
         <div class="card">
             <h3>pH Level</h3>
-            <div class="big-number" id="phLevel">N/A</div>
-            <button onclick="solutionPh()">Solutio pH test</button>
+            <div class="big-number" id="phLevel">N/A  <button onclick="solutionPh()">Solutio pH test</button></div>
+           
         </div>
         <div class="card">
             <h3>Temperature</h3>
@@ -89,8 +89,8 @@
         }
 
         function updateDashboard(data) {
-            document.getElementById("ecLevel").textContent = data.ec?.value || "N/A";
-            document.getElementById("phLevel").textContent = data.ph?.value || "N/A";
+            document.getElementById("ecLevel").textContent = data.ec_solution?.value || "N/A";
+            document.getElementById("phLevel").textContent = data.ph_solution?.value || "N/A";
             document.getElementById("temperature").textContent = data.temperature?.value || "N/A";
 
             updateBarChart(solutionTankBar, [
