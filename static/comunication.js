@@ -293,6 +293,16 @@ let currentStep = 0;
                     }
                 });
         }
+        function loadSystemState() {
+            //const selectedTestSequence = document.getElementById('testSequence').value;
+            fetch(`/load_sys_state`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        //fetchECValue();
+                    }
+                });
+        }
 
 
 
