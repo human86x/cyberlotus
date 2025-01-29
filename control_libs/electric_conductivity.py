@@ -5,7 +5,7 @@ import time
 import statistics
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.arduino import get_serial_connection, connect_to_arduino, send_command_and_get_response
-from control_libs.system_stats import system_state
+from control_libs.system_stats import system_state, save_system_state, load_system_state
 from control_libs.app_core import load_config, CALIBRATION_FILE
 from config_tools.sequencer import execute_sequence
 from config_tools.calibrator import load_calibration_data, save_calibration_data
@@ -160,6 +160,12 @@ def get_complex_ec_reading():
         # Update the system state with the EC readings
         system_state["ec"]["value"] = readings
         system_state["ec"]["timestamp"] = int(time.time())
+        
+        system_state["ec_solution"]["value"] = readings
+        system_state["ec_solution"]["timestamp"] = int(time.time())
+        
+        save_system_state(system_state)
+        
         print(f"Updated the EC values from complex reading using {SEQUENCE_FILE} sequence.")
         
         return readings

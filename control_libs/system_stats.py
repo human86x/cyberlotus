@@ -1,8 +1,13 @@
+import json
+import os
+from control_libs.app_core import SYSTEM_STATE_FILE
 global system_state
 system_state = {
     "ec": {"value": None, "timestamp": None},
+    "ec_solution": {"value": None, "timestamp": None},
     "ec_calibration": {"value": None, "timestamp": None},
     "ec_baseline": {"value": None, "timestamp": None},
+
     "ph": {"value": None, "timestamp": None},
     "ph_solution": {"value": None, "timestamp": None},
     "ph_baseline": {"value": None, "timestamp": None},
@@ -10,6 +15,7 @@ system_state = {
     "ph_calibration_LOW": {"value": None, "timestamp": None},
     "ph_calibration_HIGH": {"value": None, "timestamp": None},
     "ph_raw": {"value": None, "timestamp": None},
+
     "temperature": {"value": None, "timestamp": None},
     
     "solution_tank": {"level": None, "timestamp": None},
@@ -50,3 +56,22 @@ system_state = {
     }
 }
 
+
+
+def save_system_state(state):
+    """Saves the system_state dictionary to a JSON file."""
+    os.makedirs(os.path.dirname(SYSTEM_STATE_FILE), exist_ok=True)
+    with open(SYSTEM_STATE_FILE, "w") as f:
+        json.dump(state, f, indent=4)
+
+def load_system_state():
+    """Loads the system_state dictionary from a JSON file. If the file does not exist, returns an empty default structure."""
+    if not os.path.exists(SYSTEM_STATE_FILE):
+        return None  # Indicate that no previous state exists
+    
+    with open(SYSTEM_STATE_FILE, "r") as f:
+        return json.load(f)
+
+# Example Usage
+# save_system_state(system_state)
+# loaded_state = load_system_state()

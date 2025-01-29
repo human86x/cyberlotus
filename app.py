@@ -35,7 +35,7 @@ from flask_socketio import SocketIO, emit
 from control_libs.app_core import CONFIG_FILE_PATH
 from control_libs.electric_conductivity import get_complex_ec_calibration, get_ec_baseline
 
-
+from control_libs.system_stats import load_system_state
 from control_libs.ph import get_correct_ph
 
 APP_CONFIG_FILE = "data/app_config.json"
@@ -66,6 +66,13 @@ from control_libs.system_stats import system_state
 @app.route("/sys_state", methods=["GET"])
 def get_system_state():
     return jsonify(system_state)
+
+
+@app.route("/load_sys_state", methods=["GET"])
+def load_system_state():
+    loaded_state = load_system_state()
+    
+    return loaded_state
 
 
 

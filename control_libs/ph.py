@@ -1,5 +1,5 @@
 from control_libs.arduino import send_command_and_get_response, get_serial_connection
-from control_libs.system_stats import system_state
+from control_libs.system_stats import system_state, save_system_state, load_system_state
 from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
@@ -32,7 +32,7 @@ def get_ph_calibration_factor_low():
             system_state[f"ph_calibration_LOW"]["value"] = x
             system_state[f"ph_calibration_LOW"]["timestamp"] = int(time.time())
             #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
-        
+            save_system_state(system_state)
             return x
     except FileNotFoundError:
         print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
@@ -52,7 +52,7 @@ def get_ph_calibration_factor_high():
             system_state[f"ph_calibration_HIGH"]["value"] = x
             system_state[f"ph_calibration_HIGH"]["timestamp"] = int(time.time())
             #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
-        
+            save_system_state(system_state)
             return x
     except FileNotFoundError:
         print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
@@ -152,7 +152,7 @@ def calibrate_ph(calibration_type):
     
     system_state[f"ph_calibration_{calibration_type}"]["value"] = estimated_ph_value
     system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
-
+    save_system_state(system_state)
     try:
         with open(CALIBRATION_FILE, "w") as file:
             json.dump(calibration_data, file, indent=4)
@@ -350,11 +350,12 @@ def perform_ph_test(test_type):
             system_state[f"ph_solution"]["value"] = readings
             system_state[f"ph_solution"]["timestamp"] = int(time.time())
             print(f"Updated the pH Solution values from complex reading using {SEQUENCE_FILE} sequence.")
+            save_system_state(system_state)
         else:
             system_state[f"ph_baseline"]["value"] = readings
             system_state[f"ph_baseline"]["timestamp"] = int(time.time())
             print(f"Updated the pH Baseline values from complex reading using {SEQUENCE_FILE} sequence.")
-        
+            save_system_state(system_state)
         return readings
 
     except Exception as e:
