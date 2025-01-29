@@ -1,4 +1,4 @@
-
+{% block content %}
         // Placeholder for adding actions
 
         function logMessage(message) {
@@ -818,3 +818,5 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
         setInterval(getSystemStats, 1000);
 
         ///////////////////////////////////////////
+
+        {% endblock %}
