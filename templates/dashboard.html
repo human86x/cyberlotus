@@ -16,7 +16,11 @@
     <title>System Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='comunication.js') }}"></script>
-
+    <script> 
+        data = loadSystemState()
+        updateDashboard(data)
+        setInterval(updateDashboard(data), 1000);
+     </script>
     <style>
         body {
             font-family: Arial, sans-serif;
