@@ -1090,7 +1090,7 @@ def create_tank_route():
     add_tank(name, code, total_volume, full_cm, empty_cm)
     return redirect(url_for('tanks'))
 
-@app.route('/tanks/test', methods=['GET'])
+@app.route('/test_tanks_route', methods=['GET'])
 def test_tanks_route():
     results = test_tanks()
     print(f"****************test_tanks_route - {results}")
