@@ -20,6 +20,7 @@
         data = getSystemStats()
         updateDashboard(data)
         setInterval(updateDashboard(data), 1000);
+        setInterval(updateBarChart(),1000);
      </script>
     <style>
         body {
@@ -83,7 +84,7 @@
     <button onclick="get_complex_ec()">Solution EC test</button>
     <button onclick="fetchTemperature()">Solutio Temperature test</button>
     <button onclick="fetchTankData()">Tanks level</button>
-    <button onclick="loadSystemState()">Tanks level</button>
+    <button onclick="loadSystemState()">Load System State from a file</button>
 
 </body>
 </html>
