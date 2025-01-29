@@ -1,6 +1,6 @@
 import serial
 import time
-from control_libs.system_stats import system_state
+from control_libs.system_stats import system_state, save_system_state, load_system_state
 #i#mport SerialException
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.arduino import connect_to_arduino, send_command_and_get_response
@@ -276,7 +276,7 @@ def safe_serial_write_emergency():
 
 
 
-def send_command_and_get_response(ser, command, retries=5, timeout=0.5):
+def send_command_and_get_response(ser, command, retries=5, timeout=0.3):
     attempt = 0
     
     while attempt < retries:
