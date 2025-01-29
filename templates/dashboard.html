@@ -59,7 +59,7 @@
         </div>
         <div class="card">
             <h3>pH Level</h3>
-            <div class="big-number" id="phLevel">N/A  <button onclick="solutionPh()">Solutio pH test</button></div>
+            <div class="big-number" id="phLevel">N/A</div>
            
         </div>
         <div class="card">
@@ -75,6 +75,10 @@
             <canvas id="relayStatesPie"></canvas>
         </div>
     </div>
+    <button onclick="solutionPh()">Solution pH test</button>
+    <button onclick="get_complex_ec()">Solution EC test</button>
+    <button onclick="fetchTemperature()">Solutio Temperature test</button>
+    <button onclick="fetchTankData()">Tanks level</button>
 
     <script>
         function getSystemStats() {
