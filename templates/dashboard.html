@@ -15,6 +15,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='comunication.js') }}"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,6 +60,7 @@
         <div class="card">
             <h3>pH Level</h3>
             <div class="big-number" id="phLevel">N/A</div>
+            <button onclick="solutionPh()">Solutio pH test</button>
         </div>
         <div class="card">
             <h3>Temperature</h3>
