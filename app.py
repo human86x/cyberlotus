@@ -70,6 +70,7 @@ def get_system_state():
 
 @app.route("/load_sys_state", methods=["GET"])
 def load_system_state_route():
+    print("trying to load system state file......")
     loaded_state = load_system_state()
     
     return loaded_state
