@@ -2,7 +2,7 @@ import json
 import os
 import time
 from control_libs.arduino import get_serial_connection, close_serial_connection, connect_to_arduino, send_command_and_get_response
-
+from control_libs.system_stats import system_state
 base_dir = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(base_dir, '../data/tanks.json')
 
@@ -102,6 +102,19 @@ def test_tanks(tanks = None, serial_conn = None):
             }
             print(f"******test results of the pump {name} - are : {test_results[name]}")
             print(f"########test_results[]:{test_results}")
+            ############################################
+
+            system_state[f"{name}_tank"]["value"] = test_results[name]["fill_percentage"]
+            system_state[f"{name}_tank"]["timestamp"] = int(time.time())
+
+            #system_state[f"solution_tank"]["value"] = response
+            #system_state[f"solution_tank"]["timestamp"] = int(time.time())
+
+            #system_state[f"waste_tank"]["value"] = response
+            #system_state[f"waste_tank"]["timestamp"] = int(time.time())
+
+
+            ############################################
         except ValueError as e:
             # Handle case where the response is not a valid float
             print(f"[ERROR] Invalid response for {name}: {response}. Error: {e}")
