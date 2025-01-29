@@ -18,9 +18,9 @@ system_state = {
 
     "temperature": {"value": None, "timestamp": None},
     
-    "solution_tank": {"level": None, "timestamp": None},
-    "fresh_tank": {"level": None, "timestamp": None},
-    "waste_tank": {"level": None, "timestamp": None},
+    "solution_tank": {"value": None, "timestamp": None},
+    "fresh_tank": {"value": None, "timestamp": None},
+    "waste_tank": {"value": None, "timestamp": None},
     
     "relay_states": {
         "relay_a": {"state": None, "timestamp": None},
