@@ -1,4 +1,4 @@
-{% block content %}
+
         // Placeholder for adding actions
 
         function logMessage(message) {
@@ -408,7 +408,7 @@ function drainWaste() {
     let resultDisplay = document.getElementById("drain-result");
     resultDisplay.textContent = "Starting waste drain...";
 
-    fetch("{{ url_for('drain_waste') }}", {
+    fetch("/drain_waste", {
         method: "POST",
     })
     .then(response => response.json())
@@ -440,7 +440,7 @@ function savePumpAssignments() {
     }
 
     // Send the selected pump assignments to the server via POST request
-    fetch("{{ url_for('save_pump_assignment') }}", {
+    fetch("/save_pump_assignment", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -462,7 +462,7 @@ function savePumpAssignments() {
 
 // Function to load the solution level on page load
 function loadSolutionLevel() {
-    fetch("{{ url_for('get_solution_level') }}")
+    fetch("/get_solution_level")
         .then(response => response.json())
         .then(data => {
             if (data.solution_level !== undefined) {
@@ -478,7 +478,7 @@ function loadSolutionLevel() {
 
 // Load pump names dynamically into dropdowns
 function loadPumpNames() {
-    fetch("{{ url_for('pumps') }}")
+    fetch("/pumps")
         .then(response => response.json())
         .then(data => {
             let drainingPumpSelect = document.getElementById("drain_pump");
@@ -505,7 +505,7 @@ function loadPumpNames() {
 }
 
 function loadSavedPumpSelections() {
-    fetch("{{ url_for('get_saved_pumps') }}")
+    fetch("/get_saved_pumps")
         .then(response => response.json())
         .then(data => {
             if (data.fill_pump && data.drain_pump) {
@@ -520,7 +520,7 @@ function loadSavedPumpSelections() {
 
 // Function to fetch and display tank data
 function fetchTankData() {
-    fetch("{{ url_for('test_tanks_route') }}")
+    fetch("/test_tanks_route")
         .then(response => response.json())
         .then(data => {
             let tanksDisplay = document.getElementById("tanks-display");
@@ -603,7 +603,7 @@ function compareSolutionLevel() {
     }, intervalTime);
 
     // Fetch solution level comparison data
-    fetch("{{ url_for('compare_solution_level') }}")
+    fetch("/compare_solution_level")
         .then(response => response.json())
         .then(data => {
             let resultsDisplay = document.getElementById("adjustment-results");
@@ -651,7 +651,7 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
     }
 
     // Send the current solution level and pump selections to the server to save to JSON
-    fetch("{{ url_for('save_solution_level') }}", {
+    fetch("/save_solution_level", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -688,7 +688,7 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
     }, 100);  // Adjust speed if needed
 
     // Send a POST request to the '/adjust_solution_tank' route
-    fetch("{{ url_for('adjust_solution_tank') }}", {
+    fetch("/adjust_solution_tank", {
         method: "POST"
     })
     .then(response => response.json())
@@ -819,4 +819,4 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
 
         ///////////////////////////////////////////
 
-        {% endblock %}
+   
