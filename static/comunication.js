@@ -718,7 +718,7 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
  
 
         ///////////////////////////////////////////
-
+ 
         ///////////////////DASHBOARD///////////////
  
         function getSystemStats() {
