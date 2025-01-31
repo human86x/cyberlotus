@@ -720,7 +720,7 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
         ///////////////////////////////////////////
 
         ///////////////////DASHBOARD///////////////
-
+ 
         function getSystemStats() {
             fetch("/sys_state")
                 .then(response => response.json())
