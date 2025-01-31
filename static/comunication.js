@@ -353,20 +353,7 @@ function loadAppConfig() {
 
         // Fetch initial data and load sequences
         
-        loadCalibrationData();
-
-
-
-
-
-
-
-        // Fetch initial data and load sequences
-        fetchECValue();
-        fetchTemperature();
-        loadSequenceFiles();
-        loadAppConfig();
-
+        
         ///////////////////////////////////////////
 
         /////////////////////TANKS/////////////////
@@ -818,5 +805,13 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
         setInterval(getSystemStats, 1000);
 
         ///////////////////////////////////////////
+
+
+        loadCalibrationData();
+        // Fetch initial data and load sequences
+        //fetchECValue();
+        //fetchTemperature();
+        loadSequenceFiles();
+        loadAppConfig();
 
    
