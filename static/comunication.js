@@ -748,7 +748,7 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
 
         let solutionTankBar = createBarChart("solutionTankBar", "Tank Levels", ["Solution", "Fresh", "Waste"], [0, 0, 0]);
         let relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"], [1, 0]);
-
+  
         function createBarChart(canvasId, title, labels, data) {
             const ctx = document.getElementById(canvasId).getContext("2d");
             return new Chart(ctx, {
