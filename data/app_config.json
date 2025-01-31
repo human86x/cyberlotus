@@ -1,4 +1,15 @@
 {
-    "solution_level": 50
-  }
-  
+  "solution_level": "70",
+  "fill_pump": "fresh_solution",
+  "drain_pump": "solution_waste",
+  "waste_pump": "waste_out",
+  "EC_calibration_sequence": "EC_calibration.json",
+  "EC_test_sequence": "EC_test.json",
+  "EC_baseline_sequence": "EC_baseline.json",
+  "pH_calibration_high_sequence": "pH_calibration_HIGH.json",
+  "pH_calibration_low_sequence": "pH_calibration_LOW.json",
+  "pH_solution_test_sequence": "pH_solution_test.json",
+  "pH_baseline_test_sequence": "pH_baseline_test.json"
+
+
+}

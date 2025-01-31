@@ -1,0 +1,20 @@
+{
+    "fresh": {
+        "arduino_code": "F",
+        "total_volume": 4.0,
+        "full_cm": 4.0,
+        "empty_cm": 18.0
+    },
+    "waste": {
+        "arduino_code": "S",
+        "total_volume": 4.0,
+        "full_cm": 8.0,
+        "empty_cm": 18.0
+    },
+    "solution": {
+        "arduino_code": "W",
+        "total_volume": 6.0,
+        "full_cm": 4.0,
+        "empty_cm": 16.0
+    }
+}

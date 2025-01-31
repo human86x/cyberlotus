@@ -1,9 +1,8 @@
 {
-    "temperature": "21.37",
-    "nitrogen": 68.7,
-    "potassium": 83.65,
-    "phosphorus": 70.04,
-    "ph": 5.68,
-    "water_level": 332.77,
-    "timestamp": "2024-12-04T17:38:42.236854"
+    "ec": 4899.817669649201,
+    "timestamp": "2025-01-08T18:29:43.379273",
+    "ec_last_updated": "2025-01-08T18:29:41.985233",
+    "solution_temperature": 21.81,
+    "tank_level": 0.0,
+    "ph": null
 }

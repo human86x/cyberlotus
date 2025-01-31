@@ -1,7 +1,14 @@
 {
-    "sequence": [ 
-      {"command": "fresh", "weight": 0.2},  
-      {"command": "drain", "weight": 1, "calibration": true}     
-    ]
-  }
-  
+  "sequence": [ 
+      {"command": "drain_EC", "weight": 1.1},
+    {
+      "commands": ["EC_cal"], 
+      "weights": [3.01],
+      "calibration": true
+    },
+    {
+      "commands": ["drain_EC"], 
+      "weights": [2.2]
+    }
+  ]
+}

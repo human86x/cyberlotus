@@ -1,17 +1,19 @@
 {
-    "NPK": 0.15,  
+    "NPK": 0.15,
     "pH_plus": 0.15,
     "pH_minus": 0.15,
     "pH_cal_high": 0.15,
     "pH_cal_low": 0.15,
     "EC_cal": 0.15,
-    "fresh_EC": 3.15,
-    "solution_EC": 3.15,
-    "solution_waste": 3.15,
-    "waste_out": 3.15,
-    "fresh_solution": 3.15,
-    "fresh": 0.15,
-    "fill": 1.0,
+    "fresh_EC": 17.2,
+    "solution_EC": 17.2,
+    "solution_pH": 17.2,
+    "solution_waste": 17.2,
+    "waste_out": 17.2,
+    "fresh_solution": 17.2,
+    "fresh_pH": 17.15,
+    "drain_pH": 0.10,
     "drain_EC": 0.15,
-    "drain": 0.15
+    "drain": 0.15,
+    "mixer_1": 0.10
 }

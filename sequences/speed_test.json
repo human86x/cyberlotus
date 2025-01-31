@@ -1,0 +1,6 @@
+{
+    "sequence": [
+      {"command": "mixer_1", "weight": 0.01}
+    ]
+  }
+  

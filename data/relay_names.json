@@ -1,15 +1,21 @@
 {
     "EC_cal": "g",
+    "NPK": "j",
     "pH_plus": "h",
     "pH_minus": "k",
     "solution_EC": "c",
-    "solution_waste": "d",
+    "solution_pH": "b",
+    "solution_waste": "e",
     "waste_out": "q",
-    "pH_cal_low": "",
+    "pH_cal_low": "i",
+    "pH_cal_high": "f",
     "heater_1": "",
+    "mixer_1": "p",
     "fresh_solution": "n",
-    "fresh_EC": "s",
-    "fill": "e",
-    "drain_EC": "f",
-    "drain": "w"
-} 
+    "fresh_EC": "o",
+    "fresh_pH": "a",
+    "bacteria": "",
+    "drain_EC": "d",
+    "free": "l",
+    "drain_pH": "m"
+}

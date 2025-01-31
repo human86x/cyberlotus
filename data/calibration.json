@@ -1,6 +1,8 @@
 {
-    "EC_calibration_factor": 8.107964601769911,
+    "EC_calibration_factor": 14.941368078175897,
     "EC_calibration_solution": 5000.0,
-    "EC_baseline" : 3300.00
-
+    "EC_baseline": 6562.31591348986,
+    "pH_calibration_factor": 275.3552971576227,
+    "pH_calibration_LOW": 1023.0,
+    "pH_calibration_HIGH": 862.0
 }

@@ -1,0 +1,14 @@
+{
+  "sequence": [ 
+      {"command": "drain_pH", "weight": 1.1},
+    {
+      "commands": ["pH_cal_high"], 
+      "weights": [10.01],
+      "calibration": true
+    },
+    {
+      "commands": ["drain_pH"], 
+      "weights": [12.2]
+    }
+  ]
+}

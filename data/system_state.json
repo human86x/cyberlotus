@@ -1,0 +1,164 @@
+{
+    "ec": {
+        "value": 6787,
+        "timestamp": 1738348211
+    },
+    "ec_solution": {
+        "value": null,
+        "timestamp": null
+    },
+    "ec_calibration": {
+        "value": null,
+        "timestamp": null
+    },
+    "ec_baseline": {
+        "value": null,
+        "timestamp": null
+    },
+    "ph": {
+        "value": null,
+        "timestamp": null
+    },
+    "ph_solution": {
+        "value": null,
+        "timestamp": null
+    },
+    "ph_baseline": {
+        "value": null,
+        "timestamp": null
+    },
+    "ph_calibration": {
+        "value": null,
+        "timestamp": null
+    },
+    "ph_calibration_LOW": {
+        "value": null,
+        "timestamp": null
+    },
+    "ph_calibration_HIGH": {
+        "value": null,
+        "timestamp": null
+    },
+    "ph_raw": {
+        "value": null,
+        "timestamp": null
+    },
+    "temperature": {
+        "value": 18.87,
+        "timestamp": 1738348258
+    },
+    "solution_tank": {
+        "value": 86.0,
+        "timestamp": 1738348246
+    },
+    "fresh_tank": {
+        "value": 0,
+        "timestamp": 1738348230
+    },
+    "waste_tank": {
+        "value": 35.3,
+        "timestamp": 1738348233
+    },
+    "relay_states": {
+        "relay_a": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_b": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_c": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_d": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_e": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_f": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_g": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_h": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_i": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_j": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_k": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_l": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_m": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_n": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_o": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_p": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_q": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_r": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_s": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_u": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_v": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_w": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_x": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_y": {
+            "state": null,
+            "timestamp": null
+        },
+        "relay_z": {
+            "state": null,
+            "timestamp": null
+        }
+    }
+}
