@@ -17,6 +17,103 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='comunication.js') }}"></script>
     <script> 
+
+           ///////////////////////////////////////////
+ 
+        ///////////////////DASHBOARD///////////////
+ 
+        function getSystemStats() {
+            fetch("/sys_state")
+                .then(response => response.json())
+                .then(data => {
+                    updateDashboard(data);
+                    return data
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updateDashboard(data) {
+            document.getElementById("ecLevel").textContent = data.ec_solution?.value || "N/A";
+            document.getElementById("phLevel").textContent = data.ph_solution?.value || "N/A";
+            document.getElementById("temperature").textContent = data.temperature?.value || "N/A";
+
+            updateBarChart(solutionTankBar, [
+                data.solution_tank?.value || 0,
+                data.fresh_tank?.value || 0,
+                data.waste_tank?.value || 0
+            ]);
+
+            updatePieChart(relayStatesPie, Object.values(data.relay_states || {}).map(r => r.state ? 1 : 0));
+        }
+
+        let solutionTankBar = createBarChart("solutionTankBar", "Tank Levels", ["Solution", "Fresh", "Waste"], [0, 0, 0]);
+        let relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"], [1, 0]);
+  
+        function createBarChart(canvasId, title, labels, data) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+            return new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: data,
+                        backgroundColor: ["#007bff", "#28a745", "#dc3545"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function createPieChart(canvasId, title, labels, data) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+            return new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: data,
+                        backgroundColor: ["#007bff", "#dc3545"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        function updateBarChart(chart, data) {
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+
+        function updatePieChart(chart, data) {
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+
+        setInterval(getSystemStats, 1000);
+
+        ///////////////////////////////////////////
+
+
+
+
+
+
+
         data = getSystemStats()
         updateDashboard(data)
         setInterval(updateDashboard(data), 1000);
