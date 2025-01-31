@@ -726,6 +726,7 @@ document.getElementById("save-solution-level-button").addEventListener("click", 
                 .then(response => response.json())
                 .then(data => {
                     updateDashboard(data);
+                    return data
                 })
                 .catch(error => {
                     console.error('Error:', error);
