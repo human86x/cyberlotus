@@ -24,7 +24,7 @@
     let solutionTankBar, relayStatesPie;
 
     // Fetch system stats from server and update dashboard
-    function getSystemStats() {
+    function getDashboardStats() {
         console.log('getting sys stats from Dashboard script:');
         fetch("/sys_state")
             .then(response => response.json())
@@ -137,7 +137,7 @@
         relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"]);
 
         // Start fetching system stats every second
-        setInterval(getSystemStats, 1000);
+        setInterval(getDashboardStats, 1000);
     });
 
     ///////////////////////////////////////////
