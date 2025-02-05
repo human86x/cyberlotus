@@ -37,6 +37,9 @@
 
     // Update dashboard data with fetched information
     function updateDashboard(data) {
+
+
+        console.log('updating Dashboard:', data);
         updateTextContent("ecLevel", data.ec_solution?.value);
         updateTextContent("phLevel", data.ph_solution?.value);
         updateTextContent("temperature", data.temperature?.value);
