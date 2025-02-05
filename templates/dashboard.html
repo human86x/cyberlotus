@@ -17,102 +17,130 @@
         ///////////////////////////////////////////
         ///////////////////DASHBOARD///////////////
 
-        // Fetch system stats from server and update dashboard
-        function getSystemStats() {
-            fetch("/sys_state")
-                .then(response => response.json())
-                .then(data => {
-                    updateDashboard(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
+     
+    ///////////////////////////////////////////
+    ///////////////// DASHBOARD ///////////////
 
-        // Update dashboard data with fetched information
-        function updateDashboard(data) {
-            document.getElementById("ecLevel").textContent = data.ec_solution?.value || "N/A";
-            document.getElementById("phLevel").textContent = data.ph_solution?.value || "N/A";
-            document.getElementById("temperature").textContent = data.temperature?.value || "N/A";
+    let solutionTankBar, relayStatesPie;
 
-            // Update bar chart data
+    // Fetch system stats from server and update dashboard
+    function getSystemStats() {
+        fetch("/sys_state")
+            .then(response => response.json())
+            .then(data => {
+                updateDashboard(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Update dashboard data with fetched information
+    function updateDashboard(data) {
+        updateTextContent("ecLevel", data.ec_solution?.value);
+        updateTextContent("phLevel", data.ph_solution?.value);
+        updateTextContent("temperature", data.temperature?.value);
+
+        // Update bar chart data
+        if (solutionTankBar) {
             updateBarChart(solutionTankBar, [
                 data.solution_tank?.value || 0,
                 data.fresh_tank?.value || 0,
                 data.waste_tank?.value || 0
             ]);
+        }
 
-            // Update pie chart data
+        // Update pie chart data
+        if (relayStatesPie) {
             updatePieChart(relayStatesPie, Object.values(data.relay_states || {}).map(r => r.state ? 1 : 0));
         }
+    }
 
-        // Create Bar Chart for tank levels
-        function createBarChart(canvasId, title, labels, data) {
-            const ctx = document.getElementById(canvasId).getContext("2d");
-            return new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: title,
-                        data: data,
-                        backgroundColor: ["#007bff", "#28a745", "#dc3545"],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+    // Safely update text content
+    function updateTextContent(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value !== undefined ? value : "N/A";
+        }
+    }
+
+    // Create Bar Chart for tank levels
+    function createBarChart(canvasId, title, labels) {
+        const ctx = document.getElementById(canvasId)?.getContext("2d");
+        if (!ctx) return null;
+        return new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: title,
+                    data: [0, 0, 0],
+                    backgroundColor: ["#007bff", "#28a745", "#dc3545"],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        // Create Pie Chart for relay states
-        function createPieChart(canvasId, title, labels, data) {
-            const ctx = document.getElementById(canvasId).getContext("2d");
-            return new Chart(ctx, {
-                type: "pie",
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: title,
-                        data: data,
-                        backgroundColor: ["#007bff", "#dc3545"],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-        }
+    // Create Pie Chart for relay states
+    function createPieChart(canvasId, title, labels) {
+        const ctx = document.getElementById(canvasId)?.getContext("2d");
+        if (!ctx) return null;
+        return new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: title,
+                    data: [1, 0],
+                    backgroundColor: ["#007bff", "#dc3545"],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    }
 
-        // Update the bar chart
-        function updateBarChart(chart, data) {
+    // Update the bar chart safely
+    function updateBarChart(chart, data) {
+        if (chart) {
             chart.data.datasets[0].data = data;
             chart.update();
         }
+    }
 
-        // Update the pie chart
-        function updatePieChart(chart, data) {
+    // Update the pie chart safely
+    function updatePieChart(chart, data) {
+        if (chart) {
             chart.data.datasets[0].data = data;
             chart.update();
         }
+    }
 
-        // Set the intervals for fetching system stats and updating dashboard
-        let solutionTankBar = createBarChart("solutionTankBar", "Tank Levels", ["Solution", "Fresh", "Waste"], [0, 0, 0]);
-        let relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"], [1, 0]);
+    // Initialize charts when DOM is loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        solutionTankBar = createBarChart("solutionTankBar", "Tank Levels", ["Solution", "Fresh", "Waste"]);
+        relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"]);
 
-        // Call the function to fetch and update system stats every second
+        // Start fetching system stats every second
         setInterval(getSystemStats, 1000);
+    });
+
+    ///////////////////////////////////////////
+</script>
 
         ///////////////////////////////////////////
 
-    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
