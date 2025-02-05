@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='comunication.js') }}"></script>
     <script> 
-
+    console.log('Script is initialized on Dashboard.html');
         ///////////////////////////////////////////
         ///////////////////DASHBOARD///////////////
 
@@ -25,6 +25,7 @@
 
     // Fetch system stats from server and update dashboard
     function getSystemStats() {
+        console.log('getting sys stats from Dashboard script:');
         fetch("/sys_state")
             .then(response => response.json())
             .then(data => {
