@@ -140,9 +140,15 @@ function updateHistoryChartsFromLog(historyData) {
 
     historyData.forEach(entry => {
         labels.push(entry.timestamp);
-        ecData.push(entry.EC || 0);
-        phData.push(entry.pH || 0);
-        tempData.push(entry.Temperature || 0);
+
+        // Find the last known value if missing
+        const lastEC = ecData.length > 0 ? ecData[ecData.length - 1] : 0;
+        const lastPH = phData.length > 0 ? phData[phData.length - 1] : 0;
+        const lastTemp = tempData.length > 0 ? tempData[tempData.length - 1] : 0;
+
+        ecData.push(entry.EC !== undefined ? entry.EC : lastEC);
+        phData.push(entry.pH !== undefined ? entry.pH : lastPH);
+        tempData.push(entry.Temperature !== undefined ? entry.Temperature : lastTemp);
     });
 
     if (ecHistoryChart) updateLineChart(ecHistoryChart, ecData);
