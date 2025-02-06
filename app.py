@@ -73,6 +73,7 @@ def get_history():
             data = json.load(f)
         except json.JSONDecodeError:
             data = []
+    print(f"History data: {data}")        
     return jsonify(data)
 
 
