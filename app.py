@@ -62,9 +62,27 @@ from control_libs.system_stats import system_state
 
 
 
+@app.route("/get_history")
+def get_history():
+    """ Serve the historical data from readings_log.json """
+    file_path = "data/readings_log.json"
+    if not os.path.exists(file_path):
+        return jsonify([])
+    with open(file_path, "r") as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError:
+            data = []
+    return jsonify(data)
+
+
+
+
 # Define a route that returns the readings dictionary as a JSON response
 @app.route("/sys_state", methods=["GET"])
 def get_system_state():
+
+    print(f"***********System state {system_state}")
     return jsonify(system_state)
 
 
