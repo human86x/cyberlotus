@@ -1,5 +1,5 @@
 from control_libs.arduino import send_command_and_get_response, get_serial_connection
-from control_libs.system_stats import system_state, save_system_state, load_system_state
+from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
 from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
@@ -351,11 +351,13 @@ def perform_ph_test(test_type):
             system_state[f"ph_solution"]["timestamp"] = int(time.time())
             print(f"Updated the pH Solution values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
+            history_log("pH", readings)
         else:
             system_state[f"ph_baseline"]["value"] = readings
             system_state[f"ph_baseline"]["timestamp"] = int(time.time())
             print(f"Updated the pH Baseline values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
+            history_log("pH_baseline", readings)
         return readings
 
     except Exception as e:

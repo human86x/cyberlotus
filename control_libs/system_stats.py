@@ -76,6 +76,57 @@ def load_system_state():
         print(f"Loaded data:{x}")
         return x
 
+
+#import json
+#import os
+#from datetime import datetime
+
+def history_log(data_type, value, file_path="data/readings_log.json"):
+    """
+    Append a new sensor reading to the readings_log.json file.
+    
+    :param data_type: Type of data ("ec", "ph", "temperature")
+    :param value: Sensor reading value
+    :param file_path: Path to the JSON file
+    """
+    # Ensure the file exists
+    if not os.path.exists(file_path):
+        with open(file_path, "w") as f:
+            json.dump([], f)
+    
+    # Read existing data
+    with open(file_path, "r") as f:
+        try:
+            data = json.load(f)
+            if not isinstance(data, list):
+                data = []  # Reset if file content is corrupted
+        except json.JSONDecodeError:
+            data = []  # Reset if file is empty or invalid
+    
+    # Append new data
+    entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        data_type: value
+    }
+    data.append(entry)
+    
+    # Keep only the last 100 entries to prevent excessive file size
+    data = data[-100:]
+    
+    # Write back to file
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=4)
+    
+    print(f"Logged {data_type}: {value}")
+
+# Example usage
+#history_log("ec", 1.23)
+#history_log("ph", 7.1)
+#history_log("temperature", 25.4)
+
+
+
+
 # Example Usage
 # save_system_state(system_state)
 # loaded_state = load_system_state()
