@@ -108,22 +108,47 @@
         });
     }
 
-    function updateHistoryCharts(data) {
-        const timestamp = new Date().toLocaleTimeString();
-        labels.push(timestamp);
-        if (labels.length > 20) labels.shift();
-        console.log(data);
-        ecData.push(data.EC?.value || 0);
-        phData.push(data.pH?.value || 0);
-        tempData.push(data.Temperature?.value || 0);
-        if (ecData.length > 20) ecData.shift();
-        if (phData.length > 20) phData.shift();
-        if (tempData.length > 20) tempData.shift();
+    function getDashboardStats() {
+    console.log('getting sys stats from Dashboard script:');
+    
+    // Fetch real-time data
+    fetch("/sys_state")
+        .then(response => response.json())
+        .then(data => {
+            updateDashboard(data);
+        })
+        .catch(error => {
+            console.error('Error fetching sys_state:', error);
+        });
 
-        if (ecHistoryChart) updateLineChart(ecHistoryChart, ecData);
-        if (phHistoryChart) updateLineChart(phHistoryChart, phData);
-        if (tempHistoryChart) updateLineChart(tempHistoryChart, tempData);
-    }
+    // Fetch historical data
+    fetch("/get_history")
+        .then(response => response.json())
+        .then(data => {
+            updateHistoryChartsFromLog(data);
+        })
+        .catch(error => {
+            console.error('Error fetching history:', error);
+        });
+}
+
+function updateHistoryChartsFromLog(historyData) {
+    labels.length = 0;
+    ecData.length = 0;
+    phData.length = 0;
+    tempData.length = 0;
+
+    historyData.forEach(entry => {
+        labels.push(entry.timestamp);
+        ecData.push(entry.EC || 0);
+        phData.push(entry.pH || 0);
+        tempData.push(entry.Temperature || 0);
+    });
+
+    if (ecHistoryChart) updateLineChart(ecHistoryChart, ecData);
+    if (phHistoryChart) updateLineChart(phHistoryChart, phData);
+    if (tempHistoryChart) updateLineChart(tempHistoryChart, tempData);
+}
 
     function updateLineChart(chart, data) {
         chart.data.labels = labels;
