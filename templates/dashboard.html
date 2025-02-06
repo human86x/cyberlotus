@@ -27,11 +27,14 @@
     }
 
     function getHistoricalData() {
-        fetch("/static/data/readings_log.json")
-            .then(response => response.json())
-            .then(data => updateHistoricalGraphs(data))
-            .catch(error => console.error('Error fetching historical data:', error));
-    }
+    fetch("/get_history")
+        .then(response => response.json())
+        .then(data => {
+            updateHistoricalGraphs(data);
+        })
+        .catch(error => console.error('Error fetching historical data:', error));
+}
+
 
     function updateDashboard(data) {
         updateTextContent("ecLevel", data.ec_solution?.value);
