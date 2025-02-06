@@ -112,10 +112,10 @@
         const timestamp = new Date().toLocaleTimeString();
         labels.push(timestamp);
         if (labels.length > 20) labels.shift();
-
-        ecData.push(data.ec_solution?.value || 0);
-        phData.push(data.ph_solution?.value || 0);
-        tempData.push(data.temperature?.value || 0);
+        console.log(data);
+        ecData.push(data.EC?.value || 0);
+        phData.push(data.pH?.value || 0);
+        tempData.push(data.Temperature?.value || 0);
         if (ecData.length > 20) ecData.shift();
         if (phData.length > 20) phData.shift();
         if (tempData.length > 20) tempData.shift();
