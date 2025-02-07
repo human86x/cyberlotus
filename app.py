@@ -61,7 +61,7 @@ DATA_DIRECTORY = "data"
 
 def load_data():
     try:
-        with open("readings_log.json", "r") as file:
+        with open(f"{DATA_DIRECTORY}/readings_log.json", "r") as file:
             data = json.load(file)
         return data
     except Exception as e:
