@@ -210,6 +210,111 @@
     <button onclick="fetchTankData()">Tanks level</button>
     <button onclick="loadSystemState()">Load System State from a file</button>
 
+
+    <title>Sensor Data Charts</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Sensor Data Over Time</h2>
+
+    <div class="chart-container">
+        <h3>Temperature (°C)</h3>
+        <canvas id="tempChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>EC (µS/cm)</h3>
+        <canvas id="ecChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>pH</h3>
+        <canvas id="phChart"></canvas>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('/data');
+            return response.json();
+        }
+
+        async function updateCharts(tempChart, ecChart, phChart) {
+            const data = await fetchData();
+            const clean = arr => arr.map(x => x !== null ? x : NaN);
+
+            tempChart.data.labels = data.timestamps;
+            tempChart.data.datasets[0].data = clean(data.temperature);
+            tempChart.update();
+
+            ecChart.data.labels = data.timestamps;
+            ecChart.data.datasets[0].data = clean(data.ec);
+            ecChart.update();
+
+            phChart.data.labels = data.timestamps;
+            phChart.data.datasets[0].data = clean(data.ph);
+            phChart.update();
+        }
+
+        function createChart(ctx, label, color) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: label,
+                        borderColor: color,
+                        backgroundColor: color + '33',
+                        data: [],
+                        fill: true,
+                        tension: 0.3,
+                        spanGaps: true
+
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { display: true },
+                        y: { display: true }
+                    }
+                }
+            });
+        }
+
+        async function initCharts() {
+            const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', 'red');
+            const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', 'blue');
+            const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', 'green');
+
+            setInterval(() => updateCharts(tempChart, ecChart, phChart), 5000);
+            updateCharts(tempChart, ecChart, phChart);
+        }
+
+        initCharts();
+    </script>
+
+
 </body>
 </html>
 
