@@ -147,7 +147,7 @@ def load_ec_baseline_route():
     print("trying to load system state file......")
     load_ec_baseline
     ppm = get_ppm()
-    return jsonify(ppm)
+    return ppm
 
 ####################END OF SYSTEM READINGS AND PUMP STATES###############
 
