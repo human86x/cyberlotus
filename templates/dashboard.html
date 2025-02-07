@@ -303,10 +303,9 @@
         }
 
         async function initCharts() {
-            const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', 'red');
-            const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', 'blue');
-            const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', 'green');
-
+            const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500'); // Orange for temperature
+            const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32'); // Dodger Blue for EC
+            const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF'); // Lime Green for pH
             setInterval(() => updateCharts(tempChart, ecChart, phChart), 5000);
             updateCharts(tempChart, ecChart, phChart);
         }
