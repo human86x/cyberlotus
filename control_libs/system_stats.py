@@ -7,7 +7,7 @@ system_state = {
     "ec_solution": {"value": None, "timestamp": None},
     "ec_calibration": {"value": None, "timestamp": None},
     "ec_baseline": {"value": None, "timestamp": None},
-
+    "ppm":{"value": None, "timestamp": None},
     "ph": {"value": None, "timestamp": None},
     "ph_solution": {"value": None, "timestamp": None},
     "ph_baseline": {"value": None, "timestamp": None},
