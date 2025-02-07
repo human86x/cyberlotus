@@ -17,7 +17,9 @@
         ///////////////////////////////////////////
         ///////////////////DASHBOARD///////////////
 
-     
+    function automateJob(){
+        setInterval(solutionPh, 90000);
+    }
     ///////////////////////////////////////////
     ///////////////// DASHBOARD ///////////////
 
@@ -140,6 +142,9 @@
         setInterval(getDashboardStats, 1000);
     });
 
+
+
+
     ///////////////////////////////////////////
 </script>
          <!-- Buttons to trigger manual tests -->
@@ -150,6 +155,8 @@
     <button onclick="fetchTankData()">Tanks level</button>
     <button onclick="loadSystemState()">Load System State from a file</button>
     <button onclick="fetchPpm()">Get ppm of the solution</button>
+    <button onclick="automateJob()">AUTOMATE READINGS</button>
+    
     <div class="container">
         <h2>EC Baseline Value (PPM)</h2>
         <div id="ppmValue" class="value-box">
