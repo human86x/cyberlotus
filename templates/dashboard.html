@@ -142,7 +142,14 @@
 
     ///////////////////////////////////////////
 </script>
-
+         <!-- Buttons to trigger manual tests -->
+          <div>
+    <button onclick="solutionPh()">Solution pH test</button>
+    <button onclick="get_complex_ec()">Solution EC test</button>
+    <button onclick="fetchTemperature()">Solution Temperature test</button>
+    <button onclick="fetchTankData()">Tanks level</button>
+    <button onclick="loadSystemState()">Load System State from a file</button>
+            </div>
         ///////////////////////////////////////////
 
     <style>
@@ -203,13 +210,7 @@
         </div>
     </div>
 
-    <!-- Buttons to trigger manual tests -->
-    <button onclick="solutionPh()">Solution pH test</button>
-    <button onclick="get_complex_ec()">Solution EC test</button>
-    <button onclick="fetchTemperature()">Solution Temperature test</button>
-    <button onclick="fetchTankData()">Tanks level</button>
-    <button onclick="loadSystemState()">Load System State from a file</button>
-
+   
 
     <title>Sensor Data Charts</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
