@@ -4,7 +4,7 @@ from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
 from config_tools.sequencer import execute_sequence
-from control_libs.electric_conductivity import get_correct_EC
+from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline
 import time
 import json
 import statistics
@@ -391,6 +391,7 @@ def perform_ph_test(test_type):
 
 
                     # Update the system state with the EC readings
+            save_ec_baseline(ec_value)
             system_state["ec_baseline"]["value"] = ec_value
             system_state["ec_baseline"]["timestamp"] = int(time.time())
             print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
