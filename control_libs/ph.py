@@ -4,11 +4,19 @@ from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
 from config_tools.sequencer import execute_sequence
+from control_libs.electric_conductivity import get_correct_EC
 import time
 import json
 import statistics
 
 ser = get_serial_connection()
+
+def get_ph_and_ec():
+
+    get_correct_EC()
+    get_correct_ph()
+    return None
+
 
 def get_ph(ser):
     response = send_command_and_get_response(ser, b'P')
@@ -336,7 +344,7 @@ def perform_ph_test(test_type):
         print(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
         
         #sreadings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
-        readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_correct_ph)
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_ph_and_ec)
 
         # Ensure readings are returned or handle case where no readings are received
         if not readings:
