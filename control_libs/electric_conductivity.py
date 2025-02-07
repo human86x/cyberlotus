@@ -68,7 +68,7 @@ def get_ppm():
     load_ec_baseline()
     ec = system_state["ec_solution"]["value"]
     baseline = system_state["ec_baseline"]["value"]
-    ppm = ec - baseline
+    ppm = float(ec) - float(baseline)
     return ppm
 
 def get_EC_calibration_factor():
