@@ -61,13 +61,12 @@ def load_ec_baseline():
         print(f"{calibration_file} does not exist.")
         return None
 
-def get_ppm():
+def get_ppm(baseline, ec):
     global system_state
-    ec = 0
-    baseline = 0
-    load_ec_baseline()
-    ec = system_state["ec_solution"]["value"]
-    baseline = system_state["ec_baseline"]["value"]
+    
+    #load_ec_baseline()
+    #ec = system_state["ec_solution"]["value"]
+    #baseline = system_state["ec_baseline"]["value"]
     ppm = float(ec) - float(baseline)
     print(f"*****PPM:{ppm}")
     return ppm

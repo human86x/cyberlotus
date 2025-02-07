@@ -4,7 +4,7 @@ from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
 from config_tools.sequencer import execute_sequence
-from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline
+from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline, load_ec_baseline, get_ppm
 import time
 import json
 import statistics
@@ -375,6 +375,13 @@ def perform_ph_test(test_type):
         
             system_state["ec_solution"]["value"] = ec_value
             system_state["ec_solution"]["timestamp"] = int(time.time())
+
+            a = load_ec_baseline()
+            b = get_ppm(a, ec_value)
+            system_state["ppm"]["value"] = b
+            system_state["ppm"]["timestamp"] = int(time.time())
+            
+
             history_log("EC", ec_value)
         
             save_system_state(system_state)
