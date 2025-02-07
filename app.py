@@ -73,7 +73,7 @@ def get_history():
             data = json.load(f)
         except json.JSONDecodeError:
             data = []
-    print(f"History data: {data}")        
+    #print(f"History data: {data}")        
     return jsonify(data)
 
 
@@ -83,7 +83,7 @@ def get_history():
 @app.route("/sys_state", methods=["GET"])
 def get_system_state():
 
-    print(f"***********System state {system_state}")
+    #print(f"***********System state {system_state}")
     return jsonify(system_state)
 
 

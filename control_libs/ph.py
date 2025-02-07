@@ -13,9 +13,10 @@ ser = get_serial_connection()
 
 def get_ph_and_ec():
 
-    get_correct_EC()
-    get_correct_ph()
-    return None
+    a = get_correct_EC()
+    b = get_correct_ph()
+    c = f"{a}!{b}"
+    return c
 
 
 def get_ph(ser):
@@ -345,7 +346,15 @@ def perform_ph_test(test_type):
         
         #sreadings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
         readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_ph_and_ec)
+        # Example of processing the returned data
+        data = readings  
+        ec_value, ph_value = data.split("!")
 
+        # Convert to proper types
+        ec_value = int(ec_value)  # Convert EC to integer
+        ph_value = float(ph_value)  # Convert pH to float
+
+        print(f"EC: {ec_value}, pH: {ph_value}")
         # Ensure readings are returned or handle case where no readings are received
         if not readings:
             print("Error: No readings returned from the sequence.")
@@ -355,17 +364,39 @@ def perform_ph_test(test_type):
      
         # Update the system state with the pH readings
         if test_type == "solution":
-            system_state[f"ph_solution"]["value"] = readings
+            system_state[f"ph_solution"]["value"] = ph_value
             system_state[f"ph_solution"]["timestamp"] = int(time.time())
             print(f"Updated the pH Solution values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
-            history_log("pH", readings)
+            history_log("pH", ph_value)
+            ###############ec############
+            system_state["ec"]["value"] = ec_value
+            system_state["ec"]["timestamp"] = int(time.time())
+        
+            system_state["ec_solution"]["value"] = ec_value
+            system_state["ec_solution"]["timestamp"] = int(time.time())
+            history_log("EC", ec_value)
+        
+            save_system_state(system_state)
+
+
+
+
         else:
-            system_state[f"ph_baseline"]["value"] = readings
+            system_state[f"ph_baseline"]["value"] = ph_value
             system_state[f"ph_baseline"]["timestamp"] = int(time.time())
             print(f"Updated the pH Baseline values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
-            history_log("pH_baseline", readings)
+            history_log("pH_baseline", ph_value)
+
+
+                    # Update the system state with the EC readings
+            system_state["ec_baseline"]["value"] = ec_value
+            system_state["ec_baseline"]["timestamp"] = int(time.time())
+            print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
+            history_log("EC_baseline", ec_value)
+
+
         return readings
 
     except Exception as e:
