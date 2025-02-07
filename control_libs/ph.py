@@ -381,7 +381,7 @@ def perform_ph_test(test_type):
             system_state["ppm"]["value"] = b
             system_state["ppm"]["timestamp"] = int(time.time())
             
-
+            history_log("ppm", b)
             history_log("EC", ec_value)
         
             save_system_state(system_state)
