@@ -56,6 +56,49 @@ global PUMP_COMMANDS
 
 
 DATA_DIRECTORY = "data"
+
+################################RUNNING CHART###################
+
+def load_data():
+    try:
+        with open("readings_log.json", "r") as file:
+            data = json.load(file)
+        return data
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        return []
+
+@app.route('/')
+def index():
+    return render_template("chart.html")
+
+@app.route('/data')
+def get_data():
+    data = load_data()
+    filtered_data = {
+        "timestamps": [],
+        "temperature": [],
+        "ec": [],
+        "ph": []
+    }
+    
+    for entry in data:
+        timestamp = entry.get("timestamp")
+        if timestamp:
+            filtered_data["timestamps"].append(timestamp)
+            
+            # Append values if they exist
+            filtered_data["temperature"].append(entry.get("Temperature", None))
+            filtered_data["ec"].append(entry.get("EC", None))
+            filtered_data["ph"].append(entry.get("pH", None))
+    
+    return jsonify(filtered_data)
+
+
+
+
+
+
 ##################SYSTEM CURRENT READINGS AND PUMP STATES###############
 
 from control_libs.system_stats import system_state

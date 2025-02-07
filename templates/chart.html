@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Sensor Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="sensorChart"></canvas>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('/data');
+            return response.json();
+        }
+
+        async function updateChart(chart) {
+            const data = await fetchData();
+            chart.data.labels = data.timestamps;
+            chart.data.datasets[0].data = data.temperature;
+            chart.data.datasets[1].data = data.ec;
+            chart.data.datasets[2].data = data.ph;
+            chart.update();
+        }
+
+        async function initChart() {
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Temperature', borderColor: 'red', data: [] },
+                        { label: 'EC', borderColor: 'blue', data: [] },
+                        { label: 'pH', borderColor: 'green', data: [] }
+                    ]
+                },
+                options: { responsive: true }
+            });
+
+            setInterval(() => updateChart(chart), 5000);
+            updateChart(chart);
+        }
+
+        initChart();
+    </script>
+</body>
+</html>
