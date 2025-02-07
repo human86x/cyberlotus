@@ -68,9 +68,9 @@ def load_data():
         print(f"Error loading data: {e}")
         return []
 
-@app.route('/')
-def index():
-    return render_template("chart.html")
+#@app.route('/')
+#def index():
+#    return render_template("chart.html")
 
 @app.route('/data')
 def get_data():
