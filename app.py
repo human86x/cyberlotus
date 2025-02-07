@@ -92,7 +92,7 @@ def get_data():
             filtered_data["temperature"].append(entry.get("Temperature", None))
             filtered_data["ec"].append(entry.get("EC", None))
             filtered_data["ph"].append(entry.get("pH", None))
-            filtered_data["ppm"].append(entry.get("PPM", None))  # Add PPM value
+            filtered_data["ppm"].append(entry.get("ppm", None))  # Add PPM value
 
     return jsonify(filtered_data)
 
