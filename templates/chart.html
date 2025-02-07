@@ -3,11 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Sensor Chart</title>
+    <title>Sensor Data Charts</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="sensorChart"></canvas>
+
+    <h2>Sensor Data Over Time</h2>
+
+    <div class="chart-container">
+        <h3>Temperature (°C)</h3>
+        <canvas id="tempChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>EC (µS/cm)</h3>
+        <canvas id="ecChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>pH</h3>
+        <canvas id="phChart"></canvas>
+    </div>
 
     <script>
         async function fetchData() {
@@ -15,35 +51,58 @@
             return response.json();
         }
 
-        async function updateChart(chart) {
+        async function updateCharts(tempChart, ecChart, phChart) {
             const data = await fetchData();
-            chart.data.labels = data.timestamps;
-            chart.data.datasets[0].data = data.temperature;
-            chart.data.datasets[1].data = data.ec;
-            chart.data.datasets[2].data = data.ph;
-            chart.update();
+            const clean = arr => arr.map(x => x !== null ? x : NaN);
+
+            tempChart.data.labels = data.timestamps;
+            tempChart.data.datasets[0].data = clean(data.temperature);
+            tempChart.update();
+
+            ecChart.data.labels = data.timestamps;
+            ecChart.data.datasets[0].data = clean(data.ec);
+            ecChart.update();
+
+            phChart.data.labels = data.timestamps;
+            phChart.data.datasets[0].data = clean(data.ph);
+            phChart.update();
         }
 
-        async function initChart() {
-            const ctx = document.getElementById('sensorChart').getContext('2d');
-            const chart = new Chart(ctx, {
+        function createChart(ctx, label, color) {
+            return new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: [],
-                    datasets: [
-                        { label: 'Temperature', borderColor: 'red', data: [] },
-                        { label: 'EC', borderColor: 'blue', data: [] },
-                        { label: 'pH', borderColor: 'green', data: [] }
-                    ]
+                    datasets: [{
+                        label: label,
+                        borderColor: color,
+                        backgroundColor: color + '33',
+                        data: [],
+                        fill: true,
+                        tension: 0.3
+                    }]
                 },
-                options: { responsive: true }
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { display: true },
+                        y: { display: true }
+                    }
+                }
             });
-
-            setInterval(() => updateChart(chart), 5000);
-            updateChart(chart);
         }
 
-        initChart();
+        async function initCharts() {
+            const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', 'red');
+            const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', 'blue');
+            const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', 'green');
+
+            setInterval(() => updateCharts(tempChart, ecChart, phChart), 5000);
+            updateCharts(tempChart, ecChart, phChart);
+        }
+
+        initCharts();
     </script>
+
 </body>
 </html>
