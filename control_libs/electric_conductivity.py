@@ -17,6 +17,37 @@ from control_libs.temperature import read_solution_temperature
 ser = get_serial_connection()
 
 
+import json
+import os
+
+def save_ec_baseline(value):
+    # Define the path to the calibration JSON file
+    calibration_file = 'data/calibration.json'
+
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(calibration_file), exist_ok=True)
+
+    # Load the current calibration data if it exists, otherwise create an empty dictionary
+    if os.path.exists(calibration_file):
+        with open(calibration_file, 'r') as file:
+            calibration_data = json.load(file)
+    else:
+        calibration_data = {}
+
+    # Update the EC_baseline value
+    calibration_data['EC_baseline'] = value
+
+    # Save the updated calibration data back to the JSON file
+    with open(calibration_file, 'w') as file:
+        json.dump(calibration_data, file, indent=4)
+
+    print(f"EC_baseline updated to {value} in {calibration_file}")
+
+
+
+
+
+
 def get_EC_calibration_factor():
     try:
         with open(CALIBRATION_FILE, "r") as file:
@@ -206,6 +237,7 @@ def get_ec_baseline():
             readings = {}
 
         # Update the system state with the EC readings
+        save_ec_baseline(readings)
         system_state["ec_baseline"]["value"] = readings
         system_state["ec_baseline"]["timestamp"] = int(time.time())
         print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
