@@ -63,6 +63,9 @@ def load_ec_baseline():
 
 def get_ppm():
     global system_state
+    ec = 0
+    baseline = 0
+    load_ec_baseline()
     ec = system_state["ec_solution"]["value"]
     baseline = system_state["ec_baseline"]["value"]
     ppm = ec - baseline
