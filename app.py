@@ -139,14 +139,15 @@ def load_system_state_route():
     return loaded_state
 
 
-from control_libs.electric_conductivity import load_ec_baseline
+from control_libs.electric_conductivity import load_ec_baseline, get_ppm
 
-@app.route("/ec_baseline", methods=["GET"])
+@app.route("/ppm", methods=["GET"])
 def load_ec_baseline_route():
     global system_state
     print("trying to load system state file......")
     load_ec_baseline
-    return None
+    ppm = get_ppm()
+    return jsonify(ppm)
 
 ####################END OF SYSTEM READINGS AND PUMP STATES###############
 

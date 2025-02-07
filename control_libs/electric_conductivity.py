@@ -43,6 +43,7 @@ def save_ec_baseline(value):
 
 
 def load_ec_baseline():
+    global system_state
     # Define the path to the calibration JSON file
     calibration_file = 'data/calibration.json'
 
@@ -60,7 +61,7 @@ def load_ec_baseline():
         return None
 
 def get_ppm():
-
+    global system_state
     ec = system_state["ec_solution"]["value"]
     baseline = system_state["ec_baseline"]["value"]
     ppm = ec - baseline

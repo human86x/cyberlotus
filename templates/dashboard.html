@@ -149,7 +149,33 @@
     <button onclick="fetchTemperature()">Solution Temperature test</button>
     <button onclick="fetchTankData()">Tanks level</button>
     <button onclick="loadSystemState()">Load System State from a file</button>
-            </div>
+    <button onclick="fetchPpm()">Get ppm of the solution</button>
+    <div class="container">
+        <h2>EC Baseline Value (PPM)</h2>
+        <div id="ppmValue" class="value-box">
+            Loading...
+        </div>
+    </div>
+
+    <script>
+        async function fetchPpm() {
+            try {
+                const response = await fetch('/ppm');
+                if (response.ok) {
+                    const data = await response.json();
+                    const ppmValue = data.ppm || 'No data available';
+                    document.getElementById('ppmValue').innerText = ppmValue;
+                } else {
+                    document.getElementById('ppmValue').innerText = 'Error loading data';
+                }
+            } catch (error) {
+                console.error('Error fetching ppm value:', error);
+                document.getElementById('ppmValue').innerText = 'Failed to fetch data';
+            }
+        }
+</script>
+    
+</div>
         ///////////////////////////////////////////
 
     <style>
