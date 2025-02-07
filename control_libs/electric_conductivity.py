@@ -17,9 +17,6 @@ from control_libs.temperature import read_solution_temperature
 ser = get_serial_connection()
 
 
-import json
-import os
-
 def save_ec_baseline(value):
     # Define the path to the calibration JSON file
     calibration_file = 'data/calibration.json'
@@ -45,8 +42,29 @@ def save_ec_baseline(value):
 
 
 
+def load_ec_baseline():
+    # Define the path to the calibration JSON file
+    calibration_file = 'data/calibration.json'
 
+    # Check if the file exists
+    if os.path.exists(calibration_file):
+        with open(calibration_file, 'r') as file:
+            calibration_data = json.load(file)
+            c = calibration_data.get('EC_baseline', None)
+        # Retrieve the EC_baseline value if it exists, otherwise return None
+            system_state["ec_baseline"]["value"] = c
+            #system_state["ec"]["timestamp"] = int(time.time())
+        return c
+    else:
+        print(f"{calibration_file} does not exist.")
+        return None
 
+def get_ppm():
+
+    ec = system_state["ec_solution"]["value"]
+    baseline = system_state["ec_baseline"]["value"]
+    ppm = ec - baseline
+    return ppm
 
 def get_EC_calibration_factor():
     try:
