@@ -46,7 +46,7 @@ def load_ec_baseline():
     global system_state
     # Define the path to the calibration JSON file
     calibration_file = 'data/calibration.json'
-
+    print("reading calibration file****************")
     # Check if the file exists
     if os.path.exists(calibration_file):
         with open(calibration_file, 'r') as file:
@@ -54,6 +54,7 @@ def load_ec_baseline():
             c = calibration_data.get('EC_baseline', None)
         # Retrieve the EC_baseline value if it exists, otherwise return None
             system_state["ec_baseline"]["value"] = c
+            print(f"******ec baseline is fetched - {c}")
             #system_state["ec"]["timestamp"] = int(time.time())
         return c
     else:
