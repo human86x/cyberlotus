@@ -40,8 +40,6 @@
 
     // Update dashboard data with fetched information
     function updateDashboard(data) {
-
-
         console.log('updating Dashboard:', data);
         updateTextContent("ecLevel", data.ec_solution?.value);
         updateTextContent("phLevel", data.ph_solution?.value);
@@ -146,25 +144,8 @@
 
 
     ///////////////////////////////////////////
-</script>
-         <!-- Buttons to trigger manual tests -->
-          <div>
-    <button onclick="solutionPh()">Solution pH test</button>
-    <button onclick="get_complex_ec()">Solution EC test</button>
-    <button onclick="fetchTemperature()">Solution Temperature test</button>
-    <button onclick="fetchTankData()">Tanks level</button>
-    <button onclick="loadSystemState()">Load System State from a file</button>
-    <button onclick="fetchPpm()">Get ppm of the solution</button>
-    <button onclick="automateJob()">AUTOMATE READINGS</button>
-    
-    <div class="container">
-        <h2>EC Baseline Value (PPM)</h2>
-        <div id="ppmValue" class="value-box">
-            Loading...
-        </div>
-    </div>
 
-    <script>
+        // Fetch the PPM value
         async function fetchPpm() {
             try {
                 const response = await fetch('/ppm');
@@ -180,175 +161,151 @@
                 document.getElementById('ppmValue').innerText = 'Failed to fetch data';
             }
         }
-</script>
-    
-</div>
-        ///////////////////////////////////////////
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-
-        .big-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-
-        canvas {
-            max-width: 100%;
-        }
-    </style>
-</head>
-<body>
-    <h1 style="text-align: center; padding: 20px;">System Dashboard</h1>
-    <div class="dashboard">
-        <div class="card">
-            <h3>EC Level</h3>
-            <div class="big-number" id="ecLevel">N/A</div>
-        </div>
-        <div class="card">
-            <h3>pH Level</h3>
-            <div class="big-number" id="phLevel">N/A</div>
-        </div>
-        <div class="card">
-            <h3>Temperature</h3>
-            <div class="big-number" id="temperature">N/A</div>
-        </div>
-        <div class="card">
-            <h3>Solution Tank</h3>
-            <canvas id="solutionTankBar"></canvas>
-        </div>
-        <div class="card">
-            <h3>Relay States</h3>
-            <canvas id="relayStatesPie"></canvas>
-        </div>
-    </div>
-
-   
-
-    <title>Sensor Data Charts</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-        }
-        .chart-container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 20px auto;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        canvas {
-            width: 100%;
-            height: 300px;
-        }
-    </style>
-</head>
-<body>
-
-    <h2>Sensor Data Over Time</h2>
-
-    <div class="chart-container">
-        <h3>Temperature (°C)</h3>
-        <canvas id="tempChart"></canvas>
-    </div>
-
-    <div class="chart-container">
-        <h3>EC (µS/cm)</h3>
-        <canvas id="ecChart"></canvas>
-    </div>
-
-    <div class="chart-container">
-        <h3>pH</h3>
-        <canvas id="phChart"></canvas>
-    </div>
-
-    <script>
-        async function fetchData() {
-            const response = await fetch('/data');
-            return response.json();
-        }
-
-        async function updateCharts(tempChart, ecChart, phChart) {
-            const data = await fetchData();
-            const clean = arr => arr.map(x => x !== null ? x : NaN);
-
-            tempChart.data.labels = data.timestamps;
-            tempChart.data.datasets[0].data = clean(data.temperature);
-            tempChart.update();
-
-            ecChart.data.labels = data.timestamps;
-            ecChart.data.datasets[0].data = clean(data.ec);
-            ecChart.update();
-
-            phChart.data.labels = data.timestamps;
-            phChart.data.datasets[0].data = clean(data.ph);
-            phChart.update();
-        }
-
-        function createChart(ctx, label, color) {
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: label,
-                        borderColor: color,
-                        backgroundColor: color + '33',
-                        data: [],
-                        fill: true,
-                        tension: 0.3,
-                        spanGaps: true
-
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { display: true },
-                        y: { display: true }
-                    }
-                }
-            });
-        }
-
-        async function initCharts() {
-            const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500'); // Orange for temperature
-            const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32'); // Dodger Blue for EC
-            const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF'); // Lime Green for pH
-            setInterval(() => updateCharts(tempChart, ecChart, phChart), 5000);
-            updateCharts(tempChart, ecChart, phChart);
-        }
-
-        initCharts();
+        // Call fetchPpm every 5 seconds to update the PPM value
+        setInterval(fetchPpm, 5000);
     </script>
 
+<!-- Buttons to trigger manual tests -->
+<div>
+    <button onclick="solutionPh()">Solution pH test</button>
+    <button onclick="get_complex_ec()">Solution EC test</button>
+    <button onclick="fetchTemperature()">Solution Temperature test</button>
+    <button onclick="fetchTankData()">Tanks level</button>
+    <button onclick="loadSystemState()">Load System State from a file</button>
+    <button onclick="fetchPpm()">Get ppm of the solution</button>
+    <button onclick="automateJob()">AUTOMATE READINGS</button>
+</div>
 
-</body>
+<!-- Displaying EC Baseline Value -->
+<div class="container">
+    <h2>EC Baseline Value (PPM)</h2>
+    <div id="ppmValue" class="value-box">
+        Loading...
+    </div>
+</div>
+
+<!-- Styling for the container -->
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .big-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    canvas {
+        max-width: 100%;
+    }
+
+    .container {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .value-box {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+</style>
+
+<!-- Charts Section -->
+<h2>Sensor Data Over Time</h2>
+
+<div class="chart-container">
+    <h3>Temperature (°C)</h3>
+    <canvas id="tempChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <h3>EC (µS/cm)</h3>
+    <canvas id="ecChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <h3>pH</h3>
+    <canvas id="phChart"></canvas>
+</div>
+
+<script>
+    async function fetchData() {
+        const response = await fetch('/data');
+        return response.json();
+    }
+
+    async function updateCharts(tempChart, ecChart, phChart) {
+        const data = await fetchData();
+        const clean = arr => arr.map(x => x !== null ? x : NaN);
+
+        tempChart.data.labels = data.timestamps;
+        tempChart.data.datasets[0].data = clean(data.temperature);
+        tempChart.update();
+
+        ecChart.data.labels = data.timestamps;
+        ecChart.data.datasets[0].data = clean(data.ec);
+        ecChart.update();
+
+        phChart.data.labels = data.timestamps;
+        phChart.data.datasets[0].data = clean(data.ph);
+        phChart.update();
+    }
+
+    function createChart(ctx, label, color) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: label,
+                    borderColor: color,
+                    backgroundColor: color + '33',
+                    data: [],
+                    fill: true,
+                    tension: 0.3,
+                    spanGaps: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { display: true },
+                    y: { display: true }
+                }
+            }
+        });
+    }
+
+    async function initCharts() {
+        const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500'); // Orange for temperature
+        const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32'); // Dodger Blue for EC
+        const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF'); // Lime Green for pH
+        setInterval(() => updateCharts(tempChart, ecChart, phChart), 5000);
+        updateCharts(tempChart, ecChart, phChart); // Initial load
+    }
+
+    window.onload = initCharts;
+</script>
+
 </html>
-
 {% endblock %}

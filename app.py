@@ -74,12 +74,13 @@ def load_data():
 
 @app.route('/data')
 def get_data():
-    data = load_data()
+    data = load_data()  # Load your data from file or database
     filtered_data = {
         "timestamps": [],
         "temperature": [],
         "ec": [],
-        "ph": []
+        "ph": [],
+        "ppm": []  # Add ppm data to the response
     }
     
     for entry in data:
@@ -91,9 +92,9 @@ def get_data():
             filtered_data["temperature"].append(entry.get("Temperature", None))
             filtered_data["ec"].append(entry.get("EC", None))
             filtered_data["ph"].append(entry.get("pH", None))
-    
-    return jsonify(filtered_data)
+            filtered_data["ppm"].append(entry.get("PPM", None))  # Add PPM value
 
+    return jsonify(filtered_data)
 
 
 
@@ -150,6 +151,7 @@ def load_ec_baseline_route():
     return ppm
 
 ####################END OF SYSTEM READINGS AND PUMP STATES###############
+
 
 
 
