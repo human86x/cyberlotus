@@ -30,7 +30,7 @@ from config_tools.flow_tune import send_command_with_heartbeat, load_flow_rates,
 from flask import Flask, request, send_from_directory
 from config_tools.sequencer import execute_sequence, list_sequence_files
 
-from control_libs.electric_conductivity import get_correct_EC,load_calibration_data, calibrate_ec_sensor, set_baseline_ec
+from control_libs.electric_conductivity import get_correct_EC,load_calibration_data, calibrate_ec_sensor, set_baseline_ec, get_fast_ec
 from flask_socketio import SocketIO, emit
 from control_libs.app_core import CONFIG_FILE_PATH
 from control_libs.electric_conductivity import get_complex_ec_calibration, get_ec_baseline
@@ -62,8 +62,8 @@ DATA_DIRECTORY = "data"
 
 @app.route('/get_fast_ec')
 def get_fast_ec_route():
-    global ser
-    get_ec(ser)
+    #global ser
+    get_fast_ec()
     return
     
 
