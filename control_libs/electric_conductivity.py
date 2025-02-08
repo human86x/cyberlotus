@@ -149,6 +149,7 @@ def get_correct_EC():
 
     # Apply the calibration factor
     corrected_ec_value *= calibration_factor
+    corrected_ec_value = estimated_ec_value
     print(f"Final corrected EC value after applying calibration factor: {corrected_ec_value}")
 
     # Convert the final EC value to an integer before returning
