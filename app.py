@@ -64,7 +64,7 @@ DATA_DIRECTORY = "data"
 def get_fast_ec_route():
     #global ser
     a = get_fast_ec()
-    return a
+    return str(a)  # Convert float to string
     
 
 #####################EC#####################
