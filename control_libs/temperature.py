@@ -7,7 +7,7 @@ from control_libs.system_stats import system_state, history_log ,save_system_sta
 
 
 
-def read_solution_temperature(ser, max_retries=3, min_temp=1, max_temp=30):
+def read_solution_temperature(ser, max_retries=3, min_temp=5, max_temp=30):
     """
     Retrieve temperature of the solution and ensure it's within the valid range.
 
