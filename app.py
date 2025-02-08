@@ -63,8 +63,8 @@ DATA_DIRECTORY = "data"
 @app.route('/get_fast_ec')
 def get_fast_ec_route():
     #global ser
-    get_fast_ec()
-    return
+    a = get_fast_ec()
+    return a
     
 
 #####################EC#####################

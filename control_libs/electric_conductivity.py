@@ -166,8 +166,8 @@ def get_correct_EC():
 def get_fast_ec():
     global ser
     ser = get_serial_connection()
-    get_ec(ser)
-    return None
+    a = get_ec(ser)
+    return a
 
 def get_ec(ser):
     response = send_command_and_get_response(ser, b'D')
