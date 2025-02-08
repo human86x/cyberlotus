@@ -165,10 +165,10 @@ def get_correct_EC():
 
 def get_fast_ec():
     global ser
-    ser = get_serial_connection()
-    time.sleep(3)
+    #ser = get_serial_connection()
+    time.sleep(10)
     a = get_ec(ser)
-    time.sleep(3)
+    time.sleep(10)
     return a
 
 def get_ec(ser):
