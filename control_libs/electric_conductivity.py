@@ -173,7 +173,7 @@ def get_ec(ser):
             #return float(response)
             
             
-
+            history_log("EC", response)
             return response
         except ValueError:
             print(f"Error reading EC: {response}")

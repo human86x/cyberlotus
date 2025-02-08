@@ -189,7 +189,7 @@ let currentStep = 0;
         }
 
         function fetchECValue() {
-            fetch('/get_ec')
+            fetch('/get_fast_ec')
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {

@@ -59,6 +59,24 @@ DATA_DIRECTORY = "data"
 
 ################################RUNNING CHART###################
 
+
+@app.route('/get_fast_ec')
+def get_fast_ec_route():
+
+    get_ec()
+    return
+    
+
+#####################EC#####################
+
+
+
+
+
+
+
+
+
 def load_data():
     try:
         with open(f"{DATA_DIRECTORY}/readings_log.json", "r") as file:
