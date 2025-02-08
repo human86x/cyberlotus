@@ -163,7 +163,10 @@ def get_correct_EC():
     
     return corrected_ec_value
 
-
+def get_fast_ec():
+    global ser
+    get_ec(ser)
+    return None
 
 def get_ec(ser):
     response = send_command_and_get_response(ser, b'D')
