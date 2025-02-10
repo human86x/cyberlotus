@@ -106,7 +106,11 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = int(time.time())
                             return  # Exit after successful confirmation
                         else:
+                             # Unexpected response: Flush buffers and retry
                             print(f"[WARNING] Unexpected response: {response}")
+                            ser.flush()  # Flush output buffer
+                            ser.reset_input_buffer()  # Flush input buffer
+                            break  # Exit the inner loop to retry
 
                     time.sleep(0.1)  # Small delay to avoid CPU overuse
 
