@@ -106,6 +106,9 @@ def execute_commands(commands, weights, flow_rates):
         # Start threads for simultaneous execution
     threads = []
     for arduino_command, duration in zip(arduino_commands, durations):
+        
+        print(f"Threating mechanism activated:arduino_command = {arduino_command} duration - {duration}")
+        
         thread = threading.Thread(target=send_to_arduino, args=(arduino_command, duration))
         threads.append(thread)
         thread.start()
