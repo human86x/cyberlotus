@@ -72,7 +72,7 @@ def send_command_with_heartbeat(command, duration=None):
     If duration is provided, the command assumes a timed operation (e.g., dosing).
     Includes reconnection attempts if the serial port is not open.
     """
-    time.sleep(100)
+    time.sleep(2)
     # Try to connect to Arduino if the port is not open
     if not ser.is_open:
         print("Arduino port not open. Attempting to reconnect...")
