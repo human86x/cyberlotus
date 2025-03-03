@@ -56,14 +56,25 @@
     <script>
         // Populate combobox with letters A-Z
         function populateLetterDropdown() {
-            const dropdown = document.getElementById('letterDropdown');
-            for (let i = 97; i <= 122; i++) { // ASCII codes for A-Z
-                const option = document.createElement('option');
-                option.value = String.fromCharCode(i);
-                option.textContent = String.fromCharCode(i);
-                dropdown.appendChild(option);
-            }
-        }
+    const dropdown = document.getElementById('letterDropdown');
+    
+    // Add lowercase letters (a-z)
+    for (let i = 97; i <= 122; i++) { // ASCII codes for a-z
+        const option = document.createElement('option');
+        option.value = String.fromCharCode(i);
+        option.textContent = String.fromCharCode(i);
+        dropdown.appendChild(option);
+    }
+
+    // Add symbols
+    const symbols = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+', '[', ']', '{', '}', ';', ':', ',', '.'];
+    for (const symbol of symbols) {
+        const option = document.createElement('option');
+        option.value = symbol;
+        option.textContent = symbol;
+        dropdown.appendChild(option);
+    }
+}
 
         // Load relay names JSON
         function loadRelayNames() {
