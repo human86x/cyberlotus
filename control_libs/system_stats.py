@@ -47,12 +47,39 @@ system_state = {
         "relay_q": {"state": None, "timestamp": None},
         "relay_r": {"state": None, "timestamp": None},
         "relay_s": {"state": None, "timestamp": None},
+        "relay_t": {"state": None, "timestamp": None},
+        
         "relay_u": {"state": None, "timestamp": None},
         "relay_v": {"state": None, "timestamp": None},
         "relay_w": {"state": None, "timestamp": None},
         "relay_x": {"state": None, "timestamp": None},
         "relay_y": {"state": None, "timestamp": None},
-        "relay_z": {"state": None, "timestamp": None}
+        "relay_z": {"state": None, "timestamp": None},
+
+
+         # // Add relay states for symbols
+        "relay_!": {"state": None, "timestamp": None},
+        "relay_@": {"state": None, "timestamp": None},
+        "relay_#": {"state": None, "timestamp": None},
+        "relay_$": {"state": None, "timestamp": None},
+        "relay_%": {"state": None, "timestamp": None},
+        "relay_^": {"state": None, "timestamp": None},
+        "relay_&": {"state": None, "timestamp": None},
+        "relay_*": {"state": None, "timestamp": None},
+        "relay_(": {"state": None, "timestamp": None},
+        "relay_)": {"state": None, "timestamp": None},
+        "relay_-": {"state": None, "timestamp": None},
+        "relay__": {"state": None, "timestamp": None}, # // Underscore
+        "relay_=": {"state": None, "timestamp": None},
+        "relay_+": {"state": None, "timestamp": None},
+        "relay_[": {"state": None, "timestamp": None},
+        "relay_]": {"state": None, "timestamp": None},
+        "relay_{": {"state": None, "timestamp": None},
+        "relay_}": {"state": None, "timestamp": None},
+        "relay_;": {"state": None, "timestamp": None},
+        "relay_:": {"state": None, "timestamp": None},
+        "relay_,": {"state": None, "timestamp": None},
+        "relay_.": {"state": None, "timestamp": None}
     }
 }
 
