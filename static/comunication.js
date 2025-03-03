@@ -370,7 +370,7 @@ function adjustTankLevel() {
             clearInterval(progressInterval);
             
             // Refresh tank information after adjustment is complete
-            fetch('/refresh_tank_info')  // Replace with actual endpoint
+            fetch('/adjust_solution_tank')  // Replace with actual endpoint
                 .then(response => response.json())
                 .then(data => updateTankDisplay(data))  // Define this function to update UI
                 .catch(error => console.error('Error:', error));
