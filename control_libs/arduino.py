@@ -58,11 +58,11 @@ def close_serial_connection():
         print("[INFO] Serial connection closed.")
 
 
-
 def safe_serial_write(pump_name, state, retries=5, timeout=2):
     global ser
     global system_stats
     ser = get_serial_connection()
+
     """
     Safely write a pump control command to the serial port and verify Arduino response.
 
@@ -81,19 +81,13 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
 
         while attempt <= retries:
             if ser and ser.is_open:
-                #ser.flushInput()  # Clears the input buffer
-                #ser.flushOutput()  # Clears the output buffer
-                #print(f"Send command and get response -> the command >>> {command}")
+                # Flush serial buffers to avoid leftover data
+                ser.flushInput()  # Clears the input buffer
+                ser.flushOutput()  # Clears the output buffer
 
-        #if isinstance(command, bytes):
-        #    command = command.decode()
-                time.sleep(timeout)  # Retry delay
-
-        
+                print(f"[INFO] Sent command: {command}, waiting for response...")
                 ser.write(command.encode())
                 
-                print(f"[INFO] Sent command: {command}, waiting for response...")
-                time.sleep(timeout)  # Retry delay
                 start_time = time.time()
                 while time.time() - start_time < timeout:
                     if ser.in_waiting > 0:
@@ -106,7 +100,7 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = int(time.time())
                             return  # Exit after successful confirmation
                         else:
-                             # Unexpected response: Flush buffers and retry
+                            # Unexpected response: Flush buffers and retry
                             print(f"[WARNING] Unexpected response: {response}")
                             ser.flush()  # Flush output buffer
                             ser.reset_input_buffer()  # Flush input buffer
@@ -124,13 +118,12 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
         print("[ERROR] Failed to confirm command after retries. Attempting emergency stop.")
         safe_serial_write_emergency()
 
-    except serial.SerialException as e:  # Corrected line
+    except serial.SerialException as e:
         print(f"[ERROR] Serial write failed for {pump_name}: {e}")
         safe_serial_write_emergency()
     except Exception as e:
         print(f"[ERROR] Unexpected error while writing to serial: {e}")
         safe_serial_write_emergency()
-
 def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
     global ser
     global system_state
