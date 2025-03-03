@@ -358,36 +358,52 @@ function loadAppConfig() {
 
         /////////////////////TANKS/////////////////
 
-function adjustTankLevel() {
-    // Show the progress bar
-    document.getElementById("progress-container").style.display = "block";
-    var progressBar = document.getElementById("progress-bar");
-    var width = 0;
-
-    // Simulate progress
-    var progressInterval = setInterval(function() {
-        if (width >= 100) {
-            clearInterval(progressInterval);
-            
-            // Refresh tank information after adjustment is complete
-            fetch('/adjust_solution_tank')  // Replace with actual endpoint
-                .then(response => response.json())
-                .then(data => updateTankDisplay(data))  // Define this function to update UI
-                .catch(error => console.error('Error:', error));
-
-            // Hide progress bar after a delay
-            setTimeout(() => {
-                document.getElementById("progress-container").style.display = "none";
-                progressBar.style.width = "0%";
-            }, 1000);
-        } else {
-            width++;
-            progressBar.style.width = width + "%";
+        function adjustTankLevel() {
+            // Show the progress bar
+            document.getElementById("progress-container").style.display = "block";
+            var progressBar = document.getElementById("progress-bar");
+            var width = 0;
+        
+            // Simulate progress
+            var progressInterval = setInterval(function() {
+                if (width >= 100) {
+                    clearInterval(progressInterval);
+        
+                    // Send a POST request to the /adjust_solution_tank endpoint
+                    fetch('/adjust_solution_tank', {
+                        method: 'POST',  // Use POST method
+                        headers: {
+                            'Content-Type': 'application/json',  // Specify the content type
+                        },
+                        body: JSON.stringify({})  // Send an empty JSON object (or include data if needed)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Update the UI with the response data
+                        updateTankDisplay(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Handle errors (e.g., show an error message to the user)
+                    })
+                    .finally(() => {
+                        // Hide progress bar after a delay
+                        setTimeout(() => {
+                            document.getElementById("progress-container").style.display = "none";
+                            progressBar.style.width = "0%";
+                        }, 1000);
+                    });
+                } else {
+                    width++;
+                    progressBar.style.width = width + "%";
+                }
+            }, 50);  // Adjust speed if necessary
         }
-    }, 50);  // Adjust speed if necessary
-}
-
-
 
 
 
