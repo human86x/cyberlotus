@@ -95,7 +95,7 @@ def execute_commands(commands, weights, flow_rates):
             print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
             return
 
-        if duration_ms >= 9000:
+        if duration_ms >= 500:
             print(f"Debug: Duration {duration:.2f}s exceeds threshold. Using heartbeat-enabled function.")
             send_command_with_heartbeat(command, duration)
         else:
