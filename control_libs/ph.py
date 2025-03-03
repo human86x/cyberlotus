@@ -345,7 +345,7 @@ def perform_ph_test(test_type):
         print(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
         
         #sreadings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
-        readings = execute_sequence(SEQUENCE_FILE, flow_rates)#, get_ph_and_ec
+        readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_ph_and_ec)#, 
         # Example of processing the returned data
         data = readings  
         ec_value, ph_value = data.split("!")
