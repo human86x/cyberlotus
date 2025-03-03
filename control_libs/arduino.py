@@ -98,7 +98,7 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
                             print(f"[SUCCESS] Arduino confirmed action: {response}")
                             system_state["relay_states"]["relay_" + pump_name]["state"] = f"{'ON' if state == 'o' else 'OFF'}"
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = int(time.time())
-                            return  # Exit after successful confirmation
+                            return True# Exit after successful confirmation
                         else:
                             # Unexpected response: Flush buffers and retry
                             print(f"[WARNING] Unexpected response: {response}")
@@ -124,6 +124,10 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
     except Exception as e:
         print(f"[ERROR] Unexpected error while writing to serial: {e}")
         safe_serial_write_emergency()
+
+
+
+
 def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
     global ser
     global system_state
@@ -166,7 +170,7 @@ def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
                             print(f"[SUCCESS] Arduino confirmed action: {response}")
                             system_state["relay_states"]["relay_" + pump_name]["state"] = f"ON for {duration}ms"
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = int(time.time())
-                            return  # Exit after successful confirmation
+                            return True # Exit after successful confirmation
                         else:
                             print(f"[WARNING] Unexpected response: {response}")
 
