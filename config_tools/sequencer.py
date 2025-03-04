@@ -48,9 +48,11 @@ def execute_commands(commands, weights, flow_rates):
         if flow_rate == 0:
             print(f"Error: Flow rate for '{command}' is zero, cannot calculate duration.")
             return False
-
         duration = weight / flow_rate
         durations.append(duration)
+        print(f"Duration - {duration} weight - {weight} flow_rate - {flow_rate}")
+        print(f"durations - {durations}")
+
 
     # Ensure all durations are the same (required for simultaneous operation)
     if len(set(durations)) != 1:
