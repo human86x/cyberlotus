@@ -277,7 +277,7 @@ def safe_serial_write_emergency():
 
 
 
-def send_command_and_get_response(ser, command, retries=5, timeout=0.3):
+def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     attempt = 0
     
     while attempt < retries:
