@@ -17,10 +17,20 @@ SEQUENCE_DIRECTORY = 'sequences/'
 
 def execute_commands(commands, weights, flow_rates):
     """
-    Execute multiple commands for specific weights using flow rates.
-    Pumps are turned on sequentially but appear to run simultaneously.
+    Execute multiple commands for specific weights using flow rates sequentially.
+
+    Parameters:
+        commands (list or str): Command(s) to execute. Can be a single string or a list of strings.
+        weights (float, int, or list): Weight(s) corresponding to each command. Can be a single value or a list.
+        flow_rates (dict): Dictionary containing the flow rates for each pump command.
+
+    Returns:
+        bool: True if all commands were executed successfully, False otherwise.
     """
     print(f"Executing commands: {commands} for weights {weights}")
+
+    arduino_commands = []
+    durations = []
 
     # Convert single command or weight to list for consistent processing
     if isinstance(commands, str):
@@ -37,63 +47,56 @@ def execute_commands(commands, weights, flow_rates):
     print(f"Final Commands: {commands}")
     print(f"Final Weights: {weights}")
 
-    # Calculate durations for each command
-    durations = []
     for command, weight in zip(commands, weights):
+        # Check for missing flow rates
         if command not in flow_rates:
             print(f"Error: Flow rate for '{command}' not found in flow rates file.")
             return False
 
-        flow_rate = flow_rates[command]
-        if flow_rate == 0:
-            print(f"Error: Flow rate for '{command}' is zero, cannot calculate duration.")
-            return False
-        duration = weight / flow_rate
-        durations.append(duration)
-        print(f"Duration - {duration} weight - {weight} flow_rate - {flow_rate}")
-        print(f"durations - {durations}")
-
-
-    # Ensure all durations are the same (required for simultaneous operation)
-    if len(set(durations)) != 1:
-        print("Error: Durations must be the same for simultaneous pump operation.")
-        return False
-
-    duration = durations[0]  # All durations are the same
-    duration_ms = int(round(duration * 1000))
-
-    if duration_ms <= 0:
-        print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
-        return False
-
-    # Turn on all pumps sequentially
-    for command in commands:
+        # Check for invalid pump commands
         if command not in PUMP_COMMANDS:
             print(f"Error: Command '{command}' not recognized in PUMP_COMMANDS.")
             return False
 
+        # Translate logical command to Arduino command
         arduino_command = PUMP_COMMANDS[command]
-        print(f"Debug: Turning on '{command}' (Arduino command: '{arduino_command}').")
 
-        if not safe_serial_write_precise(arduino_command + "_ON", 0):  # Send "ON" command
-            print(f"Error: Failed to turn on '{command}'.")
+        # Calculate duration based on flow rate
+        flow_rate = flow_rates[command]
+        if flow_rate == 0:
+            print(f"Error: Flow rate for '{command}' is zero, cannot calculate duration.")
             return False
 
-    # Wait for the required duration
-    print(f"Debug: Waiting for {duration:.2f}s.")
-    time.sleep(duration)
+        duration = weight / flow_rate
+        arduino_commands.append(arduino_command)
+        durations.append(duration)
 
-    # Turn off all pumps sequentially
-    for command in commands:
-        arduino_command = PUMP_COMMANDS[command]
-        print(f"Debug: Turning off '{command}' (Arduino command: '{arduino_command}').")
+        # Debugging: Show command translation and execution details
+        print(f"Debug: Command '{command}' translated to '{arduino_command}', "
+              f"Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
 
-        if not safe_serial_write_precise(arduino_command + "_OFF", 0):  # Send "OFF" command
-            print(f"Error: Failed to turn off '{command}'.")
+    # Execute commands sequentially
+    for arduino_command, duration in zip(arduino_commands, durations):
+        print(f"Debug: Sending command '{arduino_command}' to Arduino with duration {duration:.2f}s.")
+
+        # Convert duration to milliseconds and round to nearest integer
+        duration_ms = int(round(duration * 1000))
+
+        if duration_ms <= 0:
+            print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
             return False
+
+        if duration_ms >= 500:
+            print(f"Debug: Duration {duration:.2f}s exceeds threshold. Using heartbeat-enabled function.")
+            if not send_command_with_heartbeat(arduino_command, duration):
+                print(f"Error: Failed to send command '{arduino_command}' with heartbeat.")
+                return False
+        else:
+            if not safe_serial_write_precise(arduino_command, duration_ms):
+                print(f"Error: Failed to send command '{arduino_command}'.")
+                return False
 
     return True
-
 
 
 def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
