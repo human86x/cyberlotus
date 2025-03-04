@@ -3,7 +3,7 @@ from control_libs.system_stats import system_state, history_log ,save_system_sta
 from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
-from config_tools.sequencer import execute_sequence
+from config_tools.sequencer import execute_sequence, execute_commands
 from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline, load_ec_baseline, get_ppm
 import time
 import json
@@ -11,8 +11,36 @@ import statistics
 
 ser = get_serial_connection()
 
-def get_ph_and_ec():
+import time
 
+def get_ph_and_ec():
+    global SEQUENCE_DIR  # Ensure SEQUENCE_DIR is defined globally
+    
+    sequence = "sensors_drain.json"
+    SEQUENCE_FILE = SEQUENCE_DIR + sequence
+    flow_rates = load_flow_rates()  # This loads the flow rates as intended
+    
+    if not flow_rates:
+        print("Error: Flow rates not loaded.")
+        return {}
+
+    while True:  # Use a loop to retry instead of `goto`
+        response = send_command_and_get_response(ser, b'Q')
+        print(f"********** Sensor chambers humidity value is {response}")
+        
+        # Update system state with the sensor data
+        system_state["sensor_chamber"]["value"] = response
+        system_state["sensor_chamber"]["timestamp"] = int(time.time())
+        print("Updated the Sensor chambers humidity data.")
+
+        if response > 50:
+            print(f"Draining the chambers using {SEQUENCE_FILE} sequence.")
+            execute_sequence(SEQUENCE_FILE, flow_rates)
+            continue  # Retry the humidity check after draining
+        else:
+            break  # Exit the loop if humidity is <= 50
+
+    print("Chambers are dry, proceeding with the test.")
     a = get_correct_EC()
     b = get_correct_ph()
     c = f"{a}!{b}"
