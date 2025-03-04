@@ -132,6 +132,7 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
     """
     print("SEQUENCE FUNCTION    ENTRY POINT")
     #sequence_file = "sequences/" + sequence_file 
+    readings = None
     if flow_rates is None:
         flow_rates = FLOW_RATES
 
