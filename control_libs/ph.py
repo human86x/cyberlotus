@@ -238,7 +238,7 @@ def get_correct_ph():
     high_raw_value = get_ph_calibration_factor_high()
 
 
-    num_readings = 10
+    num_readings = 3
     ph_values = []
 
     print("Collecting pH readings...")

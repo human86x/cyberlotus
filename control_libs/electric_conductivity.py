@@ -94,7 +94,7 @@ def get_correct_EC():
         int: The corrected EC value as an integer, or None if no valid readings were obtained.
     """
     calibration_factor = get_EC_calibration_factor()
-    num_readings = 4  # Change number of readings to 4
+    num_readings = 3  # Change number of readings to 4
     ec_values = []
 
     print("Collecting EC readings...")
