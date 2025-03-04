@@ -21,6 +21,8 @@ system_state = {
     "solution_tank": {"value": None, "timestamp": None},
     "fresh_tank": {"value": None, "timestamp": None},
     "waste_tank": {"value": None, "timestamp": None},
+    "sensor_chamber": {"value": None, "timestamp": None},
+    
     
     "relay_states": {
         "relay_a": {"state": None, "timestamp": None},
