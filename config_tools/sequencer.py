@@ -17,7 +17,8 @@ SEQUENCE_DIRECTORY = 'sequences/'
 
 def execute_commands(commands, weights, flow_rates):
     """
-    Execute multiple commands for specific weights using flow rates sequentially.
+    Execute multiple commands for specific weights using flow rates.
+    Turn ON all pumps sequentially, wait for the duration, then turn OFF all pumps sequentially.
 
     Parameters:
         commands (list or str): Command(s) to execute. Can be a single string or a list of strings.
@@ -75,29 +76,37 @@ def execute_commands(commands, weights, flow_rates):
         print(f"Debug: Command '{command}' translated to '{arduino_command}', "
               f"Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
 
-    # Execute commands sequentially
-    for arduino_command, duration in zip(arduino_commands, durations):
-        print(f"Debug: Sending command '{arduino_command}' to Arduino with duration {duration:.2f}s.")
+    # Ensure all durations are the same (required for simultaneous operation)
+    if len(set(durations)) != 1:
+        print("Error: Durations must be the same for simultaneous pump operation.")
+        return False
 
-        # Convert duration to milliseconds and round to nearest integer
-        duration_ms = int(round(duration * 1000))
+    duration = durations[0]  # All durations are the same
+    duration_ms = int(round(duration * 1000))
 
-        if duration_ms <= 0:
-            print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
+    if duration_ms <= 0:
+        print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
+        return False
+
+    # Turn ON all pumps sequentially
+    for arduino_command in arduino_commands:
+        print(f"Debug: Turning ON '{arduino_command}'.")
+        if not send_command_with_heartbeat(arduino_command, duration=0):  # Turn ON without waiting
+            print(f"Error: Failed to turn ON '{arduino_command}'.")
             return False
 
-        if duration_ms >= 500:
-            print(f"Debug: Duration {duration:.2f}s exceeds threshold. Using heartbeat-enabled function.")
-            if not send_command_with_heartbeat(arduino_command, duration):
-                print(f"Error: Failed to send command '{arduino_command}' with heartbeat.")
-                return False
-        else:
-            if not safe_serial_write_precise(arduino_command, duration_ms):
-                print(f"Error: Failed to send command '{arduino_command}'.")
-                return False
+    # Wait for the required duration
+    print(f"Debug: Waiting for {duration:.2f}s.")
+    time.sleep(duration)
+
+    # Turn OFF all pumps sequentially
+    for arduino_command in arduino_commands:
+        print(f"Debug: Turning OFF '{arduino_command}'.")
+        if not send_command_with_heartbeat(arduino_command, duration=-1):  # Turn OFF
+            print(f"Error: Failed to turn OFF '{arduino_command}'.")
+            return False
 
     return True
-
 
 def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
     """
