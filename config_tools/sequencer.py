@@ -97,7 +97,16 @@ def execute_commands(commands, weights, flow_rates):
 
     # Wait for the required duration
     print(f"Debug: Waiting for {duration:.2f}s.")
-    time.sleep(duration)
+    #print(f"Pump '{command}' turned ON. Waiting for {duration:.2f}s...")
+
+    start_time = time.time()
+    while time.time() - start_time < duration:
+        time_elapsed = time.time() - start_time
+        progress = min(int((time_elapsed / duration) * 100), 100)  # Ensure max progress is 100%
+        print(f"Operation in progress... {progress}% complete.", end="\r")
+        time.sleep(0.1)  # Small delay to avoid excessive CPU usage
+
+    #time.sleep(duration)
 
     # Turn OFF all pumps sequentially
     for arduino_command in arduino_commands:
