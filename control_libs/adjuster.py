@@ -83,10 +83,22 @@ def load_target_values():
         x = json.load(f)
         print(f"Loaded data:{x}")
 
-        #3target_NPK = x.get('value')  # Extract the 'value' field
+        target_NPK = x.get('EC')  # Extract the 'value' field
+        target_temp = x.get('temperature')  # Extract the 'value' field
+        target_pH = x.get('pH')  # Extract the 'value' field
+        target_solution = x.get('solution')  # Extract the 'value' field
 
-
-        #system_state["sensor_chamber"]["value"] = response
-        #system_state["sensor_chamber"]["timestamp"] = int(time.time())
-        print("Updated the Sensor chambers humidity data.")
-        return x
+        system_state["target_NPK"]["value"] = target_NPK
+        system_state["target_NPK"]["timestamp"] = int(time.time())
+        
+        system_state["target_temp"]["value"] = target_temp
+        system_state["target_temp"]["timestamp"] = int(time.time())
+        
+        system_state["target_pH"]["value"] = target_pH
+        system_state["target_pH"]["timestamp"] = int(time.time())
+        
+        system_state["target_solution"]["value"] = target_solution
+        system_state["target_solution"]["timestamp"] = int(time.time())
+        
+        print("Updated Target Values.")
+        return None
