@@ -62,30 +62,36 @@ DATA_DIRECTORY = "data"
 @app.route('/ph_up', methods=['POST'])
 def ph_up_route():
     data = request.json
+    data = data.get('value')  # Extract the 'value' field
+
     ph_up(data)
     return None
  
 @app.route('/ph_down', methods=['POST'])
 def ph_down_route():
     data = request.json
+    data = data.get('value')  # Extract the 'value' field
     ph_down(data)
     return None
 
 @app.route('/npk_up', methods=['POST'])
 def npk_up_route():
     data = request.json
+    data = data.get('value')  # Extract the 'value' field
     nutrients_up(data)
     return None
 
 @app.route('/npk_down', methods=['POST'])
 def npk_down_route():
     data = request.json
+    data = data.get('value')  # Extract the 'value' field
     nutrients_down(data)
     return None
 
 @app.route('/temperature_up', methods=['POST'])
 def temp_up_route():
     data = request.json
+    data = data.get('value')  # Extract the 'value' field
     temperature_up(data)
     return None
 
