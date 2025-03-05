@@ -13,7 +13,7 @@ import json
 #from app import adjust_tank_level
 pump_progress = {}
 
-
+ser = get_serial_connection()
 
 def ph_up(weight):
     print(f"______________weight - {weight}")
@@ -105,6 +105,7 @@ from control_libs.temperature import read_solution_temperature
 def temperature_control():
     global system_state
     global PUMP_COMMANDS
+    global ser
     pump_name = "heater_1"
     solution_temperature = read_solution_temperature(ser)
     target_temp = system_state["target_temp"]["value"]
