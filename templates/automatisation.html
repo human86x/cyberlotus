@@ -130,6 +130,12 @@
             const url = '/load_target';
             sendRequest(url, { value: parseFloat(value) });
         }
+
+        function condition_monitor() {
+            const value = 0;//document.getElementById('temperatureUpValue').value;
+            const url = '/condition_monitor';
+            sendRequest(url, { value: parseFloat(value) });
+        }
     </script>
 
 </body>
