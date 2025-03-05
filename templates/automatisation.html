@@ -17,100 +17,104 @@
    </script>
 </head>
 
-        <title>Control Panel</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 20px;
-            }
-            .control-group {
-                margin-bottom: 15px;
-            }
-            .control-group label {
-                display: inline-block;
-                width: 150px;
-                font-weight: bold;
-            }
-            .control-group input {
-                width: 100px;
-                padding: 5px;
-                margin-left: 10px;
-            }
-            .control-group button {
-                padding: 5px 10px;
-                margin-left: 10px;
-                cursor: pointer;
-            }
-        </style>
-    </head>
-    <body>
-    
-        <h1>Control Panel</h1>
-    
-        <div class="control-group">
-            <label for="phUpValue">pH Up:</label>
-            <input type="number" id="phUpValue" placeholder="Enter value">
-            <button onclick="adjustPH('up')">pH Up</button>
-        </div>
-    
-        <div class="control-group">
-            <label for="phDownValue">pH Down:</label>
-            <input type="number" id="phDownValue" placeholder="Enter value">
-            <button onclick="adjustPH('down')">pH Down</button>
-        </div>
-    
-        <div class="control-group">
-            <label for="nutrientsUpValue">Nutrients Up:</label>
-            <input type="number" id="nutrientsUpValue" placeholder="Enter value">
-            <button onclick="adjustNutrients('up')">Nutrients Up</button>
-        </div>
-    
-        <div class="control-group">
-            <label for="nutrientsDownValue">Nutrients Down:</label>
-            <input type="number" id="nutrientsDownValue" placeholder="Enter value">
-            <button onclick="adjustNutrients('down')">Nutrients Down</button>
-        </div>
-    
-        <div class="control-group">
-            <label for="waterHeatingValue">Water Heating:</label>
-            <input type="number" id="waterHeatingValue" placeholder="Enter value">
-            <button onclick="adjustWaterHeating()">Water Heating</button>
-        </div>
-    
-        <div class="control-group">
-            <label for="solutionLevelValue">Adjust Solution Level:</label>
-            <input type="number" id="solutionLevelValue" placeholder="Enter value">
-            <button onclick="adjustSolutionLevel()">Adjust Solution Level</button>
-        </div>
-    
-        <script>
-            function adjustPH(direction) {
-                const value = direction === 'up' ? document.getElementById('phUpValue').value : document.getElementById('phDownValue').value;
-                alert(`Adjusting pH ${direction} by ${value}`);
-                // Add your logic here to adjust pH
-            }
-    
-            function adjustNutrients(direction) {
-                const value = direction === 'up' ? document.getElementById('nutrientsUpValue').value : document.getElementById('nutrientsDownValue').value;
-                alert(`Adjusting Nutrients ${direction} by ${value}`);
-                // Add your logic here to adjust nutrients
-            }
-    
-            function adjustWaterHeating() {
-                const value = document.getElementById('waterHeatingValue').value;
-                alert(`Adjusting Water Heating by ${value}`);
-                // Add your logic here to adjust water heating
-            }
-    
-            function adjustSolutionLevel() {
-                const value = document.getElementById('solutionLevelValue').value;
-                alert(`Adjusting Solution Level by ${value}`);
-                // Add your logic here to adjust solution level
-            }
-        </script>
+    <title>Control Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        .control-group input {
+            width: 100px;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        .control-group button {
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
 
+    <h1>Control Panel</h1>
+
+    <div class="control-group">
+        <label for="phUpValue">pH Up:</label>
+        <input type="number" id="phUpValue" placeholder="Enter value">
+        <button onclick="adjustPH('up')">pH Up</button>
+    </div>
+
+    <div class="control-group">
+        <label for="phDownValue">pH Down:</label>
+        <input type="number" id="phDownValue" placeholder="Enter value">
+        <button onclick="adjustPH('down')">pH Down</button>
+    </div>
+
+    <div class="control-group">
+        <label for="nutrientsUpValue">Nutrients Up:</label>
+        <input type="number" id="nutrientsUpValue" placeholder="Enter value">
+        <button onclick="adjustNutrients('up')">Nutrients Up</button>
+    </div>
+
+    <div class="control-group">
+        <label for="nutrientsDownValue">Nutrients Down:</label>
+        <input type="number" id="nutrientsDownValue" placeholder="Enter value">
+        <button onclick="adjustNutrients('down')">Nutrients Down</button>
+    </div>
+
+    <div class="control-group">
+        <label for="temperatureUpValue">Temperature Up:</label>
+        <input type="number" id="temperatureUpValue" placeholder="Enter value">
+        <button onclick="adjustTemperature('up')">Temperature Up</button>
+    </div>
+
+    <script>
+        async function sendRequest(url, data) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                alert('Action successful!');
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function adjustPH(direction) {
+            const value = direction === 'up' ? document.getElementById('phUpValue').value : document.getElementById('phDownValue').value;
+            const url = direction === 'up' ? '/ph_up' : '/ph_down';
+            sendRequest(url, { value: parseFloat(value) });
+        }
+
+        function adjustNutrients(direction) {
+            const value = direction === 'up' ? document.getElementById('nutrientsUpValue').value : document.getElementById('nutrientsDownValue').value;
+            const url = direction === 'up' ? '/npk_up' : '/npk_down';
+            sendRequest(url, { value: parseFloat(value) });
+        }
+
+        function adjustTemperature(direction) {
+            const value = document.getElementById('temperatureUpValue').value;
+            const url = '/temperature_up';
+            sendRequest(url, { value: parseFloat(value) });
+        }
+    </script>
 
 </body>
 </html>
-
 {% endblock %}

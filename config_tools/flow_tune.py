@@ -69,8 +69,13 @@ def send_command_with_heartbeat(command, duration=None):
     global ser
     """
     Send a command to Arduino with heartbeat checks before and during operation.
-    If duration is provided, the command assumes a timed operation (e.g., dosing).
-    Includes reconnection attempts if the serial port is not open.
+
+    Parameters:
+        command (str): The command to send (e.g., pump name).
+        duration (float or int): Duration in seconds.
+            - If duration == 0: Turn ON the pump and exit immediately.
+            - If duration == -1: Turn OFF the pump and exit immediately.
+            - If duration > 0: Turn ON the pump, wait for the duration, then turn OFF the pump.
     """
     time.sleep(2)
     # Try to connect to Arduino if the port is not open
@@ -83,33 +88,34 @@ def send_command_with_heartbeat(command, duration=None):
 
     print(f"Preparing to send command '{command}' to Arduino...")
 
-    # Simulate heartbeat verification (this could be uncommented if you have a heartbeat check function)
-    # if not wait_for_heartbeat():
-    #     print("Error: No heartbeat detected. Arduino may not be responding.")
-    #     return False
+    if duration == 0:
+        # Turn ON the pump and exit immediately
+        safe_serial_write(command, "o")  # "o" for ON
+        print(f"Pump '{command}' turned ON.")
+        return True
+    elif duration == -1:
+        # Turn OFF the pump and exit immediately
+        safe_serial_write(command, "f")  # "f" for OFF
+        print(f"Pump '{command}' turned OFF.")
+        return True
+    elif duration > 0:
+        # Turn ON the pump, wait for the duration, then turn OFF the pump
+        safe_serial_write(command, "o")  # "o" for ON
+        print(f"Pump '{command}' turned ON. Waiting for {duration:.2f}s...")
 
-    #print("Heartbeat verified. Sending command to Arduino...")
-    #ser.write(f"{command}".encode(),"o")  # Turn on the pump
-    safe_serial_write(command,"o")
-
-    if duration:
         start_time = time.time()
         while time.time() - start_time < duration:
             time_elapsed = time.time() - start_time
             progress = min(int((time_elapsed / duration) * 100), 100)  # Ensure max progress is 100%
             print(f"Operation in progress... {progress}% complete.", end="\r")
-
-            # Simulate heartbeat check during operation (uncomment if needed)
-            # if not wait_for_heartbeat(timeout=1):
-            #     print("\nWarning: Arduino heartbeat delay detected during operation!")
-            #     break
-
             time.sleep(0.1)  # Small delay to avoid excessive CPU usage
 
-        safe_serial_write(command,"f")  # Turn off the pump
-        print("\nOperation complete.")
-
-    return True
+        safe_serial_write(command, "f")  # "f" for OFF
+        print(f"\nPump '{command}' turned OFF.")
+        return True
+    else:
+        print(f"Error: Invalid duration value {duration}. Duration must be 0, -1, or a positive number.")
+        return False
 
 def calibrate_pump(pump_name):
     """Calibrate the pump by determining its flow rate."""
@@ -148,6 +154,45 @@ def test_pump(pump_name, weight):
     print(f"Activating pump '{pump_name}' for {duration:.2f} seconds to dispense {weight} grams.")
     if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=duration):
         print(f"Error: Failed to complete operation for pump '{pump_name}'.")
+
+
+pump_progress ={}
+
+def test_pump_with_progress(pump_name, weight):
+    #global PUMP_COMMANDS  # Ensure global access
+    global PUMP_COMMANDS  # Ensure global access
+    PUMP_COMMANDS = load_pump_commands()
+    #pump_names = list(PUMP_COMMANDS.keys())
+    global ser
+    ser = get_serial_connection()
+    """Test the pump with progress updates."""
+    
+    flow_rates = load_flow_rates()
+    print(f"******pump_name======={pump_name}")
+    if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
+        pump_progress[pump_name] = -1  # Error state
+        return
+
+    flow_rate = flow_rates[pump_name]
+    duration = weight / flow_rate
+
+    #ser.write(f"{PUMP_COMMANDS[pump_name]}o".encode())
+    safe_serial_write(PUMP_COMMANDS[pump_name], 'o')  # Turn ON
+    for i in range(int(duration * 10)):
+        pump_progress[pump_name] = int((i / (duration * 10)) * 100)
+        time.sleep(0.1)
+        print(f"Adjustment process - {pump_progress[pump_name]}")
+
+    #ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
+    safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn Off
+    pump_progress[pump_name] = 100  # Complete
+
+
+
+
+
+
+
 
 # Example usage
 if __name__ == "__main__":

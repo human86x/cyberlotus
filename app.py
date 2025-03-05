@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from config_tools.tank_manager import load_tanks, add_tank, test_tanks
+from config_tools.tank_manager import load_tanks, add_tank, test_tanks, adjust_tank_level
 
 from flask import flash
-from config_tools.flow_tune import calibrate_pump, test_pump, load_pump_commands
+from config_tools.flow_tune import calibrate_pump, test_pump_with_progress, test_pump, load_pump_commands
 
 from flask import Response
 from queue import Queue
@@ -20,6 +20,7 @@ from control_libs.electric_conductivity import get_ec, get_complex_ec_reading,  
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import safe_serial_write, emergency_stop, safe_serial_write_emergency
 from control_libs.app_core import load_config
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
 
@@ -37,7 +38,7 @@ from control_libs.electric_conductivity import get_complex_ec_calibration, get_e
 
 from control_libs.system_stats import load_system_state
 from control_libs.ph import get_correct_ph
-
+from control_libs.adjuster import ph_down, temperature_up, ph_up, nutrients_up, nutrients_down
 APP_CONFIG_FILE = "data/app_config.json"
 # Store progress globally
 pump_progress = {}
@@ -56,6 +57,39 @@ global PUMP_COMMANDS
 
 
 DATA_DIRECTORY = "data"
+
+
+@app.route('/ph_up', methods=['POST'])
+def ph_up_route():
+    data = request.json
+    ph_up(data)
+    return None
+
+@app.route('/ph_down', methods=['POST'])
+def ph_down_route():
+    data = request.json
+    ph_down(data)
+    return None
+
+@app.route('/npk_up', methods=['POST'])
+def npk_up_route():
+    data = request.json
+    nutrients_up(data)
+    return None
+
+@app.route('/npk_down', methods=['POST'])
+def npk_down_route():
+    data = request.json
+    nutrients_down(data)
+    return None
+
+@app.route('/temperature_up', methods=['POST'])
+def temp_up_route():
+    data = request.json
+    temperature_up(data)
+    return None
+
+
 
 ################################RUNNING CHART###################
 
@@ -754,60 +788,6 @@ def drain_waste():
 def adjust_solution_tank():
     return adjust_tank_level('solution')
 
-def adjust_tank_level(tank_name):
-    global PUMP_COMMANDS
-    print(f"Adjusting tank level for {tank_name}...")
-
-    try:
-        # Load configuration from app_config.json
-        with open('data/app_config.json', 'r') as file:
-            app_config = json.load(file)
-        
-        # Retrieve the pumps to be used for fill or drain actions
-        fill_pump = app_config.get('fill_pump', 'fresh_solution')
-        drain_pump = app_config.get('drain_pump', 'solution_waste')
-        solution_level = float(app_config.get('solution_level', 50))  # Default 50 if not found
-        
-        # Fetch the tank levels from `tank_manager.py`
-        tank_results = test_tanks()  # This function will give you the current levels
-        print(f"Tank data fetched****{tank_results}")
-        
-        # Get the data for the specific tank
-        tank_data = load_tanks()
-        
-        if not tank_data:
-            print(f"Tank {tank_name} not found in the results.")
-            return jsonify({"status": "error", "message": f"Tank {tank_name} not found"}), 400
-
-        current_volume = tank_results[tank_name]['current_volume']
-        total_volume = tank_data[tank_name]['total_volume']
-
-        # Calculate the volume to add or drain
-        stored_volume = (solution_level / 100) * total_volume
-        volume_difference = current_volume - stored_volume
-        print(f"Volume Difference {volume_difference}...")
-        if volume_difference > 0:
-            # Need to drain liquid
-            print(f"Draining {volume_difference:.2f} L of solution from {tank_name}.")
-            weight_to_drain = volume_difference * 1000  # Convert to weight (multiply by 100)
-            print(f"Weight to drain {weight_to_drain}...")
-            test_pump_with_progress(drain_pump, weight_to_drain)
-        elif volume_difference < 0:
-            # Need to add liquid
-            print(f"Adding {-volume_difference:.2f} L of solution to {tank_name}.")
-            weight_to_add = -volume_difference * 1000  # Convert to weight (multiply by 100)
-            print(f"Weight_to_add {weight_to_add}...")
-            test_pump_with_progress(fill_pump, weight_to_add)
-        else:
-            print(f"Tank {tank_name} is already at the correct level.")
-
-        return jsonify({"status": "success", "message": f"Tank {tank_name} adjusted successfully"})
-
-    except Exception as e:
-        print(f"Error adjusting tank level: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
 
 
 @app.route('/compare_solution_level', methods=['GET'])
@@ -1095,37 +1075,6 @@ def calibrate_pump_with_progress(pump_name):
 
 
 
-
-
-
-def test_pump_with_progress(pump_name, weight):
-    #global PUMP_COMMANDS  # Ensure global access
-    global PUMP_COMMANDS  # Ensure global access
-    PUMP_COMMANDS = load_pump_commands()
-    #pump_names = list(PUMP_COMMANDS.keys())
-    global ser
-    ser = get_serial_connection()
-    """Test the pump with progress updates."""
-    
-    flow_rates = load_flow_rates()
-    print(f"******pump_name======={pump_name}")
-    if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
-        pump_progress[pump_name] = -1  # Error state
-        return
-
-    flow_rate = flow_rates[pump_name]
-    duration = weight / flow_rate
-
-    #ser.write(f"{PUMP_COMMANDS[pump_name]}o".encode())
-    safe_serial_write(PUMP_COMMANDS[pump_name], 'o')  # Turn ON
-    for i in range(int(duration * 10)):
-        pump_progress[pump_name] = int((i / (duration * 10)) * 100)
-        time.sleep(0.1)
-        print(f"Adjustment process - {pump_progress[pump_name]}")
-
-    #ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
-    safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn Off
-    pump_progress[pump_name] = 100  # Complete
 
 
 
