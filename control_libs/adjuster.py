@@ -4,7 +4,12 @@ from control_libs.system_stats import system_state, history_log ,save_system_sta
 from control_libs.arduino import send_command_and_get_response,safe_serial_write, get_serial_connection
 import time
 import os
+import sys
 import json
+
+#script_dir = os.path.dirname(os.path.abspath(__file__))
+#sys.path.append(os.path.join(script_dir, "config_tools"))
+
 #from app import adjust_tank_level
 pump_progress = {}
 
@@ -67,7 +72,7 @@ def adjust_chemistry(pump_name, weight):
 ###################
 
 def load_target_values():
-    SYSTEM_STATE_FILE = "desired_parameters.json"
+    SYSTEM_STATE_FILE = "data/desired_parameters.json"
     """Loads the system_state dictionary from a JSON file. If the file does not exist, returns an empty default structure."""
     print(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
     if not os.path.exists(SYSTEM_STATE_FILE):
