@@ -93,6 +93,10 @@
         <label for="condition_monitor">Condition Monitor</label>
         <button onclick="condition_monitor()">CHeck</button>
     </div>
+    <div class="control-group"></div>
+        <label for="temp_control">Control the Temperature</label>
+        <button onclick="temperature_control()">Keep the temperature</button>
+    </div>
 
     <script>
         async function sendRequest(url, data) {
@@ -139,6 +143,11 @@
         function condition_monitor() {
             const value = 0;//document.getElementById('temperatureUpValue').value;
             const url = '/condition_monitor';
+            sendRequest(url, { value: parseFloat(value) });
+        }
+        function temperature_control() {
+            const value = 0;//document.getElementById('temperatureUpValue').value;
+            const url = '/temperature_control';
             sendRequest(url, { value: parseFloat(value) });
         }
     </script>

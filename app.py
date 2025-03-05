@@ -38,7 +38,7 @@ from control_libs.electric_conductivity import get_complex_ec_calibration, get_e
 
 from control_libs.system_stats import load_system_state
 from control_libs.ph import get_correct_ph
-from control_libs.adjuster import condition_monitor, load_target_values,ph_down, temperature_up, ph_up, nutrients_up, nutrients_down
+from control_libs.adjuster import temperature_control, condition_monitor, load_target_values,ph_down, temperature_up, ph_up, nutrients_up, nutrients_down
 APP_CONFIG_FILE = "data/app_config.json"
 # Store progress globally
 pump_progress = {}
@@ -109,6 +109,13 @@ def condition_monitor_route():
     #data = request.json
     #data = data.get('value')  # Extract the 'value' field
     condition_monitor()
+    return None
+
+@app.route('/temperature_control', methods=['POST'])
+def temperature_control_route():
+    #data = request.json
+    #data = data.get('value')  # Extract the 'value' field
+    temperature_control()
     return None
 
 

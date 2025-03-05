@@ -100,6 +100,21 @@ def condition_monitor():
 
     print(f"NPK TO ADJUST:{NPK_adj}   pH TO ADJUST:{pH_adj}    Temperature TO ADJUST:{temp_adj}          SOLUTION LEVEL TO ADJUST:{solution_adj}")
 
+from control_libs.temperature import read_solution_temperature
+
+def temperature_control():
+    global system_state
+    global PUMP_COMMANDS
+    pump_name = "heater_1"
+    solution_temperature = read_solution_temperature(ser)
+    target_temp = system_state["target_temp"]["value"]
+
+    if solution_temperature < target_temp:
+        print("Heating Up the Solution")
+        safe_serial_write(PUMP_COMMANDS[pump_name], 'o')  # Turn ON
+    else:
+        print("Cooling Off the Solution")
+        safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn OFF
 
 ###################
 
