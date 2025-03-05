@@ -65,8 +65,40 @@ def adjust_chemistry(pump_name, weight):
     safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn Off
     pump_progress[pump_name] = 100  # Complete
 
+def condition_monitor():
+    global system_state
+
+    target_NPK = system_state["target_NPK"]["value"]
+    #system_state["target_NPK"]["timestamp"] = int(time.time())
+        
+    target_temp = system_state["target_temp"]["value"]
+    #system_state["target_temp"]["timestamp"] = int(time.time())
+        
+    target_pH = system_state["target_pH"]["value"] 
+    #system_state["target_pH"]["timestamp"] = int(time.time())
+        
+    target_solution = system_state["target_solution"]["value"]
+    #system_state["target_solution"]["timestamp"] = int(time.time())
 
 
+    NPK = system_state["ec_solution"]["value"]
+    NPK_time = system_state["ec_solution"]["timestamp"]
+        
+    temp = system_state["temperature"]["value"]
+    temp_time = system_state["temperature"]["timestamp"] 
+        
+    pH = system_state["ph_solution"]["value"] 
+    pH_time = system_state["ph_solution"]["timestamp"]
+        
+    solution = system_state["solution_tank"]["value"]
+    solution_time = system_state["solution_tank"]["timestamp"] 
+
+    NPK_adj = target_NPK - NPK
+    pH_adj = target_pH - pH
+    temp_adj = target_temp - temp
+    solution_adj = target_solution - solution
+
+    print(f"NPK TO ADJUST:{NPK_adj}   pH TO ADJUST:{pH_adj}    Temperature TO ADJUST:{temp_adj}          SOLUTION LEVEL TO ADJUST:{solution_adj}")
 
 
 ###################
