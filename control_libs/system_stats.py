@@ -17,6 +17,13 @@ system_state = {
     "ph_raw": {"value": None, "timestamp": None},
 
     "temperature": {"value": None, "timestamp": None},
+    "solution_heater": {"value": None, "timestamp": None},
+
+    "target_NPK": {"value": None, "timestamp": None},
+    "target_pH": {"value": None, "timestamp": None},
+    "target_temp": {"value": None, "timestamp": None},
+    "target_solution": {"value": None, "timestamp": None},
+
     
     "solution_tank": {"value": None, "timestamp": None},
     "fresh_tank": {"value": None, "timestamp": None},

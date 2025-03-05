@@ -3,6 +3,8 @@ from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
 from control_libs.arduino import send_command_and_get_response,safe_serial_write, get_serial_connection
 import time
+import os
+import json
 #from app import adjust_tank_level
 pump_progress = {}
 
@@ -63,3 +65,23 @@ def adjust_chemistry(pump_name, weight):
 
 
 ###################
+
+def load_target_values():
+    SYSTEM_STATE_FILE = "desired_parameters.json"
+    """Loads the system_state dictionary from a JSON file. If the file does not exist, returns an empty default structure."""
+    print(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
+    if not os.path.exists(SYSTEM_STATE_FILE):
+        print(f"Path does not exist")
+        return None  # Indicate that no previous state exists
+    #load_ec_baseline()    
+    with open(SYSTEM_STATE_FILE, "r") as f:
+        x = json.load(f)
+        print(f"Loaded data:{x}")
+
+        #3target_NPK = x.get('value')  # Extract the 'value' field
+
+
+        #system_state["sensor_chamber"]["value"] = response
+        #system_state["sensor_chamber"]["timestamp"] = int(time.time())
+        print("Updated the Sensor chambers humidity data.")
+        return x

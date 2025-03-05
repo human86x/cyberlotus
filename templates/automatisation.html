@@ -77,6 +77,13 @@
         <button onclick="adjustTemperature('up')">Temperature Up</button>
     </div>
 
+
+    <div class="control-group">
+        <label for="load_target">Load Target Values:</label>
+        <button onclick="load_target()">Load Target</button>
+    </div>
+
+
     <script>
         async function sendRequest(url, data) {
             try {
@@ -111,6 +118,11 @@
         function adjustTemperature(direction) {
             const value = document.getElementById('temperatureUpValue').value;
             const url = '/temperature_up';
+            sendRequest(url, { value: parseFloat(value) });
+        }
+        function load_target() {
+            const value = 0;//document.getElementById('temperatureUpValue').value;
+            const url = '/load_target';
             sendRequest(url, { value: parseFloat(value) });
         }
     </script>
