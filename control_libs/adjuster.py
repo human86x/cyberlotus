@@ -117,6 +117,7 @@ def temperature_control():
         print("Cooling Off the Solution")
         safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn OFF
 
+    return None
 ###################
 
 def load_target_values():
@@ -149,4 +150,4 @@ def load_target_values():
         system_state["target_solution"]["timestamp"] = int(time.time())
         
         print("Updated Target Values.")
-        return None
+    return None
