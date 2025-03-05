@@ -9,7 +9,7 @@ pump_progress = {}
 
 
 def ph_up(weight):
-
+    print(f"______________weight - {weight}")
     adjust_chemistry("pH_plus", weight)
 
 def ph_down(weight):
