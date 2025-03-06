@@ -22,8 +22,76 @@ ser = get_serial_connection()
 
 
 
+def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, temp, target_solution, solution, current_volume=4.0, tank_capacity=6.0):
+    """
+    Generates a sequence of commands based on adjustments needed for NPK, pH, temperature, and solution level.
+    Compensates for the dilution effect of adding fresh water.
 
-import json
+    Parameters:
+        target_NPK (float): Target NPK value.
+        NPK (float): Current NPK value.
+        target_pH (float): Target pH value.
+        pH (float): Current pH value.
+        target_temp (float): Target temperature value.
+        temp (float): Current temperature value.
+        target_solution (float): Target solution level.
+        solution (float): Current solution level.
+        current_volume (float): Current volume of the solution in the tank (default: 4.0 liters).
+        tank_capacity (float): Total capacity of the tank (default: 6.0 liters).
+
+    Returns:
+        dict: A dictionary containing the sequence of commands.
+    """
+    # Calculate adjustments
+    NPK_adj = target_NPK - NPK
+    pH_adj = target_pH - pH
+    temp_adj = target_temp - temp
+    solution_adj = target_solution - solution
+
+    # Initialize single and multi commands
+    single_commands = {}
+    multi_commands = {}
+
+    # Handle solution level adjustment
+    if solution_adj > 0:
+        # Add fresh water first
+        single_commands["fresh_solution"] = solution_adj
+        # Update the current volume after adding fresh water
+        final_volume = current_volume + solution_adj
+    else:
+        final_volume = current_volume
+
+    # Handle NPK adjustment (compensate for dilution)
+    if NPK_adj != 0:
+        # Calculate the required NPK weight to achieve the target concentration in the final volume
+        required_NPK = (target_NPK * final_volume) - (NPK * current_volume)
+        if required_NPK > 0:
+            single_commands["NPK"] = required_NPK
+        elif required_NPK < 0:
+            # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
+            single_commands["solution_waste"] = abs(required_NPK)
+            single_commands["fresh_solution"] = abs(required_NPK)
+
+    # Handle pH adjustment (compensate for dilution)
+    if pH_adj != 0:
+        # Calculate the required pH chemical weight to achieve the target pH in the final volume
+        required_pH = (target_pH * final_volume) - (pH * current_volume)
+        if pH_adj < 0:
+            single_commands["pH_minus"] = abs(required_pH)
+        elif pH_adj > 0:
+            single_commands["pH_plus"] = required_pH
+
+    # Always mix the solution at the end
+    single_commands["mixer_1"] = 1
+
+    # Generate the sequence file
+    compile_sequence_to_file(
+        'adjuster_todo.json',
+        single_commands=single_commands,
+        multi_commands=multi_commands
+    )
+
+
 
 def compile_sequence_to_file(file_path, single_commands=None, multi_commands=None):
     """
@@ -36,6 +104,7 @@ def compile_sequence_to_file(file_path, single_commands=None, multi_commands=Non
         multi_commands (dict): Dictionary of multiple commands and their weights.
                               Example: {("drain_pH", "solenoid"): 10.1}
     """
+    file_path = "sequences/" + file_path
     sequence = []
 
     # Handle single commands
@@ -154,6 +223,12 @@ def condition_monitor():
     pH_adj = target_pH - pH
     temp_adj = target_temp - temp
     solution_adj = target_solution - solution
+    
+    #compile_sequence_to_file('adjuster_todo.json',single_commands={"NPK": NPK_adj,"pH_plus": pH_adj,"mixer_1": 1},multi_commands={("drain_pH", "solenoid"): 10.1})
+    # Example usage
+    generate_adjustment_sequence(target_NPK, NPK,target_pH, pH,target_temp, temp, target_solution, solution, current_volume=4.0, tank_capacity=6.0)
+
+
 
     print(f"NPK TO ADJUST:{NPK_adj}   pH TO ADJUST:{pH_adj}    Temperature TO ADJUST:{temp_adj}          SOLUTION LEVEL TO ADJUST:{solution_adj}")
 
@@ -166,9 +241,7 @@ def temperature_control():
     pump_name = "heater_1"
     solution_temperature = read_solution_temperature(ser)
     target_temp = system_state["target_temp"]["value"]
-    compile_sequence_to_file('pH_solution_test_solenoid.json',single_commands={"NPK": 3,"pH_plus": 1,"mixer_1": 3},multi_commands={("drain_pH", "solenoid"): 10.1})
-
-
+    
 
 
 
