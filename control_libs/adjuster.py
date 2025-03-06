@@ -2,6 +2,7 @@ from config_tools.flow_tune import load_flow_rates, load_pump_commands, PUMP_COM
 from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
 from control_libs.arduino import send_command_and_get_response,safe_serial_write, get_serial_connection
+from config_tools.sequencer import execute_sequence
 import time
 import os
 import sys
@@ -64,7 +65,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     # Handle NPK adjustment (compensate for dilution)
     if NPK_adj != 0:
         # Calculate the required NPK weight to achieve the target concentration in the final volume
-        required_NPK = (target_NPK * final_volume) - (NPK * current_volume)
+        required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
         if required_NPK > 0:
             single_commands["NPK"] = required_NPK
         elif required_NPK < 0:
@@ -75,7 +76,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     # Handle pH adjustment (compensate for dilution)
     if pH_adj != 0:
         # Calculate the required pH chemical weight to achieve the target pH in the final volume
-        required_pH = (target_pH * final_volume) - (pH * current_volume)
+        required_pH = ((target_pH * final_volume) - (pH * current_volume))/100
         if pH_adj < 0:
             single_commands["pH_minus"] = abs(required_pH)
         elif pH_adj > 0:
@@ -192,6 +193,17 @@ def adjust_chemistry(pump_name, weight):
     pump_progress[pump_name] = 100  # Complete
 
 def condition_monitor():
+    global SEQUENCE_DIR  # Ensure SEQUENCE_DIR is defined globally
+    
+    sequence = "adjuster_todo.json"
+    SEQUENCE_FILE = SEQUENCE_DIR + sequence
+    flow_rates = load_flow_rates()  # This loads the flow rates as intended
+    
+        
+
+    if not flow_rates:
+        print("Error: Flow rates not loaded.")
+        return {}
     global system_state
 
     target_NPK = system_state["target_NPK"]["value"]
@@ -228,9 +240,9 @@ def condition_monitor():
     # Example usage
     generate_adjustment_sequence(target_NPK, NPK,target_pH, pH,target_temp, temp, target_solution, solution, current_volume=4.0, tank_capacity=6.0)
 
+    execute_sequence(SEQUENCE_FILE, flow_rates)#, 
 
-
-    print(f"NPK TO ADJUST:{NPK_adj}   pH TO ADJUST:{pH_adj}    Temperature TO ADJUST:{temp_adj}          SOLUTION LEVEL TO ADJUST:{solution_adj}")
+    #print(f"NPK TO ADJUST:{NPK_adj}   pH TO ADJUST:{pH_adj}    Temperature TO ADJUST:{temp_adj}          SOLUTION LEVEL TO ADJUST:{solution_adj}")
 
 from control_libs.temperature import read_solution_temperature
 
