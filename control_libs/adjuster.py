@@ -15,6 +15,63 @@ pump_progress = {}
 
 ser = get_serial_connection()
 
+
+
+
+
+
+
+
+
+import json
+
+def compile_sequence_to_file(file_path, single_commands=None, multi_commands=None):
+    """
+    Compiles a sequence based on input parameters and writes it to a JSON file.
+
+    Parameters:
+        file_path (str): Path to the output JSON file.
+        single_commands (dict): Dictionary of single commands and their weights.
+                               Example: {"NPK": 3, "pH_plus": 1, "mixer_1": 3}
+        multi_commands (dict): Dictionary of multiple commands and their weights.
+                              Example: {("drain_pH", "solenoid"): 10.1}
+    """
+    sequence = []
+
+    # Handle single commands
+    if single_commands:
+        for command, weight in single_commands.items():
+            sequence.append({
+                "command": command,
+                "weight": float(weight)
+            })
+
+    # Handle multiple commands
+    if multi_commands:
+        for commands, weight in multi_commands.items():
+            sequence.append({
+                "commands": list(commands),
+                "weights": [float(weight)] * len(commands),  # Assign the same weight to all commands
+                "calibration": False  # Default calibration flag
+            })
+
+    # Create the final sequence_data dictionary
+    sequence_data = {
+        "sequence": sequence
+    }
+
+    # Write the dictionary to a JSON file
+    with open(file_path, 'w') as file:
+        json.dump(sequence_data, file, indent=4)
+
+    print(f"Sequence file written to {file_path}")
+
+# Example usage
+
+
+
+
+
 def ph_up(weight):
     print(f"______________weight - {weight}")
     adjust_chemistry("pH_plus", weight)
@@ -109,6 +166,11 @@ def temperature_control():
     pump_name = "heater_1"
     solution_temperature = read_solution_temperature(ser)
     target_temp = system_state["target_temp"]["value"]
+    compile_sequence_to_file('pH_solution_test_solenoid.json',single_commands={"NPK": 3,"pH_plus": 1,"mixer_1": 3},multi_commands={("drain_pH", "solenoid"): 10.1})
+
+
+
+
 
     if solution_temperature < target_temp:
         print("Heating Up the Solution")
