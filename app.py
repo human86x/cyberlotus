@@ -66,7 +66,7 @@ def check_chamber_humidity_route():
     data = data.get('value')  # Extract the 'value' field
 
     check_chamber_humidity()
-    return True
+    return "Done"
  
 
 @app.route('/ph_up', methods=['POST'])
