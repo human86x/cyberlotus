@@ -88,7 +88,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     # Handle solution level adjustment
     if solution_adj > 0:
         # Add fresh water first
-        single_commands["fresh_solution"] = solution_adj * 30
+        single_commands["fresh_solution"] = solution_adj * 100
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
     else:
@@ -99,7 +99,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Calculate the required NPK weight to achieve the target concentration in the final volume
         required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
         if required_NPK > 0:
-            single_commands["NPK"] = required_NPK
+            single_commands["NPK"] = required_NPK * 3
         elif required_NPK < 0:
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
             single_commands["solution_waste"] = abs(required_NPK)
@@ -110,12 +110,12 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Calculate the required pH chemical weight to achieve the target pH in the final volume
         required_pH = ((target_pH * final_volume) - (pH * current_volume))/100
         if pH_adj < 0:
-            single_commands["pH_minus"] = abs(required_pH)
+            single_commands["pH_minus"] = abs(required_pH) * 4
         elif pH_adj > 0:
-            single_commands["pH_plus"] = required_pH
+            single_commands["pH_plus"] = required_pH * 4
 
     # Always mix the solution at the end
-    single_commands["mixer_1"] = 1
+    single_commands["mixer_1"] = 2
 
     # Generate the sequence file
     compile_sequence_to_file(
