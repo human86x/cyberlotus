@@ -111,7 +111,7 @@ def load_target_route():
     #data = request.json
     #data = data.get('value')  # Extract the 'value' field
     load_target_values()
-    return None
+    return "Done"
 
 
 @app.route('/condition_monitor', methods=['POST'])
@@ -119,14 +119,14 @@ def condition_monitor_route():
     #data = request.json
     #data = data.get('value')  # Extract the 'value' field
     condition_monitor()
-    return None
+    return "Done"
 
 @app.route('/temperature_control', methods=['POST'])
 def temperature_control_route():
     #data = request.json
     #data = data.get('value')  # Extract the 'value' field
     temperature_control()
-    return None
+    return "Done"
 
 
 
