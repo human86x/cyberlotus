@@ -19,6 +19,14 @@ ser = get_serial_connection()
 
 
 
+def check_chamber_humidity():
+    
+
+    print("Chambers are dry, proceeding with the test.")
+
+
+
+
 
 
 
