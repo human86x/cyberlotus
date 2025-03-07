@@ -38,7 +38,7 @@ from control_libs.electric_conductivity import get_complex_ec_calibration, get_e
 
 from control_libs.system_stats import load_system_state
 from control_libs.ph import get_correct_ph
-from control_libs.adjuster import temperature_control, condition_monitor, load_target_values,ph_down, temperature_up, ph_up, nutrients_up, nutrients_down
+from control_libs.adjuster import check_chamber_humidity, temperature_control, condition_monitor, load_target_values,ph_down, temperature_up, ph_up, nutrients_up, nutrients_down
 APP_CONFIG_FILE = "data/app_config.json"
 # Store progress globally
 pump_progress = {}
@@ -58,6 +58,16 @@ global PUMP_COMMANDS
 
 DATA_DIRECTORY = "data"
 
+#check_chamber_humidity
+
+@app.route('/check_chamber_humidity', methods=['POST'])
+def check_chamber_humidity_route():
+    data = request.json
+    data = data.get('value')  # Extract the 'value' field
+
+    check_chamber_humidity()
+    return None
+ 
 
 @app.route('/ph_up', methods=['POST'])
 def ph_up_route():
