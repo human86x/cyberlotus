@@ -85,10 +85,24 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     single_commands = {}
     multi_commands = {}
 
+    multiplyers = load_config()
+
+    NPK_mult = multiplyers["NPK_mult"]
+    pH_plus_mult = multiplyers["pH_plus_mult"]
+    pH_minus_mult = multiplyers["pH_minus_mult"]
+    drop_mult = multiplyers["drop_mult"]
+    
+    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult}")
+
+
+
+
     # Handle solution level adjustment
     if solution_adj > 0:
         # Add fresh water first
-        single_commands["fresh_solution"] = solution_adj * 100
+        sol_adj = solution_adj * 70
+        print(f"Solution adjustment weight - {sol_adj}")
+        single_commands["fresh_solution"] = sol_adj
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
     else:
@@ -99,20 +113,27 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Calculate the required NPK weight to achieve the target concentration in the final volume
         required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
         if required_NPK > 0:
-            single_commands["NPK"] = required_NPK * 3
+            npk_adj = required_NPK * NPK_mult
+            print(f"NPK adjustment weight - {npk_adj}")
+            single_commands["NPK"] = npk_adj
         elif required_NPK < 0:
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
-            single_commands["solution_waste"] = abs(required_NPK) * 5
-            single_commands["fresh_solution"] = abs(required_NPK) * 5
+            single_commands["solution_waste"] = abs(required_NPK) * drop_mult
+            single_commands["fresh_solution"] = abs(required_NPK) * drop_mult
 
     # Handle pH adjustment (compensate for dilution)
     if pH_adj != 0:
         # Calculate the required pH chemical weight to achieve the target pH in the final volume
         required_pH = ((target_pH * final_volume) - (pH * current_volume))/100
+        print(f"Required adjustment pH - {required_pH}")
         if pH_adj < 0:
-            single_commands["pH_minus"] = abs(required_pH) * 4
+            x = abs(required_pH) * pH_minus_mult
+            print(f"administring pH down - {x}")
+            single_commands["pH_minus"] = x
         elif pH_adj > 0:
-            single_commands["pH_plus"] = required_pH * 4
+            y = required_pH * pH_plus_mult
+            print(f"administring pH up - {y}")
+            single_commands["pH_plus"] = y
 
     # Always mix the solution at the end
     single_commands["mixer_1"] = 2
@@ -239,14 +260,7 @@ def condition_monitor():
     global system_state
 
 
-    multiplyers = load_config()
-
-    NPK_mult = multiplyers["NPK_mult"]
-    pH_plus_mult = multiplyers["pH_plus_mult"]
-    pH_minus_mult = multiplyers["pH_minus_mult"]
     
-    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult}")
-
 
     target_NPK = system_state["target_NPK"]["value"]
     #system_state["target_NPK"]["timestamp"] = int(time.time())
