@@ -336,7 +336,7 @@ def perform_ph_test(test_type):
         system_state["sensor_chamber"]["timestamp"] = int(time.time())
         print("Updated the Sensor chambers humidity data.")
 
-        if response > 50:
+        if response > 30:
             print(f"Draining the chambers using {SEQUENCE_FILE} sequence.")
             execute_sequence(SEQUENCE_FILE, flow_rates)
             continue  # Retry the humidity check after draining
