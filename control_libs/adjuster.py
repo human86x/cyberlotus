@@ -245,7 +245,7 @@ def condition_monitor():
     pH_plus_mult = multiplyers["pH_plus_mult"]
     pH_minus_mult = multiplyers["pH_minus_mult"]
     
-    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}"  --  {pH_plus_mult})
+    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult}")
 
 
     target_NPK = system_state["target_NPK"]["value"]
