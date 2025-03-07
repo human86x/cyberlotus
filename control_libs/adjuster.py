@@ -20,7 +20,31 @@ ser = get_serial_connection()
 
 
 def check_chamber_humidity():
+    global SEQUENCE_DIR  # Ensure SEQUENCE_DIR is defined globally
     
+    sequence = "sensors_drain.json"
+    SEQUENCE_FILE = SEQUENCE_DIR + sequence
+    flow_rates = load_flow_rates()  # This loads the flow rates as intended
+    
+    if not flow_rates:
+        print("Error: Flow rates not loaded.")
+        return {}
+
+    while True:  # Use a loop to retry instead of `goto`
+        response = send_command_and_get_response(ser, b'Q')
+        print(f"********** Sensor chambers humidity value is {response}")
+        
+        # Update system state with the sensor data
+        system_state["sensor_chamber"]["value"] = response
+        system_state["sensor_chamber"]["timestamp"] = int(time.time())
+        print("Updated the Sensor chambers humidity data.")
+
+        if response > 50:
+            print(f"Draining the chambers using {SEQUENCE_FILE} sequence.")
+            execute_sequence(SEQUENCE_FILE, flow_rates)
+            continue  # Retry the humidity check after draining
+        else:
+            break  # Exit the loop if humidity is <= 50
 
     print("Chambers are dry, proceeding with the test.")
 
