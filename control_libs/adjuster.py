@@ -238,6 +238,16 @@ def condition_monitor():
         return {}
     global system_state
 
+
+    multiplyers = load_config()
+
+    NPK_mult = multiplyers["NPK_mult"]
+    pH_plus_mult = multiplyers["pH_plus_mult"]
+    pH_minus_mult = multiplyers["pH_minus_mult"]
+    
+    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}"  --  {pH_plus_mult})
+
+
     target_NPK = system_state["target_NPK"]["value"]
     #system_state["target_NPK"]["timestamp"] = int(time.time())
         
