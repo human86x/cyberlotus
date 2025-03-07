@@ -113,9 +113,9 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Calculate the required NPK weight to achieve the target concentration in the final volume
         required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
         if required_NPK > 0:
-            npk_adj = required_NPK * NPK_mult
-            print(f"NPK adjustment weight - {npk_adj}")
-            single_commands["NPK"] = npk_adj
+            z = required_NPK * NPK_mult
+            print(f"NPK adjustment weight - {z}")
+            single_commands["NPK"] = z
         elif required_NPK < 0:
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
             single_commands["solution_waste"] = abs(required_NPK) * drop_mult
