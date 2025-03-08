@@ -169,8 +169,8 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
             print(f"final_volume: {final_volume}, type: {type(final_volume)}")
             print(f"NPK: {NPK}, type: {type(NPK)}")
             print(f"current_volume: {current_volume}, type: {type(current_volume)}")
-            single_commands["solution_waste"] = abs(required_NPK) * drop_mult
-            single_commands["fresh_solution"] = abs(required_NPK) * drop_mult
+            single_commands["solution_waste"] = abs(float(required_NPK)) * drop_mult
+            single_commands["fresh_solution"] = abs(float(required_NPK)) * drop_mult
 
     # Handle pH adjustment (compensate for dilution)
     if pH_adj != 0:
