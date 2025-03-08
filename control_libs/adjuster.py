@@ -175,9 +175,9 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
             #single_commands["solution_waste"] = abs(float(required_NPK)) * drop_mult
             #single_commands["fresh_solution"] = abs(float(required_NPK)) * drop_mult
-
-            single_commands["solution_waste"] = required_NPK * drop_mult
-            single_commands["fresh_solution"] = required_NPK * drop_mult
+            W = 0.2
+            single_commands["solution_waste"] = W * drop_mult
+            single_commands["fresh_solution"] = W * drop_mult
 
 
     # Handle pH adjustment (compensate for dilution)
