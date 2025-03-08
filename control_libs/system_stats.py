@@ -103,6 +103,7 @@ def save_system_state(state):
 
 
 def load_system_state():
+    global system_state
     """Loads the system_state dictionary from a JSON file. If the file does not exist, returns an empty default structure."""
     print(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
     if not os.path.exists(SYSTEM_STATE_FILE):
@@ -111,6 +112,7 @@ def load_system_state():
     #load_ec_baseline()    
     with open(SYSTEM_STATE_FILE, "r") as f:
         x = json.load(f)
+        system_state = x
         print(f"Loaded data:{x}")
         return x
 
