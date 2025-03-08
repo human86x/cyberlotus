@@ -176,8 +176,9 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
             #single_commands["solution_waste"] = abs(float(required_NPK)) * drop_mult
             #single_commands["fresh_solution"] = abs(float(required_NPK)) * drop_mult
             W = 0.2
-            single_commands["solution_waste"] = W * drop_mult
-            single_commands["fresh_solution"] = W * drop_mult
+            Z = 100
+            single_commands["solution_waste"] = W * Z
+            single_commands["fresh_solution"] = W * Z
 
 
     # Handle pH adjustment (compensate for dilution)
