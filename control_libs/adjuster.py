@@ -66,7 +66,7 @@ def check_chamber_humidity():
         estimated_ph_value = statistics.median(ph_values)
         print(f"Estimated Humidity value (median of valid readings): {estimated_ph_value}")
         response = estimated_ph_value
-        
+
 
 #######################
 
@@ -156,6 +156,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
             print(f"NPK adjustment weight - {z}")
             single_commands["NPK"] = z
         elif required_NPK < 0:
+            print(f"drop_mult = {drop_mult}     required_NPK = {required_NPK}")
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
             single_commands["solution_waste"] = abs(required_NPK) * drop_mult
             single_commands["fresh_solution"] = abs(required_NPK) * drop_mult
