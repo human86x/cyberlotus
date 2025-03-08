@@ -327,10 +327,10 @@ def condition_monitor():
     solution = system_state["solution_tank"]["value"]
     solution_time = system_state["solution_tank"]["timestamp"] 
 
-    NPK_adj = target_NPK - NPK
-    pH_adj = target_pH - pH
-    temp_adj = target_temp - temp
-    solution_adj = target_solution - solution
+    #NPK_adj = target_NPK - NPK
+    #pH_adj = target_pH - pH
+    #temp_adj = target_temp - temp
+    #solution_adj = target_solution - solution
     
     #compile_sequence_to_file('adjuster_todo.json',single_commands={"NPK": NPK_adj,"pH_plus": pH_adj,"mixer_1": 1},multi_commands={("drain_pH", "solenoid"): 10.1})
     # Example usage
