@@ -319,6 +319,10 @@ def condition_monitor():
     #system_state["target_solution"]["timestamp"] = int(time.time())
 
     print(f"################target_NPK = {target_NPK}")
+
+    print(f"################ec_solution from system state = {system_state["ec_solution"]["value"]}")
+    print(f"################system state dump = {system_state}")
+
     NPK = system_state["ec_solution"]["value"]
     NPK_time = system_state["ec_solution"]["timestamp"]
         
