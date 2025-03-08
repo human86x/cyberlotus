@@ -114,6 +114,11 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     Returns:
         dict: A dictionary containing the sequence of commands.
     """
+    # Validate inputs
+    for var in [target_NPK, NPK, target_pH, pH, target_temp, temp, target_solution, solution, current_volume, tank_capacity]:
+        if not isinstance(var, (int, float)):
+            raise TypeError(f"Expected numeric value, got {type(var)}: {var}")
+
     # Calculate adjustments
     NPK_adj = target_NPK - NPK
     pH_adj = target_pH - pH
@@ -133,9 +138,6 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     
     print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult} drop mult - {drop_mult}")
 
-
-
-
     # Handle solution level adjustment
     if solution_adj > 0:
         # Add fresh water first
@@ -151,6 +153,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     if NPK_adj != 0:
         # Calculate the required NPK weight to achieve the target concentration in the final volume
         required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
+        print(f"required_NPK: {required_NPK}, type: {type(required_NPK)}")
         if required_NPK > 0:
             z = required_NPK * NPK_mult
             print(f"NPK adjustment weight - {z}")
@@ -164,7 +167,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     # Handle pH adjustment (compensate for dilution)
     if pH_adj != 0:
         # Calculate the required pH chemical weight to achieve the target pH in the final volume
-        required_pH = ((target_pH * final_volume) - (pH * current_volume))/100
+        required_pH = ((target_pH * final_volume) - (pH * current_volume)) / 100
         print(f"Required adjustment pH - {required_pH}")
         if pH_adj < 0:
             x = abs(required_pH) * pH_minus_mult
@@ -184,8 +187,6 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         single_commands=single_commands,
         multi_commands=multi_commands
     )
-
-
 
 def compile_sequence_to_file(file_path, single_commands=None, multi_commands=None):
     """
