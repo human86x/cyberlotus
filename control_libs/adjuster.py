@@ -135,10 +135,10 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
 
     multiplyers = load_config()
 
-    NPK_mult = multiplyers["NPK_mult"]
-    pH_plus_mult = multiplyers["pH_plus_mult"]
-    pH_minus_mult = multiplyers["pH_minus_mult"]
-    drop_mult = multiplyers["drop_mult"]
+    NPK_mult = float(multiplyers["NPK_mult"])
+    pH_plus_mult = float(multiplyers["pH_plus_mult"])
+    pH_minus_mult = float(multiplyers["pH_minus_mult"])
+    drop_mult = float(multiplyers["drop_mult"])
     
     print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult} drop mult - {drop_mult}")
 
