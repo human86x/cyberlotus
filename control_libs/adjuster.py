@@ -153,6 +153,12 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     else:
         final_volume = current_volume
 
+    # Debugging: Print values and types
+    print(f"target_NPK: {target_NPK}, type: {type(target_NPK)}")
+    print(f"final_volume: {final_volume}, type: {type(final_volume)}")
+    print(f"NPK: {NPK}, type: {type(NPK)}")
+    print(f"current_volume: {current_volume}, type: {type(current_volume)}")
+
     # Handle NPK adjustment (compensate for dilution)
     if NPK_adj != 0:
         # Calculate the required NPK weight to achieve the target concentration in the final volume
@@ -165,10 +171,6 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         elif required_NPK < 0:
             print(f"drop_mult = {drop_mult}     required_NPK = {required_NPK}")
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
-            print(f"target_NPK: {target_NPK}, type: {type(target_NPK)}")
-            print(f"final_volume: {final_volume}, type: {type(final_volume)}")
-            print(f"NPK: {NPK}, type: {type(NPK)}")
-            print(f"current_volume: {current_volume}, type: {type(current_volume)}")
             single_commands["solution_waste"] = abs(float(required_NPK)) * drop_mult
             single_commands["fresh_solution"] = abs(float(required_NPK)) * drop_mult
 
