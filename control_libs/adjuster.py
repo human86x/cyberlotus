@@ -162,7 +162,9 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     # Handle NPK adjustment (compensate for dilution)
     if NPK_adj != 0:
         # Calculate the required NPK weight to achieve the target concentration in the final volume
-        required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
+        #required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
+        required_NPK = target_NPK - NPK 
+        
         print(f"required_NPK: {required_NPK}, type: {type(required_NPK)}")
         if required_NPK > 0:
             z = required_NPK * NPK_mult
