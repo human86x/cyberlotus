@@ -169,8 +169,8 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     # Handle NPK adjustment (compensate for dilution)
     if NPK_adj != 0:
         # Calculate the required NPK weight to achieve the target concentration in the final volume
-        #required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
-        required_NPK = target_NPK - NPK 
+        required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
+        #required_NPK = target_NPK - NPK 
         
         print(f"required_NPK: {required_NPK}, type: {type(required_NPK)}")
         if required_NPK > 0:
@@ -180,12 +180,13 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         elif required_NPK < 0:
             print(f"drop_mult = {drop_mult}     required_NPK = {required_NPK}")
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
-            #single_commands["solution_waste"] = abs(float(required_NPK)) * drop_mult
-            #single_commands["fresh_solution"] = abs(float(required_NPK)) * drop_mult
-            W = 0.2
-            Z = 100
-            single_commands["solution_waste"] = W * Z
-            single_commands["fresh_solution"] = W * Z
+            single_commands["solution_waste"] = abs(float(required_NPK)) * drop_mult
+            #
+            single_commands["fresh_solution"] = abs(float(required_NPK)) * drop_mult
+            #W = 0.2
+            #Z = 100
+            #single_commands["solution_waste"] = re * Z
+            #single_commands["fresh_solution"] = W * Z
 
 
     # Handle pH adjustment (compensate for dilution)
