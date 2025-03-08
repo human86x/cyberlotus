@@ -303,7 +303,7 @@ def condition_monitor():
         return {}
     global system_state
 
-
+    system_state = load_system_state()
     
 
     target_NPK = system_state["target_NPK"]["value"]
