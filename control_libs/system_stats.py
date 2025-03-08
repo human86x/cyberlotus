@@ -113,7 +113,7 @@ def load_system_state():
     with open(SYSTEM_STATE_FILE, "r") as f:
         x = json.load(f)
         system_state = x
-        print(f"Loaded data:{x}")
+        print(f"Loaded data:{system_state}")
         return x
 
 
