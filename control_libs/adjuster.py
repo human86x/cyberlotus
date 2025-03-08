@@ -93,7 +93,6 @@ def check_chamber_humidity():
 
 
 
-
 def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, temp, target_solution, solution, current_volume=4.0, tank_capacity=6.0):
     """
     Generates a sequence of commands based on adjustments needed for NPK, pH, temperature, and solution level.
@@ -115,9 +114,14 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         dict: A dictionary containing the sequence of commands.
     """
     # Validate inputs
-    for var in [target_NPK, NPK, target_pH, pH, target_temp, temp, target_solution, solution, current_volume, tank_capacity]:
+    for var_name, var in zip(
+        ["target_NPK", "NPK", "target_pH", "pH", "target_temp", "temp", "target_solution", "solution", "current_volume", "tank_capacity"],
+        [target_NPK, NPK, target_pH, pH, target_temp, temp, target_solution, solution, current_volume, tank_capacity]
+    ):
+        if var is None:
+            raise TypeError(f"Expected numeric value for {var_name}, got None")
         if not isinstance(var, (int, float)):
-            raise TypeError(f"Expected numeric value, got {type(var)}: {var}")
+            raise TypeError(f"Expected numeric value for {var_name}, got {type(var)}: {var}")
 
     # Calculate adjustments
     NPK_adj = target_NPK - NPK
@@ -187,7 +191,6 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         single_commands=single_commands,
         multi_commands=multi_commands
     )
-
 def compile_sequence_to_file(file_path, single_commands=None, multi_commands=None):
     """
     Compiles a sequence based on input parameters and writes it to a JSON file.
