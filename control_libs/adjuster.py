@@ -7,7 +7,7 @@ import time
 import os
 import sys
 import json
-
+import statistics
 #script_dir = os.path.dirname(os.path.abspath(__file__))
 #sys.path.append(os.path.join(script_dir, "config_tools"))
 
@@ -29,11 +29,50 @@ def check_chamber_humidity():
     if not flow_rates:
         print("Error: Flow rates not loaded.")
         return {}
+    
 
     while True:  # Use a loop to retry instead of `goto`
-        response = send_command_and_get_response(ser, b'Q')
-        print(f"********** Sensor chambers humidity value is {response}")
+        #response = send_command_and_get_response(ser, b'Q')
+        #print(f"********** Sensor chambers humidity value is {response}")
         
+
+
+        num_readings = 3
+        ph_values = []
+
+        print("Collecting Humidity Readings from Sensor Chambers...")
+        for _ in range(num_readings):
+            time.sleep(1)
+            raw_ph_value = send_command_and_get_response(ser, b'Q')
+            print(f"Retrieved Humidity value: '{raw_ph_value}'")
+
+            if raw_ph_value is None:
+                print("Error: Invalid Humidity value read from the sensor.")
+                continue
+
+            try:
+                raw_ph_value = float(raw_ph_value)
+            except ValueError:
+                print(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
+                continue
+
+            if 700 <= raw_ph_value <= 1024:
+                ph_values.append(raw_ph_value)
+
+        if len(ph_values) == 0:
+            print("Error: No valid Humidity readings collected.")
+            return None
+
+        estimated_ph_value = statistics.median(ph_values)
+        print(f"Estimated Humidity value (median of valid readings): {estimated_ph_value}")
+        response = estimated_ph_value
+        
+
+#######################
+
+
+
+
         # Update system state with the sensor data
         system_state["sensor_chamber"]["value"] = response
         system_state["sensor_chamber"]["timestamp"] = int(time.time())
@@ -92,7 +131,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     pH_minus_mult = multiplyers["pH_minus_mult"]
     drop_mult = multiplyers["drop_mult"]
     
-    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult}")
+    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult} drop mult - {drop_mult}")
 
 
 
