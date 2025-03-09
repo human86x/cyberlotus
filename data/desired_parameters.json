@@ -1,7 +1,7 @@
 {
-    "target_NPK": "23.37",
-    "target_solution": "80.00",
-    "target_pH": "7.00",
-    "target_temp": "27.00"
+    "EC": "23.37",
+    "solution": "80.00",
+    "pH": "7.00",
+    "temperature": "27.00"
     
 }
