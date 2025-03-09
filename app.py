@@ -227,8 +227,8 @@ def load_system_state_route():
     global system_state
     print("trying to load system state file......")
     loaded_state = load_system_state()
-    system_state = loaded_state
-    return system_state
+    #system_state = loaded_state
+    return loaded_state
 
 
 from control_libs.electric_conductivity import load_ec_baseline, get_ppm

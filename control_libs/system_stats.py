@@ -112,9 +112,28 @@ def load_system_state():
     #load_ec_baseline()    
     with open(SYSTEM_STATE_FILE, "r") as f:
         x = json.load(f)
-        system_state = x
+        #system_state = x
+        update_dict(system_state, x)
         print(f"Loaded data:{system_state}")
         return x
+
+
+def update_dict(original, new_data):
+    """
+    Recursively updates the original dictionary with new_data without deleting existing entries.
+    """
+    for key, value in new_data.items():
+        if key in original and isinstance(original[key], dict) and isinstance(value, dict):
+            # If both original and new_data have nested dictionaries, recurse
+            update_dict(original[key], value)
+        else:
+            # Update the value in the original dictionary
+            original[key] = value
+            # Add a timestamp for updated keys
+            if isinstance(original[key], dict) and "value" in original[key]:
+                original[key]["timestamp"] = int(time.time())
+
+
 
 
 #import json
