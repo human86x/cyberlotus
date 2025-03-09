@@ -391,15 +391,14 @@ def temperature_control():
 
     return None
 ###################
-
 def load_target_values():
+    global system_state  # Declare system_state as global
     SYSTEM_STATE_FILE = "data/desired_parameters.json"
     """Loads the system_state dictionary from a JSON file. If the file does not exist, returns an empty default structure."""
     print(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
     if not os.path.exists(SYSTEM_STATE_FILE):
         print(f"Path does not exist")
         return None  # Indicate that no previous state exists
-    #load_ec_baseline()    
     with open(SYSTEM_STATE_FILE, "r") as f:
         x = json.load(f)
         print(f"Loaded data:{x}")
@@ -409,6 +408,10 @@ def load_target_values():
         target_pH = x.get('pH')  # Extract the 'value' field
         target_solution = x.get('solution')  # Extract the 'value' field
 
+        # Debugging: Print system_state before update
+        print(f"system_state before update: {system_state}")
+
+        # Update system_state
         system_state["target_NPK"]["value"] = target_NPK
         system_state["target_NPK"]["timestamp"] = int(time.time())
         
@@ -421,5 +424,7 @@ def load_target_values():
         system_state["target_solution"]["value"] = target_solution
         system_state["target_solution"]["timestamp"] = int(time.time())
         
+        # Debugging: Print system_state after update
+        print(f"system_state after update: {system_state}")
         print("Updated Target Values.")
     return None
