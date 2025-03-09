@@ -408,9 +408,6 @@ def load_target_values():
         target_pH = x.get('pH')  # Extract the 'value' field
         target_solution = x.get('solution')  # Extract the 'value' field
 
-        # Debugging: Print system_state before update
-        print(f"system_state before update: {system_state}")
-
         # Update system_state
         system_state["target_NPK"]["value"] = target_NPK
         system_state["target_NPK"]["timestamp"] = int(time.time())
@@ -424,7 +421,5 @@ def load_target_values():
         system_state["target_solution"]["value"] = target_solution
         system_state["target_solution"]["timestamp"] = int(time.time())
         
-        # Debugging: Print system_state after update
-        print(f"system_state after update: {system_state}")
         print("Updated Target Values.")
     return None
