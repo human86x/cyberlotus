@@ -1,6 +1,6 @@
 {
   "solution_level": "70",
-  "NPK_mult": "7",
+  "NPK_mult": "1",
   "pH_plus_mult": "9",
   "pH_minus_mult": "9",
   "drop_mult": "300",
