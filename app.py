@@ -330,7 +330,7 @@ def auto_pilot_loop(pause_minutes):
         # Perform the auto-pilot tasks
         load_target_values()
         temperature_control()
-        perform_ph_test()
+        perform_ph_test("solution")
         condition_monitor()
 
         # Calculate the countdown time
