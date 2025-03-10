@@ -56,7 +56,7 @@ def check_chamber_humidity():
                 print(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
                 continue
 
-            if 700 <= raw_ph_value <= 1024:
+            if 0 <= raw_ph_value <= 100:
                 ph_values.append(raw_ph_value)
 
         if len(ph_values) == 0:
