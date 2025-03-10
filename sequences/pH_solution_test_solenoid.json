@@ -1,0 +1,12 @@
+{
+    "sequence": [
+	 {"command": "mixer_1", "weight": 1.1},
+
+       	{
+      "commands": ["solution_pH"], 
+      "weights": [1.01],
+      "calibration": true
+    }
+
+    ]
+}

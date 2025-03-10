@@ -5,6 +5,7 @@ from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates
 from config_tools.sequencer import execute_sequence, execute_commands
 from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline, load_ec_baseline, get_ppm
+from control_libs.adjuster import check_chamber_humidity
 import time
 import json
 import statistics
@@ -327,23 +328,7 @@ def perform_ph_test(test_type):
         print("Error: Flow rates not loaded.")
         return {}
 
-    while True:  # Use a loop to retry instead of `goto`
-        response = send_command_and_get_response(ser, b'Q')
-        print(f"********** Sensor chambers humidity value is {response}")
-        
-        # Update system state with the sensor data
-        system_state["sensor_chamber"]["value"] = response
-        system_state["sensor_chamber"]["timestamp"] = int(time.time())
-        print("Updated the Sensor chambers humidity data.")
-
-        if response > 30:
-            print(f"Draining the chambers using {SEQUENCE_FILE} sequence.")
-            execute_sequence(SEQUENCE_FILE, flow_rates)
-            continue  # Retry the humidity check after draining
-        else:
-            break  # Exit the loop if humidity is <= 50
-
-    print("Chambers are dry, proceeding with the test.")
+    check_chamber_humidity()
 
 
 ##################################################################
@@ -428,7 +413,7 @@ def perform_ph_test(test_type):
             print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
             history_log("EC_baseline", ec_value)
 
-
+        check_chamber_humidity()
         return readings
 
     except Exception as e:
