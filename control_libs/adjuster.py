@@ -89,6 +89,8 @@ def check_chamber_humidity():
                     print("Humidity is now below threshold, turning off the device.")
                     safe_serial_write("m", "f")  # Turn off the device
                     break  # Exit the inner loop
+                else:
+                    safe_serial_write("m", "o")  # Turn on the device
 
             break  # Exit the outer loop after the device is turned off
         else:
