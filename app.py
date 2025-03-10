@@ -319,8 +319,58 @@ def save_configuration():
     save_app_config(config)  # Save the updated configuration
     return jsonify({"status": "success", "message": "Configuration saved successfully"})
 
+# Global variable to control the auto-pilot loop
+auto_pilot_running = False
 
+def auto_pilot_loop(pause_minutes):
+    global auto_pilot_running
+    auto_pilot_running = True
 
+    while auto_pilot_running:
+        # Perform the auto-pilot tasks
+        load_target_values()
+        temperature_control()
+        perform_ph_test()
+        condition_monitor()
+
+        # Calculate the countdown time
+        pause_seconds = pause_minutes * 60
+        print(f"Waiting for {pause_minutes} minutes before the next iteration...")
+
+        # Countdown loop
+        for remaining in range(pause_seconds, 0, -1):
+            if not auto_pilot_running:
+                break  # Exit if stop command is received
+            print(f"Time remaining until next iteration: {remaining} seconds", end="\r")
+            time.sleep(1)
+
+        if not auto_pilot_running:
+            break  # Exit the main loop if stop command is received
+
+    print("Auto-pilot loop stopped.")
+
+@app.route('/auto_pilot', methods=['POST'])
+def auto_pilot_route():
+    global auto_pilot_running
+
+    data = request.json
+
+    # Check if the request is to stop the auto-pilot
+    if data.get("command") == "stop":
+        auto_pilot_running = False
+        return jsonify({"status": "success", "message": "Auto-pilot stopping..."})
+
+    # Get the pause time in minutes from the request
+    pause_minutes = data.get("pause_minutes")
+    if not pause_minutes or pause_minutes <= 0:
+        return jsonify({"status": "error", "message": "Invalid pause time provided."}), 400
+
+    # Start the auto-pilot loop in a separate thread
+    if not auto_pilot_running:
+        threading.Thread(target=auto_pilot_loop, args=(pause_minutes,)).start()
+        return jsonify({"status": "success", "message": "Auto-pilot started."})
+    else:
+        return jsonify({"status": "error", "message": "Auto-pilot is already running."}), 400
 
 
 
