@@ -3,7 +3,7 @@
   "NPK_mult": "7",
   "pH_plus_mult": "70",
   "pH_minus_mult": "70",
-  "drop_mult": "100",
+  "drop_mult": "1000",
   "fill_pump": "fresh_solution",
   "drain_pump": "solution_waste",
   "waste_pump": "waste_out",
