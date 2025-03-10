@@ -44,7 +44,131 @@
     </style>
 </head>
 <body>
+    <title>Auto-pilot Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f9;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .slider-container {
+      margin: 20px 0;
+    }
+    .slider {
+      width: 100%;
+    }
+    .button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+      transition: background-color 0.3s;
+    }
+    .button.start {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .button.start:hover {
+      background-color: #45a049;
+    }
+    .button.stop {
+      background-color: #f44336;
+      color: white;
+    }
+    .button.stop:hover {
+      background-color: #d32f2f;
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Auto-pilot Control</h1>
+    <div class="slider-container">
+      <label for="minutes">Pause Time (minutes): <span id="minutes-value">5</span></label>
+      <input type="range" id="minutes" class="slider" min="1" max="60" value="5">
+    </div>
+    <button id="start-button" class="button start">Start Auto-pilot</button>
+    <button id="stop-button" class="button stop">Stop Auto-pilot</button>
+    <div id="status" class="status"></div>
+  </div>
 
+  <script>
+    const minutesSlider = document.getElementById('minutes');
+    const minutesValue = document.getElementById('minutes-value');
+    const startButton = document.getElementById('start-button');
+    const stopButton = document.getElementById('stop-button');
+    const statusDiv = document.getElementById('status');
+
+    // Update the slider value display
+    minutesSlider.addEventListener('input', () => {
+      minutesValue.textContent = minutesSlider.value;
+    });
+
+    // Start Auto-pilot
+    startButton.addEventListener('click', async () => {
+      const pauseMinutes = minutesSlider.value;
+      statusDiv.textContent = 'Starting auto-pilot...';
+
+      try {
+        const response = await fetch('/auto_pilot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ pause_minutes: parseInt(pauseMinutes) }),
+        });
+
+        const data = await response.json();
+        statusDiv.textContent = data.message;
+      } catch (error) {
+        statusDiv.textContent = 'Error starting auto-pilot.';
+        console.error(error);
+      }
+    });
+
+    // Stop Auto-pilot
+    stopButton.addEventListener('click', async () => {
+      statusDiv.textContent = 'Stopping auto-pilot...';
+
+      try {
+        const response = await fetch('/auto_pilot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ command: 'stop' }),
+        });
+
+        const data = await response.json();
+        statusDiv.textContent = data.message;
+      } catch (error) {
+        statusDiv.textContent = 'Error stopping auto-pilot.';
+        console.error(error);
+      }
+    });
+  </script>
     <h1>Control Panel</h1>
 
     <div class="control-group">
