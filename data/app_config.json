@@ -1,8 +1,8 @@
 {
   "solution_level": "70",
   "NPK_mult": "1",
-  "pH_plus_mult": "9",
-  "pH_minus_mult": "9",
+  "pH_plus_mult": "2",
+  "pH_minus_mult": "2",
   "drop_mult": "300",
   "fill_pump": "fresh_solution",
   "drain_pump": "solution_waste",
