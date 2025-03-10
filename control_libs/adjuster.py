@@ -17,7 +17,8 @@ pump_progress = {}
 ser = get_serial_connection()
 
 
-
+import time
+import statistics
 
 def check_chamber_humidity():
     global SEQUENCE_DIR  # Ensure SEQUENCE_DIR is defined globally
@@ -30,13 +31,7 @@ def check_chamber_humidity():
         print("Error: Flow rates not loaded.")
         return {}
     
-
     while True:  # Use a loop to retry instead of `goto`
-        #response = send_command_and_get_response(ser, b'Q')
-        #print(f"********** Sensor chambers humidity value is {response}")
-        
-
-
         num_readings = 3
         ph_values = []
 
@@ -67,28 +62,38 @@ def check_chamber_humidity():
         print(f"Estimated Humidity value (median of valid readings): {estimated_ph_value}")
         response = estimated_ph_value
 
-
-#######################
-
-
-
-
         # Update system state with the sensor data
         system_state["sensor_chamber"]["value"] = response
         system_state["sensor_chamber"]["timestamp"] = int(time.time())
         print("Updated the Sensor chambers humidity data.")
 
-        if response > 30:
-            print(f"Draining the chambers using {SEQUENCE_FILE} sequence.")
-            execute_sequence(SEQUENCE_FILE, flow_rates)
-            continue  # Retry the humidity check after draining
+        if response > 0:
+            print("Humidity is high, turning on the device.")
+            safe_serial_write("m", "o")  # Turn on the device
+
+            # Continuously monitor humidity until it drops below 2
+            while True:
+                time.sleep(5)  # Wait for 5 seconds before taking the next reading
+                raw_ph_value = send_command_and_get_response(ser, b'Q')
+                if raw_ph_value is None:
+                    print("Error: Invalid Humidity value read from the sensor.")
+                    continue
+
+                try:
+                    raw_ph_value = float(raw_ph_value)
+                except ValueError:
+                    print(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
+                    continue
+
+                if raw_ph_value < 2:
+                    print("Humidity is now below threshold, turning off the device.")
+                    safe_serial_write("m", "f")  # Turn off the device
+                    break  # Exit the inner loop
+
+            break  # Exit the outer loop after the device is turned off
         else:
-            break  # Exit the loop if humidity is <= 50
-
-    print("Chambers are dry, proceeding with the test.")
-
-
-
+            print("Chambers are dry, proceeding with the test.")
+            break  # Exit the loop if humidity is <= 0
 
 
 
