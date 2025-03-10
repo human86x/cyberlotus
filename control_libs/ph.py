@@ -6,6 +6,7 @@ from config_tools.flow_tune import load_flow_rates
 from config_tools.sequencer import execute_sequence, execute_commands
 from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline, load_ec_baseline, get_ppm
 from control_libs.adjuster import check_chamber_humidity
+from config_tools.tank_manager import test_tanks
 import time
 import json
 import statistics
@@ -412,7 +413,7 @@ def perform_ph_test(test_type):
             system_state["ec_baseline"]["timestamp"] = int(time.time())
             print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
             history_log("EC_baseline", ec_value)
-
+        test_tanks()
         check_chamber_humidity()
         return readings
 
