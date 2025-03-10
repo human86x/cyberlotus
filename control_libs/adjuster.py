@@ -70,7 +70,7 @@ def check_chamber_humidity():
         if response > 0:
             print("Humidity is high, turning on the device.")
             safe_serial_write("m", "o")  # Turn on the device
-
+            safe_serial_write("l", "o")  # Turn on the device
             # Continuously monitor humidity until it drops below 2
             while True:
                 time.sleep(5)  # Wait for 5 seconds before taking the next reading
@@ -88,10 +88,11 @@ def check_chamber_humidity():
                 if raw_ph_value < 30:
                     print("Humidity is now below threshold, turning off the device.")
                     safe_serial_write("m", "f")  # Turn off the device
+                    safe_serial_write("l", "f")  # Turn off the device
                     break  # Exit the inner loop
                 else:
                     safe_serial_write("m", "o")  # Turn on the device
-
+                    safe_serial_write("l", "o")  # Turn on the device
             break  # Exit the outer loop after the device is turned off
         else:
             print("Chambers are dry, proceeding with the test.")
