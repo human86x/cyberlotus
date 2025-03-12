@@ -165,6 +165,7 @@ def load_data():
 
 @app.route('/data')
 def get_data():
+    print(f"#########trying to get data.....")
     data = load_data()  # Load your data from file or database
     filtered_data = {
         "timestamps": [],
