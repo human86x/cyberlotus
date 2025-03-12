@@ -150,6 +150,12 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     
     print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult} drop mult - {drop_mult}")
 
+    history_log("solution_adj", solution_adj)
+    history_log("NPK_adj", NPK_adj)
+    history_log("pH_adj", pH_adj)
+    
+
+
     # Handle solution level adjustment
     if solution_adj > 0:
         # Add fresh water first

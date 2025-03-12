@@ -171,7 +171,10 @@ def get_data():
         "temperature": [],
         "ec": [],
         "ph": [],
-        "ppm": []  # Add ppm data to the response
+        "ppm": [],  # Add ppm data to the response
+        "solution_adj": [],
+        "NPK_adj": [],
+        "pH_adj": []
     }
     
     for entry in data:
@@ -184,7 +187,10 @@ def get_data():
             filtered_data["ec"].append(entry.get("EC", None))
             filtered_data["ph"].append(entry.get("pH", None))
             filtered_data["ppm"].append(entry.get("ppm", None))  # Add PPM value
-
+            filtered_data["solution_adj"].append(entry.get("solution_adj", None))
+            filtered_data["NPK_adj"].append(entry.get("NPK_adj", None))
+            filtered_data["pH_adj"].append(entry.get("pH_adj", None))  # Add pH adjustment value
+            
     return jsonify(filtered_data)
 
 
@@ -331,7 +337,10 @@ def auto_pilot_loop(pause_minutes):
         load_target_values()
         temperature_control()
         perform_ph_test("solution")
+        temperature_control()
         condition_monitor()
+        temperature_control()
+        perform_ph_test("solution")
 
         # Calculate the countdown time
         pause_seconds = pause_minutes * 60

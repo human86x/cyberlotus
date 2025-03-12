@@ -307,26 +307,39 @@
             return response.json();
         }
 
-        async function updateCharts(tempChart, ecChart, phChart, ppmChart) {
-            const data = await fetchData();
-            const clean = arr => arr.map(x => x !== null ? x : NaN);
+        async function updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart) {
+    const data = await fetchData();
+    const clean = arr => arr.map(x => x !== null ? x : NaN);
 
-            tempChart.data.labels = data.timestamps;
-            tempChart.data.datasets[0].data = clean(data.temperature);
-            tempChart.update();
+    tempChart.data.labels = data.timestamps;
+    tempChart.data.datasets[0].data = clean(data.temperature);
+    tempChart.update();
 
-            ecChart.data.labels = data.timestamps;
-            ecChart.data.datasets[0].data = clean(data.ec);
-            ecChart.update();
+    ecChart.data.labels = data.timestamps;
+    ecChart.data.datasets[0].data = clean(data.ec);
+    ecChart.update();
 
-            phChart.data.labels = data.timestamps;
-            phChart.data.datasets[0].data = clean(data.ph);
-            phChart.update();
+    phChart.data.labels = data.timestamps;
+    phChart.data.datasets[0].data = clean(data.ph);
+    phChart.update();
 
-            ppmChart.data.labels = data.timestamps;
-            ppmChart.data.datasets[0].data = clean(data.ppm);
-            ppmChart.update();
-        }
+    ppmChart.data.labels = data.timestamps;
+    ppmChart.data.datasets[0].data = clean(data.ppm);
+    ppmChart.update();
+
+    solutionAdjChart.data.labels = data.timestamps;
+    solutionAdjChart.data.datasets[0].data = clean(data.solution_adj);
+    solutionAdjChart.update();
+
+    npkAdjChart.data.labels = data.timestamps;
+    npkAdjChart.data.datasets[0].data = clean(data.NPK_adj);
+    npkAdjChart.update();
+
+    phAdjChart.data.labels = data.timestamps;
+    phAdjChart.data.datasets[0].data = clean(data.pH_adj);
+    phAdjChart.update();
+}
+
 
         function createChart(ctx, label, color) {
             return new Chart(ctx, {
@@ -355,16 +368,19 @@
         }
 
         async function initCharts() {
-            const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500'); // Orange for temperature
-            const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32'); // Dodger Blue for EC
-            const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF'); // Lime Green for pH
-            const ppmChart = createChart(document.getElementById('ppmChart').getContext('2d'), 'pH', '#32CD32'); // Lime Green for pH
-            
-            setInterval(() => updateCharts(tempChart, ecChart, phChart, ppmChart), 5000);
-            updateCharts(tempChart, ecChart, phChart, ppmChart);
-        }
+    const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500');
+    const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32');
+    const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF');
+    const ppmChart = createChart(document.getElementById('ppmChart').getContext('2d'), 'PPM', '#32CD32');
+    const solutionAdjChart = createChart(document.getElementById('solutionAdjChart').getContext('2d'), 'Solution Adjustment', '#FF6347');
+    const npkAdjChart = createChart(document.getElementById('npkAdjChart').getContext('2d'), 'NPK Adjustment', '#8A2BE2');
+    const phAdjChart = createChart(document.getElementById('phAdjChart').getContext('2d'), 'pH Adjustment', '#FF1493');
 
-        initCharts();
+    setInterval(() => updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart), 5000);
+    updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart);
+}
+
+initCharts();
     </script>
 
 
