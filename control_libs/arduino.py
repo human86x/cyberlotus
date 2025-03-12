@@ -277,47 +277,73 @@ def safe_serial_write_emergency():
 
 
 
+import time
+import serial
+from serial import SerialException
+
+def connect_to_arduino():
+    """
+    Function to establish a connection to the Arduino.
+    Replace with your actual connection logic.
+    """
+    try:
+        ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1.3)  # Adjust port and baud rate as needed
+        print("Connected to Arduino.")
+        return ser
+    except SerialException as e:
+        print(f"Error connecting to Arduino: {e}")
+        return None
+
 def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     attempt = 0
     
     while attempt < retries:
         # Ensure serial connection is open
-        if not ser.is_open:
-            #print("Serial port is not open, attempting to reconnect...")
-            ser = connect_to_arduino()  # Ensure you have a function to reconnect to Arduino
+        if ser is None or not ser.is_open:
+            print("Serial port is not open, attempting to reconnect...")
+            ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
                 return None
         
-        # Clear the input buffer
-        #while ser.in_waiting > 0:
-            #ser.read(1)
-        
-        # Clear the output buffer
-        #ser.flushOutput()
-        #ser.flushInput()  # Clears the input buffer
-        #ser.flushOutput()  # Clears the output buffer
-        print(f"Send command and get response -> the command >>> {command}")
-
-        #if isinstance(command, bytes):
-        #    command = command.decode()
-        time.sleep(timeout)  # Retry delay
-
-        ser.write(command)  # No need to encode if command is already bytes
-        time.sleep(timeout)  # Retry delay
-        # Read response from Arduino
-        line = ser.readline().decode('utf-8').strip()
-        print(f"Send command and get response -> the response >>> {line}")
-        
-        # Check if response is a valid float
         try:
-            value = float(line)
-            print(f"******VALUE = {value}")
-            return value  # Valid response, return the float
-            
-        except ValueError:
-            print(f"Error: Invalid response: {line}, not a valid float")
-        
+            # Clear the input and output buffers
+            ser.reset_input_buffer()
+            ser.reset_output_buffer()
+
+            print(f"Send command and get response -> the command >>> {command}")
+
+            # Send the command to the Arduino
+            ser.write(command)  # No need to encode if command is already bytes
+            print(f"Successfully communicated command - {command}")
+
+            # Wait for the Arduino to process the command
+            time.sleep(timeout)
+
+            # Read response from Arduino
+            line = ser.readline().decode('utf-8').strip()
+            print(f"Send command and get response -> the response >>> {line}")
+
+            # Check if response is a valid float
+            try:
+                value = float(line)
+                print(f"******VALUE = {value}")
+                return value  # Valid response, return the float
+            except ValueError:
+                print(f"Error: Invalid response: {line}, not a valid float")
+
+        except SerialException as e:
+            print(f"Serial I/O error: {e}")
+            print("Attempting to reconnect to Arduino...")
+            ser = connect_to_arduino()  # Reconnect to Arduino
+            if ser is None or not ser.is_open:
+                print("Error: Unable to reconnect to Arduino.")
+                return None
+
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return None
+
         attempt += 1
         time.sleep(timeout)  # Retry delay
     
