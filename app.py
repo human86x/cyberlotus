@@ -361,7 +361,7 @@ def auto_pilot_loop(pause_minutes):
             print(f"start_index = {start_index}")
             print(f"tasks[start_index:] = {tasks[start_index:]}")
             print(f"auto_pilot_running = {auto_pilot_running}")
-            print(f"task = {task}")
+            
 
 
 
@@ -370,7 +370,7 @@ def auto_pilot_loop(pause_minutes):
             for task in tasks[start_index:]:
                 if not auto_pilot_running:
                     break  # Exit if stop command is received
-
+                print(f"task = {task}")
                 logging.info(f"Executing task: {task.__name__}")
                 task()  # Execute the task
                 last_successful_task = task  # Update the last successful task
