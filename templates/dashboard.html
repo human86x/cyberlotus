@@ -282,6 +282,24 @@
     <h2>Sensor Data Over Time</h2>
     
     <div class="chart-container">
+        <h3>Solution Adjustment</h3>
+        <canvas id="solution_adj_Chart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>NPK Adjustment</h3>
+        <canvas id="NPK_adj_Chart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>pH Adjustment</h3>
+        <canvas id="pH_adj_Chart"></canvas>
+    </div>
+
+
+
+
+    <div class="chart-container">
         <h3>PPM</h3>
         <canvas id="ppmChart"></canvas>
     </div>
@@ -372,9 +390,9 @@
     const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32');
     const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF');
     const ppmChart = createChart(document.getElementById('ppmChart').getContext('2d'), 'PPM', '#32CD32');
-    const solutionAdjChart = createChart(document.getElementById('solutionAdjChart').getContext('2d'), 'Solution Adjustment', '#FF6347');
-    const npkAdjChart = createChart(document.getElementById('npkAdjChart').getContext('2d'), 'NPK Adjustment', '#8A2BE2');
-    const phAdjChart = createChart(document.getElementById('phAdjChart').getContext('2d'), 'pH Adjustment', '#FF1493');
+    const solutionAdjChart = createChart(document.getElementById('solution_adj_Chart').getContext('2d'), 'Solution Adjustment', '#FF6347');
+    const npkAdjChart = createChart(document.getElementById('NPK_adj_Chart').getContext('2d'), 'NPK Adjustment', '#8A2BE2');
+    const phAdjChart = createChart(document.getElementById('pH_adj_Chart').getContext('2d'), 'pH Adjustment', '#FF1493');
 
     setInterval(() => updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart), 5000);
     updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart);
