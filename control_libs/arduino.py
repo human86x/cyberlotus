@@ -281,18 +281,6 @@ import time
 import serial
 from serial import SerialException
 
-def connect_to_arduino():
-    """
-    Function to establish a connection to the Arduino.
-    Replace with your actual connection logic.
-    """
-    try:
-        ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1.3)  # Adjust port and baud rate as needed
-        print("Connected to Arduino.")
-        return ser
-    except SerialException as e:
-        print(f"Error connecting to Arduino: {e}")
-        return None
 
 def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     attempt = 0
