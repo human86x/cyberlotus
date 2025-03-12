@@ -358,6 +358,9 @@ def auto_pilot_loop(pause_minutes):
         try:
             # Determine where to resume
             start_index = 0 if last_successful_task is None else tasks.index(last_successful_task) + 1
+            if start_index == 7:
+                start_index = 0
+                last_successful_task = None
             print(f"start_index = {start_index}")
             print(f"tasks[start_index:] = {tasks[start_index:]}")
             if tasks[start_index:] == "":
