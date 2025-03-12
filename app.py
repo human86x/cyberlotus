@@ -358,6 +358,13 @@ def auto_pilot_loop(pause_minutes):
         try:
             # Determine where to resume
             start_index = 0 if last_successful_task is None else tasks.index(last_successful_task) + 1
+            print(f"start_index = {start_index}")
+            print(f"tasks[start_index:] = {tasks[start_index:]}")
+            print(f"auto_pilot_running = {auto_pilot_running}")
+            print(f"task = {task}")
+
+
+
 
             # Execute tasks starting from the last successful one
             for task in tasks[start_index:]:
