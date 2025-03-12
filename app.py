@@ -329,35 +329,65 @@ def save_configuration():
 # Global variable to control the auto-pilot loop
 auto_pilot_running = False
 
+
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Global variables
+auto_pilot_running = False
+last_successful_task = None  # Track the last successful task
+
 def auto_pilot_loop(pause_minutes):
-    global auto_pilot_running
+    global auto_pilot_running, last_successful_task
     auto_pilot_running = True
 
+    # Define the sequence of tasks
+    tasks = [
+        load_target_values,
+        temperature_control,
+        lambda: perform_ph_test("solution"),
+        temperature_control,
+        condition_monitor,
+        temperature_control,
+        lambda: perform_ph_test("solution")
+    ]
+
     while auto_pilot_running:
-        # Perform the auto-pilot tasks
-        load_target_values()
-        temperature_control()
-        perform_ph_test("solution")
-        temperature_control()
-        condition_monitor()
-        temperature_control()
-        perform_ph_test("solution")
+        try:
+            # Determine where to resume
+            start_index = 0 if last_successful_task is None else tasks.index(last_successful_task) + 1
 
-        # Calculate the countdown time
-        pause_seconds = pause_minutes * 60
-        print(f"Waiting for {pause_minutes} minutes before the next iteration...")
+            # Execute tasks starting from the last successful one
+            for task in tasks[start_index:]:
+                if not auto_pilot_running:
+                    break  # Exit if stop command is received
 
-        # Countdown loop
-        for remaining in range(pause_seconds, 0, -1):
+                logging.info(f"Executing task: {task.__name__}")
+                task()  # Execute the task
+                last_successful_task = task  # Update the last successful task
+
+            # Calculate the countdown time
+            pause_seconds = pause_minutes * 60
+            logging.info(f"Waiting for {pause_minutes} minutes before the next iteration...")
+
+            # Countdown loop
+            for remaining in range(pause_seconds, 0, -1):
+                if not auto_pilot_running:
+                    break  # Exit if stop command is received
+                logging.info(f"Time remaining until next iteration: {remaining} seconds")
+                time.sleep(1)
+
             if not auto_pilot_running:
-                break  # Exit if stop command is received
-            print(f"Time remaining until next iteration: {remaining} seconds", end="\r")
-            time.sleep(1)
+                break  # Exit the main loop if stop command is received
 
-        if not auto_pilot_running:
-            break  # Exit the main loop if stop command is received
+        except Exception as e:
+            logging.error(f"Error occurred during task execution: {e}")
+            logging.info("Attempting to resume after error...")
+            time.sleep(5)  # Wait before retrying
 
-    print("Auto-pilot loop stopped.")
+    logging.info("Auto-pilot loop stopped.")
 
 @app.route('/auto_pilot', methods=['POST'])
 def auto_pilot_route():
