@@ -330,7 +330,12 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
 
         except Exception as e:
             print(f"Unexpected error: {e}")
-            return None
+            print("Attempting to reconnect to Arduino...")
+            ser = connect_to_arduino()  # Reconnect to Arduino
+            if ser is None or not ser.is_open:
+                print("Error: Unable to reconnect to Arduino.")
+                return None
+            
 
         attempt += 1
         time.sleep(timeout)  # Retry delay
