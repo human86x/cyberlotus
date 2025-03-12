@@ -360,6 +360,9 @@ def auto_pilot_loop(pause_minutes):
             start_index = 0 if last_successful_task is None else tasks.index(last_successful_task) + 1
             print(f"start_index = {start_index}")
             print(f"tasks[start_index:] = {tasks[start_index:]}")
+            if tasks[start_index:] == "":
+                start_index = 0 
+                last_successful_task = None
             print(f"auto_pilot_running = {auto_pilot_running}")
             
 
