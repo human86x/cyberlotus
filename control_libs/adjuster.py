@@ -170,14 +170,14 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     # Handle solution level adjustment
     if solution_adj > 0:
         # Add fresh water first
-        sol_adj = solution_adj * 70
+        sol_adj = solution_adj * 30
         print(f"Solution adjustment weight - {sol_adj}")
         single_commands["fresh_solution"] = sol_adj
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
     else:
         # Add fresh water first
-        sol_adj = solution_adj * 70
+        sol_adj = solution_adj * 30
         print(f"Solution adjustment weight - {sol_adj}")
         single_commands["solution_waste"] = abs(sol_adj)
         # Update the current volume after adding fresh water
