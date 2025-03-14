@@ -85,7 +85,7 @@ def check_chamber_humidity():
                     print(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
                     continue
 
-                if raw_ph_value < 42:
+                if raw_ph_value < 45:
                     print("Humidity is now below threshold, turning off the device.")
                     safe_serial_write("m", "f")  # Turn off the device
                     safe_serial_write("l", "f")  # Turn off the device
@@ -176,7 +176,12 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
     else:
-        final_volume = current_volume
+        # Add fresh water first
+        sol_adj = solution_adj * 70
+        print(f"Solution adjustment weight - {sol_adj}")
+        single_commands["solution_waste"] = abs(sol_adj)
+        # Update the current volume after adding fresh water
+        final_volume = current_volume + solution_adj
 
     # Debugging: Print values and types
     print(f"target_NPK: {target_NPK}, type: {type(target_NPK)}")
