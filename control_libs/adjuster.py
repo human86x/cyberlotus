@@ -136,6 +136,17 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     pH_adj = target_pH - pH
     temp_adj = target_temp - temp
     solution_adj = target_solution - solution
+    NPK_margin = 4
+    pH_margin = 1
+    solution_margin = 5
+
+    if NPK_adj <= NPK_margin:
+        NPK_adj = 0
+    if pH_adj <= pH_margin:
+        pH_adj = 0
+    if abs(solution_adj) <= solution_margin:
+        solution_adj = 0
+
 
     # Initialize single and multi commands
     single_commands = {}
