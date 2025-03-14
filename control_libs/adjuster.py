@@ -85,7 +85,7 @@ def check_chamber_humidity():
                     print(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
                     continue
 
-                if raw_ph_value < 50:
+                if raw_ph_value < 57:
                     print("Humidity is now below threshold, turning off the device.")
                     safe_serial_write("m", "f")  # Turn off the device
                     safe_serial_write("l", "f")  # Turn off the device
