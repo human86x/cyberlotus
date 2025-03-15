@@ -273,7 +273,7 @@ def get_ec_baseline():
         system_state["ec_baseline"]["value"] = readings
         system_state["ec_baseline"]["timestamp"] = int(time.time())
         print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
-        history_log("EC", readings)
+        history_log("EC_baseline", readings)
         
         return readings
 
