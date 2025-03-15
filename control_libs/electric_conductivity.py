@@ -173,20 +173,40 @@ def get_fast_ec():
     return a
 
 def get_ec(ser):
-    response = send_command_and_get_response(ser, b'D')
-    if response is not None:
+    # Define calibration points
+    high_ec = 200000  # High EC value (e.g., saturated NaCl solution)
+    high_raw_value = 75  # Raw value corresponding to high_ec
+    low_ec = 1  # Low EC value (e.g., distilled water)
+    low_raw_value = 0.25  # Raw value corresponding to low_ec
+
+    # Get the raw EC value from the sensor
+    raw_ec_value = send_command_and_get_response(ser, b'D')
+    
+    if raw_ec_value is not None:
         try:
-            #print(f"------------Reading EC:{response}")
-            #return float(response)
-            calibration = load_config("EC_calibration_factor")
-            
-            print(f"Raw ec from arduino - {response}")
-            response = response * calibration
-            history_log("EC", response)
-            return response
+            raw_ec_value = float(raw_ec_value)  # Convert the raw value to a float
+            print(f"Raw EC value from Arduino: {raw_ec_value}")
+
+            # Calculate the slope (m) of the line connecting the two calibration points
+            slope = (high_ec - low_ec) / (high_raw_value - low_raw_value)
+
+            # Calculate the intercept (b) of the line
+            intercept = low_ec - slope * low_raw_value
+
+            # Apply the linear equation to calculate the calibrated EC value
+            calibrated_ec_value = slope * raw_ec_value + intercept
+
+            # Log the calibrated EC value
+            history_log("EC", calibrated_ec_value)
+            print(f"Calibrated EC value: {calibrated_ec_value}")
+
+            return calibrated_ec_value
         except ValueError:
-            print(f"Error reading EC: {response}")
-    return None
+            print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
+    else:
+        print("Error: No EC value received from the sensor.")
+
+    return None  # Return None if there's an error
 
 
 
