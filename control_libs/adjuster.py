@@ -16,10 +16,6 @@ pump_progress = {}
 
 ser = get_serial_connection()
 
-
-import time
-import statistics
-
 def check_chamber_humidity():
     global SEQUENCE_DIR  # Ensure SEQUENCE_DIR is defined globally
     
@@ -31,7 +27,18 @@ def check_chamber_humidity():
         print("Error: Flow rates not loaded.")
         return {}
     
+    start_time = time.time()  # Record the start time
+    time_limit = 60  # Set the time limit to 60 seconds
+
     while True:  # Use a loop to retry instead of `goto`
+        # Check if the time limit has been exceeded
+        if time.time() - start_time > time_limit:
+            print("Time limit exceeded. Assuming humidity value is 0.")
+            system_state["sensor_chamber"]["value"] = 0
+            system_state["sensor_chamber"]["timestamp"] = int(time.time())
+            print("Updated the Sensor chambers humidity data to 0.")
+            return 0  # Exit the function with a humidity value of 0
+
         num_readings = 3
         ph_values = []
 
@@ -56,7 +63,7 @@ def check_chamber_humidity():
 
         if len(ph_values) == 0:
             print("Error: No valid Humidity readings collected.")
-            return None
+            continue  # Retry the loop if no valid readings
 
         estimated_ph_value = statistics.median(ph_values)
         print(f"Estimated Humidity value (median of valid readings): {estimated_ph_value}")
@@ -71,8 +78,18 @@ def check_chamber_humidity():
             print("Humidity is high, turning on the device.")
             safe_serial_write("m", "o")  # Turn on the device
             safe_serial_write("l", "o")  # Turn on the device
-            # Continuously monitor humidity until it drops below 2
+            # Continuously monitor humidity until it drops below 57
             while True:
+                # Check if the time limit has been exceeded
+                if time.time() - start_time > time_limit:
+                    print("Time limit exceeded. Assuming humidity value is 0.")
+                    safe_serial_write("m", "f")  # Turn off the device
+                    safe_serial_write("l", "f")  # Turn off the device
+                    system_state["sensor_chamber"]["value"] = 0
+                    system_state["sensor_chamber"]["timestamp"] = int(time.time())
+                    print("Updated the Sensor chambers humidity data to 0.")
+                    return 0  # Exit the function with a humidity value of 0
+
                 time.sleep(5)  # Wait for 5 seconds before taking the next reading
                 raw_ph_value = send_command_and_get_response(ser, b'Q')
                 if raw_ph_value is None:
@@ -97,8 +114,6 @@ def check_chamber_humidity():
         else:
             print("Chambers are dry, proceeding with the test.")
             break  # Exit the loop if humidity is <= 0
-
-
 
 
 def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, temp, target_solution, solution, current_volume=4.0, tank_capacity=6.0):
