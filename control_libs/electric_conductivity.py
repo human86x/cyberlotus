@@ -178,8 +178,8 @@ def get_ec(ser):
         try:
             #print(f"------------Reading EC:{response}")
             #return float(response)
-            
-            
+            calibration = load_config("EC_calibration_factor")
+            response = response * calibration
             history_log("EC", response)
             return response
         except ValueError:
