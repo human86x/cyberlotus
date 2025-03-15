@@ -114,7 +114,7 @@ def get_correct_EC():
             continue
 
         # Only consider values within a realistic range
-        if 0 <= raw_ec_value <= 10000:
+        if 0 <= raw_ec_value <= 300000:
             ec_values.append(raw_ec_value)
     
     # Check if we have enough valid readings
