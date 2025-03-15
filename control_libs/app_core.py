@@ -12,6 +12,33 @@ SEQUENCE_DIR = "sequences/"
 SYSTEM_STATE_FILE = "data/system_state.json"
 
 
+def save_config(key, value):
+    # Define the path to the calibration JSON file
+    calibration_file = 'data/app_config.json'
+
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(calibration_file), exist_ok=True)
+
+    # Load the current calibration data if it exists, otherwise create an empty dictionary
+    if os.path.exists(calibration_file):
+        with open(calibration_file, 'r') as file:
+            calibration_data = json.load(file)
+    else:
+        calibration_data = {}
+
+    # Update the EC_baseline value
+    calibration_data[key] = value
+
+    # Save the updated calibration data back to the JSON file
+    with open(calibration_file, 'w') as file:
+        json.dump(calibration_data, file, indent=4)
+
+    print(f"App configuration has been updated:{key} = {value} in {calibration_file}")
+
+
+
+
+
 def load_config(key=None):
     """
     Load the application configuration from the JSON file.

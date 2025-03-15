@@ -6,14 +6,14 @@ import statistics
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.arduino import get_serial_connection, connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
-from control_libs.app_core import load_config, CALIBRATION_FILE
+from control_libs.app_core import load_config, CALIBRATION_FILE, save_config
 from config_tools.sequencer import execute_sequence
 from config_tools.calibrator import load_calibration_data, save_calibration_data
 from control_libs.system_stats import system_state
 from control_libs.app_core import SEQUENCE_DIR
 from config_tools.flow_tune import load_flow_rates
 from control_libs.temperature import read_solution_temperature
-
+from control_libs.adjuster import check_chamber_humidity
 ser = get_serial_connection()
 
 
@@ -259,7 +259,7 @@ def get_ec_baseline():
         if not flow_rates:
             print("Error: Flow rates not loaded.")
             return {}
-
+        check_chamber_humidity()
         # Execute the sequence and return the readings
         readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_correct_EC)
 
@@ -274,7 +274,14 @@ def get_ec_baseline():
         system_state["ec_baseline"]["timestamp"] = int(time.time())
         print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
         history_log("EC_baseline", readings)
+        #calibration_data = load_calibration_data()
+        #calibration_data["EC_baseline"] = estimated_ec_value
+        #save_calibration_data(calibration_data)
+        save_config("EC_baseline", readings)
         
+        
+        print("EC baseline set and saved.")
+        check_chamber_humidity()
         return readings
 
     except Exception as e:
