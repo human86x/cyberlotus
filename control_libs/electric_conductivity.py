@@ -179,6 +179,8 @@ def get_ec(ser):
             #print(f"------------Reading EC:{response}")
             #return float(response)
             calibration = load_config("EC_calibration_factor")
+            
+            print(f"Raw ec from arduino - {response}")
             response = response * calibration
             history_log("EC", response)
             return response
