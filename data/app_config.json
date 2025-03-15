@@ -10,7 +10,7 @@
   "fill_pump": "fresh_solution",
   "drain_pump": "solution_waste",
   "waste_pump": "waste_out",
-  "EC_calibration_factor": 300000.941368078175897,
+  "EC_calibration_factor": 290000,
   "EC_calibration_sequence": "EC_calibration.json",
   "EC_test_sequence": "EC_test.json",
   "EC_baseline_sequence": "EC_baseline.json",
