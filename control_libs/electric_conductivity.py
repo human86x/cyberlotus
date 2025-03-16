@@ -181,7 +181,7 @@ def get_ec(ser):
 
     # Get the raw EC value from the sensor
     raw_ec_value = send_command_and_get_response(ser, b'D')
-    
+    temp = raw_ec_value
     if raw_ec_value is not None:
         try:
             raw_ec_value = float(raw_ec_value)  # Convert the raw value to a float
@@ -200,7 +200,7 @@ def get_ec(ser):
             history_log("EC", calibrated_ec_value)
             print(f"Calibrated EC value: {calibrated_ec_value}")
 
-            return calibrated_ec_value
+            return temp#calibrated_ec_value
         except ValueError:
             print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
     else:
