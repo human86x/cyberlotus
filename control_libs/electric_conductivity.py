@@ -171,21 +171,17 @@ def get_fast_ec():
     a = get_ec(ser)
     time.sleep(10)
     return a
+import numpy as np
+
+# Calibration data (raw values and corresponding EC values)
+raw_values = [15, 22, 390, 590]  # Raw sensor readings
+ec_values = [0, 50, 500, 200000]  # Known EC values in µS/cm
+
+# Fit a polynomial curve (e.g., 2nd degree)
+coefficients = np.polyfit(raw_values, ec_values, 2)
+poly_function = np.poly1d(coefficients)
+
 def get_ec(ser):
-    # Define calibration parameters
-    LOW_RAW_VALUE = 22  # Raw value for low TDS (bottled water)
-    HIGH_RAW_VALUE = 590  # Raw value for high TDS (saturated saltwater)
-    LOW_EC = 50  # EC in µS/cm for low TDS (bottled water)
-    HIGH_EC = 200000  # EC in µS/cm for high TDS (saturated saltwater)
-
-    # Calculate slope and intercept for low-range calibration
-    low_slope = (LOW_EC - 0) / (LOW_RAW_VALUE - 15)  # Distilled water raw value = 15, EC = 0
-    low_intercept = 0 - low_slope * 15
-
-    # Calculate slope and intercept for high-range calibration
-    high_slope = (HIGH_EC - LOW_EC) / (HIGH_RAW_VALUE - LOW_RAW_VALUE)
-    high_intercept = LOW_EC - high_slope * LOW_RAW_VALUE
-
     # Get the raw EC value from the sensor
     raw_ec_value = send_command_and_get_response(ser, b'D')
     
@@ -194,14 +190,8 @@ def get_ec(ser):
             raw_ec_value = float(raw_ec_value)  # Convert the raw value to a float
             print(f"Raw EC value from Arduino: {raw_ec_value}")
 
-            # Apply piecewise calibration
-            if raw_ec_value <= LOW_RAW_VALUE:
-                # Use low-range calibration
-                calibrated_ec_value = low_slope * raw_ec_value + low_intercept
-            else:
-                # Use high-range calibration
-                calibrated_ec_value = high_slope * raw_ec_value + high_intercept
-
+            # Apply polynomial calibration
+            calibrated_ec_value = poly_function(raw_ec_value)
             print(f"Calibrated EC value: {calibrated_ec_value} µS/cm")
             return calibrated_ec_value  # Return the calibrated EC value
         except ValueError:
@@ -210,9 +200,6 @@ def get_ec(ser):
         print("Error: No EC value received from the sensor.")
 
     return None  # Return None if there's an error
-
-
-
 
 
 def get_complex_ec_reading():
