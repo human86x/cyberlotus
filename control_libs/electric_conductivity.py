@@ -171,36 +171,39 @@ def get_fast_ec():
     a = get_ec(ser)
     time.sleep(10)
     return a
-
 def get_ec(ser):
-    # Define calibration points
-    high_ec = 200000  # High EC value (e.g., saturated NaCl solution)
-    high_raw_value = 75  # Raw value corresponding to high_ec
-    low_ec = 1  # Low EC value (e.g., distilled water)
-    low_raw_value = 0.25  # Raw value corresponding to low_ec
+    # Define calibration parameters
+    LOW_RAW_VALUE = 22  # Raw value for low TDS (bottled water)
+    HIGH_RAW_VALUE = 590  # Raw value for high TDS (saturated saltwater)
+    LOW_EC = 50  # EC in µS/cm for low TDS (bottled water)
+    HIGH_EC = 200000  # EC in µS/cm for high TDS (saturated saltwater)
+
+    # Calculate slope and intercept for low-range calibration
+    low_slope = (LOW_EC - 0) / (LOW_RAW_VALUE - 15)  # Distilled water raw value = 15, EC = 0
+    low_intercept = 0 - low_slope * 15
+
+    # Calculate slope and intercept for high-range calibration
+    high_slope = (HIGH_EC - LOW_EC) / (HIGH_RAW_VALUE - LOW_RAW_VALUE)
+    high_intercept = LOW_EC - high_slope * LOW_RAW_VALUE
 
     # Get the raw EC value from the sensor
     raw_ec_value = send_command_and_get_response(ser, b'D')
-    temp = raw_ec_value
+    
     if raw_ec_value is not None:
         try:
             raw_ec_value = float(raw_ec_value)  # Convert the raw value to a float
             print(f"Raw EC value from Arduino: {raw_ec_value}")
 
-            # Calculate the slope (m) of the line connecting the two calibration points
-            slope = (high_ec - low_ec) / (high_raw_value - low_raw_value)
+            # Apply piecewise calibration
+            if raw_ec_value <= LOW_RAW_VALUE:
+                # Use low-range calibration
+                calibrated_ec_value = low_slope * raw_ec_value + low_intercept
+            else:
+                # Use high-range calibration
+                calibrated_ec_value = high_slope * raw_ec_value + high_intercept
 
-            # Calculate the intercept (b) of the line
-            intercept = low_ec - slope * low_raw_value
-
-            # Apply the linear equation to calculate the calibrated EC value
-            calibrated_ec_value = slope * raw_ec_value + intercept
-
-            # Log the calibrated EC value
-            history_log("EC", calibrated_ec_value)
-            print(f"Calibrated EC value: {calibrated_ec_value}")
-
-            return temp#calibrated_ec_value
+            print(f"Calibrated EC value: {calibrated_ec_value} µS/cm")
+            return calibrated_ec_value  # Return the calibrated EC value
         except ValueError:
             print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
     else:
