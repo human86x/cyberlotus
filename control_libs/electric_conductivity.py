@@ -3,6 +3,7 @@ import os
 import json
 import time
 import statistics
+import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.arduino import get_serial_connection, connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
@@ -171,33 +172,47 @@ def get_fast_ec():
     a = get_ec(ser)
     time.sleep(10)
     return a
-import numpy as np
+
 
 # Calibration data (raw values and corresponding EC values)
-raw_values = [15, 22, 390, 590]  # Raw sensor readings
-ec_values = [0, 50, 500, 200000]  # Known EC values in µS/cm
+#raw_values = [15, 22, 390, 590]  # Raw sensor readings
+#ec_values = [0, 50, 500, 200000]  # Known EC values in µS/cm
 
 # Fit a polynomial curve (e.g., 2nd degree)
-coefficients = np.polyfit(raw_values, ec_values, 2)
-poly_function = np.poly1d(coefficients)
+#coefficients = np.polyfit(raw_values, ec_values, 2)
+#poly_function = np.poly1d(coefficients)
 
 def get_ec(ser):
-    # Get the raw EC value from the sensor
-    raw_ec_value = send_command_and_get_response(ser, b'D')
-    
-    if raw_ec_value is not None:
-        try:
-            raw_ec_value = float(raw_ec_value)  # Convert the raw value to a float
-            print(f"Raw EC value from Arduino: {raw_ec_value}")
+    # Define calibration parameters
+    LOW_RAW_VALUE = 15  # Raw value for distilled water
+    LOW_TDS = 0  # TDS for distilled water
+    HIGH_RAW_VALUE = 590  # Raw value for high-TDS solution
+    HIGH_TDS = 1000  # TDS for high-TDS solution (sensor's maximum range)
 
-            # Apply polynomial calibration
-            calibrated_ec_value = poly_function(raw_ec_value)
-            print(f"Calibrated EC value: {calibrated_ec_value} µS/cm")
-            return calibrated_ec_value  # Return the calibrated EC value
+    # Calculate slope and intercept
+    slope = (HIGH_TDS - LOW_TDS) / (HIGH_RAW_VALUE - LOW_RAW_VALUE)
+    intercept = LOW_TDS - slope * LOW_RAW_VALUE
+
+    # Get the raw TDS value from the sensor
+    raw_tds_value = send_command_and_get_response(ser, b'D')
+    
+    if raw_tds_value is not None:
+        try:
+            raw_tds_value = float(raw_tds_value)  # Convert the raw value to a float
+            print(f"Raw TDS value from Arduino: {raw_tds_value}")
+
+            # Apply calibration
+            if raw_tds_value <= HIGH_RAW_VALUE:
+                tds_value = slope * raw_tds_value + intercept
+            else:
+                tds_value = HIGH_TDS  # Sensor is saturated
+
+            print(f"Calibrated TDS value: {tds_value} ppm")
+            return tds_value  # Return the calibrated TDS value
         except ValueError:
-            print(f"Error: Invalid EC value '{raw_ec_value}' received, cannot convert to float.")
+            print(f"Error: Invalid TDS value '{raw_tds_value}' received, cannot convert to float.")
     else:
-        print("Error: No EC value received from the sensor.")
+        print("Error: No TDS value received from the sensor.")
 
     return None  # Return None if there's an error
 
