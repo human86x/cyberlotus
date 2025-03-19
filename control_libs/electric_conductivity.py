@@ -217,6 +217,7 @@ def get_ec(ser):
     return None  # Return None if there's an error
 
 
+
 def get_complex_ec_reading():
     global SEQUENCE_DIR
     """
