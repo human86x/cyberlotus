@@ -184,7 +184,7 @@ def get_fast_ec():
 
 def get_ec(ser):
     # Define calibration parameters
-    LOW_RAW_VALUE = 15  # Raw value for distilled water
+    LOW_RAW_VALUE = 1  # Raw value for distilled water
     LOW_TDS = 0  # TDS for distilled water
     HIGH_RAW_VALUE = 590  # Raw value for high-TDS solution
     HIGH_TDS = 1000  # TDS for high-TDS solution (sensor's maximum range)
