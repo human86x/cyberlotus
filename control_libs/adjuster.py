@@ -3,6 +3,7 @@ from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
 from control_libs.arduino import send_command_and_get_response,safe_serial_write, get_serial_connection
 from config_tools.sequencer import execute_sequence
+from control_libs.electric_conductivity import get_ppm
 import time
 import os
 import sys
@@ -145,13 +146,20 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
             raise TypeError(f"Expected numeric value for {var_name}, got None")
         if not isinstance(var, (int, float)):
             raise TypeError(f"Expected numeric value for {var_name}, got {type(var)}: {var}")
+    
+    multiplyers = load_config()
+    base_ec = float(multiplyers["EC_baseline"])
+    cur_ppm = get_ppm(base_ec, NPK)
+    target_ppm = get_ppm(base_ec,target_NPK)
+
+    print(f"base_ec = {base_ec}  cur_ppm = {cur_ppm} target_ppm = {target_ppm}")
 
     # Calculate adjustments
-    NPK_adj = target_NPK - NPK
+    NPK_adj = target_ppm - cur_ppm
     pH_adj = target_pH - pH
     temp_adj = target_temp - temp
     solution_adj = target_solution - solution
-    NPK_margin = 4
+    NPK_margin = 20
     pH_margin = 1
     solution_margin = 5
 
@@ -167,7 +175,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     single_commands = {}
     multi_commands = {}
 
-    multiplyers = load_config()
+    
 
     NPK_mult = float(multiplyers["NPK_mult"])
     pH_plus_mult = float(multiplyers["pH_plus_mult"])
