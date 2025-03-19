@@ -3,7 +3,7 @@ from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
 from control_libs.arduino import send_command_and_get_response,safe_serial_write, get_serial_connection
 from config_tools.sequencer import execute_sequence
-from control_libs.electric_conductivity import get_ppm
+
 import time
 import os
 import sys
@@ -16,6 +16,18 @@ import statistics
 pump_progress = {}
 
 ser = get_serial_connection()
+
+
+def get_ppm(baseline, ec):
+    global system_state
+    
+    #load_ec_baseline()
+    #ec = system_state["ec_solution"]["value"]
+    #baseline = system_state["ec_baseline"]["value"]
+    ppm = float(ec) - float(baseline)
+    print(f"*****PPM:{ppm}")
+    return ppm
+
 
 def check_chamber_humidity():
     global SEQUENCE_DIR  # Ensure SEQUENCE_DIR is defined globally

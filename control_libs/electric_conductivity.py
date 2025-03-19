@@ -15,6 +15,7 @@ from control_libs.app_core import SEQUENCE_DIR
 from config_tools.flow_tune import load_flow_rates
 from control_libs.temperature import read_solution_temperature
 from control_libs.adjuster import check_chamber_humidity
+from control_libs.adjuster import get_ppm
 ser = get_serial_connection()
 
 
@@ -62,15 +63,7 @@ def load_ec_baseline():
         print(f"{calibration_file} does not exist.")
         return None
 
-def get_ppm(baseline, ec):
-    global system_state
-    
-    #load_ec_baseline()
-    #ec = system_state["ec_solution"]["value"]
-    #baseline = system_state["ec_baseline"]["value"]
-    ppm = float(ec) - float(baseline)
-    print(f"*****PPM:{ppm}")
-    return ppm
+
 
 def get_EC_calibration_factor():
     try:
