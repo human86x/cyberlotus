@@ -162,7 +162,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     multiplyers = load_config()
     base_ec = float(multiplyers["EC_baseline"])
     cur_ppm = get_ppm(base_ec, NPK)
-    target_ppm = get_ppm(target_NPK, base_ec)
+    target_ppm = base_ec + target_NPK
 
     print(f"base_ec = {base_ec}  cur_ppm = {cur_ppm} target_ppm = {target_ppm}")
 
