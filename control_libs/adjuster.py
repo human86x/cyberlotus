@@ -174,7 +174,14 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     NPK_margin = 20
     pH_margin = 1
     solution_margin = 5
+    ##########################
+    if NPK >= 1000:
+        NPK_adj = 0
+        print(f"!!!!!!!!!!TDS Sensor reached its maximum measurment value, NO FURTHER FERTILIZER WILL BE ADDED TO THE SYSTEM!!!!!!!!")
 
+
+
+    ##########################
     if NPK_adj <= NPK_margin:
         NPK_adj = 0
     if pH_adj <= pH_margin:
