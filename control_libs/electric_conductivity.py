@@ -115,7 +115,7 @@ def get_correct_EC():
             continue
 
         # Only consider values within a realistic range
-        if 0 <= raw_ec_value <= 300000:
+        if 0 <= raw_ec_value <= 1000:
             ec_values.append(raw_ec_value)
     
     # Check if we have enough valid readings
@@ -149,8 +149,8 @@ def get_correct_EC():
         corrected_ec_value = estimated_ec_value
 
     # Apply the calibration factor
-    corrected_ec_value *= calibration_factor
-    corrected_ec_value = estimated_ec_value
+    #corrected_ec_value *= calibration_factor
+    #corrected_ec_value = estimated_ec_value
     print(f"Final corrected EC value after applying calibration factor: {corrected_ec_value}")
 
     # Convert the final EC value to an integer before returning
