@@ -287,7 +287,7 @@ def automatisation():
 from control_libs.adjuster import circulate_solution
 
 @app.route('/circulate', methods=['POST'])
-def circulatr_solution_route():
+def circulate_solution_route():
     circulate_solution()
 
 
