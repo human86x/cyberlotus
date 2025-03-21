@@ -5,18 +5,22 @@
     "pH_cal_high": 0.15,
     "pH_cal_low": 0.15,
     "EC_cal": 0.15,
-    "fresh_EC": 17.2,
-    "solution_EC": 17.2,
-    "solution_pH": 17.2,
-    "solution_waste": 17.2,
-    "waste_out": 17.2,
-    "fresh_solution": 17.2,
-    "fresh_pH": 17.15,
-    "drain_pH": 0.10,
+    "fresh_EC": 27.2,
+    "solution_EC": 27.2,
+    "solution_pH": 27.2,
+    "solution_waste": 27.2,
+    "waste_out": 27.2,
+    "fresh_solution": 27.2,
+    "fresh_pH": 27.15,
+    "drain_pH": 0.15,
     "drain_EC": 0.15,
-    "drain": 0.15,
+"heater_1": 0.15,
+"solenoid": 0.15,
     "plant_down": 17.15,
     "plant_up": 10.15,
-    
+
+    "drain": 0.15,
     "mixer_1": 0.10
 }
+
+
