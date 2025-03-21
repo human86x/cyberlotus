@@ -18,6 +18,42 @@ pump_progress = {}
 ser = get_serial_connection()
 
 
+
+
+
+
+
+
+
+
+def circulate_solution():
+    while True:  # Continuously loop
+        target_plant_pot_level = load_config("target_plant_pot_level")
+        
+        # Retrieve the current plant pot solution level
+        plant_level = send_command_and_get_response(ser, b'C')
+        print(f"Retrieved the plant pot solution level value: '{plant_level}'")
+        
+        # Update system state with the current plant pot level and timestamp
+        system_state["plant_pot_level"]["value"] = plant_level
+        system_state["plant_pot_level"]["timestamp"] = int(time.time())
+        
+        # Check if the plant pot level is above the target
+        if plant_level > target_plant_pot_level:
+            print("Adding more solution to the pot")
+            safe_serial_write("{", "o")  # Turn on the device to add solution
+            safe_serial_write(";", "f")  # Turn off the other device
+        else:
+            safe_serial_write("{", "f")  # Turn off the device
+            safe_serial_write(";", "o")  # Turn on the other device
+        
+        # Add a delay to avoid excessive polling (adjust as needed)
+        time.sleep(5)  # Wait for 5 seconds before checking again
+
+
+
+
+
 def get_ppm(baseline, ec):
     global system_state
     

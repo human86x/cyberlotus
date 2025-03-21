@@ -284,8 +284,11 @@ def relays():
 def automatisation():
     return render_template('automatisation.html')
 
+from control_libs.adjuster import circulate_solution
 
-
+@app.route('/circulate', methods=['POST'])
+def circulatr_solution_route():
+    circulate_solution()
 
 
 

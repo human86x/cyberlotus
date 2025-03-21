@@ -15,5 +15,8 @@
     "drain_pH": 0.10,
     "drain_EC": 0.15,
     "drain": 0.15,
+    "plant_down": 17.15,
+    "plant_up": 10.15,
+    
     "mixer_1": 0.10
 }

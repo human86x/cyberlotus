@@ -18,7 +18,7 @@ system_state = {
 
     "temperature": {"value": None, "timestamp": None},
     "solution_heater": {"value": None, "timestamp": None},
-
+    "plant_pot_level": {"value": None, "timestamp": None},
     "target_NPK": {"value": None, "timestamp": None},
     "target_pH": {"value": None, "timestamp": None},
     "target_temp": {"value": None, "timestamp": None},
