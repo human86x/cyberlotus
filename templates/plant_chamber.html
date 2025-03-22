@@ -64,6 +64,19 @@ button:hover {
 }
 </style>
 
+<script>
+function circulate_the_solution(){
+        fetch('/start_circulation')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Circulation started:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error with Circulation Proess:', error);
+        });
+    }
+</script>
+
     <section class="sensor-data">
         <h2>Sensor Data</h2>
         <ul>
@@ -96,13 +109,14 @@ button:hover {
 
     <section class="water-control">
         <h2>Water Level Control</h2>
-        <form action="/set_water_level" method="post">
+        
             <label>
                 Target Water Level (L):
                 <input type="number" name="water_level_target" step="0.1" value="{{ sensor_data.water_level_target }}" required>
             </label>
-            <button type="submit">Set Target Level</button>
-        </form>
+            
+            <button onclick="circulate_the_solution()">Set Target Level</button>
+       
 
         <h2>Solution Circulation</h2>
         <form action="/start_circulation" method="post">
