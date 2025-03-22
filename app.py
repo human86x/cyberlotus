@@ -310,7 +310,7 @@ def set_water_level():
     new_target = float(request.form['water_level_target'])
     # Update the target water level (you would replace this with actual logic)
     print(f"New target water level set to: {new_target} L")
-    return True#redirect(url_for('control_panel'))
+    return "True"#redirect(url_for('control_panel'))
 
 @app.route('/start_circulation', methods=['GET'])
 def start_circulation():
@@ -320,7 +320,7 @@ def start_circulation():
     
     
 
-    return True#redirect(url_for('control_panel'))
+    return "True"#redirect(url_for('control_panel'))
  
   
 
