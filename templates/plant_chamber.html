@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -22,7 +20,7 @@ main {
     padding: 20px;
 }
 
-.sensor-data, .light-control {
+.sensor-data, .light-control, .water-control {
     background-color: white;
     padding: 20px;
     margin-bottom: 20px;
@@ -50,6 +48,19 @@ button {
 
 button:hover {
     background-color: #555;
+}
+
+.circulation-indicator {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-left: 10px;
+    background-color: gray; /* Default to gray (off) */
+}
+
+.circulation-indicator.on {
+    background-color: green; /* Green when circulation is on */
 }
 </style>
 
@@ -80,6 +91,23 @@ button:hover {
                 <input type="checkbox" name="growing_light" {% if light_states.growing_light %}checked{% endif %}>
             </label>
             <button type="submit">Update Lights</button>
+        </form>
+    </section>
+
+    <section class="water-control">
+        <h2>Water Level Control</h2>
+        <form action="/set_water_level" method="post">
+            <label>
+                Target Water Level (L):
+                <input type="number" name="water_level_target" step="0.1" value="{{ sensor_data.water_level_target }}" required>
+            </label>
+            <button type="submit">Set Target Level</button>
+        </form>
+
+        <h2>Solution Circulation</h2>
+        <form action="/start_circulation" method="post">
+            <button type="submit">Start Solution Circulation</button>
+            <div class="circulation-indicator {% if circulation_status %}on{% endif %}"></div>
         </form>
     </section>
 {% endblock %}
