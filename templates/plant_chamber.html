@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+main {
+    padding: 20px;
+}
+
+.sensor-data, .light-control {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #555;
+}
+</style>
+
+    <section class="sensor-data">
+        <h2>Sensor Data</h2>
+        <ul>
+            <li>Air Humidity: {{ sensor_data.air_humidity }}%</li>
+            <li>Air Temperature: {{ sensor_data.air_temperature }}°C</li>
+            <li>Light Intensity: {{ sensor_data.light_intensity }} lux</li>
+            <li>Pot Water Temperature: {{ sensor_data.pot_water_temperature }}°C</li>
+            <li>Water Level: {{ sensor_data.water_level_current }} / {{ sensor_data.water_level_target }} L</li>
+        </ul>
+    </section>
+
+    <section class="light-control">
+        <h2>Light Control</h2>
+        <form action="/control_lights" method="post">
+            <label>
+                White Light:
+                <input type="checkbox" name="white_light" {% if light_states.white_light %}checked{% endif %}>
+            </label>
+            <label>
+                Yellow Light:
+                <input type="checkbox" name="yellow_light" {% if light_states.yellow_light %}checked{% endif %}>
+            </label>
+            <label>
+                Growing Light:
+                <input type="checkbox" name="growing_light" {% if light_states.growing_light %}checked{% endif %}>
+            </label>
+            <button type="submit">Update Lights</button>
+        </form>
+    </section>
+{% endblock %}

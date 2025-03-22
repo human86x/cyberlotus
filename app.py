@@ -284,6 +284,10 @@ def relays():
 def automatisation():
     return render_template('automatisation.html')
 
+@app.route('/plant_chamber')
+def plant_chamber():
+    return render_template('plant_chamber.html')
+
 from control_libs.adjuster import circulate_solution
 
 @app.route('/circulate', methods=['GET'])
