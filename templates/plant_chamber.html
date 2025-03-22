@@ -119,9 +119,10 @@ function circulate_the_solution(){
        
 
         <h2>Solution Circulation</h2>
-        <form action="/start_circulation" method="post">
-            <button type="submit">Start Solution Circulation</button>
-            <div class="circulation-indicator {% if circulation_status %}on{% endif %}"></div>
-        </form>
+        
+            <button onclick="circulate_the_solution()">Set Target Level</button>
+       
+<div class="circulation-indicator {% if circulation_status %}on{% endif %}"></div>
+     
     </section>
 {% endblock %}
