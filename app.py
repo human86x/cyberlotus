@@ -286,7 +286,23 @@ def automatisation():
 
 @app.route('/plant_chamber')
 def plant_chamber():
-    return render_template('plant_chamber.html')
+    # Example sensor data (you would replace this with actual sensor readings)
+    sensor_data = {
+        'air_humidity': 45.6,
+        'air_temperature': 22.3,
+        'light_intensity': 1200,
+        'pot_water_temperature': 18.7,
+        'water_level_current': 5.2,
+        'water_level_target': 6.0,
+    }
+
+    # Example light control states (you would replace this with actual states)
+    light_states = {
+        'white_light': False,
+        'yellow_light': True,
+        'growing_light': False,
+    }
+    return render_template('plant_chamber.html', sensor_data=sensor_data, light_states=light_states)
 
 from control_libs.adjuster import circulate_solution
 
