@@ -312,7 +312,7 @@ def set_water_level():
     print(f"New target water level set to: {new_target} L")
     return "True"#redirect(url_for('control_panel'))
 
-@app.route('/start_circulation', methods=['GET'])
+@app.route('/start_circulation', methods=['POST'])
 def start_circulation():
     global circulation_status
     circulation_status = not circulation_status  # Toggle circulation status
@@ -326,7 +326,7 @@ def start_circulation():
 
 from control_libs.adjuster import circulate_solution
 
-@app.route('/circulate', methods=['GET'])
+@app.route('/circulate', methods=['POST'])
 def circulate_solution_route():
     circulate_solution()
 
