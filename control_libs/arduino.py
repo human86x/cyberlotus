@@ -145,7 +145,7 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
     
     def emergency_recovery():
         """Handle connection failures"""
-        nonlocal ser
+        #nonlocal ser
         print("[EMERGENCY] Attempting recovery...")
         try:
             safe_serial_write_emergency()
