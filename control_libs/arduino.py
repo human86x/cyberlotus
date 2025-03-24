@@ -49,70 +49,63 @@ ser = None  # Define the global variable for the serial connection
 
 def connect_to_arduino():
     """
-    Robust Arduino connection with fallbacks
+    More reliable connection handler with better error recovery
     """
-    global ser
-    
     ARDUINO_IDS = [
-        {'vid': '2341', 'pid': '0043'},  # Arduino Uno
-        {'vid': '2341', 'pid': '8036'},  # Arduino Leonardo
-        {'vid': '2a03', 'pid': '0043'}   # Arduino Uno (clone)
+        {'vid': 0x2341, 'pid': 0x0043},  # Arduino Uno
+        {'vid': 0x2341, 'pid': 0x8036},  # Arduino Leonardo
+        {'vid': 0x2a03, 'pid': 0x0043}   # Arduino Uno Clone
     ]
-    SYMLINK = "/dev/arduino_controller"
-    TEST_CMD = b'PING\n'
-    EXPECTED = "PONG"
+    POSSIBLE_PORTS = ['/dev/arduino_controller'] + \
+                    [f'/dev/ttyACM{i}' for i in range(5)] + \
+                    [f'/dev/ttyUSB{i}' for i in range(5)]
     
-    def test_conn(port):
+    def test_connection(port):
         try:
-            port.write(TEST_CMD)
-            return port.readline().decode().strip() == EXPECTED
+            port.write(b'PING\n')
+            return port.readline().decode().strip() == 'PONG'
         except:
             return False
 
-    # Close faulty connection
-    if ser and ser.is_open:
-        if not test_conn(ser):
-            ser.close()
+    # Try existing connection first
+    if hasattr(connect_to_arduino, 'ser') and connect_to_arduino.ser.is_open:
+        if test_connection(connect_to_arduino.ser):
+            return connect_to_arduino.ser
+        connect_to_arduino.ser.close()
 
-    # Try symlink first
+    # Try all possible ports
+    for port in POSSIBLE_PORTS:
+        try:
+            ser = serial.Serial(port, baudrate=9600, timeout=1)
+            time.sleep(2)  # Wait for Arduino to initialize
+            if test_connection(ser):
+                connect_to_arduino.ser = ser  # Cache the connection
+                print(f"Connected to Arduino on {port}")
+                return ser
+            ser.close()
+        except:
+            continue
+
+    # If all else fails, try USB reset
     try:
-        ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
-        time.sleep(2)  # Reset wait
-        if test_conn(ser):
-            print(f"Connected via symlink {SYMLINK}")
-            return ser
-        ser.close()
+        import usb.core
+        for arduino in ARDUINO_IDS:
+            dev = usb.core.find(idVendor=arduino['vid'], idProduct=arduino['pid'])
+            if dev:
+                dev.reset()
+                time.sleep(5)  # Wait for device to reconnect
+                return connect_to_arduino()  # Retry
     except:
         pass
 
-    # Find by hardware ID
-    for port in serial.tools.list_ports.comports():
-        for arduino in ARDUINO_IDS:
-            if arduino['vid'] in port.hwid and arduino['pid'] in port.hwid:
-                try:
-                    ser = serial.Serial(port.device, baudrate=9600, timeout=1)
-                    time.sleep(2)
-                    if test_conn(ser):
-                        print(f"Connected to {port.device}")
-                        return ser
-                    ser.close()
-                except:
-                    continue
+    raise Exception("Could not establish connection to Arduino")
 
-    # Last resort - USB reset
-    try:
-        from subprocess import run
-        for arduino in ARDUINO_IDS:
-            run(['sudo', 'usbreset', f"{arduino['vid']}:{arduino['pid']}"], 
-               check=True)
-        time.sleep(5)  # Wait for reboot
-        return connect_to_arduino()  # Retry
-    except:
-        raise Exception("Failed to connect after all attempts")
-
-# Usage:
-#ser = connect_to_arduino()
-
+# Initialize connection
+#try:
+#    ser = connect_to_arduino()
+#except Exception as e:
+#    print(f"Critical error: {str(e)}")
+#    # Implement emergency shutdown here
 
 
 
