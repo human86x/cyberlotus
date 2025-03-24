@@ -318,7 +318,7 @@ def start_circulation():
     circulation_status = not circulation_status  # Toggle circulation status
     print(f"Solution circulation is now {'on' if circulation_status else 'off'}")
     
-    
+    circulate_solution()
 
     return "True"#redirect(url_for('control_panel'))
  

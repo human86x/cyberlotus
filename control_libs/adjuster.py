@@ -1,4 +1,4 @@
-from config_tools.flow_tune import load_flow_rates, load_pump_commands, PUMP_COMMANDS
+from config_tools.flow_tune import load_flow_rates, send_command_with_heartbeat, load_pump_commands, PUMP_COMMANDS
 from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
 from control_libs.arduino import send_command_and_get_response,safe_serial_write, get_serial_connection
@@ -29,7 +29,8 @@ ser = get_serial_connection()
 def circulate_solution():
     while True:  # Continuously loop
         target_plant_pot_level = load_config("target_plant_pot_level")
-        
+        pump_up = "plant_up"
+        pump_down = "pland_down"
         # Retrieve the current plant pot solution level
         plant_level = send_command_and_get_response(ser, b'C')
         print(f"Retrieved the plant pot solution level value: '{plant_level}'")
@@ -38,15 +39,43 @@ def circulate_solution():
         system_state["plant_pot_level"]["value"] = plant_level
         system_state["plant_pot_level"]["timestamp"] = int(time.time())
         
+        
+
+        #flow_rates = load_flow_rates()
+        #if pump_name not in flow_rates:
+            #print(f"Error: Flow rate for '{pump_name}' not found.")
+            #return
+        #if pump_name not in PUMP_COMMANDS:
+            #print(f"Error: Invalid pump name '{pump_name}'")
+            #return
+
+        #flow_rate = flow_rates[pump_name]
+        #duration = weight / flow_rate
+
+        #print(f"Activating pump '{pump_name}' for {duration:.2f} seconds to dispense {weight} grams.")
+        #if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=duration):
+        #    print(f"Error: Failed to complete operation for pump '{pump_name}'.")
+
+
+
+
+
+
+
+
         # Check if the plant pot level is above the target
         if plant_level > target_plant_pot_level:
             print("Adding more solution to the pot")
-            safe_serial_write("{", "o")  # Turn on the device to add solution
-            safe_serial_write(";", "f")  # Turn off the other device
-        else:
-            safe_serial_write("{", "f")  # Turn off the device
-            safe_serial_write(";", "o")  # Turn on the other device
+            #safe_serial_write("{", "o")  # Turn on the device to add solution
+            #safe_serial_write(";", "f")  # Turn off the other device
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
         
+        else:
+            #safe_serial_write("{", "f")  # Turn off the device
+            #safe_serial_write(";", "o")  # Turn on the other device
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)       
         # Add a delay to avoid excessive polling (adjust as needed)
         time.sleep(5)  # Wait for 5 seconds before checking again
 
