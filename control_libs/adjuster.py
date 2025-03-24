@@ -31,56 +31,42 @@ def circulate_solution():
         target_plant_pot_level = load_config("target_plant_pot_level")
         pump_up = "plant_up"
         pump_down = "plant_down"
-        # Retrieve the current plant pot solution level
-        plant_level = send_command_and_get_response(ser, b'C')
-        print(f"Retrieved the plant pot solution level value: '{plant_level}'")
+        
+        # Retrieve the current plant pot solution level (with validation)
+        while True:  # Loop until a valid response is received
+            plant_level = send_command_and_get_response(ser, b'C')
+            
+            # Check if the response is numeric and within range (1-50)
+            try:
+                plant_level = int(plant_level)  # Ensure it's an integer
+                if 1 <= plant_level <= 50:  # Valid range
+                    break  # Exit the validation loop
+                else:
+                    print(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
+            except (ValueError, TypeError):
+                print(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
+            
+            time.sleep(1)  # Small delay before retrying
+        
+        print(f"✅ Retrieved valid plant pot solution level: {plant_level}")
         
         # Update system state with the current plant pot level and timestamp
         system_state["plant_pot_level"]["value"] = plant_level
         system_state["plant_pot_level"]["timestamp"] = int(time.time())
         
-        
-
-        #flow_rates = load_flow_rates()
-        #if pump_name not in flow_rates:
-            #print(f"Error: Flow rate for '{pump_name}' not found.")
-            #return
-        #if pump_name not in PUMP_COMMANDS:
-            #print(f"Error: Invalid pump name '{pump_name}'")
-            #return
-
-        #flow_rate = flow_rates[pump_name]
-        #duration = weight / flow_rate
-
-        #print(f"Activating pump '{pump_name}' for {duration:.2f} seconds to dispense {weight} grams.")
-        #if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=duration):
-        #    print(f"Error: Failed to complete operation for pump '{pump_name}'.")
-
-
-
-
-
-        print(f"Plant por current water level is {plant_level} and target level is {target_plant_pot_level}")
- 
+        print(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
 
         # Check if the plant pot level is above the target
         if plant_level > target_plant_pot_level:
             print("Adding more solution to the pot")
-            #safe_serial_write("{", "o")  # Turn on the device to add solution
-            #safe_serial_write(";", "f")  # Turn off the other device
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
-        
         else:
-            #safe_serial_write("{", "f")  # Turn off the device
-            #safe_serial_write(";", "o")  # Turn on the other device
             print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)       
-        # Add a delay to avoid excessive polling (adjust as needed)
-        time.sleep(5)  # Wait for 5 seconds before checking again
-
-
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+        
+        time.sleep(5)  # Wait before checking again
 
 
 
