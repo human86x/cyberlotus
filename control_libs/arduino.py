@@ -94,13 +94,13 @@ def connect_to_arduino():
     # Case 3: Full port scan
     print("Starting full port scan...")
     i = 0
-    for i in range(4):  # /dev/ttyACM0 to /dev/ttyACM10
+    for i in range(5):  # /dev/ttyACM0 to /dev/ttyACM10
         port = f"/dev/ttyACM{i}"
         for attempt in range(MAX_RETRIES):
             try:
                 print(f"Trying {port} (attempt {attempt + 1})...")
                 temp_ser = serial.Serial(port, baudrate=9600, timeout=1)
-                time.sleep(2)  # Arduino reset time
+                time.sleep(15)  # Arduino reset time
                 
                 if test_connection(temp_ser):
                     print(f"Established working connection to {port}")
