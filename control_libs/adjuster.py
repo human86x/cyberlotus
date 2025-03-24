@@ -64,11 +64,11 @@ def circulate_solution():
         print(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
 
         # Control logic based on the level
-        if plant_level > target_plant_pot_level + 1:
+        if plant_level < target_plant_pot_level + 1:
             print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
-        elif plant_level < target_plant_pot_level - 1:
+        elif plant_level > target_plant_pot_level - 1:
             print("Adding more solution to the pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
