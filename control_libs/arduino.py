@@ -9,40 +9,116 @@ from control_libs.system_stats import system_state, save_system_state, load_syst
 
 ser = None  # Define the global variable for the serial connection
 
+#def connect_to_arduino():
+#    global ser  # Access the global serial connection variable
+#    """
+#    Ensures only one connection is created and reused.
+#    Reconnects if the connection is lost or invalid.
+#    """
+#    print("Checking Arduino connection...")#
+#
+#    # Check if a valid connection already exists
+#    if ser and ser.is_open:
+#        print(f"Arduino is already connected on {ser.port}.")
+#        ser.close()  # Close the connection
+#        print(f"Connection Closed {ser.port}.")
+#        print(f"Reconnecting to {ser.port}...")
+#        ser = serial.Serial(ser.port, baudrate=9600, timeout=1)  # Set a 1-second timeout
+#        time.sleep(2)  # Allow time for Arduino to reset
+#        print(f"Reconnected to {ser.port}")
+#        return ser
+#
+#    # Try to establish a new connection
+#    for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
+#        port = f"/dev/ttyACM{i}"
+#        try:
+#            print(f"Trying to connect to {port}...")
+#            ser = serial.Serial(port, baudrate=9600, timeout=1)  # Set a 1-second timeout
+#            time.sleep(2)  # Allow time for Arduino to reset
+#            print(f"Connected successfully to {port}")
+#            return ser
+#        except serial.SerialException as e:
+#            print(f"Failed to connect to {port}: {e}")
+#            continue#
+#
+#    # Raise an exception if no ports work
+#    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
+
+
+
 def connect_to_arduino():
-    global ser  # Access the global serial connection variable
+    global ser
     """
-    Ensures only one connection is created and reused.
-    Reconnects if the connection is lost or invalid.
+    Ensures a valid, working connection to Arduino by:
+    1. Checking if existing connection is alive (via test command)
+    2. Reconnecting if communication fails
+    3. Scanning all possible ports if needed
     """
-    print("Checking Arduino connection...")
+    MAX_RETRIES = 3
+    TEST_COMMAND = b'PING\n'  # Replace with a command your Arduino responds to
+    EXPECTED_RESPONSE = "PONG"  # Replace with expected response
 
-    # Check if a valid connection already exists
-    if ser and ser.is_open:
-        print(f"Arduino is already connected on {ser.port}.")
-        ser.close()  # Close the connection
-        print(f"Connection Closed {ser.port}.")
-        print(f"Reconnecting to {ser.port}...")
-        ser = serial.Serial(ser.port, baudrate=9600, timeout=1)  # Set a 1-second timeout
-        time.sleep(2)  # Allow time for Arduino to reset
-        print(f"Reconnected to {ser.port}")
-        return ser
-
-    # Try to establish a new connection
-    for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
-        port = f"/dev/ttyACM{i}"
+    # Helper function to test active communication
+    def test_connection(serial_conn):
         try:
-            print(f"Trying to connect to {port}...")
-            ser = serial.Serial(port, baudrate=9600, timeout=1)  # Set a 1-second timeout
-            time.sleep(2)  # Allow time for Arduino to reset
-            print(f"Connected successfully to {port}")
-            return ser
-        except serial.SerialException as e:
-            print(f"Failed to connect to {port}: {e}")
-            continue
+            serial_conn.flushInput()
+            serial_conn.flushOutput()
+            serial_conn.write(TEST_COMMAND)
+            response = serial_conn.readline().decode().strip()
+            return response == EXPECTED_RESPONSE
+        except:
+            return False
 
-    # Raise an exception if no ports work
-    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
+    # Case 1: Existing connection is valid
+    if ser and ser.is_open:
+        if test_connection(ser):
+            print(f"Using existing valid connection on {ser.port}")
+            return ser
+        else:
+            print(f"Connection on {ser.port} exists but communication failed")
+            ser.close()
+
+    # Case 2: Try to reconnect on last known good port
+    last_port = getattr(ser, 'port', None)
+    if last_port:
+        try:
+            print(f"Attempting reconnect on last port {last_port}")
+            ser = serial.Serial(last_port, baudrate=9600, timeout=1)
+            time.sleep(2)
+            if test_connection(ser):
+                print(f"Reconnected successfully to {last_port}")
+                return ser
+        except:
+            pass
+
+    # Case 3: Full port scan
+    print("Starting full port scan...")
+    for i in range(11):  # /dev/ttyACM0 to /dev/ttyACM10
+        port = f"/dev/ttyACM{i}"
+        for attempt in range(MAX_RETRIES):
+            try:
+                print(f"Trying {port} (attempt {attempt + 1})...")
+                temp_ser = serial.Serial(port, baudrate=9600, timeout=1)
+                time.sleep(2)  # Arduino reset time
+                
+                if test_connection(temp_ser):
+                    print(f"Established working connection to {port}")
+                    ser = temp_ser
+                    return ser
+                else:
+                    print(f"Port {port} responded but failed communication test")
+                    temp_ser.close()
+                    break
+            except serial.SerialException as e:
+                print(f"Failed on {port}: {str(e)}")
+                if attempt == MAX_RETRIES - 1:
+                    print(f"Giving up on {port} after {MAX_RETRIES} attempts")
+                time.sleep(1)
+
+    raise Exception("Could not establish working connection to any port")
+
+
+
 
 
 
