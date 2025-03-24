@@ -63,7 +63,7 @@ def connect_to_arduino():
     try:
         ser = serial.Serial('/dev/arduino_mega', 9600, timeout=2)
         time.sleep(2)  # Wait for Arduino to reset
-        ser.write(b'AT\r\n')  # Test command
+        ser.write(b'PING\r\n')  # Test command
         response = ser.readline().decode().strip()
         print("Response from Arduino:", response)
         return ser
