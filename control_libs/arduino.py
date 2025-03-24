@@ -68,10 +68,11 @@ def connect_to_arduino():
             time.sleep(1)
             response = port.readline().decode().strip()
             print(f"DEBUG: Response -> {response}")
-            return response == 'PONG'
+            return response in ('PONG', 'ARDUINO_READY')  # Accept both responses
         except Exception as e:
             print(f"DEBUG: Error testing connection -> {e}")
             return False
+
 
     # Try connecting via symlink only
     try:
