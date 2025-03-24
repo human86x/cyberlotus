@@ -60,7 +60,7 @@ def circulate_solution():
 
 
 
-
+        print(f"Plant por current water level is {plant_level} and target level is {target_plant_pot_level}")
  
 
         # Check if the plant pot level is above the target
@@ -74,6 +74,7 @@ def circulate_solution():
         else:
             #safe_serial_write("{", "f")  # Turn off the device
             #safe_serial_write(";", "o")  # Turn on the other device
+            print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)       
         # Add a delay to avoid excessive polling (adjust as needed)
