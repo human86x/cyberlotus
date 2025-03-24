@@ -53,13 +53,13 @@ from serial.tools import list_ports
 import serial
 import time
 from serial.tools import list_ports
+import serial
+import time
 
 def connect_to_arduino():
     """
-    Specialized connection handler for Arduino Mega 2560
+    Connect to Arduino Mega 2560 using a symlink.
     """
-    MEGA_VID = "2341"
-    MEGA_PID = "0042"
     SYMLINK = "/dev/arduino_mega"
 
     def test_connection(port):
@@ -73,7 +73,7 @@ def connect_to_arduino():
             print(f"DEBUG: Error testing connection -> {e}")
             return False
 
-    # Try symlink first
+    # Try connecting via symlink only
     try:
         print(f"DEBUG: Trying symlink {SYMLINK}")
         ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
@@ -85,40 +85,15 @@ def connect_to_arduino():
     except serial.SerialException as e:
         print(f"⚠ Symlink connection failed: {e}")
 
-    # Find by hardware ID
-    for port in list_ports.comports():
-        print(f"DEBUG: Checking port {port.device} with ID {port.hwid}")
-        if MEGA_VID in port.hwid and MEGA_PID in port.hwid:
-            try:
-                ser = serial.Serial(port.device, baudrate=9600, timeout=1)
-                time.sleep(2)
-                if test_connection(ser):
-                    print(f"✓ Connected to {port.device}")
-                    return ser
-                ser.close()
-            except serial.SerialException as e:
-                print(f"⚠ Connection failed on {port.device}: {e}")
-
-    # Final attempt with direct port
-    try:
-        print("DEBUG: Trying direct connection to /dev/ttyACM1")
-        ser = serial.Serial('/dev/ttyACM1', baudrate=9600, timeout=1)
-        time.sleep(2)
-        if test_connection(ser):
-            print("✓ Connected to /dev/ttyACM1")
-            return ser
-        ser.close()
-    except serial.SerialException as e:
-        print(f"⚠ Direct connection failed: {e}")
-
-    raise Exception("Could not establish connection to Arduino Mega")
+    raise Exception("Could not establish connection to Arduino Mega via symlink")
 
 # Usage:
-try:
-    ser = connect_to_arduino()
-    print("Connection successful!")
-except Exception as e:
-    print(f"Connection failed: {e}")
+#try:
+#    ser = connect_to_arduino()
+#    print("Connection successful!")
+#except Exception as e:
+#    print(f"Connection failed: {e}")
+
 
 
 
