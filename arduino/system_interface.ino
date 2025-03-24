@@ -16,16 +16,32 @@ const int pumpPins[] = {35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 
 #define ECHO_PIN_2 7
 #define TRIG_PIN_3 3
 #define ECHO_PIN_3 4
+#define TRIG_PIN_4 21
+#define ECHO_PIN_4 20
 
 // TDS sensor definitions
 #define TDS_SENSOR_PIN A0
 #define VREF 5.0
 #define ADC_RES 1024.0
-#define TDS_FACTOR 0.05  // Adjust this based on calibration
+#define TDS_FACTOR 0.05
 
 // pH sensor definitions
 #define PH_SENSOR_PIN A1
 #define NUM_READINGS 10
+
+// Soil moisture sensor definitions
+#define SOIL_MOISTURE_PIN A5
+const int dryValue = 600;
+const int wetValue = 300;
+
+// Function prototypes
+void controlPump(char pumpCommand, char state);
+void precisePumpDelivery(char pumpCommand, int duration);
+void turnOffAllPumps();
+float getDistance(int trigPin, int echoPin);
+float getECValue();
+float readPHSensor();
+float getSoilMoisture();
 
 void setup() {
   Serial.begin(9600);
@@ -44,52 +60,95 @@ void setup() {
   pinMode(ECHO_PIN_2, INPUT);
   pinMode(TRIG_PIN_3, OUTPUT);
   pinMode(ECHO_PIN_3, INPUT);
+  pinMode(TRIG_PIN_4, OUTPUT);
+  pinMode(ECHO_PIN_4, INPUT);
+
+  pinMode(SOIL_MOISTURE_PIN, INPUT);
+  pinMode(TDS_SENSOR_PIN, INPUT);
+  pinMode(PH_SENSOR_PIN, INPUT);
 }
 
 void loop() {
   if (Serial.available()) {
     String command = Serial.readStringUntil('\n');
+    command.trim();
 
-    if (command == "T") {
+    // Connection test command (must be first)
+    if (command == "PING") {
+      Serial.println("PONG");
+      return;
+    }
+    // Temperature reading
+    else if (command == "T") {
       sensors.requestTemperatures();
       float temperature = sensors.getTempCByIndex(0);
       Serial.println(temperature);
-    } else if (command == "F") {
+    }
+    // Ultrasonic sensor readings
+    else if (command == "F") {
       Serial.println(getDistance(TRIG_PIN_1, ECHO_PIN_1));
-    } else if (command == "S") {
+    }
+    else if (command == "S") {
       Serial.println(getDistance(TRIG_PIN_2, ECHO_PIN_2));
-    } else if (command == "W") {
+    }
+    else if (command == "W") {
       Serial.println(getDistance(TRIG_PIN_3, ECHO_PIN_3));
-    } else if (command == "D") {
+    }
+    else if (command == "C") {
+      Serial.println(getDistance(TRIG_PIN_4, ECHO_PIN_4));
+    }
+    // TDS/EC reading
+    else if (command == "D") {
       Serial.println(getECValue());
-    } else if (command == "P") {
+    }
+    // pH reading
+    else if (command == "P") {
       Serial.println(readPHSensor());
-    } else if (command == "H") {
+    }
+    // Heartbeat
+    else if (command == "H") {
       Serial.println("HEARTBEAT");
-    } else if (command == "X") {
+    }
+    // All pumps off
+    else if (command == "X") {
       turnOffAllPumps();
-    } else if (command.length() == 2) {
+    }
+    // Soil moisture
+    else if (command == "Q") {
+      Serial.println(getSoilMoisture());
+    }
+    // Simple pump control (2-character commands)
+    else if (command.length() == 2) {
       char pumpCommand = command.charAt(0);
       char state = command.charAt(1);
       controlPump(pumpCommand, state);
-    } else if (command.length() >= 2 && isDigit(command.charAt(1))) {
+    }
+    // Precise pump timing (command + duration)
+    else if (command.length() >= 2 && isDigit(command.charAt(1))) {
       char pumpCommand = command.charAt(0);
       int duration = command.substring(1).toInt();
       precisePumpDelivery(pumpCommand, duration);
-    } else {
-      Serial.println("Invalid command");
+    }
+    // Invalid command
+    else {
+      Serial.println("INVALID_CMD");
     }
   }
+}
+
+float getSoilMoisture() {
+  int moistureValue = analogRead(SOIL_MOISTURE_PIN);
+  int moisturePercentage = map(moistureValue, dryValue, wetValue, 0, 100);
+  moisturePercentage = constrain(moisturePercentage, 0, 100);
+  return moisturePercentage;
 }
 
 void controlPump(char pumpCommand, char state) {
   int pumpIndex = -1;
 
-  // Map lowercase letters to indices 0-25
   if (pumpCommand >= 'a' && pumpCommand <= 'z') {
     pumpIndex = pumpCommand - 'a';
   }
-  // Map symbols to indices 26-47
   else {
     switch (pumpCommand) {
       case '!': pumpIndex = 26; break;
@@ -114,12 +173,12 @@ void controlPump(char pumpCommand, char state) {
       case ':': pumpIndex = 45; break;
       case ',': pumpIndex = 46; break;
       case '.': pumpIndex = 47; break;
-      default: Serial.println("Invalid pump command"); return;
+      default: Serial.println("INVALID_PUMP"); return;
     }
   }
 
   if (pumpIndex < 0 || pumpIndex >= sizeof(pumpPins) / sizeof(pumpPins[0])) {
-    Serial.println("Invalid pump index");
+    Serial.println("INVALID_PUMP_IDX");
     return;
   }
 
@@ -127,48 +186,45 @@ void controlPump(char pumpCommand, char state) {
     digitalWrite(pumpPins[pumpIndex], LOW);
     Serial.print("ON_");
     Serial.println(pumpCommand);
-  } else if (state == 'f') {
+  }
+  else if (state == 'f') {
     digitalWrite(pumpPins[pumpIndex], HIGH);
     Serial.print("OFF_");
     Serial.println(pumpCommand);
-  } else {
-    Serial.println("Invalid state command");
+  }
+  else {
+    Serial.println("INVALID_STATE");
   }
 }
+
 void precisePumpDelivery(char pumpCommand, int duration) {
   int pumpIndex = pumpCommand - 'a';
 
   if (pumpIndex < 0 || pumpIndex >= sizeof(pumpPins) / sizeof(pumpPins[0])) {
-    Serial.println("Invalid pump index");
+    Serial.println("INVALID_PUMP_IDX");
     return;
   }
 
   if (duration <= 0) {
-    Serial.println("Invalid duration");
+    Serial.println("INVALID_DURATION");
     return;
   }
 
   digitalWrite(pumpPins[pumpIndex], LOW);
   Serial.print("ON_");
   Serial.print(pumpCommand);
-  Serial.print("_for_");
-  Serial.print(duration);
-  Serial.println("ms");
+  Serial.print("_");
+  Serial.println(duration);
 
-  //noInterrupts(); // Disable interrupts
-  delay(duration); // Pause everything
-  //interrupts(); // Re-enable interrupts
-
+  delay(duration);
   digitalWrite(pumpPins[pumpIndex], HIGH);
-  Serial.print("OFF_");
-  Serial.println(pumpCommand);
 }
 
 void turnOffAllPumps() {
   for (int i = 0; i < sizeof(pumpPins) / sizeof(pumpPins[0]); i++) {
     digitalWrite(pumpPins[i], HIGH);
   }
-  Serial.println("All pumps turned OFF");
+  Serial.println("ALL_OFF");
 }
 
 float getDistance(int trigPin, int echoPin) {
@@ -183,17 +239,9 @@ float getDistance(int trigPin, int echoPin) {
 }
 
 float getECValue() {
-  sensors.requestTemperatures();
-  float temperature = sensors.getTempCByIndex(0);
   int rawValue = analogRead(TDS_SENSOR_PIN);
-  float voltage = (rawValue / ADC_RES) * VREF;
-  float ecValue = (voltage / TDS_FACTOR);
-  
-  // Apply temperature compensation
-  float compensationFactor = 1.0 + 0.02 * (temperature - 25.0);
-  float compensatedEC = ecValue / compensationFactor;
-  
-  return compensatedEC;
+  float voltage = rawValue * (VREF / ADC_RES);
+  return voltage * TDS_FACTOR;
 }
 
 float readPHSensor() {
@@ -202,6 +250,5 @@ float readPHSensor() {
     sum += analogRead(PH_SENSOR_PIN);
     delay(10);
   }
-  float analogValue = sum / NUM_READINGS;
-  return analogValue;
+  return sum / NUM_READINGS;
 }

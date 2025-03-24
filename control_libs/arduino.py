@@ -100,7 +100,7 @@ def connect_to_arduino():
             try:
                 print(f"Trying {port} (attempt {attempt + 1})...")
                 temp_ser = serial.Serial(port, baudrate=9600, timeout=1)
-                time.sleep(15)  # Arduino reset time
+                time.sleep(1)  # Arduino reset time
                 
                 if test_connection(temp_ser):
                     print(f"Established working connection to {port}")
