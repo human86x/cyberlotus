@@ -132,98 +132,73 @@ def close_serial_connection():
         print("[INFO] Serial connection closed.")
 
 def safe_serial_write(pump_name, state, retries=5, timeout=2):
+    global ser
+    global system_state
+    ser = get_serial_connection()
+
     """
-    Enhanced serial communication with partial response matching and better error recovery
-    
+    Safely write a pump control command to the serial port and verify Arduino response.
+    Now checks if expected response is contained in the received response.
+
     Args:
-        pump_name (str): Pump identifier (must exist in PUMP_COMMANDS)
-        state (str): 'o' for ON, 'f' for OFF
-        retries (int): Maximum retry attempts
-        timeout (float): Seconds to wait for response per attempt
+        pump_name (str): Name of the pump.
+        state (str): 'o' to turn ON, 'f' to turn OFF.
+        retries (int): Number of retries if no valid response is received.
+        timeout (int): Time in seconds to wait for Arduino response.
     """
-    global ser, system_state
-    
-    def emergency_recovery():
-        """Handle connection failures"""
-        #nonlocal ser
-        print("[EMERGENCY] Attempting recovery...")
-        try:
-            safe_serial_write_emergency()
-            ser = get_serial_connection()  # Re-establish connection
-            time.sleep(1)  # Allow for Arduino reset
-        except Exception as e:
-            print(f"[CRITICAL] Recovery failed: {str(e)}")
-
-    # Validate inputs
-    if pump_name not in PUMP_COMMANDS:
-        print(f"[ERROR] Invalid pump name: {pump_name}")
-        return False
+    try:
+        command = pump_name + state
+        expected_response = f"{'ON' if state == 'o' else 'OFF'}_{pump_name}"
         
-    if state not in ('o', 'f'):
-        print(f"[ERROR] Invalid state: {state} (must be 'o' or 'f')")
-        return False
+        attempt = 0
+        cur_time = int(time.time())
 
-    command = f"{pump_name}{state}"
-    expected_prefix = f"{'ON' if state == 'o' else 'OFF'}_{pump_name}"
-    full_expected = f"{expected_prefix}\r\n"  # Arduino typically sends CRLF
-    
-    attempt = 0
-    while attempt <= retries:
-        try:
-            # Ensure connection exists
-            if not ser or not ser.is_open:
-                ser = get_serial_connection()
-                if not ser:
-                    raise serial.SerialException("No serial connection")
-            
-            # Clear buffers
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
-            
-            # Send command
-            print(f"[CMD] Sending: {command} (Attempt {attempt+1}/{retries})")
-            ser.write(command.encode() + b'\n')  # Explicit newline
-            
-            # Wait for response
-            start_time = time.time()
-            while time.time() - start_time < timeout:
-                if ser.in_waiting:
-                    response = ser.readline().decode().strip()
-                    print(f"[RESP] Raw: {response}")
-                    
-                    # Check if expected string exists in response
-                    if expected_prefix in response:
-                        print(f"[SUCCESS] Valid response: {response}")
-                        # Update system state
-                        system_state["relay_states"][f"relay_{pump_name}"] = {
-                            "state": "ON" if state == 'o' else "OFF",
-                            "timestamp": int(time.time())
-                        }
-                        return True
-                    
-                    print(f"[WARNING] Unexpected response: {response}")
-                    break  # Exit wait loop to retry
+        while attempt <= retries:
+            if ser and ser.is_open:
+                # Flush serial buffers to avoid leftover data
+                ser.flushInput()  # Clears the input buffer
+                ser.flushOutput()  # Clears the output buffer
+
+                print(f"[INFO] Sent command: {command}, waiting for response...")
+                ser.write(command.encode())
                 
-                time.sleep(0.05)  # Reduce CPU usage
-            
-            attempt += 1
-            if attempt <= retries:
-                print(f"[RETRY] Will retry {command}...")
-                time.sleep(0.5)  # Brief pause between retries
-            
-        except serial.SerialException as e:
-            print(f"[ERROR] Serial failure: {str(e)}")
-            emergency_recovery()
-            attempt += 1
-        except Exception as e:
-            print(f"[ERROR] Unexpected error: {str(e)}")
-            emergency_recovery()
-            return False
-    
-    print(f"[FAILED] Command {command} failed after {retries} retries")
-    safe_serial_write_emergency()
-    return False
+                start_time = time.time()
+                while time.time() - start_time < timeout:
+                    if ser.in_waiting > 0:
+                        response = ser.readline().decode().strip()
+                        print(f"[INFO] Received response: {response}")
 
+                        # Changed from == to in to check for partial match
+                        if expected_response in response:
+                            print(f"[SUCCESS] Arduino confirmed action: {response}")
+                            system_state["relay_states"]["relay_" + pump_name]["state"] = f"{'ON' if state == 'o' else 'OFF'}"
+                            system_state["relay_states"]["relay_" + pump_name]["timestamp"] = cur_time
+                            return True  # Exit after successful confirmation
+                        else:
+                            # Unexpected response: Flush buffers and retry
+                            print(f"[WARNING] Unexpected response: {response}")
+                            ser.flush()  # Flush output buffer
+                            ser.reset_input_buffer()  # Flush input buffer
+                            break  # Exit the inner loop to retry
+
+                    time.sleep(0.1)  # Small delay to avoid CPU overuse
+
+                print(f"[ERROR] No valid response. Retrying... (Attempt {attempt + 1}/{retries})")
+                attempt += 1
+            else:
+                print("[ERROR] Serial port is not open. Cannot send command.")
+                return
+
+        # After retries fail
+        print("[ERROR] Failed to confirm command after retries. Attempting emergency stop.")
+        safe_serial_write_emergency()
+
+    except serial.SerialException as e:
+        print(f"[ERROR] Serial write failed for {pump_name}: {e}")
+        safe_serial_write_emergency()
+    except Exception as e:
+        print(f"[ERROR] Unexpected error while writing to serial: {e}")
+        safe_serial_write_emergency()
 
 def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
     global ser
