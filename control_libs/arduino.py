@@ -1,5 +1,6 @@
 import serial
 import time
+from serial.tools import list_ports
 from control_libs.system_stats import system_state, save_system_state, load_system_state
 #i#mport SerialException
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -45,93 +46,72 @@ ser = None  # Define the global variable for the serial connection
 #    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
 
 
-import serial
-import time
-from serial.tools import list_ports
 
 def connect_to_arduino():
     """
-    Robust Arduino connection manager with:
-    - Persistent port binding using udev symlinks
-    - Watchdog recovery
-    - USB reset fallback
+    Robust Arduino connection with fallbacks
     """
     global ser
     
-    ARDUINO_ID = {
-        'vid': '2341',  # Arduino's Vendor ID
-        'pid': '0043'   # Common Arduino Uno PID
-    }
-    SYMLINK_PORT = "/dev/arduino_controller"  # udev symlink
-    TEST_COMMAND = b'PING\n'
-    EXPECTED_RESPONSE = "PONG"
-    MAX_RETRIES = 3
-    CONNECT_DELAY = 2  # Seconds
-
-    def test_connection(port):
+    ARDUINO_IDS = [
+        {'vid': '2341', 'pid': '0043'},  # Arduino Uno
+        {'vid': '2341', 'pid': '8036'},  # Arduino Leonardo
+        {'vid': '2a03', 'pid': '0043'}   # Arduino Uno (clone)
+    ]
+    SYMLINK = "/dev/arduino_controller"
+    TEST_CMD = b'PING\n'
+    EXPECTED = "PONG"
+    
+    def test_conn(port):
         try:
-            port.write(TEST_COMMAND)
-            response = port.readline().decode().strip()
-            return response == EXPECTED_RESPONSE
+            port.write(TEST_CMD)
+            return port.readline().decode().strip() == EXPECTED
         except:
             return False
 
-    def reset_usb():
-        """Try to physically reset the USB port"""
-        try:
-            from subprocess import run
-            run(['sudo', 'usbreset', f"{ARDUINO_ID['vid']}:{ARDUINO_ID['pid']}"], 
-                check=True)
-            time.sleep(5)  # Allow for reboot
-        except:
-            print("USB reset failed (install 'usbreset')")
-
-    # Case 1: Test existing connection
+    # Close faulty connection
     if ser and ser.is_open:
-        if test_connection(ser):
-            print(f"✓ Active connection on {ser.port}")
-            return ser
-        else:
-            print(f"✗ Connection lost on {ser.port}")
+        if not test_conn(ser):
             ser.close()
 
-    # Case 2: Try symlink first (udev persistent port)
+    # Try symlink first
     try:
-        ser = serial.Serial(SYMLINK_PORT, baudrate=9600, timeout=1)
-        time.sleep(CONNECT_DELAY)
-        if test_connection(ser):
-            print(f"✓ Connected via symlink {SYMLINK_PORT}")
+        ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
+        time.sleep(2)  # Reset wait
+        if test_conn(ser):
+            print(f"Connected via symlink {SYMLINK}")
             return ser
         ser.close()
-    except Exception as e:
-        print(f"Symlink connection failed: {str(e)}")
+    except:
+        pass
 
-    # Case 3: Scan all ports
-    print("Scanning ports...")
-    for port_info in list_ports.comports():
-        if (ARDUINO_ID['vid'] in port_info.hwid and 
-            ARDUINO_ID['pid'] in port_info.hwid):
-            
-            for attempt in range(MAX_RETRIES):
+    # Find by hardware ID
+    for port in serial.tools.list_ports.comports():
+        for arduino in ARDUINO_IDS:
+            if arduino['vid'] in port.hwid and arduino['pid'] in port.hwid:
                 try:
-                    ser = serial.Serial(port_info.device, 
-                                      baudrate=9600, 
-                                      timeout=1)
-                    time.sleep(CONNECT_DELAY)
-                    
-                    if test_connection(ser):
-                        print(f"✓ Connected to {port_info.device}")
+                    ser = serial.Serial(port.device, baudrate=9600, timeout=1)
+                    time.sleep(2)
+                    if test_conn(ser):
+                        print(f"Connected to {port.device}")
                         return ser
-                    else:
-                        ser.close()
-                except Exception as e:
-                    print(f"Attempt {attempt+1} failed: {str(e)}")
-                    time.sleep(1)
+                    ser.close()
+                except:
+                    continue
 
-    # Case 4: Nuclear option - USB reset
-    print("Attempting USB reset...")
-    reset_usb()
-    return connect_to_arduino()  # Recursive retry
+    # Last resort - USB reset
+    try:
+        from subprocess import run
+        for arduino in ARDUINO_IDS:
+            run(['sudo', 'usbreset', f"{arduino['vid']}:{arduino['pid']}"], 
+               check=True)
+        time.sleep(5)  # Wait for reboot
+        return connect_to_arduino()  # Retry
+    except:
+        raise Exception("Failed to connect after all attempts")
+
+# Usage:
+#ser = connect_to_arduino()
 
 
 
