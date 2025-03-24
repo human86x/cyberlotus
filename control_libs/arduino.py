@@ -93,7 +93,8 @@ def connect_to_arduino():
 
     # Case 3: Full port scan
     print("Starting full port scan...")
-    for i in range(11):  # /dev/ttyACM0 to /dev/ttyACM10
+    i = 0
+    for i in range(4):  # /dev/ttyACM0 to /dev/ttyACM10
         port = f"/dev/ttyACM{i}"
         for attempt in range(MAX_RETRIES):
             try:
