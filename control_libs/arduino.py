@@ -45,80 +45,93 @@ ser = None  # Define the global variable for the serial connection
 #    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
 
 
+import serial
+import time
+from serial.tools import list_ports
 
 def connect_to_arduino():
+    """
+    Robust Arduino connection manager with:
+    - Persistent port binding using udev symlinks
+    - Watchdog recovery
+    - USB reset fallback
+    """
     global ser
-    """
-    Ensures a valid, working connection to Arduino by:
-    1. Checking if existing connection is alive (via test command)
-    2. Reconnecting if communication fails
-    3. Scanning all possible ports if needed
-    """
+    
+    ARDUINO_ID = {
+        'vid': '2341',  # Arduino's Vendor ID
+        'pid': '0043'   # Common Arduino Uno PID
+    }
+    SYMLINK_PORT = "/dev/arduino_controller"  # udev symlink
+    TEST_COMMAND = b'PING\n'
+    EXPECTED_RESPONSE = "PONG"
     MAX_RETRIES = 3
-    TEST_COMMAND = b'PING\n'  # Replace with a command your Arduino responds to
-    EXPECTED_RESPONSE = "PONG"  # Replace with expected response
+    CONNECT_DELAY = 2  # Seconds
 
-    # Helper function to test active communication
-    def test_connection(serial_conn):
+    def test_connection(port):
         try:
-            serial_conn.flushInput()
-            serial_conn.flushOutput()
-            serial_conn.write(TEST_COMMAND)
-            response = serial_conn.readline().decode().strip()
+            port.write(TEST_COMMAND)
+            response = port.readline().decode().strip()
             return response == EXPECTED_RESPONSE
         except:
             return False
 
-    # Case 1: Existing connection is valid
+    def reset_usb():
+        """Try to physically reset the USB port"""
+        try:
+            from subprocess import run
+            run(['sudo', 'usbreset', f"{ARDUINO_ID['vid']}:{ARDUINO_ID['pid']}"], 
+                check=True)
+            time.sleep(5)  # Allow for reboot
+        except:
+            print("USB reset failed (install 'usbreset')")
+
+    # Case 1: Test existing connection
     if ser and ser.is_open:
         if test_connection(ser):
-            print(f"Using existing valid connection on {ser.port}")
+            print(f"✓ Active connection on {ser.port}")
             return ser
         else:
-            print(f"Connection on {ser.port} exists but communication failed")
+            print(f"✗ Connection lost on {ser.port}")
             ser.close()
 
-    # Case 2: Try to reconnect on last known good port
-    last_port = getattr(ser, 'port', None)
-    if last_port:
-        try:
-            print(f"Attempting reconnect on last port {last_port}")
-            ser = serial.Serial(last_port, baudrate=9600, timeout=1)
-            time.sleep(2)
-            if test_connection(ser):
-                print(f"Reconnected successfully to {last_port}")
-                return ser
-        except:
-            pass
+    # Case 2: Try symlink first (udev persistent port)
+    try:
+        ser = serial.Serial(SYMLINK_PORT, baudrate=9600, timeout=1)
+        time.sleep(CONNECT_DELAY)
+        if test_connection(ser):
+            print(f"✓ Connected via symlink {SYMLINK_PORT}")
+            return ser
+        ser.close()
+    except Exception as e:
+        print(f"Symlink connection failed: {str(e)}")
 
-    # Case 3: Full port scan
-    print("Starting full port scan...")
-    i = 0
-    for i in range(5):  # /dev/ttyACM0 to /dev/ttyACM10
-        port = f"/dev/ttyACM{i}"
-        for attempt in range(MAX_RETRIES):
-            try:
-                print(f"Trying {port} (attempt {attempt + 1})...")
-                temp_ser = serial.Serial(port, baudrate=9600, timeout=1)
-                time.sleep(1)  # Arduino reset time
-                
-                if test_connection(temp_ser):
-                    print(f"Established working connection to {port}")
-                    ser = temp_ser
-                    return ser
-                else:
-                    print(f"Port {port} responded but failed communication test")
-                    temp_ser.close()
-                    break
-            except serial.SerialException as e:
-                print(f"Failed on {port}: {str(e)}")
-                if attempt == MAX_RETRIES - 1:
-                    print(f"Giving up on {port} after {MAX_RETRIES} attempts")
-                time.sleep(1)
+    # Case 3: Scan all ports
+    print("Scanning ports...")
+    for port_info in list_ports.comports():
+        if (ARDUINO_ID['vid'] in port_info.hwid and 
+            ARDUINO_ID['pid'] in port_info.hwid):
+            
+            for attempt in range(MAX_RETRIES):
+                try:
+                    ser = serial.Serial(port_info.device, 
+                                      baudrate=9600, 
+                                      timeout=1)
+                    time.sleep(CONNECT_DELAY)
+                    
+                    if test_connection(ser):
+                        print(f"✓ Connected to {port_info.device}")
+                        return ser
+                    else:
+                        ser.close()
+                except Exception as e:
+                    print(f"Attempt {attempt+1} failed: {str(e)}")
+                    time.sleep(1)
 
-    raise Exception("Could not establish working connection to any port")
-
-
+    # Case 4: Nuclear option - USB reset
+    print("Attempting USB reset...")
+    reset_usb()
+    return connect_to_arduino()  # Recursive retry
 
 
 
