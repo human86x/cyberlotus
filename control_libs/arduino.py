@@ -56,7 +56,26 @@ from serial.tools import list_ports
 import serial
 import time
 
+import serial
+import time
+
 def connect_to_arduino():
+    try:
+        ser = serial.Serial('/dev/arduino_mega', 9600, timeout=2)
+        time.sleep(2)  # Wait for Arduino to reset
+        ser.write(b'AT\r\n')  # Test command
+        response = ser.readline().decode().strip()
+        print("Response from Arduino:", response)
+        return ser
+    except Exception as e:
+        print("Error:", e)
+        return None
+
+
+
+
+
+def construction_connect_to_arduino():
     """
     Connect to Arduino Mega 2560 using a symlink.
     """
