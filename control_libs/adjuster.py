@@ -23,8 +23,8 @@ ser = get_serial_connection()
 
 
 
-
-
+#import time
+import statistics
 
 def circulate_solution():
     while True:  # Continuously loop
@@ -32,42 +32,52 @@ def circulate_solution():
         pump_up = "plant_up"
         pump_down = "plant_down"
         
-        # Retrieve the current plant pot solution level (with validation)
-        while True:  # Loop until a valid response is received
+        # Retrieve the current plant pot solution level with median filtering
+        readings = []
+        for _ in range(3):  # Take 3 readings
             plant_level = send_command_and_get_response(ser, b'C')
             
-            # Check if the response is numeric and within range (1-50)
+            # Validate the reading
             try:
-                plant_level = int(plant_level)  # Ensure it's an integer
-                if 1 <= plant_level <= 50:  # Valid range
-                    break  # Exit the validation loop
+                plant_level = int(plant_level)
+                if 1 <= plant_level <= 50:
+                    readings.append(plant_level)
                 else:
                     print(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
             except (ValueError, TypeError):
                 print(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
             
-            time.sleep(1)  # Small delay before retrying
-        
-        print(f"✅ Retrieved valid plant pot solution level: {plant_level}")
-        
-        # Update system state with the current plant pot level and timestamp
+            time.sleep(1)  # Delay between readings
+
+        if readings:
+            plant_level = int(statistics.median(readings))  # Use median value
+        else:
+            print("⚠️ Failed to get valid readings. Retrying...")
+            continue  # Restart the loop
+
+        print(f"✅ Retrieved valid plant pot solution level: {plant_level} (median of 3 readings)")
+
+        # Update system state
         system_state["plant_pot_level"]["value"] = plant_level
         system_state["plant_pot_level"]["timestamp"] = int(time.time())
-        
+
         print(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
 
-        # Check if the plant pot level is above the target
-        if plant_level > target_plant_pot_level:
-            print("Adding more solution to the pot")
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
-        else:
+        # Control logic based on the level
+        if plant_level > target_plant_pot_level + 1:
             print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
-        
-        time.sleep(5)  # Wait before checking again
+        elif plant_level < target_plant_pot_level - 1:
+            print("Adding more solution to the pot...")
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
+        else:
+            print("Maintaining level – both pumps ON to stabilize")
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 1)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 1)
 
+        time.sleep(5)  # Wait before checking again
 
 
 def get_ppm(baseline, ec):
