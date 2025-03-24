@@ -46,19 +46,17 @@ ser = None  # Define the global variable for the serial connection
 #    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
 
 
+#import serial
+#import time
+from serial.tools import list_ports
 
 def connect_to_arduino():
     """
-    More reliable connection handler with better error recovery
+    Specialized connection handler for Arduino Mega 2560
     """
-    ARDUINO_IDS = [
-        {'vid': 0x2341, 'pid': 0x0043},  # Arduino Uno
-        {'vid': 0x2341, 'pid': 0x8036},  # Arduino Leonardo
-        {'vid': 0x2a03, 'pid': 0x0043}   # Arduino Uno Clone
-    ]
-    POSSIBLE_PORTS = ['/dev/arduino_controller'] + \
-                    [f'/dev/ttyACM{i}' for i in range(5)] + \
-                    [f'/dev/ttyUSB{i}' for i in range(5)]
+    MEGA_VID = "2341"
+    MEGA_PID = "0042"
+    SYMLINK = "/dev/arduino_mega"
     
     def test_connection(port):
         try:
@@ -67,39 +65,54 @@ def connect_to_arduino():
         except:
             return False
 
-    # Try existing connection first
-    if hasattr(connect_to_arduino, 'ser') and connect_to_arduino.ser.is_open:
-        if test_connection(connect_to_arduino.ser):
-            return connect_to_arduino.ser
-        connect_to_arduino.ser.close()
-
-    # Try all possible ports
-    for port in POSSIBLE_PORTS:
-        try:
-            ser = serial.Serial(port, baudrate=9600, timeout=1)
-            time.sleep(2)  # Wait for Arduino to initialize
-            if test_connection(ser):
-                connect_to_arduino.ser = ser  # Cache the connection
-                print(f"Connected to Arduino on {port}")
-                return ser
-            ser.close()
-        except:
-            continue
-
-    # If all else fails, try USB reset
+    # Try symlink first
     try:
-        import usb.core
-        for arduino in ARDUINO_IDS:
-            dev = usb.core.find(idVendor=arduino['vid'], idProduct=arduino['pid'])
-            if dev:
-                dev.reset()
-                time.sleep(5)  # Wait for device to reconnect
-                return connect_to_arduino()  # Retry
-    except:
-        pass
+        ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
+        time.sleep(2)  # Reset wait
+        if test_connection(ser):
+            print(f"✓ Connected via symlink {SYMLINK}")
+            return ser
+        ser.close()
+    except serial.SerialException as e:
+        print(f"⚠ Symlink connection failed: {e}")
 
-    raise Exception("Could not establish connection to Arduino")
+    # Find by hardware ID
+    for port in list_ports.comports():
+        if MEGA_VID in port.hwid and MEGA_PID in port.hwid:
+            try:
+                ser = serial.Serial(port.device, baudrate=9600, timeout=1)
+                time.sleep(2)
+                if test_connection(ser):
+                    print(f"✓ Connected to {port.device}")
+                    return ser
+                ser.close()
+            except serial.SerialException as e:
+                print(f"⚠ Connection failed on {port.device}: {e}")
+                continue
 
+    # Final attempt with direct port
+    try:
+        ser = serial.Serial('/dev/ttyACM1', baudrate=9600, timeout=1)
+        time.sleep(2)
+        if test_connection(ser):
+            print("✓ Connected to /dev/ttyACM1")
+            return ser
+        ser.close()
+    except serial.SerialException as e:
+        print(f"⚠ Direct connection failed: {e}")
+
+    raise Exception("Could not establish connection to Arduino Mega")
+
+# Usage:
+try:
+    ser = connect_to_arduino()
+    print("Connection successful!")
+except Exception as e:
+    print(f"Connection failed: {e}")
+
+
+
+    # Implement emergency procedures here
 # Initialize connection
 #try:
 #    ser = connect_to_arduino()
