@@ -46,20 +46,9 @@ ser = None  # Define the global variable for the serial connection
 #    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
 
 
-#import serial
-#import time
-from serial.tools import list_ports
-
-import serial
-import time
-from serial.tools import list_ports
-import serial
-import time
-
-import serial
-import time
 
 def connect_to_arduino():
+    global ser
     try:
         ser = serial.Serial('/dev/arduino_mega', 9600, timeout=2)
         time.sleep(2)  # Wait for Arduino to reset
