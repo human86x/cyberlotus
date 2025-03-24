@@ -20,9 +20,9 @@ def connect_to_arduino():
     # Check if a valid connection already exists
     if ser and ser.is_open:
         print(f"Arduino is already connected on {ser.port}.")
-        #ser.close()  # Close the connection
-        #print(f"Connection Closed {ser.port}.")
-        #r#eturn ser
+        ser.close()  # Close the connection
+        print(f"Connection Closed {ser.port}.")
+        return ser
 
     # Try to establish a new connection
     for i in range(11):  # Check ports /dev/ttyACM0 to /dev/ttyACM10
