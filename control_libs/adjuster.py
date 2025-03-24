@@ -32,8 +32,8 @@ def circulate_solution():
         pump_up = "plant_up"
         pump_down = "plant_down"
         print("Starting circulation – both pumps ON to stabilize")
-        send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 1)
-        send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 1)
+        send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+        send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
 
         # Retrieve the current plant pot solution level with median filtering
         readings = []
@@ -77,8 +77,8 @@ def circulate_solution():
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
         else:
             print("Maintaining level – both pumps ON to stabilize")
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 1)
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 1)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
 
         time.sleep(5)  # Wait before checking again
 
