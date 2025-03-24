@@ -25,7 +25,7 @@ def connect_to_arduino():
         print(f"Reconnecting to {ser.port}...")
         ser = serial.Serial(port, baudrate=9600, timeout=1)  # Set a 1-second timeout
         time.sleep(2)  # Allow time for Arduino to reset
-        print(f"Reconnected to {port}")
+        print(f"Reconnected to {ser.port}")
         return ser
 
     # Try to establish a new connection
