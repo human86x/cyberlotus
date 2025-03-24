@@ -30,7 +30,7 @@ def circulate_solution():
     while True:  # Continuously loop
         target_plant_pot_level = load_config("target_plant_pot_level")
         pump_up = "plant_up"
-        pump_down = "pland_down"
+        pump_down = "plant_down"
         # Retrieve the current plant pot solution level
         plant_level = send_command_and_get_response(ser, b'C')
         print(f"Retrieved the plant pot solution level value: '{plant_level}'")
