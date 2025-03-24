@@ -50,6 +50,10 @@ ser = None  # Define the global variable for the serial connection
 #import time
 from serial.tools import list_ports
 
+import serial
+import time
+from serial.tools import list_ports
+
 def connect_to_arduino():
     """
     Specialized connection handler for Arduino Mega 2560
@@ -57,18 +61,23 @@ def connect_to_arduino():
     MEGA_VID = "2341"
     MEGA_PID = "0042"
     SYMLINK = "/dev/arduino_mega"
-    
+
     def test_connection(port):
         try:
             port.write(b'PING\n')
-            return port.readline().decode().strip() == 'PONG'
-        except:
+            time.sleep(1)
+            response = port.readline().decode().strip()
+            print(f"DEBUG: Response -> {response}")
+            return response == 'PONG'
+        except Exception as e:
+            print(f"DEBUG: Error testing connection -> {e}")
             return False
 
     # Try symlink first
     try:
+        print(f"DEBUG: Trying symlink {SYMLINK}")
         ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
-        time.sleep(2)  # Reset wait
+        time.sleep(2)
         if test_connection(ser):
             print(f"✓ Connected via symlink {SYMLINK}")
             return ser
@@ -78,6 +87,7 @@ def connect_to_arduino():
 
     # Find by hardware ID
     for port in list_ports.comports():
+        print(f"DEBUG: Checking port {port.device} with ID {port.hwid}")
         if MEGA_VID in port.hwid and MEGA_PID in port.hwid:
             try:
                 ser = serial.Serial(port.device, baudrate=9600, timeout=1)
@@ -88,10 +98,10 @@ def connect_to_arduino():
                 ser.close()
             except serial.SerialException as e:
                 print(f"⚠ Connection failed on {port.device}: {e}")
-                continue
 
     # Final attempt with direct port
     try:
+        print("DEBUG: Trying direct connection to /dev/ttyACM1")
         ser = serial.Serial('/dev/ttyACM1', baudrate=9600, timeout=1)
         time.sleep(2)
         if test_connection(ser):
