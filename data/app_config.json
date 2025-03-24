@@ -18,7 +18,7 @@
   "pH_calibration_low_sequence": "pH_calibration_LOW.json",
   "pH_solution_test_sequence": "pH_solution_test_solenoid.json",
   "pH_baseline_test_sequence": "pH_baseline_test.json",
-  "target_plant_pot_level": 7,
+  "target_plant_pot_level": 20,
   "EC_baseline": 694
 }
 
