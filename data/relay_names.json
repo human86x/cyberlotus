@@ -25,6 +25,10 @@
     "relay_k3": "]",
     "relay_k2": "+",
     "relay_k1": "[",
+    "relay2_k8": "<",
+    "relay2_k7": ">",
+    "relay2_k6": "?",
+    "relay2_k5": "|",
     "drain_pH": "m"
 }
 
