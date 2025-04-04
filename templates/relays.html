@@ -67,8 +67,12 @@
     }
 
     // Add symbols
-    const symbols = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+', '[', ']', '{', '}', ';', ':', ',', '.'];
-    for (const symbol of symbols) {
+    const symbols = [
+  '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', 
+  '=', '+', '[', ']', '{', '}', ';', ':', ',', '.',
+  '<', '>', '/', '?', '|', '\\'
+];
+for (const symbol of symbols) {
         const option = document.createElement('option');
         option.value = symbol;
         option.textContent = symbol;
