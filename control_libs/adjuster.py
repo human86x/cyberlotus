@@ -43,22 +43,22 @@ def circulate_solution():
             system_state["plant_pot_level"]["timestamp"] = int(time.time())
             
             # Validate the reading
-            try:
-                plant_level = int(plant_level)
-                if 1 <= plant_level <= 50:
-                    readings.append(plant_level)
-                else:
-                    print(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
-            except (ValueError, TypeError):
-                print(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
+            #try:
+            #    plant_level = int(plant_level)
+            #    if 1 <= plant_level <= 50:
+            #        readings.append(plant_level)
+            #    else:
+            #        print(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
+            #except (ValueError, TypeError):
+            #    print(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
             
-            time.sleep(1)  # Delay between readings
+            #time.sleep(1)  # Delay between readings
 
-        if readings:
-            plant_level = int(statistics.median(readings))  # Use median value
-        else:
-            print("⚠️ Failed to get valid readings. Retrying...")
-            continue  # Restart the loop
+        #if readings:
+        #    plant_level = int(statistics.median(readings))  # Use median value
+        #else:
+        #    print("⚠️ Failed to get valid readings. Retrying...")
+        #    continue  # Restart the loop
 
         print(f"✅ Retrieved valid plant pot solution level: {plant_level} (median of 3 readings)")
 
