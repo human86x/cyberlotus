@@ -82,7 +82,7 @@ def circulate_solution():
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
 
-        time.sleep(5)  # Wait before checking again
+        #time.sleep(5)  # Wait before checking again
 
 
 def get_ppm(baseline, ec):
