@@ -1,6 +1,8 @@
 import json
 import os
 from control_libs.app_core import SYSTEM_STATE_FILE
+import time
+
 global system_state
 system_state = {
     "ec": {"value": None, "timestamp": None},

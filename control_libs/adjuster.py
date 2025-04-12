@@ -39,6 +39,8 @@ def circulate_solution():
         readings = []
         for _ in range(3):  # Take 3 readings
             plant_level = send_command_and_get_response(ser, b'C')
+            system_state["plant_pot_level"]["value"] = plant_level
+            system_state["plant_pot_level"]["timestamp"] = int(time.time())
             
             # Validate the reading
             try:
