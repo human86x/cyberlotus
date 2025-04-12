@@ -69,7 +69,7 @@ def circulate_solution():
         print(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
 
         # Define the acceptable margin
-        LEVEL_MARGIN = 1
+        LEVEL_MARGIN = 0.2
 
         # Control logic based on the level with margin
         level_difference = plant_level - target_plant_pot_level
