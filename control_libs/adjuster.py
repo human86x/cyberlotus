@@ -32,8 +32,8 @@ def circulate_solution():
         pump_up = "plant_up"
         pump_down = "plant_down"
         print("Starting circulation – both pumps ON to stabilize")
-        send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
-        send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+        #send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+        #send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
 
         # Retrieve the current plant pot solution level with median filtering
         readings = []
@@ -70,10 +70,10 @@ def circulate_solution():
         if plant_level < target_plant_pot_level + 1:
             print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
-            #send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
         elif plant_level > target_plant_pot_level - 1:
             print("Adding more solution to the pot...")
-            #send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
         else:
             print("Maintaining level – both pumps ON to stabilize")
