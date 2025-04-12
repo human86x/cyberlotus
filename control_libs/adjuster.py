@@ -68,20 +68,24 @@ def circulate_solution():
 
         print(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
 
-        # Control logic based on the level
-        if plant_level < target_plant_pot_level + 1:
+        # Define the acceptable margin
+        LEVEL_MARGIN = 1
+
+        # Control logic based on the level with margin
+        level_difference = plant_level - target_plant_pot_level
+
+        if abs(level_difference) <= LEVEL_MARGIN:
+            print("Within acceptable range - both pumps ON to maintain circulation")
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)  # Adjust these values as needed for circulation
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+        elif level_difference < -LEVEL_MARGIN:
             print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
-        elif plant_level > target_plant_pot_level - 1:
+        else:  # level_difference > LEVEL_MARGIN
             print("Adding more solution to the pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
-        else:
-            print("Maintaining level – both pumps ON to stabilize")
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
-
         #time.sleep(5)  # Wait before checking again
 
 
