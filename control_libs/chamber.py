@@ -16,7 +16,9 @@ ser = get_serial_connection()
 import time
 
 
-def get_chamber_humidity(ser):
+def get_chamber_humidity():
+    global ser
+
     response = send_command_and_get_response(ser, b'HH')
 
     system_state[f"chamber_humidity"]["value"] = response
