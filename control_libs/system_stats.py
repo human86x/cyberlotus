@@ -5,6 +5,12 @@ import time
 
 global system_state
 system_state = {
+
+    "chamber_humidity": {"value": None, "timestamp": None},
+    "chamber_temp": {"value": None, "timestamp": None},
+    "plant_temp": {"value": None, "timestamp": None},
+
+
     "ec": {"value": None, "timestamp": None},
     "ec_solution": {"value": None, "timestamp": None},
     "ec_calibration": {"value": None, "timestamp": None},

@@ -75,6 +75,16 @@ function circulate_the_solution(){
             console.error('Error with Circulation Proess:', error);
         });
     }
+    function chamber_data_update(){
+        fetch('/chamber_data_update')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Reading started:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error with retriving chamber data Proess:', error);
+        });
+    }
 </script>
 
     <section class="sensor-data">
@@ -86,6 +96,8 @@ function circulate_the_solution(){
             <li>Pot Water Temperature: {{ sensor_data.pot_water_temperature }}°C</li>
             <li>Water Level: {{ sensor_data.water_level_current }} / {{ sensor_data.water_level_target }} L</li>
         </ul>
+        <button onclick="chamber_data_update()">Get Chamber Readings</button>
+       
     </section>
 
     <section class="light-control">

@@ -321,7 +321,19 @@ def start_circulation():
     circulate_solution()
 
     return "True"#redirect(url_for('control_panel'))
- 
+
+from control_libs.chamber import get_chamber_humidity
+
+@app.route('/chamber_data_update', methods=['GET'])
+def chamber_data_route():
+    global circulation_status
+    #circulation_status = not circulation_status  # Toggle circulation status
+    print(f"Retriving data from the chamber...")
+    
+    get_chamber_humidity()
+
+    return "True"#redirect(url_for('control_panel'))
+  
   
 
 from control_libs.adjuster import circulate_solution
