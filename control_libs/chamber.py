@@ -30,3 +30,36 @@ def get_chamber_humidity():
         except ValueError:
             print(f"Error reading Humidity: {response}")
     return None
+
+
+def get_chamber_temp():
+    global ser
+
+    response = send_command_and_get_response(ser, b'HT')
+
+    system_state[f"chamber_temperature"]["value"] = response
+    system_state[f"chamber_temperature"]["timestamp"] = int(time.time())
+
+    if response is not None:
+        try:
+            return response
+        except ValueError:
+            print(f"Error reading Humidity: {response}")
+    return None
+
+
+
+def get_plant_temp():
+    global ser
+
+    response = send_command_and_get_response(ser, b'PT')
+
+    system_state[f"plant_temperature"]["value"] = response
+    system_state[f"plant_temperature"]["timestamp"] = int(time.time())
+
+    if response is not None:
+        try:
+            return response
+        except ValueError:
+            print(f"Error reading Humidity: {response}")
+    return None

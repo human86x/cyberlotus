@@ -322,7 +322,7 @@ def start_circulation():
 
     return "True"#redirect(url_for('control_panel'))
 
-from control_libs.chamber import get_chamber_humidity
+from control_libs.chamber import get_chamber_humidity, get_chamber_temp, get_plant_temp
 
 @app.route('/chamber_data_update', methods=['GET'])
 def chamber_data_route():
@@ -333,6 +333,8 @@ def chamber_data_route():
     print(f"Retriving data from the chamber...")
     
     get_chamber_humidity()
+    get_chamber_temp()
+    get_plant_temp()
 
     return "True"#redirect(url_for('control_panel'))
   
