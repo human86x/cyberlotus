@@ -10,6 +10,9 @@ system_state = {
     "chamber_temperature": {"value": None, "timestamp": None},
     "plant_temperature": {"value": None, "timestamp": None},
 
+    "plant_chamber_target_humidity": {"value": None, "timestamp": None},
+    "plant_chamber_target_temperature": {"value": None, "timestamp": None},
+    
 
     "ec": {"value": None, "timestamp": None},
     "ec_solution": {"value": None, "timestamp": None},

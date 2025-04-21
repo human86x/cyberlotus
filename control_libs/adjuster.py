@@ -26,6 +26,10 @@ ser = get_serial_connection()
 #import time
 import statistics
 
+
+
+
+
 def circulate_solution():
     while True:  # Continuously loop
         target_plant_pot_level = load_config("target_plant_pot_level")
@@ -551,7 +555,8 @@ def load_target_values():
         target_temp = x.get('temperature')  # Extract the 'value' field
         target_pH = x.get('pH')  # Extract the 'value' field
         target_solution = x.get('solution')  # Extract the 'value' field
-
+        target_air_humidity = x.get('air_humidity')  # Extract the 'value' field
+        target_air_temperature = x.get('air_tempeature')  # Extract the 'value' field
         # Update system_state
         system_state["target_NPK"]["value"] = target_NPK
         system_state["target_NPK"]["timestamp"] = int(time.time())
@@ -564,6 +569,17 @@ def load_target_values():
         
         system_state["target_solution"]["value"] = target_solution
         system_state["target_solution"]["timestamp"] = int(time.time())
+
+        system_state["target_"]["value"] = target_solution
+        system_state["target_solution"]["timestamp"] = int(time.time())
+
+        system_state["plant_chamber_target_humidity"]["value"] = target_air_humidity
+        system_state["plant_chamber_target_humidity"]["timestamp"] = int(time.time())
         
+        system_state["plant_chamber_target_temperaure"]["value"] = target_air_temperature
+        system_state["plant_chamber_target_temperature"]["timestamp"] = int(time.time())
+        
+
+
         print("Updated Target Values.")
     return None

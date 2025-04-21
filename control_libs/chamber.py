@@ -2,10 +2,10 @@ from control_libs.arduino import send_command_and_get_response, get_serial_conne
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
 from control_libs.app_core import load_config, CALIBRATION_FILE, SEQUENCE_DIR
 from control_libs.temperature import read_solution_temperature
-from config_tools.flow_tune import load_flow_rates
+from config_tools.flow_tune import load_flow_rates, PUMP_COMMANDS, send_command_with_heartbeat
 from config_tools.sequencer import execute_sequence, execute_commands
 from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline, load_ec_baseline, get_ppm
-from control_libs.adjuster import check_chamber_humidity
+from control_libs.adjuster import check_chamber_humidity, load_target_values
 from config_tools.tank_manager import test_tanks
 import time
 import json
@@ -14,6 +14,94 @@ import statistics
 ser = get_serial_connection()
 
 import time
+
+
+
+
+
+def chamber_ambiance():
+    #MODIFY FOR TEMP AND HUMIDITY CONTROL
+    load_target_values()
+    target_plant_temp = system_state["target_temp"]["value"]
+    
+    target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
+    
+    target_chambe_humidity = system_state["plant_chamber_target_humidity"]["value"]
+    
+    while True:  # Continuously loop
+        #target_plant_pot_level = load_config("target_plant_pot_level")
+        humidifyer = "humidifyer"
+        air_heater = "chamber_heater"
+        water_heater = "plant_heater"
+        #print("Starting circulation – both pumps ON to stabilize")
+        #send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+        #send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+
+        # Retrieve the current plant pot solution level with median filtering
+        readings = []
+        for _ in range(3):  # Take 3 readings
+            plant_temp = get_plant_temp()
+            system_state["plant_temperature"]["value"] = plant_temp
+            system_state["plant_temperature"]["timestamp"] = int(time.time())
+            
+            # Validate the reading
+            #try:
+            #    plant_level = int(plant_level)
+            #    if 1 <= plant_level <= 50:
+            #        readings.append(plant_level)
+            #    else:
+            #        print(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
+            #except (ValueError, TypeError):
+            #    print(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
+            
+            #time.sleep(1)  # Delay between readings
+
+        #if readings:
+        #    plant_level = int(statistics.median(readings))  # Use median value
+        #else:
+        #    print("⚠️ Failed to get valid readings. Retrying...")
+        #    continue  # Restart the loop
+
+        print(f"✅ Retrieved valid plant pot solution level: {plant_temp} (median of 3 readings)")
+
+        # Update system state
+        #system_state["plant_pot_level"]["value"] = plant_level
+        #system_state["plant_pot_level"]["timestamp"] = int(time.time())
+
+        print(f"Plant pot current water level is {plant_temp} and target level is {target_plant_temp}")
+
+        # Define the acceptable margin
+        LEVEL_MARGIN = 0.2
+
+        # Control logic based on the level with margin
+        level_difference = plant_temp - target_plant_temp
+
+        if abs(level_difference) <= LEVEL_MARGIN:
+            print("Within acceptable range - water heater is off")
+            send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)  # Adjust these values as needed for circulation
+
+        elif level_difference < -LEVEL_MARGIN:
+            print("Turning water heating...")
+            send_command_with_heartbeat(PUMP_COMMANDS[water_heater], 0)
+          
+        else:  # level_difference > LEVEL_MARGIN
+            print("Water heating is OFF...")
+            send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
+        #time.sleep(5)  # Wait before checking again
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def get_chamber_humidity():
@@ -29,7 +117,7 @@ def get_chamber_humidity():
             return response
         except ValueError:
             print(f"Error reading Humidity: {response}")
-    return None
+    return response
 
 
 def get_chamber_temp():
@@ -45,7 +133,7 @@ def get_chamber_temp():
             return response
         except ValueError:
             print(f"Error reading Humidity: {response}")
-    return None
+    return response
 
 
 
@@ -62,4 +150,4 @@ def get_plant_temp():
             return response
         except ValueError:
             print(f"Error reading Humidity: {response}")
-    return None
+    return response

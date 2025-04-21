@@ -2,6 +2,8 @@
     "EC": 500.00,
     "solution": 32.00,
     "pH": 6.60,
-    "temperature": 25.00
+    "temperature": 25.00,
+    "air_temperature" : 27.00,
+    "air_humidity": 90
     
 }
