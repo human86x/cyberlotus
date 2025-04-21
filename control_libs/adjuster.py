@@ -570,8 +570,8 @@ def load_target_values():
         system_state["target_solution"]["value"] = target_solution
         system_state["target_solution"]["timestamp"] = int(time.time())
 
-        system_state["target_"]["value"] = target_solution
-        system_state["target_solution"]["timestamp"] = int(time.time())
+        #system_state["target_"]["value"] = target_solution
+        #system_state["target_solution"]["timestamp"] = int(time.time())
 
         system_state["plant_chamber_target_humidity"]["value"] = target_air_humidity
         system_state["plant_chamber_target_humidity"]["timestamp"] = int(time.time())
