@@ -576,7 +576,7 @@ def load_target_values():
         system_state["plant_chamber_target_humidity"]["value"] = target_air_humidity
         system_state["plant_chamber_target_humidity"]["timestamp"] = int(time.time())
         
-        system_state["plant_chamber_target_temperaure"]["value"] = target_air_temperature
+        system_state["plant_chamber_target_temperature"]["value"] = target_air_temperature
         system_state["plant_chamber_target_temperature"]["timestamp"] = int(time.time())
         
 
