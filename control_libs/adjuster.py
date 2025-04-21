@@ -556,7 +556,7 @@ def load_target_values():
         target_pH = x.get('pH')  # Extract the 'value' field
         target_solution = x.get('solution')  # Extract the 'value' field
         target_air_humidity = x.get('air_humidity')  # Extract the 'value' field
-        target_air_temperature = x.get('air_tempeature')  # Extract the 'value' field
+        target_air_temperature = x.get('air_temperature')  # Extract the 'value' field
         # Update system_state
         system_state["target_NPK"]["value"] = target_NPK
         system_state["target_NPK"]["timestamp"] = int(time.time())
