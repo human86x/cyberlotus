@@ -78,6 +78,27 @@ button:hover {
 </style>
 
 <script>
+
+async function sendRequest(url, data) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                alert('Action successful!');
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+
+
 function circulate_the_solution(){
         fetch('/start_circulation')
             .then(response => response.json())
