@@ -46,18 +46,18 @@ def light_control(light, state):
     # Determine the command value (0 for ON, -1 for OFF)
     command_value = 0 if state.upper() == "ON" else -1
     new_state = "ON" if command_value == 0 else "OFF"
-    
+    current_time = datetime.datetime.utcnow().isoformat() + "Z"  # Adds Z for UTC time
     # Handle the light control and state tracking
     if light.lower() == "all":
         for light_name, light_cmd in LIGHT_COMMANDS.items():
             send_command_with_heartbeat(PUMP_COMMANDS[light_cmd], command_value)
             system_state[light_cmd]["state"] = new_state
-            system_state[light_cmd]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state[light_cmd]["timestamp"] = current_time
     else:
         light_cmd = LIGHT_COMMANDS[light.lower()]
         send_command_with_heartbeat(PUMP_COMMANDS[light_cmd], command_value)
         system_state[light_cmd]["state"] = new_state
-        system_state[light_cmd]["timestamp"] = datetime.datetime.now().isoformat()
+        system_state[light_cmd]["timestamp"] = current_time
     
     return system_state
         
