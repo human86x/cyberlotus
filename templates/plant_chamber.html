@@ -85,6 +85,19 @@ function circulate_the_solution(){
             console.error('Error with retriving chamber data Proess:', error);
         });
     }
+
+
+    function load_target() {
+            const value = 0;//document.getElementById('temperatureUpValue').value;
+            const url = '/load_target';
+            sendRequest(url, { value: parseFloat(value) });
+        }
+
+    function chamber_autopilot() {
+            const value = 0;//document.getElementById('temperatureUpValue').value;
+            const url = '/chamber_autopilot';
+            sendRequest(url, { value: parseFloat(value) });
+        }
 </script>
 
     <section class="sensor-data">
@@ -97,7 +110,10 @@ function circulate_the_solution(){
             <li>Water Level: {{ sensor_data.water_level_current }} / {{ sensor_data.water_level_target }} L</li>
         </ul>
         <button onclick="chamber_data_update()">Get Chamber Readings</button>
-       
+        <div class="control-group">
+            <label for="load_target">Load Target Values:</label>
+            <button onclick="load_target()">Load Target</button>
+        </div>
     </section>
 
     <section class="light-control">

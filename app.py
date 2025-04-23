@@ -20,7 +20,7 @@ from control_libs.electric_conductivity import get_ec, get_complex_ec_reading,  
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import safe_serial_write, emergency_stop, safe_serial_write_emergency
 from control_libs.app_core import load_config
-
+from control_libs.chamber import chamber_ambiance
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
 
@@ -111,6 +111,13 @@ def load_target_route():
     #data = request.json
     #data = data.get('value')  # Extract the 'value' field
     load_target_values()
+    return "Done"
+
+@app.route('/chamber_autopilot', methods=['POST'])
+def chamber_autopilot_route():
+    #data = request.json
+    #data = data.get('value')  # Extract the 'value' field
+    chamber_ambiance()
     return "Done"
 
 
