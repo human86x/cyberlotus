@@ -92,6 +92,11 @@ def chamber_ambiance():
             chamber_temp = get_chamber_temp()
             chamber_hum = get_chamber_humidity()
             
+            history_log("plant_temp", plant_temp)
+            history_log("chamber_temp", chamber_temp)
+            history_log("chamber_humidity", chamber_hum)
+
+
             
             system_state["plant_temperature"]["value"] = plant_temp
             system_state["plant_temperature"]["timestamp"] = int(time.time())

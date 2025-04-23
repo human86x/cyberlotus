@@ -208,6 +208,9 @@ def get_data():
     data = load_data()  # Load your data from file or database
     filtered_data = {
         "timestamps": [],
+        "chamber_temp": [],
+        "chamber_humidity": [],
+        "plant_temp": [],
         "temperature": [],
         "ec": [],
         "ph": [],
@@ -224,6 +227,9 @@ def get_data():
             
             # Append values if they exist
             filtered_data["temperature"].append(entry.get("Temperature", None))
+            filtered_data["chamber_temp"].append(entry.get("chamber_temp", None))
+            filtered_data["chamber_humidity"].append(entry.get("chamber_humidity", None))
+            filtered_data["plant_temp"].append(entry.get("plant_temp", None))
             filtered_data["ec"].append(entry.get("EC", None))
             filtered_data["ph"].append(entry.get("pH", None))
             filtered_data["ppm"].append(entry.get("ppm", None))  # Add PPM value

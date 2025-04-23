@@ -12,180 +12,6 @@
     <title>System Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='comunication.js') }}"></script>
-    <script> 
-    console.log('Script is initialized on Dashboard.html');
-        ///////////////////////////////////////////
-        ///////////////////DASHBOARD///////////////
-
-    function automateJob(){
-        solutionPh();
-        setInterval(solutionPh, 100000);
-    }
-    ///////////////////////////////////////////
-    ///////////////// DASHBOARD ///////////////
-
-    let solutionTankBar, relayStatesPie;
-
-    // Fetch system stats from server and update dashboard
-    function getDashboardStats() {
-        console.log('getting sys stats from Dashboard script:');
-        fetch("/sys_state")
-            .then(response => response.json())
-            .then(data => {
-                updateDashboard(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
-
-    // Update dashboard data with fetched information
-    function updateDashboard(data) {
-
-
-        console.log('updating Dashboard:', data);
-        updateTextContent("ecLevel", data.ec_solution?.value);
-        updateTextContent("phLevel", data.ph_solution?.value);
-        updateTextContent("temperature", data.temperature?.value);
-
-        // Update bar chart data
-        if (solutionTankBar) {
-            updateBarChart(solutionTankBar, [
-                data.solution_tank?.value || 0,
-                data.fresh_tank?.value || 0,
-                data.waste_tank?.value || 0
-            ]);
-        }
-
-        // Update pie chart data
-        if (relayStatesPie) {
-            updatePieChart(relayStatesPie, Object.values(data.relay_states || {}).map(r => r.state ? 1 : 0));
-        }
-    }
-
-    // Safely update text content
-    function updateTextContent(elementId, value) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = value !== undefined ? value : "N/A";
-        }
-    }
-
-    // Create Bar Chart for tank levels
-    function createBarChart(canvasId, title, labels) {
-        const ctx = document.getElementById(canvasId)?.getContext("2d");
-        if (!ctx) return null;
-        return new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: title,
-                    data: [0, 0, 0],
-                    backgroundColor: ["#007bff", "#28a745", "#dc3545"],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Create Pie Chart for relay states
-    function createPieChart(canvasId, title, labels) {
-        const ctx = document.getElementById(canvasId)?.getContext("2d");
-        if (!ctx) return null;
-        return new Chart(ctx, {
-            type: "pie",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: title,
-                    data: [1, 0],
-                    backgroundColor: ["#007bff", "#dc3545"],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true
-            }
-        });
-    }
-
-    // Update the bar chart safely
-    function updateBarChart(chart, data) {
-        if (chart) {
-            chart.data.datasets[0].data = data;
-            chart.update();
-        }
-    }
-
-    // Update the pie chart safely
-    function updatePieChart(chart, data) {
-        if (chart) {
-            chart.data.datasets[0].data = data;
-            chart.update();
-        }
-    }
-
-    // Initialize charts when DOM is loaded
-    document.addEventListener("DOMContentLoaded", function () {
-        solutionTankBar = createBarChart("solutionTankBar", "Tank Levels", ["Solution", "Fresh", "Waste"]);
-        relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"]);
-
-        // Start fetching system stats every second
-        setInterval(getDashboardStats, 1000);
-    });
-
-
-
-
-    ///////////////////////////////////////////
-</script>
-         <!-- Buttons to trigger manual tests -->
-          <div>
-    <button onclick="solutionPh()">Solution pH test</button>
-    <button onclick="get_complex_ec()">Solution EC test</button>
-    <button onclick="fetchTemperature()">Solution Temperature test</button>
-    <button onclick="fetchTankData()">Tanks level</button>
-    <button onclick="loadSystemState()">Load System State from a file</button>
-    <button onclick="fetchPpm()">Get ppm of the solution</button>
-    <button onclick="automateJob()">AUTOMATE READINGS</button>
-    
-    <div class="container">
-        <h2>EC Baseline Value (PPM)</h2>
-        <div id="ppmValue" class="value-box">
-            Loading...
-        </div>
-    </div>
-
-    <script>
-        async function fetchPpm() {
-            try {
-                const response = await fetch('/ppm');
-                if (response.ok) {
-                    const data = await response.json();
-                    const ppmValue = data.ppm || 'No data available';
-                    document.getElementById('ppmValue').innerText = ppmValue;
-                } else {
-                    document.getElementById('ppmValue').innerText = 'Error loading data';
-                }
-            } catch (error) {
-                console.error('Error fetching ppm value:', error);
-                document.getElementById('ppmValue').innerText = 'Failed to fetch data';
-            }
-        }
-</script>
-    
-</div>
-        ///////////////////////////////////////////
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -214,17 +40,20 @@
             font-weight: bold;
         }
 
-        canvas {
-            max-width: 100%;
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-
-        
-
-
-
-
-
+        canvas {
+            width: 100%;
+            height: 300px;
+        }
     </style>
 </head>
 <body>
@@ -252,112 +81,179 @@
         </div>
     </div>
 
-   
+    <!-- Buttons to trigger manual tests -->
+    <div style="text-align: center; margin: 20px;">
+        <button onclick="solutionPh()">Solution pH test</button>
+        <button onclick="get_complex_ec()">Solution EC test</button>
+        <button onclick="fetchTemperature()">Solution Temperature test</button>
+        <button onclick="fetchTankData()">Tanks level</button>
+        <button onclick="loadSystemState()">Load System State from a file</button>
+        <button onclick="fetchPpm()">Get ppm of the solution</button>
+        <button onclick="automateJob()">AUTOMATE READINGS</button>
+    </div>
 
-    <title>Sensor Data Charts</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-        }
-        .chart-container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 20px auto;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        canvas {
-            width: 100%;
-            height: 300px;
-        }
-    </style>
-</head>
-<body>
+    <div class="container" style="text-align: center;">
+        <h2>EC Baseline Value (PPM)</h2>
+        <div id="ppmValue" class="value-box">
+            Loading...
+        </div>
+    </div>
 
-    <h2>Sensor Data Over Time</h2>
-    
+    <!-- New Charts Section -->
+    <div class="chart-container">
+        <h3>Plant Temperature</h3>
+        <canvas id="plantTempChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>Chamber Air Temperature</h3>
+        <canvas id="chamberTempChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>Chamber Air Humidity</h3>
+        <canvas id="chamberHumidityChart"></canvas>
+    </div>
+
+    <!-- Existing Charts Section -->
     <div class="chart-container">
         <h3>Solution Adjustment</h3>
-        <canvas id="solution_adj_Chart"></canvas>
+        <canvas id="solutionAdjChart"></canvas>
     </div>
-
     <div class="chart-container">
         <h3>NPK Adjustment</h3>
-        <canvas id="NPK_adj_Chart"></canvas>
+        <canvas id="npkAdjChart"></canvas>
     </div>
-
     <div class="chart-container">
         <h3>pH Adjustment</h3>
-        <canvas id="pH_adj_Chart"></canvas>
+        <canvas id="phAdjChart"></canvas>
     </div>
-
-
-
-
     <div class="chart-container">
         <h3>PPM</h3>
         <canvas id="ppmChart"></canvas>
     </div>
-
     <div class="chart-container">
         <h3>Temperature (°C)</h3>
         <canvas id="tempChart"></canvas>
     </div>
-
     <div class="chart-container">
         <h3>EC (µS/cm)</h3>
         <canvas id="ecChart"></canvas>
     </div>
-
     <div class="chart-container">
         <h3>pH</h3>
         <canvas id="phChart"></canvas>
     </div>
 
     <script>
+        // Dashboard functionality
+        function automateJob(){
+            solutionPh();
+            setInterval(solutionPh, 100000);
+        }
+
+        let solutionTankBar, relayStatesPie;
+
+        function getDashboardStats() {
+            console.log('getting sys stats from Dashboard script:');
+            fetch("/sys_state")
+                .then(response => response.json())
+                .then(data => {
+                    updateDashboard(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updateDashboard(data) {
+            console.log('updating Dashboard:', data);
+            updateTextContent("ecLevel", data.ec_solution?.value);
+            updateTextContent("phLevel", data.ph_solution?.value);
+            updateTextContent("temperature", data.temperature?.value);
+
+            if (solutionTankBar) {
+                updateBarChart(solutionTankBar, [
+                    data.solution_tank?.value || 0,
+                    data.fresh_tank?.value || 0,
+                    data.waste_tank?.value || 0
+                ]);
+            }
+
+            if (relayStatesPie) {
+                updatePieChart(relayStatesPie, Object.values(data.relay_states || {}).map(r => r.state ? 1 : 0));
+            }
+        }
+
+        function updateTextContent(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value !== undefined ? value : "N/A";
+            }
+        }
+
+        function createBarChart(canvasId, title, labels) {
+            const ctx = document.getElementById(canvasId)?.getContext("2d");
+            if (!ctx) return null;
+            return new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: [0, 0, 0],
+                        backgroundColor: ["#007bff", "#28a745", "#dc3545"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function createPieChart(canvasId, title, labels) {
+            const ctx = document.getElementById(canvasId)?.getContext("2d");
+            if (!ctx) return null;
+            return new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: [1, 0],
+                        backgroundColor: ["#007bff", "#dc3545"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        function updateBarChart(chart, data) {
+            if (chart) {
+                chart.data.datasets[0].data = data;
+                chart.update();
+            }
+        }
+
+        function updatePieChart(chart, data) {
+            if (chart) {
+                chart.data.datasets[0].data = data;
+                chart.update();
+            }
+        }
+
+        // Chart functionality
         async function fetchData() {
             const response = await fetch('/data');
             return response.json();
         }
-
-        async function updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart) {
-    const data = await fetchData();
-    const clean = arr => arr.map(x => x !== null ? x : NaN);
-
-    tempChart.data.labels = data.timestamps;
-    tempChart.data.datasets[0].data = clean(data.temperature);
-    tempChart.update();
-
-    ecChart.data.labels = data.timestamps;
-    ecChart.data.datasets[0].data = clean(data.ec);
-    ecChart.update();
-
-    phChart.data.labels = data.timestamps;
-    phChart.data.datasets[0].data = clean(data.ph);
-    phChart.update();
-
-    ppmChart.data.labels = data.timestamps;
-    ppmChart.data.datasets[0].data = clean(data.ppm);
-    ppmChart.update();
-
-    solutionAdjChart.data.labels = data.timestamps;
-    solutionAdjChart.data.datasets[0].data = clean(data.solution_adj);
-    solutionAdjChart.update();
-
-    npkAdjChart.data.labels = data.timestamps;
-    npkAdjChart.data.datasets[0].data = clean(data.NPK_adj);
-    npkAdjChart.update();
-
-    phAdjChart.data.labels = data.timestamps;
-    phAdjChart.data.datasets[0].data = clean(data.pH_adj);
-    phAdjChart.update();
-}
-
 
         function createChart(ctx, label, color) {
             return new Chart(ctx, {
@@ -372,7 +268,6 @@
                         fill: true,
                         tension: 0.3,
                         spanGaps: true
-
                     }]
                 },
                 options: {
@@ -385,23 +280,110 @@
             });
         }
 
+        async function updateCharts(
+            tempChart, ecChart, phChart, ppmChart, 
+            solutionAdjChart, npkAdjChart, phAdjChart,
+            plantTempChart, chamberTempChart, chamberHumidityChart
+        ) {
+            const data = await fetchData();
+            const clean = arr => arr.map(x => x !== null ? x : NaN);
+
+            // Existing charts
+            tempChart.data.labels = data.timestamps;
+            tempChart.data.datasets[0].data = clean(data.temperature);
+            tempChart.update();
+
+            ecChart.data.labels = data.timestamps;
+            ecChart.data.datasets[0].data = clean(data.ec);
+            ecChart.update();
+
+            phChart.data.labels = data.timestamps;
+            phChart.data.datasets[0].data = clean(data.ph);
+            phChart.update();
+
+            ppmChart.data.labels = data.timestamps;
+            ppmChart.data.datasets[0].data = clean(data.ppm);
+            ppmChart.update();
+
+            solutionAdjChart.data.labels = data.timestamps;
+            solutionAdjChart.data.datasets[0].data = clean(data.solution_adj);
+            solutionAdjChart.update();
+
+            npkAdjChart.data.labels = data.timestamps;
+            npkAdjChart.data.datasets[0].data = clean(data.NPK_adj);
+            npkAdjChart.update();
+
+            phAdjChart.data.labels = data.timestamps;
+            phAdjChart.data.datasets[0].data = clean(data.pH_adj);
+            phAdjChart.update();
+
+            // New charts
+            plantTempChart.data.labels = data.timestamps;
+            plantTempChart.data.datasets[0].data = clean(data.plant_temp);
+            plantTempChart.update();
+
+            chamberTempChart.data.labels = data.timestamps;
+            chamberTempChart.data.datasets[0].data = clean(data.chamber_temp);
+            chamberTempChart.update();
+
+            chamberHumidityChart.data.labels = data.timestamps;
+            chamberHumidityChart.data.datasets[0].data = clean(data.chamber_humidity);
+            chamberHumidityChart.update();
+        }
+
         async function initCharts() {
-    const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500');
-    const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32');
-    const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF');
-    const ppmChart = createChart(document.getElementById('ppmChart').getContext('2d'), 'PPM', '#32CD32');
-    const solutionAdjChart = createChart(document.getElementById('solution_adj_Chart').getContext('2d'), 'Solution Adjustment', '#FF6347');
-    const npkAdjChart = createChart(document.getElementById('NPK_adj_Chart').getContext('2d'), 'NPK Adjustment', '#8A2BE2');
-    const phAdjChart = createChart(document.getElementById('pH_adj_Chart').getContext('2d'), 'pH Adjustment', '#FF1493');
+            // Existing charts
+            const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500');
+            const ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32');
+            const phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF');
+            const ppmChart = createChart(document.getElementById('ppmChart').getContext('2d'), 'PPM', '#32CD32');
+            const solutionAdjChart = createChart(document.getElementById('solutionAdjChart').getContext('2d'), 'Solution Adjustment', '#FF6347');
+            const npkAdjChart = createChart(document.getElementById('npkAdjChart').getContext('2d'), 'NPK Adjustment', '#8A2BE2');
+            const phAdjChart = createChart(document.getElementById('phAdjChart').getContext('2d'), 'pH Adjustment', '#FF1493');
 
-    setInterval(() => updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart), 5000);
-    updateCharts(tempChart, ecChart, phChart, ppmChart, solutionAdjChart, npkAdjChart, phAdjChart);
-}
+            // New charts
+            const plantTempChart = createChart(document.getElementById('plantTempChart').getContext('2d'), 'Plant Temperature (°C)', '#4BC0C0');
+            const chamberTempChart = createChart(document.getElementById('chamberTempChart').getContext('2d'), 'Chamber Temp (°C)', '#9966FF');
+            const chamberHumidityChart = createChart(document.getElementById('chamberHumidityChart').getContext('2d'), 'Chamber Humidity (%)', '#FF9F40');
 
-initCharts();
+            setInterval(() => updateCharts(
+                tempChart, ecChart, phChart, ppmChart, 
+                solutionAdjChart, npkAdjChart, phAdjChart,
+                plantTempChart, chamberTempChart, chamberHumidityChart
+            ), 5000);
+            
+            updateCharts(
+                tempChart, ecChart, phChart, ppmChart, 
+                solutionAdjChart, npkAdjChart, phAdjChart,
+                plantTempChart, chamberTempChart, chamberHumidityChart
+            );
+        }
+
+        // PPM fetch function
+        async function fetchPpm() {
+            try {
+                const response = await fetch('/ppm');
+                if (response.ok) {
+                    const data = await response.json();
+                    const ppmValue = data.ppm || 'No data available';
+                    document.getElementById('ppmValue').innerText = ppmValue;
+                } else {
+                    document.getElementById('ppmValue').innerText = 'Error loading data';
+                }
+            } catch (error) {
+                console.error('Error fetching ppm value:', error);
+                document.getElementById('ppmValue').innerText = 'Failed to fetch data';
+            }
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            solutionTankBar = createBarChart("solutionTankBar", "Tank Levels", ["Solution", "Fresh", "Waste"]);
+            relayStatesPie = createPieChart("relayStatesPie", "Relay States", ["On", "Off"]);
+            setInterval(getDashboardStats, 1000);
+            initCharts();
+        });
     </script>
-
-
 </body>
 </html>
 
