@@ -202,45 +202,85 @@ def load_data():
 #def index():
 #    return render_template("chart.html")
 
+import math
+from flask import jsonify
+
 @app.route('/data')
 def get_data():
-    print(f"#########trying to get data.....")
-    data = load_data()  # Load your data from file or database
-    filtered_data = {
-        "timestamps": [],
-        "chamber_temp": [],
-        "chamber_humidity": [],
-        "plant_temp": [],
-        "temperature": [],
-        "ec": [],
-        "ph": [],
-        "ppm": [],  # Add ppm data to the response
-        "solution_adj": [],
-        "NPK_adj": [],
-        "pH_adj": []
-    }
-    
-    for entry in data:
-        timestamp = entry.get("timestamp")
-        if timestamp:
+    print("######### Trying to get data.....")
+    try:
+        data = load_data()  # Load your data from file or database
+        
+        filtered_data = {
+            "timestamps": [],
+            "chamber_temp": [],
+            "chamber_humidity": [],
+            "plant_temp": [],
+            "temperature": [],
+            "ec": [],
+            "ph": [],
+            "ppm": [],
+            "solution_adj": [],
+            "NPK_adj": [],
+            "pH_adj": []
+        }
+        
+        for entry in data:
+            if not isinstance(entry, dict):
+                print(f"Skipping invalid entry: {entry}")
+                continue
+                
+            timestamp = entry.get("timestamp")
+            if not timestamp:
+                continue
+                
             filtered_data["timestamps"].append(timestamp)
             
-            # Append values if they exist
-            filtered_data["temperature"].append(entry.get("Temperature", None))
-            filtered_data["chamber_temp"].append(entry.get("chamber_temp", None))
-            filtered_data["chamber_humidity"].append(entry.get("chamber_humidity", None))
-            filtered_data["plant_temp"].append(entry.get("plant_temp", None))
-            filtered_data["ec"].append(entry.get("EC", None))
-            filtered_data["ph"].append(entry.get("pH", None))
-            filtered_data["ppm"].append(entry.get("ppm", None))  # Add PPM value
-            filtered_data["solution_adj"].append(entry.get("solution_adj", None))
-            filtered_data["NPK_adj"].append(entry.get("NPK_adj", None))
-            filtered_data["pH_adj"].append(entry.get("pH_adj", None))  # Add pH adjustment value
+            # Helper function to clean values
+            def clean_value(value):
+                if value is None:
+                    return None
+                try:
+                    if isinstance(value, str) and value.lower() == 'nan':
+                        return None
+                    if isinstance(value, (int, float)) and math.isnan(value):
+                        return None
+                    return float(value) if value is not None else None
+                except (ValueError, TypeError):
+                    return None
             
-    return jsonify(filtered_data)
-
-
-
+            # Process each field with cleaning
+            filtered_data["temperature"].append(clean_value(entry.get("Temperature")))
+            filtered_data["chamber_temp"].append(clean_value(entry.get("chamber_temp")))
+            filtered_data["chamber_humidity"].append(clean_value(entry.get("chamber_humidity")))
+            filtered_data["plant_temp"].append(clean_value(entry.get("plant_temp")))
+            filtered_data["ec"].append(clean_value(entry.get("EC")))
+            filtered_data["ph"].append(clean_value(entry.get("pH")))
+            filtered_data["ppm"].append(clean_value(entry.get("ppm")))
+            filtered_data["solution_adj"].append(clean_value(entry.get("solution_adj")))
+            filtered_data["NPK_adj"].append(clean_value(entry.get("NPK_adj")))
+            filtered_data["pH_adj"].append(clean_value(entry.get("pH_adj")))
+        
+        print("########## Data retrieval successful")
+        return jsonify(filtered_data)
+        
+    except Exception as e:
+        print(f"########## Error in get_data: {str(e)}")
+        # Return empty but properly structured data on error
+        error_response = {
+            "timestamps": [],
+            "chamber_temp": [],
+            "chamber_humidity": [],
+            "plant_temp": [],
+            "temperature": [],
+            "ec": [],
+            "ph": [],
+            "ppm": [],
+            "solution_adj": [],
+            "NPK_adj": [],
+            "pH_adj": []
+        }
+        return jsonify(error_response), 500
 
 
 ##################SYSTEM CURRENT READINGS AND PUMP STATES###############
