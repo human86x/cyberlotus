@@ -13,7 +13,7 @@ import statistics
 
 ser = get_serial_connection()
 
-import time
+import datetime
 
 
 
@@ -21,17 +21,18 @@ import time
 
 
 
-def light_control(light, state):
-    """Control lights based on the specified light and desired state.
+def light_control(light, state, system_state):
+    """Control lights based on the specified light and desired state and update system state.
     
     Args:
         light (str): Type of light to control ('yellow', 'white', 'grow', or 'all')
         state (str): Desired state ('ON' or 'OFF')
+        system_state (dict): Dictionary tracking the state of all system components
     """
     # Define light constants
     LIGHT_COMMANDS = {
         "yellow": "light_yellow",
-        "grow": "light_grow",  # Note: Fixed typo from your original 'grow' vs 'grow'
+        "grow": "light_grow",
         "white": "light_white"
     }
     
@@ -44,18 +45,21 @@ def light_control(light, state):
     
     # Determine the command value (0 for ON, -1 for OFF)
     command_value = 0 if state.upper() == "ON" else -1
+    new_state = "ON" if command_value == 0 else "OFF"
     
-    # Handle the light control
+    # Handle the light control and state tracking
     if light.lower() == "all":
-        for light_cmd in LIGHT_COMMANDS.values():
+        for light_name, light_cmd in LIGHT_COMMANDS.items():
             send_command_with_heartbeat(PUMP_COMMANDS[light_cmd], command_value)
+            system_state[light_cmd]["state"] = new_state
+            system_state[light_cmd]["timestamp"] = datetime.datetime.now().isoformat()
     else:
         light_cmd = LIGHT_COMMANDS[light.lower()]
         send_command_with_heartbeat(PUMP_COMMANDS[light_cmd], command_value)
-
-
-
-
+        system_state[light_cmd]["state"] = new_state
+        system_state[light_cmd]["timestamp"] = datetime.datetime.now().isoformat()
+    
+    return system_state
         
 
 def chamber_ambiance():
