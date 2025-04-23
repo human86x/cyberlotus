@@ -104,7 +104,7 @@ def chamber_ambiance():
 
 ######################   CHAMBER TEMPERATURE     #######################
         level_difference = chamber_temp - target_chamber_temp
-
+        print(f"level_difference->{level_difference}  chamber_temp->{chamber_temp} target_temp->{target_chamber_temp}")
         if abs(level_difference) <= LEVEL_MARGIN:
             print("Within acceptable range - air heater is off")
             send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)  # Adjust these values as needed for circulation
