@@ -40,7 +40,16 @@ system_state = {
     "fresh_tank": {"value": None, "timestamp": None},
     "waste_tank": {"value": None, "timestamp": None},
     "sensor_chamber": {"value": None, "timestamp": None},
-    
+
+
+
+    "air_heater": {"state": None, "timestamp": None},
+    "water_heater": {"state": None, "timestamp": None},
+    "air_humidifyer": {"state": None, "timestamp": None},
+
+    "light_yellow": {"state": None, "timestamp": None},
+    "light_white": {"state": None, "timestamp": None},
+    "light_grow": {"state": None, "timestamp": None},
     
     "relay_states": {
         "relay_a": {"state": None, "timestamp": None},
