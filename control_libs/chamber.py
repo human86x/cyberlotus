@@ -46,7 +46,8 @@ def light_control(light, state):
     # Determine the command value (0 for ON, -1 for OFF)
     command_value = 0 if state.upper() == "ON" else -1
     new_state = "ON" if command_value == 0 else "OFF"
-    current_time = datetime.datetime.utcnow().isoformat() + "Z"  # Adds Z for UTC time
+    #current_time = datetime.datetime.utcnow().isoformat() + "Z"  # Adds Z for UTC time
+    current_time = int(time.time())
     # Handle the light control and state tracking
     if light.lower() == "all":
         for light_name, light_cmd in LIGHT_COMMANDS.items():
