@@ -182,20 +182,20 @@ def chamber_ambiance():
         if abs(level_difference) <= LEVEL_MARGIN:
             print("Within acceptable range - HUMIDIFYER is off")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)  # Adjust these values as needed for circulation
-            system_state["humidifyer"]["state"] = "OFF"
-            system_state["humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_humidifyer"]["state"] = "OFF"
+            system_state["air_humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
     
         elif level_difference < -LEVEL_MARGIN:
             print("Turning HUIDIFYER ON!...")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], 0)
-            system_state["humidifyer"]["state"] = "ON"
-            system_state["humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_humidifyer"]["state"] = "ON"
+            system_state["air_humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
     
         else:  # level_difference > LEVEL_MARGIN
             print("HUMIDIFYER is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
-            system_state["humidifyer"]["state"] = "OFF"
-            system_state["humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_humidifyer"]["state"] = "OFF"
+            system_state["air_humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
     
         #time.sleep(5)  # Wait before checking again
 
