@@ -20,7 +20,7 @@ from control_libs.electric_conductivity import get_ec, get_complex_ec_reading,  
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import safe_serial_write, emergency_stop, safe_serial_write_emergency
 from control_libs.app_core import load_config
-from control_libs.chamber import chamber_ambiance
+from control_libs.chamber import chamber_ambiance, light_control
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, "config_tools"))
 
@@ -57,6 +57,38 @@ global PUMP_COMMANDS
 
 
 DATA_DIRECTORY = "data"
+
+
+
+
+
+
+
+
+@app.route('/light_switch', methods=['POST'])
+def handle_light_switch():
+    data = request.get_json()
+    light = data.get('light')
+    state = data.get('state')
+    
+    if not light or not state:
+        return jsonify({'error': 'Missing light or state parameter'}), 400
+    
+    try:
+        light_control(light, state)
+        return jsonify({'status': 'success'})
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+
+
+
+
+
+
+
+
+
 
 #check_chamber_humidity
 

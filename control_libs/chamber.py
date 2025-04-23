@@ -19,6 +19,45 @@ import time
 
 
 
+
+
+def light_control(light, state):
+    """Control lights based on the specified light and desired state.
+    
+    Args:
+        light (str): Type of light to control ('yellow', 'white', 'grow', or 'all')
+        state (str): Desired state ('ON' or 'OFF')
+    """
+    # Define light constants
+    LIGHT_COMMANDS = {
+        "yellow": "light_yellow",
+        "grow": "light_grow",  # Note: Fixed typo from your original 'grow' vs 'grow'
+        "white": "light_white"
+    }
+    
+    # Validate inputs
+    if light.lower() not in (*LIGHT_COMMANDS.keys(), "all"):
+        raise ValueError(f"Invalid light type: {light}. Must be 'yellow', 'white', 'grow', or 'all'")
+    
+    if state.upper() not in ("ON", "OFF"):
+        raise ValueError(f"Invalid state: {state}. Must be 'ON' or 'OFF'")
+    
+    # Determine the command value (0 for ON, -1 for OFF)
+    command_value = 0 if state.upper() == "ON" else -1
+    
+    # Handle the light control
+    if light.lower() == "all":
+        for light_cmd in LIGHT_COMMANDS.values():
+            send_command_with_heartbeat(PUMP_COMMANDS[light_cmd], command_value)
+    else:
+        light_cmd = LIGHT_COMMANDS[light.lower()]
+        send_command_with_heartbeat(PUMP_COMMANDS[light_cmd], command_value)
+
+
+
+
+        
+
 def chamber_ambiance():
     #MODIFY FOR TEMP AND HUMIDITY CONTROL
     load_target_values()

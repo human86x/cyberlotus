@@ -75,6 +75,52 @@ button:hover {
 .circulation-indicator.on {
     background-color: green; /* Green when circulation is on */
 }
+
+.light-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px;
+}
+
+.light-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.light-btn:hover {
+    opacity: 0.9;
+}
+
+/* Individual light buttons */
+.light-btn:nth-child(1), .light-btn:nth-child(2) {
+    background-color: #ffeb3b; /* Yellow */
+}
+
+.light-btn:nth-child(3), .light-btn:nth-child(4) {
+    background-color: #ffffff; /* White */
+    border: 1px solid #ddd;
+}
+
+.light-btn:nth-child(5), .light-btn:nth-child(6) {
+    background-color: #4caf50; /* Green for grow light */
+    color: white;
+}
+
+/* Master controls */
+.light-btn.master {
+    background-color: #2196f3; /* Blue */
+    color: white;
+    flex-basis: 100%;
+    margin-top: 15px;
+    padding: 12px;
+}
+
+
 </style>
 
 <script>
@@ -146,6 +192,17 @@ function circulate_the_solution(){
             sendRequest(url, { value: parseFloat(value) });
         }
 
+        
+        function light_switch(light, state) {
+            const url = '/light_switch';
+            const data = {
+                light: light,
+                state: state
+            };
+    
+            sendRequest(url, data);
+        }
+
     //function chamber_autopilot(){
     //    fetch('/chamber_autopilot')
     //        .then(response => response.json())
@@ -183,21 +240,21 @@ function circulate_the_solution(){
 
     <section class="light-control">
         <h2>Light Control</h2>
-        <form action="/control_lights" method="post">
-            <label>
-                White Light:
-                <input type="checkbox" name="white_light" {% if light_states.white_light %}checked{% endif %}>
-            </label>
-            <label>
-                Yellow Light:
-                <input type="checkbox" name="yellow_light" {% if light_states.yellow_light %}checked{% endif %}>
-            </label>
-            <label>
-                Growing Light:
-                <input type="checkbox" name="growing_light" {% if light_states.growing_light %}checked{% endif %}>
-            </label>
-            <button type="submit">Update Lights</button>
-        </form>
+        <div class="light-controls">
+            <!-- Individual light controls -->
+            <button class="light-btn" onclick="light_switch('yellow', 'ON')">Yellow Light ON</button>
+            <button class="light-btn" onclick="light_switch('yellow', 'OFF')">Yellow Light OFF</button>
+            
+            <button class="light-btn" onclick="light_switch('white', 'ON')">White Light ON</button>
+            <button class="light-btn" onclick="light_switch('white', 'OFF')">White Light OFF</button>
+            
+            <button class="light-btn" onclick="light_switch('grow', 'ON')">Grow Light ON</button>
+            <button class="light-btn" onclick="light_switch('grow', 'OFF')">Grow Light OFF</button>
+            
+            <!-- Master controls -->
+            <button class="light-btn master" onclick="light_switch('all', 'ON')">ALL LIGHTS ON</button>
+            <button class="light-btn master" onclick="light_switch('all', 'OFF')">ALL LIGHTS OFF</button>
+        </div>
     </section>
 
     <section class="water-control">
