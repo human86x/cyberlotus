@@ -135,14 +135,21 @@ def chamber_ambiance():
         if abs(level_difference) <= LEVEL_MARGIN:
             print("Within acceptable range - water heater is off")
             send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)  # Adjust these values as needed for circulation
-
+            system_state["water_heater"]["state"] = "OFF"
+            system_state["water_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+    
         elif level_difference < -LEVEL_MARGIN:
             print("Turning water heating...")
             send_command_with_heartbeat(PUMP_COMMANDS[water_heater], 0)
+            system_state["water_heater"]["state"] = "ON"
+            system_state["water_heater"]["timestamp"] = datetime.datetime.now().isoformat()
           
         else:  # level_difference > LEVEL_MARGIN
             print("Water heating is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
+            system_state["water_heater"]["state"] = "OFF"
+            system_state["water_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+          
         #time.sleep(5)  # Wait before checking again
 
 ######################   CHAMBER TEMPERATURE     #######################
@@ -151,14 +158,22 @@ def chamber_ambiance():
         if abs(level_difference) <= LEVEL_MARGIN:
             print("Within acceptable range - air heater is off")
             send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)  # Adjust these values as needed for circulation
-
+            system_state["air_heater"]["state"] = "OFF"
+            system_state["air_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+    
         elif level_difference < -LEVEL_MARGIN:
             print("Turning air heating...")
             send_command_with_heartbeat(PUMP_COMMANDS[air_heater], 0)
+            system_state["air_heater"]["state"] = "ON"
+            system_state["air_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+    
           
         else:  # level_difference > LEVEL_MARGIN
             print("Air heating is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
+            system_state["air_heater"]["state"] = "OFF"
+            system_state["air_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+    
         #time.sleep(5)  # Wait before checking again
 
 ########################   HUMIDITY   ############################        
@@ -167,14 +182,21 @@ def chamber_ambiance():
         if abs(level_difference) <= LEVEL_MARGIN:
             print("Within acceptable range - HUMIDIFYER is off")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)  # Adjust these values as needed for circulation
-
+            system_state["humidifyer"]["state"] = "OFF"
+            system_state["humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+    
         elif level_difference < -LEVEL_MARGIN:
             print("Turning HUIDIFYER ON!...")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], 0)
-          
+            system_state["humidifyer"]["state"] = "ON"
+            system_state["humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+    
         else:  # level_difference > LEVEL_MARGIN
             print("HUMIDIFYER is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
+            system_state["humidifyer"]["state"] = "OFF"
+            system_state["humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+    
         #time.sleep(5)  # Wait before checking again
 
 
