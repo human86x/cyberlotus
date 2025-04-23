@@ -24,12 +24,12 @@ def chamber_ambiance():
     load_target_values()
     
     target_plant_temp = system_state["target_temp"]["value"]
-    target_chamber_temp = system_state["target_plant_chamber_temperature"]["value"]
-    target_chamber_hum = system_state["target_plant_chamber_humidity"]["value"]
+    #target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
+    target_chamber_hum = system_state["plant_chamber_target_humidity"]["value"]
     
     target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
     
-    target_chambe_humidity = system_state["plant_chamber_target_humidity"]["value"]
+    #target_chambe_humidity = system_state["plant_chamber_target_humidity"]["value"]
     
     while True:  # Continuously loop
         #target_plant_pot_level = load_config("target_plant_pot_level")
