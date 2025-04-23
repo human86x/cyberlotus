@@ -21,7 +21,7 @@ import datetime
 
 
 
-def light_control(light, state, system_state):
+def light_control(light, state):
     """Control lights based on the specified light and desired state and update system state.
     
     Args:
