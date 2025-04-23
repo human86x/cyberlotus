@@ -87,7 +87,7 @@ def chamber_ambiance():
         # Retrieve the current plant pot solution level with median filtering
         readings = []
         for _ in range(3):  # Take 3 readings
-            
+            current_time = int(time.time())
             plant_temp = get_plant_temp()
             chamber_temp = get_chamber_temp()
             chamber_hum = get_chamber_humidity()
@@ -137,19 +137,19 @@ def chamber_ambiance():
             print("Within acceptable range - water heater is off")
             send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)  # Adjust these values as needed for circulation
             system_state["water_heater"]["state"] = "OFF"
-            system_state["water_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["water_heater"]["timestamp"] = current_time
     
         elif level_difference < -LEVEL_MARGIN:
             print("Turning water heating...")
             send_command_with_heartbeat(PUMP_COMMANDS[water_heater], 0)
             system_state["water_heater"]["state"] = "ON"
-            system_state["water_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["water_heater"]["timestamp"] = current_time
           
         else:  # level_difference > LEVEL_MARGIN
             print("Water heating is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
             system_state["water_heater"]["state"] = "OFF"
-            system_state["water_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["water_heater"]["timestamp"] = current_time
           
         #time.sleep(5)  # Wait before checking again
 
@@ -160,20 +160,19 @@ def chamber_ambiance():
             print("Within acceptable range - air heater is off")
             send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)  # Adjust these values as needed for circulation
             system_state["air_heater"]["state"] = "OFF"
-            system_state["air_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_heater"]["timestamp"] = current_time
     
         elif level_difference < -LEVEL_MARGIN:
             print("Turning air heating...")
             send_command_with_heartbeat(PUMP_COMMANDS[air_heater], 0)
             system_state["air_heater"]["state"] = "ON"
-            system_state["air_heater"]["timestamp"] = datetime.datetime.now().isoformat()
-    
+            system_state["air_heater"]["timestamp"] = current_time
           
         else:  # level_difference > LEVEL_MARGIN
             print("Air heating is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
             system_state["air_heater"]["state"] = "OFF"
-            system_state["air_heater"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_heater"]["timestamp"] = current_time
     
         #time.sleep(5)  # Wait before checking again
 
@@ -184,19 +183,19 @@ def chamber_ambiance():
             print("Within acceptable range - HUMIDIFYER is off")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)  # Adjust these values as needed for circulation
             system_state["air_humidifyer"]["state"] = "OFF"
-            system_state["air_humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_humidifyer"]["timestamp"] = current_time
     
         elif level_difference < -LEVEL_MARGIN:
             print("Turning HUIDIFYER ON!...")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], 0)
             system_state["air_humidifyer"]["state"] = "ON"
-            system_state["air_humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_humidifyer"]["timestamp"] = current_time
     
         else:  # level_difference > LEVEL_MARGIN
             print("HUMIDIFYER is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
             system_state["air_humidifyer"]["state"] = "OFF"
-            system_state["air_humidifyer"]["timestamp"] = datetime.datetime.now().isoformat()
+            system_state["air_humidifyer"]["timestamp"] = current_time
     
         #time.sleep(5)  # Wait before checking again
 
