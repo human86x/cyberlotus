@@ -22,7 +22,10 @@ import time
 def chamber_ambiance():
     #MODIFY FOR TEMP AND HUMIDITY CONTROL
     load_target_values()
+    
     target_plant_temp = system_state["target_temp"]["value"]
+    target_chamber_temp = system_state["target_plant_chamber_temperature"]["value"]
+    target_chamber_hum = system_state["target_plant_chamber_humidity"]["value"]
     
     target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
     
@@ -40,10 +43,20 @@ def chamber_ambiance():
         # Retrieve the current plant pot solution level with median filtering
         readings = []
         for _ in range(3):  # Take 3 readings
+            
             plant_temp = get_plant_temp()
+            chamber_temp = get_chamber_temp()
+            chamber_hum = get_chamber_humidity()
+            
+            
             system_state["plant_temperature"]["value"] = plant_temp
             system_state["plant_temperature"]["timestamp"] = int(time.time())
             
+            system_state["chamber_humidity"]["value"] = chamber_hum
+            system_state["chamber_humidity"]["timestamp"] = int(time.time())
+
+            system_state["chamber_temperature"]["value"] = chamber_temp
+            system_state["chamber_temperature"]["timestamp"] = int(time.time())            
             # Validate the reading
             #try:
             #    plant_level = int(plant_level)
@@ -62,17 +75,17 @@ def chamber_ambiance():
         #    print("⚠️ Failed to get valid readings. Retrying...")
         #    continue  # Restart the loop
 
-        print(f"✅ Retrieved valid plant pot solution level: {plant_temp} (median of 3 readings)")
+        print(f"✅ Retrieved : Plant pot temperature: {plant_temp} Chamber temperature: {chamber_temp} Chamber Humidity: {chamber_hum}")
 
         # Update system state
         #system_state["plant_pot_level"]["value"] = plant_level
         #system_state["plant_pot_level"]["timestamp"] = int(time.time())
 
-        print(f"Plant pot current water level is {plant_temp} and target level is {target_plant_temp}")
+        #print(f"Plant pot current water level is {plant_temp} and target level is {target_plant_temp}")
 
         # Define the acceptable margin
         LEVEL_MARGIN = 0.2
-
+######################   PLAN POT TEMPERATURE    ########################
         # Control logic based on the level with margin
         level_difference = plant_temp - target_plant_temp
 
@@ -88,6 +101,40 @@ def chamber_ambiance():
             print("Water heating is OFF...")
             send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
         #time.sleep(5)  # Wait before checking again
+
+######################   CHAMBER TEMPERATURE     #######################
+        level_difference = chamber_temp - target_chamber_temp
+
+        if abs(level_difference) <= LEVEL_MARGIN:
+            print("Within acceptable range - air heater is off")
+            send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)  # Adjust these values as needed for circulation
+
+        elif level_difference < -LEVEL_MARGIN:
+            print("Turning air heating...")
+            send_command_with_heartbeat(PUMP_COMMANDS[air_heater], 0)
+          
+        else:  # level_difference > LEVEL_MARGIN
+            print("Air heating is OFF...")
+            send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
+        #time.sleep(5)  # Wait before checking again
+
+########################   HUMIDITY   ############################        
+        level_difference = chamber_hum - target_chamber_hum
+
+        if abs(level_difference) <= LEVEL_MARGIN:
+            print("Within acceptable range - HUMIDIFYER is off")
+            send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)  # Adjust these values as needed for circulation
+
+        elif level_difference < -LEVEL_MARGIN:
+            print("Turning HUIDIFYER ON!...")
+            send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], 0)
+          
+        else:  # level_difference > LEVEL_MARGIN
+            print("HUMIDIFYER is OFF...")
+            send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
+        #time.sleep(5)  # Wait before checking again
+
+
 
 
 
