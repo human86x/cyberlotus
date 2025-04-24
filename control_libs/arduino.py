@@ -410,12 +410,12 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
                 return value  # Valid response, return the float
             except ValueError:
                 print(f"Error: Invalid response: {line}, not a valid float")
-                ser.write("RESET")
+                ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
 
         except SerialException as e:
             print(f"Serial I/O error: {e}")
             print("Attempting to reconnect to Arduino...")
-            ser.write("RESET")
+            ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
@@ -424,7 +424,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         except Exception as e:
             print(f"Unexpected error: {e}")
             print("Attempting to reconnect to Arduino...")
-            ser.write("RESET")
+            ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
