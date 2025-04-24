@@ -410,6 +410,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
                 return value  # Valid response, return the float
             except ValueError:
                 print(f"Error: Invalid response: {line}, not a valid float")
+                ser.write("RESET")
 
         except SerialException as e:
             print(f"Serial I/O error: {e}")
