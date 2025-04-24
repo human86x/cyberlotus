@@ -136,6 +136,9 @@ def chamber_ambiance():
         LEVEL_MARGIN = 0.2
 ######################   PLAN POT TEMPERATURE    ########################
         # Control logic based on the level with margin
+
+        light_control("all","ON")
+
         level_difference = plant_temp - target_plant_temp
 
         if abs(level_difference) <= LEVEL_MARGIN:
