@@ -175,10 +175,19 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = cur_time
                             return True  # Exit after successful confirmation
                         else:
-                            # Unexpected response: Flush buffers and retry
+                            #break  # Exit the inner loop to retry
                             print(f"[WARNING] Unexpected response: {response}")
                             ser.flush()  # Flush output buffer
                             ser.reset_input_buffer()  # Flush input buffer
+
+                                # Reset Arduino via DTR
+                            print(f"##################Reseting Arduino#####################: {response}")
+                            
+                            ser.dtr = True  # Set DTR line to reset Arduino
+                            time.sleep(0.1)  # Short delay to ensure reset
+                            ser.dtr = False  # Release DTR line
+                            time.sleep(2)  # Give Arduino time to reboot
+
                             break  # Exit the inner loop to retry
 
                     time.sleep(0.1)  # Small delay to avoid CPU overuse
