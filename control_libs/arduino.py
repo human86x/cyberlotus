@@ -324,7 +324,7 @@ def safe_serial_write_emergency():
                 print(f"[WARNING] Unexpected response: {response}   RESETING ARDUINO #############################################")
                 ser.flush()  # Flush output buffer
                 ser.reset_input_buffer()  # Flush input buffer
-
+                ser.write("RESET")
 # Reset Arduino via DTR
                 ser.dtr = True  # Set DTR line to reset Arduino
                 time.sleep(0.1)  # Short delay to ensure reset
@@ -414,6 +414,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         except SerialException as e:
             print(f"Serial I/O error: {e}")
             print("Attempting to reconnect to Arduino...")
+            ser.write("RESET")
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
@@ -422,6 +423,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         except Exception as e:
             print(f"Unexpected error: {e}")
             print("Attempting to reconnect to Arduino...")
+            ser.write("RESET")
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
