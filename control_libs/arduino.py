@@ -319,8 +319,18 @@ def safe_serial_write_emergency():
     while attempt < max_retries:
         try:
             if ser and ser.is_open:
-                ser.write(b'X')
-                ser.flush()
+                #ser.write(b'X')
+                #ser.flush()
+                print(f"[WARNING] Unexpected response: {response}   RESETING ARDUINO #############################################")
+                ser.flush()  # Flush output buffer
+                ser.reset_input_buffer()  # Flush input buffer
+
+# Reset Arduino via DTR
+                ser.dtr = True  # Set DTR line to reset Arduino
+                time.sleep(0.1)  # Short delay to ensure reset
+                ser.dtr = False  # Release DTR line
+                time.sleep(2)  # Give Arduino time to reboot
+
                 print(f"[ALERT] 🚨 Emergency Stop command 'X' sent to Arduino. Attempt {attempt + 1}")
 
                 # Wait for Arduino response
