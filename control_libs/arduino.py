@@ -533,104 +533,150 @@ import serial
 import time
 import subprocess
 import os
+import glob
 from serial.tools import list_ports
 
 SYMLINK = "/dev/arduino_mega"
 ARDUINO_IDS = {(0x2341, 0x0042)}  # Arduino Mega VID:PID
 
-def setup_permissions():
-    """Ensure proper permissions for serial devices"""
+def setup_environment():
+    """Configure system environment for reliable Arduino connection"""
     try:
-        subprocess.run(["sudo", "chmod", "666", "/dev/ttyACM*"], check=True)
-        subprocess.run(["sudo", "chmod", "666", "/dev/ttyUSB*"], check=True)
-        if os.path.exists(SYMLINK):
-            subprocess.run(["sudo", "chmod", "666", SYMLINK], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"⚠ Permission setup failed: {e}")
+        # Add user to dialout group if not already
+        subprocess.run(["sudo", "usermod", "-aG", "dialout", os.getenv("USER")], check=True)
+        
+        # Reload udev rules
+        subprocess.run(["sudo", "udevadm", "control", "--reload-rules"], check=True)
+        subprocess.run(["sudo", "udevadm", "trigger"], check=True)
+        
+        # Disable USB autosuspend
+        with open("/sys/module/usbcore/parameters/autosuspend", "w") as f:
+            f.write("-1\n")
+            
+        print("✓ System environment configured")
+    except Exception as e:
+        print(f"⚠ Environment setup warning: {str(e)}")
 
 def find_arduino_ports():
-    """Find all potential Arduino ports"""
+    """Find all potential Arduino ports with multiple detection methods"""
     ports = []
     
-    # Check symlink first
+    # Method 1: Check existing symlink
     if os.path.exists(SYMLINK):
         ports.append(SYMLINK)
     
-    # Check by hardware ID
+    # Method 2: Check by hardware ID
     for port in list_ports.comports():
         if (port.vid, port.pid) in ARDUINO_IDS:
             ports.append(port.device)
     
-    # Fallback to standard ports
-    for i in range(6):
-        for prefix in ['ttyACM', 'ttyUSB']:
-            port = f"/dev/{prefix}{i}"
-            if os.path.exists(port) and port not in ports:
-                ports.append(port)
+    # Method 3: Check standard port patterns
+    for pattern in ['/dev/ttyACM*', '/dev/ttyUSB*']:
+        ports.extend(glob.glob(pattern))
     
-    return ports
+    # Remove duplicates and validate
+    unique_ports = []
+    for port in list(set(ports)):
+        if os.path.exists(port):
+            try:
+                # Ensure readable permissions
+                os.chmod(port, 0o666)
+                unique_ports.append(port)
+            except:
+                continue
+                
+    return sorted(unique_ports)
 
-def update_symlink(target):
-    """Safely update symlink with sudo"""
+def reset_usb_controller():
+    """More reliable USB reset method"""
     try:
-        subprocess.run([
-            "sudo", "ln", "-sf", target, SYMLINK
-        ], check=True)
-        subprocess.run(["sudo", "chmod", "666", SYMLINK], check=True)
-        print(f"Updated symlink: {SYMLINK} → {target}")
-    except subprocess.CalledProcessError as e:
-        print(f"⚠ Symlink update failed: {e}")
-
-def robust_connect(retries=3):
-    """Main connection handler"""
-    setup_permissions()
-    
-    for attempt in range(retries):
-        print(f"\nAttempt {attempt+1}/{retries}")
+        # Try the modern USB reset method first
+        for device in glob.glob("/sys/bus/usb/devices/usb*"):
+            try:
+                with open(f"{device}/authorized", "w") as f:
+                    f.write("0\n")
+                time.sleep(1)
+                with open(f"{device}/authorized", "w") as f:
+                    f.write("1\n")
+                return True
+            except:
+                continue
         
-        for port in find_arduino_ports():
+        # Fallback to legacy method
+        subprocess.run(["sudo", "uhubctl", "-a", "cycle"], check=True)
+        return True
+    except Exception as e:
+        print(f"⚠ USB reset warning: {str(e)}")
+        return False
+
+def establish_connection(max_attempts=3):
+    """Main connection workflow"""
+    setup_environment()
+    
+    for attempt in range(1, max_attempts + 1):
+        print(f"\n=== Connection Attempt {attempt}/{max_attempts} ===")
+        
+        # Reset USB if not first attempt
+        if attempt > 1:
+            print("Resetting USB controller...")
+            reset_usb_controller()
+            time.sleep(5)  # Allow time for reenumeration
+        
+        # Find all potential ports
+        ports = find_arduino_ports()
+        if not ports:
+            print("No Arduino ports detected")
+            continue
+            
+        print(f"Detected ports: {', '.join(ports)}")
+        
+        # Try each detected port
+        for port in ports:
             try:
                 print(f"Trying {port}...")
                 ser = serial.Serial(port, baudrate=9600, timeout=2)
                 
-                # Test connection
-                ser.write(b'PING\n')
-                response = ser.readline().decode().strip()
-                
-                if response in ('PONG', 'ARDUINO_READY'):
-                    print(f"✓ Connected on {port}")
-                    if port != SYMLINK:
-                        update_symlink(port)
-                    return ser
+                # Verify communication
+                for _ in range(3):  # Multiple test attempts
+                    try:
+                        ser.write(b'PING\n')
+                        response = ser.readline().decode().strip()
+                        if response in ('PONG', 'ARDUINO_READY'):
+                            print(f"✓ Valid connection on {port}")
+                            
+                            # Update symlink if needed
+                            if port != SYMLINK:
+                                try:
+                                    if os.path.exists(SYMLINK):
+                                        os.remove(SYMLINK)
+                                    os.symlink(port, SYMLINK)
+                                    print(f"Updated symlink: {SYMLINK} → {port}")
+                                except Exception as e:
+                                    print(f"⚠ Symlink update warning: {str(e)}")
+                            
+                            return ser
+                    except Exception as e:
+                        print(f"⚠ Communication test failed: {str(e)}")
+                        time.sleep(1)
                 
                 ser.close()
             except Exception as e:
                 print(f"⚠ Connection failed on {port}: {str(e)}")
-        
-        # Reset USB if no ports worked
-        if attempt < retries - 1:
-            print("Resetting USB...")
-            try:
-                subprocess.run([
-                    "sudo", "bash", "-c",
-                    "echo 0 > /sys/bus/usb/devices/usb1/authorized && "
-                    "sleep 2 && "
-                    "echo 1 > /sys/bus/usb/devices/usb1/authorized"
-                ], check=True)
-                time.sleep(5)
-            except Exception as e:
-                print(f"⚠ USB reset failed: {e}")
     
-    raise Exception("Failed to establish connection")
+    raise Exception("Failed to establish connection after all attempts")
 
 # Usage Example
 try:
-    print("Initializing Arduino connection...")
-    arduino = robust_connect(retries=3)
+    print("\nInitializing Arduino connection...")
+    arduino = establish_connection(max_attempts=3)
     print("Connection established successfully!")
     
     # Your application code here
     
 except Exception as e:
-    print(f"Fatal error: {e}")
+    print(f"\nFatal error: {str(e)}")
+    print("Recommended actions:")
+    print("1. Physically unplug/replug Arduino")
+    print("2. Check USB cable and power supply")
+    print("3. Verify Arduino is running correct firmware")
     # Implement your failure recovery here
