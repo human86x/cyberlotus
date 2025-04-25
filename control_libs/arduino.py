@@ -409,8 +409,8 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
                 print(f"******VALUE = {value}")
                 return value  # Valid response, return the float
             except ValueError:
-                print(f"Error: Invalid response: {line}, not a valid float")
-                ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
+                print(f"###################Error: Invalid response: {line}, not a valid float")
+                #ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
 
         except SerialException as e:
             print(f"Serial I/O error: {e}")
@@ -434,5 +434,5 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         attempt += 1
         time.sleep(timeout)  # Retry delay
     
-    print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
     return None
