@@ -440,4 +440,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     print("2. ----------- Reconnecting to arduino")
     
     construction_connect_to_arduino()
+    print("3. ----------- Other way of conecting to arduino")
+    
+    connect_to_arduino()
     return None
