@@ -112,6 +112,24 @@ def construction_connect_to_arduino():
             continue
 
     raise Exception("Could not establish connection to Arduino Mega on any port")
+
+
+import subprocess
+
+def reset_arduino_usb():
+    try:
+        subprocess.run(["sudo", "uhubctl", "-l", "1-1", "-p", "2", "-a", "0"], check=True)
+        time.sleep(2)
+        subprocess.run(["sudo", "uhubctl", "-l", "1-1", "-p", "2", "-a", "1"], check=True)
+        print("Arduino USB port reset successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to reset USB port: {e}")
+
+# Call before connecting
+reset_arduino_usb()
+ser = construction_connect_to_arduino()
+
+
 # Usage:
 #try:
 #    ser = connect_to_arduino()
@@ -452,6 +470,7 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
     print("1. ----------- Closing arduino connection")
+    reset_arduino_usb()
     close_serial_connection()
     print("2. ----------- Reconnecting to arduino")
     
