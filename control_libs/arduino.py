@@ -67,14 +67,8 @@ def connect_to_arduino():
 import serial
 import time
 
-def construction_connect_to_arduino():
-    """
-    Connect to Arduino Mega 2560, trying symlink first then common ports.
-    """
-    SYMLINK = "/dev/arduino_mega"
-    COMMON_PORTS = [f"/dev/ttyACM{i}" for i in range(6)] + [f"/dev/ttyUSB{i}" for i in range(6)]
 
-    def test_connection(port):
+def test_connection(port):
         try:
             port.write(b'PING\n')
             time.sleep(1)
@@ -84,6 +78,15 @@ def construction_connect_to_arduino():
         except Exception as e:
             print(f"DEBUG: Error testing connection -> {e}")
             return False
+
+def construction_connect_to_arduino():
+    """
+    Connect to Arduino Mega 2560, trying symlink first then common ports.
+    """
+    SYMLINK = "/dev/arduino_mega"
+    COMMON_PORTS = [f"/dev/ttyACM{i}" for i in range(6)] + [f"/dev/ttyUSB{i}" for i in range(6)]
+
+    test_connection()
 
     # Try connecting via symlink first
     try:
@@ -137,7 +140,23 @@ import subprocess
 #except Exception as e:
 #    print(f"Critical error: {str(e)}")
 #    # Implement emergency shutdown here
-
+def get_arduino_connection(max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+            if test_connection(ser):  # Your existing test function
+                return ser
+            ser.close()
+        except Exception:
+            pass
+            
+        print(f"Connection failed, attempt {attempt+1}/{max_retries}")
+        if not reset_arduino_usb():
+            print("Physical replug required!")
+            break
+        time.sleep(5)
+    
+    raise Exception("Failed to reconnect to Arduino")
 
 
 def get_serial_connection():
@@ -471,29 +490,133 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     return None
 
 
+import subprocess
+import time
+import os
+
 def reset_arduino_usb():
-    """
-    Reset Arduino USB connection by power cycling the entire USB hub
-    since per-port control isn't available on your Raspberry Pi.
-    """
+    """Aggressive USB reset that works when physical replugging fails"""
     try:
-        # Power off the entire hub (hub 1, port 1)
-        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "0"], check=True)
-        time.sleep(3)  # Increased delay for complete power cycle
-        # Power back on
-        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "1"], check=True)
-        print("USB hub reset successfully. Waiting for Arduino to reconnect...")
-        time.sleep(5)  # Additional delay for Arduino to reboot
-    except subprocess.CalledProcessError as e:
-        print(f"⚠ Software USB reset failed: {e}")
-        print("Trying fallback method...")
-        try:
-            # Fallback: Reset USB controller
-            subprocess.run(["sudo", "bash", "-c", "echo 0 > /sys/bus/usb/devices/usb1/authorized"], check=True)
-            time.sleep(2)
-            subprocess.run(["sudo", "bash", "-c", "echo 1 > /sys/bus/usb/devices/usb1/authorized"], check=True)
-            print("USB controller reset performed as fallback.")
-            time.sleep(3)
-        except Exception as fallback_e:
-            print(f"⚠ All reset methods failed: {fallback_e}")
-            print("Please physically unplug/replug the Arduino USB cable.")
+        # 1. Try soft reset first
+        print("Attempting soft USB reset...")
+        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "0"], timeout=5)
+        time.sleep(3)
+        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "1"], timeout=5)
+        time.sleep(5)
+        
+        # 2. Check if Arduino reappeared
+        if os.path.exists('/dev/ttyACM0'):
+            print("Soft reset successful")
+            return True
+            
+        # 3. Fallback to USB controller reset
+        print("Soft reset failed - trying nuclear option...")
+        subprocess.run([
+            "sudo", "bash", "-c", 
+            "echo 0 > /sys/bus/usb/devices/usb1/authorized && " +
+            "sleep 2 && " +
+            "echo 1 > /sys/bus/usb/devices/usb1/authorized"
+        ], shell=True, timeout=10)
+        time.sleep(5)
+        
+        return os.path.exists('/dev/ttyACM0')
+        
+    except Exception as e:
+        print(f"Reset failed: {str(e)}")
+        return False
+    
+
+
+
+    ########################################################################
+
+
+    import serial
+import time
+import subprocess
+import os
+from serial.tools import list_ports
+
+SYMLINK = "/dev/arduino_mega"
+ARDUINO_IDS = {(0x2341, 0x0042)}  # VID:PID for Arduino Mega
+
+def find_arduino_ports():
+    """Find all potential Arduino ports with physical detection"""
+    ports = []
+    
+    # Check symlink first
+    if os.path.exists(SYMLINK):
+        ports.append(SYMLINK)
+    
+    # Check all serial ports with Arduino VID:PID
+    for port in list_ports.comports():
+        if (port.vid, port.pid) in ARDUINO_IDS:
+            ports.append(port.device)
+    
+    # Fallback to standard ACM/USB ports
+    for i in range(6):
+        for prefix in ['ttyACM', 'ttyUSB']:
+            port = f"/dev/{prefix}{i}"
+            if os.path.exists(port) and port not in ports:
+                ports.append(port)
+    
+    return ports
+
+def hard_reset_usb():
+    """Nuclear option for stubborn disconnections"""
+    try:
+        # Reset entire USB controller
+        subprocess.run([
+            "sudo", "bash", "-c",
+            "echo 0 > /sys/bus/usb/devices/usb1/authorized && "
+            "sleep 2 && "
+            "echo 1 > /sys/bus/usb/devices/usb1/authorized"
+        ], check=True)
+        time.sleep(5)  # Wait for devices to reinitialize
+        return True
+    except Exception as e:
+        print(f"⚠ USB controller reset failed: {e}")
+        return False
+
+def robust_connect(retries=3, initial_delay=5):
+    """Main connection handler with automatic recovery"""
+    for attempt in range(retries):
+        time.sleep(initial_delay * (attempt + 1))  # Exponential backoff
+        
+        # Try all possible ports
+        for port in find_arduino_ports():
+            try:
+                print(f"Attempt {attempt+1}: Trying {port}")
+                ser = serial.Serial(port, baudrate=9600, timeout=2)
+                
+                # Test communication
+                ser.write(b'PING\n')
+                response = ser.readline().decode().strip()
+                
+                if response in ('PONG', 'ARDUINO_READY'):
+                    print(f"✓ Connected to Arduino on {port}")
+                    if port != SYMLINK and os.path.exists(SYMLINK):
+                        print(f"Updating symlink to point to {port}")
+                        os.remove(SYMLINK)
+                        os.symlink(port, SYMLINK)
+                    return ser
+                
+                ser.close()
+            except Exception as e:
+                print(f"⚠ Connection failed on {port}: {str(e)}")
+        
+        # If all ports failed, reset USB
+        print("No responsive ports found - resetting USB...")
+        if not hard_reset_usb():
+            print("⚠ Manual power cycle required!")
+            break
+    
+    raise Exception(f"Failed to connect after {retries} attempts")
+
+# Usage example:
+try:
+    arduino = robust_connect(retries=5)
+    # Your communication code here
+except Exception as e:
+    print(f"Critical failure: {e}")
+    # Implement fallback logic here
