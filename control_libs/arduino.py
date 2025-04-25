@@ -64,11 +64,15 @@ def connect_to_arduino():
 
 
 
+import serial
+import time
+
 def construction_connect_to_arduino():
     """
-    Connect to Arduino Mega 2560 using a symlink.
+    Connect to Arduino Mega 2560, trying symlink first then common ports.
     """
     SYMLINK = "/dev/arduino_mega"
+    COMMON_PORTS = [f"/dev/ttyACM{i}" for i in range(6)] + [f"/dev/ttyUSB{i}" for i in range(6)]
 
     def test_connection(port):
         try:
@@ -81,12 +85,11 @@ def construction_connect_to_arduino():
             print(f"DEBUG: Error testing connection -> {e}")
             return False
 
-
-    # Try connecting via symlink only
+    # Try connecting via symlink first
     try:
         print(f"DEBUG: Trying symlink {SYMLINK}")
         ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
-        time.sleep(2)
+        time.sleep(2)  # Give time for Arduino to initialize
         if test_connection(ser):
             print(f"✓ Connected via symlink {SYMLINK}")
             return ser
@@ -94,8 +97,21 @@ def construction_connect_to_arduino():
     except serial.SerialException as e:
         print(f"⚠ Symlink connection failed: {e}")
 
-    raise Exception("Could not establish connection to Arduino Mega via symlink")
+    # If symlink failed, try common ports
+    for port in COMMON_PORTS:
+        try:
+            print(f"DEBUG: Trying port {port}")
+            ser = serial.Serial(port, baudrate=9600, timeout=1)
+            time.sleep(2)  # Give time for Arduino to initialize
+            if test_connection(ser):
+                print(f"✓ Connected via port {port}")
+                return ser
+            ser.close()
+        except serial.SerialException as e:
+            print(f"⚠ Connection failed on {port}: {e}")
+            continue
 
+    raise Exception("Could not establish connection to Arduino Mega on any port")
 # Usage:
 #try:
 #    ser = connect_to_arduino()
