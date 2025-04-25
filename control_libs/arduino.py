@@ -116,18 +116,8 @@ def construction_connect_to_arduino():
 
 import subprocess
 
-def reset_arduino_usb():
-    try:
-        subprocess.run(["sudo", "uhubctl", "-l", "1-1", "-p", "2", "-a", "0"], check=True)
-        time.sleep(2)
-        subprocess.run(["sudo", "uhubctl", "-l", "1-1", "-p", "2", "-a", "1"], check=True)
-        print("Arduino USB port reset successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to reset USB port: {e}")
 
-# Call before connecting
-reset_arduino_usb()
-ser = construction_connect_to_arduino()
+
 
 
 # Usage:
@@ -479,3 +469,31 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     
     connect_to_arduino()
     return None
+
+
+def reset_arduino_usb():
+    """
+    Reset Arduino USB connection by power cycling the entire USB hub
+    since per-port control isn't available on your Raspberry Pi.
+    """
+    try:
+        # Power off the entire hub (hub 1, port 1)
+        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "0"], check=True)
+        time.sleep(3)  # Increased delay for complete power cycle
+        # Power back on
+        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "1"], check=True)
+        print("USB hub reset successfully. Waiting for Arduino to reconnect...")
+        time.sleep(5)  # Additional delay for Arduino to reboot
+    except subprocess.CalledProcessError as e:
+        print(f"⚠ Software USB reset failed: {e}")
+        print("Trying fallback method...")
+        try:
+            # Fallback: Reset USB controller
+            subprocess.run(["sudo", "bash", "-c", "echo 0 > /sys/bus/usb/devices/usb1/authorized"], check=True)
+            time.sleep(2)
+            subprocess.run(["sudo", "bash", "-c", "echo 1 > /sys/bus/usb/devices/usb1/authorized"], check=True)
+            print("USB controller reset performed as fallback.")
+            time.sleep(3)
+        except Exception as fallback_e:
+            print(f"⚠ All reset methods failed: {fallback_e}")
+            print("Please physically unplug/replug the Arduino USB cable.")
