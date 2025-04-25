@@ -64,11 +64,13 @@ def connect_to_arduino():
 
 
 
-import serial
-import time
+def construction_connect_to_arduino():
+    """
+    Connect to Arduino Mega 2560 using a symlink.
+    """
+    SYMLINK = "/dev/arduino_mega"
 
-
-def test_connection(port):
+    def test_connection(port):
         try:
             port.write(b'PING\n')
             time.sleep(1)
@@ -79,20 +81,12 @@ def test_connection(port):
             print(f"DEBUG: Error testing connection -> {e}")
             return False
 
-def construction_connect_to_arduino():
-    """
-    Connect to Arduino Mega 2560, trying symlink first then common ports.
-    """
-    SYMLINK = "/dev/arduino_mega"
-    COMMON_PORTS = [f"/dev/ttyACM{i}" for i in range(6)] + [f"/dev/ttyUSB{i}" for i in range(6)]
 
-    
-
-    # Try connecting via symlink first
+    # Try connecting via symlink only
     try:
         print(f"DEBUG: Trying symlink {SYMLINK}")
         ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
-        time.sleep(2)  # Give time for Arduino to initialize
+        time.sleep(2)
         if test_connection(ser):
             print(f"✓ Connected via symlink {SYMLINK}")
             return ser
@@ -100,28 +94,7 @@ def construction_connect_to_arduino():
     except serial.SerialException as e:
         print(f"⚠ Symlink connection failed: {e}")
 
-    # If symlink failed, try common ports
-    for port in COMMON_PORTS:
-        try:
-            print(f"DEBUG: Trying port {port}")
-            ser = serial.Serial(port, baudrate=9600, timeout=1)
-            time.sleep(2)  # Give time for Arduino to initialize
-            if test_connection(ser):
-                print(f"✓ Connected via port {port}")
-                return ser
-            ser.close()
-        except serial.SerialException as e:
-            print(f"⚠ Connection failed on {port}: {e}")
-            continue
-
-    raise Exception("Could not establish connection to Arduino Mega on any port")
-
-
-import subprocess
-
-
-
-
+    raise Exception("Could not establish connection to Arduino Mega via symlink")
 
 # Usage:
 #try:
@@ -140,23 +113,7 @@ import subprocess
 #except Exception as e:
 #    print(f"Critical error: {str(e)}")
 #    # Implement emergency shutdown here
-def get_arduino_connection(max_retries=3):
-    for attempt in range(max_retries):
-        try:
-            ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-            if test_connection(ser):  # Your existing test function
-                return ser
-            ser.close()
-        except Exception:
-            pass
-            
-        print(f"Connection failed, attempt {attempt+1}/{max_retries}")
-        if not reset_arduino_usb():
-            print("Physical replug required!")
-            break
-        time.sleep(5)
-    
-    raise Exception("Failed to reconnect to Arduino")
+
 
 
 def get_serial_connection():
@@ -362,18 +319,8 @@ def safe_serial_write_emergency():
     while attempt < max_retries:
         try:
             if ser and ser.is_open:
-                #ser.write(b'X')
-                #ser.flush()
-                print(f"[WARNING] Unexpected response: {response}   RESETING ARDUINO #############################################")
-                ser.flush()  # Flush output buffer
-                ser.reset_input_buffer()  # Flush input buffer
-                ser.write("RESET")
-# Reset Arduino via DTR
-                ser.dtr = True  # Set DTR line to reset Arduino
-                time.sleep(0.1)  # Short delay to ensure reset
-                ser.dtr = False  # Release DTR line
-                time.sleep(2)  # Give Arduino time to reboot
-
+                ser.write(b'X')
+                ser.flush()
                 print(f"[ALERT] 🚨 Emergency Stop command 'X' sent to Arduino. Attempt {attempt + 1}")
 
                 # Wait for Arduino response
@@ -452,13 +399,11 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
                 print(f"******VALUE = {value}")
                 return value  # Valid response, return the float
             except ValueError:
-                print(f"###################Error: Invalid response: {line}, not a valid float")
-                #ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
+                print(f"Error: Invalid response: {line}, not a valid float")
 
         except SerialException as e:
             print(f"Serial I/O error: {e}")
             print("Attempting to reconnect to Arduino...")
-            ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
@@ -467,7 +412,6 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         except Exception as e:
             print(f"Unexpected error: {e}")
             print("Attempting to reconnect to Arduino...")
-            ser.write(b"RESET\n")  # Notice the 'b' prefix for bytes
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
@@ -478,54 +422,4 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
-    print("1. ----------- Closing arduino connection")
-    reset_arduino_usb()
-    close_serial_connection()
-    print("2. ----------- Reconnecting to arduino")
-    
-    construction_connect_to_arduino()
-    print("3. ----------- Other way of conecting to arduino")
-    
-    connect_to_arduino()
     return None
-
-
-import subprocess
-import time
-import os
-
-def reset_arduino_usb():
-    """Aggressive USB reset that works when physical replugging fails"""
-    try:
-        # 1. Try soft reset first
-        print("Attempting soft USB reset...")
-        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "0"], timeout=5)
-        time.sleep(3)
-        subprocess.run(["sudo", "uhubctl", "-l", "1", "-p", "1", "-a", "1"], timeout=5)
-        time.sleep(5)
-        
-        # 2. Check if Arduino reappeared
-        if os.path.exists('/dev/ttyACM0'):
-            print("Soft reset successful")
-            return True
-            
-        # 3. Fallback to USB controller reset
-        print("Soft reset failed - trying nuclear option...")
-        subprocess.run([
-            "sudo", "bash", "-c", 
-            "echo 0 > /sys/bus/usb/devices/usb1/authorized && " +
-            "sleep 2 && " +
-            "echo 1 > /sys/bus/usb/devices/usb1/authorized"
-        ], shell=True, timeout=10)
-        time.sleep(5)
-        
-        return os.path.exists('/dev/ttyACM0')
-        
-    except Exception as e:
-        print(f"Reset failed: {str(e)}")
-        return False
-    
-
-
-
-    ########################################################################
