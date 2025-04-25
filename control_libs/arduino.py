@@ -434,5 +434,10 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         attempt += 1
         time.sleep(timeout)  # Retry delay
     
-    print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    print("1. ----------- Closing arduino connection")
+    close_serial_connection()
+    print("2. ----------- Reconnecting to arduino")
+    
+    construction_connect_to_arduino()
     return None
