@@ -86,7 +86,7 @@ def construction_connect_to_arduino():
     SYMLINK = "/dev/arduino_mega"
     COMMON_PORTS = [f"/dev/ttyACM{i}" for i in range(6)] + [f"/dev/ttyUSB{i}" for i in range(6)]
 
-    test_connection()
+    
 
     # Try connecting via symlink first
     try:
