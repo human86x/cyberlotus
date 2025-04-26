@@ -15,7 +15,7 @@ import time
 import os
 import sys
 import json
-from control_libs.arduino import get_serial_connection, close_serial_connection ,connect_to_arduino, send_command_and_get_response
+from control_libs.arduino import get_serial_connection,connect_to_wemos, close_serial_connection ,connect_to_arduino, send_command_and_get_response
 from control_libs.electric_conductivity import get_ec, get_complex_ec_reading,  get_correct_EC
 from control_libs.temperature import read_solution_temperature
 from control_libs.arduino import safe_serial_write, emergency_stop, safe_serial_write_emergency
@@ -47,7 +47,7 @@ app = Flask(__name__)
 
 app.secret_key = 'your_secret_key'  # Needed for flash messages
 socketio = SocketIO(app)  # This is where you initialize socketio
-#ser = connect_to_arduino()
+power_ser = connect_to_wemos()
 
 #time.sleep(2)  # Allow Arduino to initialize
 global PUMP_COMMANDS

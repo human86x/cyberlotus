@@ -9,7 +9,7 @@ from control_libs.system_stats import system_state, save_system_state, load_syst
 #from config_tools.flow_tune import PUMP_COMMANDS
 
 ser = None  # Define the global variable for the serial connection
-
+power_ser = None
 #def connect_to_arduino():
 #    global ser  # Access the global serial connection variable
 #    """
@@ -60,7 +60,51 @@ def connect_to_arduino():
         print("Error:", e)
         return None
 
+def connect_to_wemos():
+    global power_ser
+    try:
+        power_ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=2)
+        time.sleep(2)  # Wait for Arduino to reset
+        power_ser.write(b'PING\r\n')  # Test command
+        response = power_ser.readline().decode().strip()
+        print("Response from Wemos:", response)
+        return power_ser
+    except Exception as e:
+        print("Error:", e)
+        return None
 
+
+#def connect_to_wemos():
+#    global power_ser
+    
+    
+    
+    
+    
+    
+ #   try:
+  #      power_ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=2)
+        #time.sleep(2)  # Wait for Arduino to reset
+        #if state == "ON":
+        #    power_ser.write(b'PU\r\n')  # Test command
+        #    response = power_ser.readline().decode().strip()
+   #     print("Wemos Connected....")
+        #    return response
+        #else if "OFF":
+        #    power_ser.write(b'PD\r\n')  # Test command
+        #    response = power_ser.readline().decode().strip()
+        #    print("Response from Wemos after POWERING DOWN:", response)
+    #    return power_ser
+    #except Exception as e:
+    #    print("Error connecting to Wemos:", e)
+    #    return None
+
+
+def hard_reset_arduino(power_ser):
+
+    power_ser.write(b'RE\r\n')  # Test command
+    response = power_ser.readline().decode().strip()
+    print("Response from Wemos after the reset:", response)
 
 
 
@@ -365,7 +409,7 @@ from serial import SerialException
 
 def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
     attempt = 0
-    
+    global power_ser
     while attempt < retries:
         # Ensure serial connection is open
         if ser is None or not ser.is_open:
@@ -422,4 +466,5 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    hard_reset_arduino(power_ser)
     return None
