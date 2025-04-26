@@ -7,6 +7,7 @@ from config_tools.sequencer import execute_sequence, execute_commands
 from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline, load_ec_baseline, get_ppm
 from control_libs.adjuster import check_chamber_humidity,circulate_solution, load_target_values
 from config_tools.tank_manager import test_tanks
+from control_libs.ph import perform_ph_test
 import time
 import json
 import statistics
@@ -195,11 +196,23 @@ def chamber_ambiance():
             # traceback.print_exc()
             
         # Wait before next iteration
-        time.sleep(5)  # Adjust as needed
+        cycle_check = cycle_generator()
+        while True:
+            # Normal operations
+            print("Normal operation...")
+        
+            if next(cycle_check):
+                perform_ph_test("solution")
+                time.sleep(5)  # Adjust as needed
 
 
 
 
+def cycle_generator():
+    count = 0
+    while True:
+        count += 1
+        yield count % 5 == 0  # Returns True every 5th call
 
 
 
