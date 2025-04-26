@@ -82,6 +82,7 @@ def circulate_solution():
             print("Within acceptable range - both pumps ON to maintain circulation")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)  # Adjust these values as needed for circulation
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+            return
         elif level_difference < -LEVEL_MARGIN:
             print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
