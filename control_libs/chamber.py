@@ -62,151 +62,126 @@ def light_control(light, state):
     
     return system_state
         
-
 def chamber_ambiance():
     #MODIFY FOR TEMP AND HUMIDITY CONTROL
     load_target_values()
     
     target_plant_temp = system_state["target_temp"]["value"]
-    #target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
     target_chamber_hum = system_state["plant_chamber_target_humidity"]["value"]
-    
     target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
     
-    #target_chambe_humidity = system_state["plant_chamber_target_humidity"]["value"]
-    
     while True:  # Continuously loop
-        #target_plant_pot_level = load_config("target_plant_pot_level")
         humidifyer = "humidifyer"
         air_heater = "chamber_heater"
         water_heater = "plant_heater"
-        #print("Starting circulation – both pumps ON to stabilize")
-        #send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
-        #send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
-
-        # Retrieve the current plant pot solution level with median filtering
-        readings = []
-        for _ in range(3):  # Take 3 readings
-            current_time = int(time.time())
+        current_time = int(time.time())
+        
+        try:
+            # Get sensor readings with error handling
             plant_temp = get_plant_temp()
             chamber_temp = get_chamber_temp()
             chamber_hum = get_chamber_humidity()
             
+            # Validate readings
+            if any(math.isnan(x) or x is None for x in [plant_temp, chamber_temp, chamber_hum]):
+                raise ValueError("One or more sensor readings are NaN/None")
+                
+            # Log valid readings
             history_log("plant_temp", plant_temp)
             history_log("chamber_temp", chamber_temp)
             history_log("chamber_humidity", chamber_hum)
 
-
-            
+            # Update system state
             system_state["plant_temperature"]["value"] = plant_temp
-            system_state["plant_temperature"]["timestamp"] = int(time.time())
-            
+            system_state["plant_temperature"]["timestamp"] = current_time
             system_state["chamber_humidity"]["value"] = chamber_hum
-            system_state["chamber_humidity"]["timestamp"] = int(time.time())
-
+            system_state["chamber_humidity"]["timestamp"] = current_time
             system_state["chamber_temperature"]["value"] = chamber_temp
-            system_state["chamber_temperature"]["timestamp"] = int(time.time())            
-            # Validate the reading
-            #try:
-            #    plant_level = int(plant_level)
-            #    if 1 <= plant_level <= 50:
-            #        readings.append(plant_level)
-            #    else:
-            #        print(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
-            #except (ValueError, TypeError):
-            #    print(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
+            system_state["chamber_temperature"]["timestamp"] = current_time
             
-            #time.sleep(1)  # Delay between readings
+            print(f"✅ Retrieved: Plant temp: {plant_temp}°C, Chamber temp: {chamber_temp}°C, Humidity: {chamber_hum}%")
 
-        #if readings:
-        #    plant_level = int(statistics.median(readings))  # Use median value
-        #else:
-        #    print("⚠️ Failed to get valid readings. Retrying...")
-        #    continue  # Restart the loop
+            # Define the acceptable margin
+            LEVEL_MARGIN = 0.2
+            
+            # Always turn lights on (assuming this is safe)
+            light_control("all","ON")
 
-        print(f"✅ Retrieved : Plant pot temperature: {plant_temp} Chamber temperature: {chamber_temp} Chamber Humidity: {chamber_hum}")
+            ###################### PLAN POT TEMPERATURE ########################
+            if not math.isnan(plant_temp):
+                level_difference = plant_temp - target_plant_temp
 
-        # Update system state
-        #system_state["plant_pot_level"]["value"] = plant_level
-        #system_state["plant_pot_level"]["timestamp"] = int(time.time())
+                if abs(level_difference) <= LEVEL_MARGIN:
+                    print("Within acceptable range - water heater is off")
+                    send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
+                    system_state["water_heater"]["state"] = "OFF"
+                    system_state["water_heater"]["timestamp"] = current_time
+                elif level_difference < -LEVEL_MARGIN:
+                    print("Turning water heating ON...")
+                    send_command_with_heartbeat(PUMP_COMMANDS[water_heater], 0)
+                    system_state["water_heater"]["state"] = "ON"
+                    system_state["water_heater"]["timestamp"] = current_time
+                else:
+                    print("Water heating is OFF...")
+                    send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
+                    system_state["water_heater"]["state"] = "OFF"
+                    system_state["water_heater"]["timestamp"] = current_time
+            else:
+                print("⚠️ Invalid plant temperature reading, skipping water heater control")
 
-        #print(f"Plant pot current water level is {plant_temp} and target level is {target_plant_temp}")
+            ###################### CHAMBER TEMPERATURE #######################
+            if not math.isnan(chamber_temp):
+                level_difference = chamber_temp - target_chamber_temp
+                print(f"Temp diff: {level_difference}°C (Current: {chamber_temp}°C, Target: {target_chamber_temp}°C)")
+                
+                if abs(level_difference) <= LEVEL_MARGIN:
+                    print("Within acceptable range - air heater is off")
+                    send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
+                    system_state["air_heater"]["state"] = "OFF"
+                    system_state["air_heater"]["timestamp"] = current_time
+                elif level_difference < -LEVEL_MARGIN:
+                    print("Turning air heating ON...")
+                    send_command_with_heartbeat(PUMP_COMMANDS[air_heater], 0)
+                    system_state["air_heater"]["state"] = "ON"
+                    system_state["air_heater"]["timestamp"] = current_time
+                else:
+                    print("Air heating is OFF...")
+                    send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
+                    system_state["air_heater"]["state"] = "OFF"
+                    system_state["air_heater"]["timestamp"] = current_time
+            else:
+                print("⚠️ Invalid chamber temperature reading, skipping air heater control")
 
-        # Define the acceptable margin
-        LEVEL_MARGIN = 0.2
-######################   PLAN POT TEMPERATURE    ########################
-        # Control logic based on the level with margin
+            ######################## HUMIDITY ############################        
+            if not math.isnan(chamber_hum):
+                level_difference = chamber_hum - target_chamber_hum
 
-        light_control("all","ON")
+                if abs(level_difference) <= LEVEL_MARGIN:
+                    print("Within acceptable range - HUMIDIFIER is off")
+                    send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
+                    system_state["air_humidifyer"]["state"] = "OFF"
+                    system_state["air_humidifyer"]["timestamp"] = current_time
+                elif level_difference < -LEVEL_MARGIN:
+                    print("Turning HUMIDIFIER ON...")
+                    send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], 0)
+                    system_state["air_humidifyer"]["state"] = "ON"
+                    system_state["air_humidifyer"]["timestamp"] = current_time
+                else:
+                    print("HUMIDIFIER is OFF...")
+                    send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
+                    system_state["air_humidifyer"]["state"] = "OFF"
+                    system_state["air_humidifyer"]["timestamp"] = current_time
+            else:
+                print("⚠️ Invalid humidity reading, skipping humidifier control")
 
-        level_difference = plant_temp - target_plant_temp
-
-        if abs(level_difference) <= LEVEL_MARGIN:
-            print("Within acceptable range - water heater is off")
-            send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)  # Adjust these values as needed for circulation
-            system_state["water_heater"]["state"] = "OFF"
-            system_state["water_heater"]["timestamp"] = current_time
-    
-        elif level_difference < -LEVEL_MARGIN:
-            print("Turning water heating...")
-            send_command_with_heartbeat(PUMP_COMMANDS[water_heater], 0)
-            system_state["water_heater"]["state"] = "ON"
-            system_state["water_heater"]["timestamp"] = current_time
-          
-        else:  # level_difference > LEVEL_MARGIN
-            print("Water heating is OFF...")
-            send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
-            system_state["water_heater"]["state"] = "OFF"
-            system_state["water_heater"]["timestamp"] = current_time
-          
-        #time.sleep(5)  # Wait before checking again
-
-######################   CHAMBER TEMPERATURE     #######################
-        level_difference = chamber_temp - target_chamber_temp
-        print(f"level_difference->{level_difference}  chamber_temp->{chamber_temp} target_temp->{target_chamber_temp}")
-        if abs(level_difference) <= LEVEL_MARGIN:
-            print("Within acceptable range - air heater is off")
-            send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)  # Adjust these values as needed for circulation
-            system_state["air_heater"]["state"] = "OFF"
-            system_state["air_heater"]["timestamp"] = current_time
-    
-        elif level_difference < -LEVEL_MARGIN:
-            print("Turning air heating...")
-            send_command_with_heartbeat(PUMP_COMMANDS[air_heater], 0)
-            system_state["air_heater"]["state"] = "ON"
-            system_state["air_heater"]["timestamp"] = current_time
-          
-        else:  # level_difference > LEVEL_MARGIN
-            print("Air heating is OFF...")
-            send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
-            system_state["air_heater"]["state"] = "OFF"
-            system_state["air_heater"]["timestamp"] = current_time
-    
-        #time.sleep(5)  # Wait before checking again
-
-########################   HUMIDITY   ############################        
-        level_difference = chamber_hum - target_chamber_hum
-
-        if abs(level_difference) <= LEVEL_MARGIN:
-            print("Within acceptable range - HUMIDIFYER is off")
-            send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)  # Adjust these values as needed for circulation
-            system_state["air_humidifyer"]["state"] = "OFF"
-            system_state["air_humidifyer"]["timestamp"] = current_time
-    
-        elif level_difference < -LEVEL_MARGIN:
-            print("Turning HUIDIFYER ON!...")
-            send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], 0)
-            system_state["air_humidifyer"]["state"] = "ON"
-            system_state["air_humidifyer"]["timestamp"] = current_time
-    
-        else:  # level_difference > LEVEL_MARGIN
-            print("HUMIDIFYER is OFF...")
-            send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
-            system_state["air_humidifyer"]["state"] = "OFF"
-            system_state["air_humidifyer"]["timestamp"] = current_time
-    
-        #time.sleep(5)  # Wait before checking again
-
+        except Exception as e:
+            print(f"⚠️ Error in chamber ambiance control: {str(e)}")
+            # Optionally log the full traceback for debugging:
+            # import traceback
+            # traceback.print_exc()
+            
+        # Wait before next iteration
+        time.sleep(5)  # Adjust as needed
 
 
 
