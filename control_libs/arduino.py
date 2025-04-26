@@ -46,33 +46,86 @@ power_ser = None
 #    raise Exception("Unable to connect to Arduino on any /dev/ttyACM* port.")
 
 
+import serial
+import time
+import glob
+
+def find_serial_devices():
+    """Search for possible serial devices"""
+    possible_ports = []
+    # Common Linux serial ports
+    possible_ports += glob.glob('/dev/ttyACM[0-9]*')
+    possible_ports += glob.glob('/dev/ttyUSB[0-9]*')
+    possible_ports += glob.glob('/dev/ttyS[0-9]*')
+    possible_ports += glob.glob('/dev/ttyAMA[0-9]*')
+    # Common macOS serial ports
+    possible_ports += glob.glob('/dev/cu.usbmodem*')
+    possible_ports += glob.glob('/dev/cu.usbserial*')
+    # Common Windows serial ports (if running on Windows)
+    possible_ports += glob.glob('COM[0-9]*')
+    return possible_ports
+
+def test_serial_connection(port, device_type="arduino"):
+    """Test if a device is responding on the given port"""
+    try:
+        with serial.Serial(port, 9600, timeout=2) as test_ser:
+            time.sleep(2)  # Wait for device to reset
+            test_ser.write(b'PING\r\n')
+            response = test_ser.readline().decode().strip()
+            if response:  # If we got any response
+                print(f"Found {device_type} at {port} - Response: {response}")
+                return test_ser
+    except (serial.SerialException, OSError) as e:
+        pass  # Silently handle failures - we'll try the next port
+    return None
 
 def connect_to_arduino():
     global ser
+    # Try default port first
+    default_port = '/dev/arduino_mega'
     try:
-        ser = serial.Serial('/dev/arduino_mega', 9600, timeout=2)
-        time.sleep(2)  # Wait for Arduino to reset
-        ser.write(b'PING\r\n')  # Test command
+        ser = serial.Serial(default_port, 9600, timeout=2)
+        time.sleep(2)
+        ser.write(b'PING\r\n')
         response = ser.readline().decode().strip()
-        print("Response from Arduino:", response)
+        print(f"Connected to Arduino at {default_port} - Response: {response}")
         return ser
     except Exception as e:
-        print("Error:", e)
-        return None
+        print(f"Default Arduino port {default_port} not found, searching alternatives...")
+    
+    # Search all possible ports
+    possible_ports = find_serial_devices()
+    for port in possible_ports:
+        ser = test_serial_connection(port, "Arduino")
+        if ser:
+            return ser
+    
+    print("Error: Could not find Arduino on any serial port")
+    return None
 
 def connect_to_wemos():
     global power_ser
+    # Try default port first
+    default_port = '/dev/ttyUSB0'
     try:
-        power_ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=2)
-        time.sleep(2)  # Wait for Arduino to reset
-        power_ser.write(b'PING\r\n')  # Test command
+        power_ser = serial.Serial(default_port, 9600, timeout=2)
+        time.sleep(2)
+        power_ser.write(b'PING\r\n')
         response = power_ser.readline().decode().strip()
-        print("Response from Wemos:", response)
+        print(f"Connected to Wemos at {default_port} - Response: {response}")
         return power_ser
     except Exception as e:
-        print("Error:", e)
-        return None
-
+        print(f"Default Wemos port {default_port} not found, searching alternatives...")
+    
+    # Search all possible ports
+    possible_ports = find_serial_devices()
+    for port in possible_ports:
+        power_ser = test_serial_connection(port, "Wemos")
+        if power_ser:
+            return power_ser
+    
+    print("Error: Could not find Wemos on any serial port")
+    return None
 
 #def connect_to_wemos():
 #    global power_ser
@@ -168,6 +221,15 @@ def get_serial_connection():
         print("[ERROR] Serial connection is not established.")
         ser = connect_to_arduino()
         return ser
+
+def get_wemos_connection():
+    global power_ser
+    if power_ser and power_ser.is_open:
+        return power_ser
+    else:
+        print("[ERROR] Serial connection is not established.")
+        power_ser = connect_to_wemos()
+        return power_ser
 
 def close_serial_connection():
     global ser
