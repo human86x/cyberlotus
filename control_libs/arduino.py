@@ -303,11 +303,11 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
 
                                 # Reset Arduino via DTR
                             print(f"##################Reseting Arduino#####################: {response}")
-                            
-                            ser.dtr = True  # Set DTR line to reset Arduino
-                            time.sleep(0.1)  # Short delay to ensure reset
-                            ser.dtr = False  # Release DTR line
-                            time.sleep(2)  # Give Arduino time to reboot
+                            hard_reset_arduino(power_ser)
+                            #ser.dtr = True  # Set DTR line to reset Arduino
+                            #time.sleep(0.1)  # Short delay to ensure reset
+                            #ser.dtr = False  # Release DTR line
+                            #time.sleep(2)  # Give Arduino time to reboot
 
                             break  # Exit the inner loop to retry
 
