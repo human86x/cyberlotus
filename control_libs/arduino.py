@@ -355,6 +355,7 @@ import time
 
 def safe_serial_write_emergency():
     global ser
+    global power_ser
     ser = get_serial_connection()
     """Safely send the emergency stop command to Arduino with verification."""
     max_retries = 3  # Number of retry attempts
@@ -363,9 +364,10 @@ def safe_serial_write_emergency():
     while attempt < max_retries:
         try:
             if ser and ser.is_open:
-                ser.write(b'X')
+                #ser.write(b'X')
+                hard_reset_arduino(power_ser)
                 ser.flush()
-                print(f"[ALERT] 🚨 Emergency Stop command 'X' sent to Arduino. Attempt {attempt + 1}")
+                print(f"[ALERT] 🚨 Emergency RESET using external relay - Attempt {attempt + 1}")
 
                 # Wait for Arduino response
                 response = ser.readline().decode().strip()

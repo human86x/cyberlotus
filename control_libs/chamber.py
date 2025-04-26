@@ -71,7 +71,21 @@ def chamber_ambiance():
     target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
     
     while True:  # Continuously loop
+        # Always turn lights on (assuming this is safe)
+        print("########################## TURNING LIGHTS ON ###########################")
+        print("##############################################################################")
+        
+        light_control("all","ON")
+
+        print("########################## ESTABLISHING THE PLANT POT SOLUTION LEVEL ###########################")
+        print("##############################################################################")
+        
+
         circulate_solution()
+        print("########################## CIRCULATION ESTABLISHED ###########################")
+        print("##############################################################################")
+        
+        
         humidifyer = "humidifyer"
         air_heater = "chamber_heater"
         water_heater = "plant_heater"
@@ -105,8 +119,7 @@ def chamber_ambiance():
             # Define the acceptable margin
             LEVEL_MARGIN = 0.2
             
-            # Always turn lights on (assuming this is safe)
-            light_control("all","ON")
+         
 
             ###################### PLAN POT TEMPERATURE ########################
             if not math.isnan(plant_temp):
