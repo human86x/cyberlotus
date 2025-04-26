@@ -50,33 +50,43 @@ import serial
 import time
 import glob
 
-def find_serial_devices():
-    """Search for possible serial devices"""
+def find_serial_devices(device_type="arduino"):
+    """Search for possible serial devices with device-specific filtering"""
     possible_ports = []
-    # Common Linux serial ports
-    possible_ports += glob.glob('/dev/ttyACM[0-9]*')
-    possible_ports += glob.glob('/dev/ttyUSB[0-9]*')
-    possible_ports += glob.glob('/dev/ttyS[0-9]*')
-    possible_ports += glob.glob('/dev/ttyAMA[0-9]*')
-    # Common macOS serial ports
-    possible_ports += glob.glob('/dev/cu.usbmodem*')
-    possible_ports += glob.glob('/dev/cu.usbserial*')
-    # Common Windows serial ports (if running on Windows)
-    possible_ports += glob.glob('COM[0-9]*')
+    
+    if device_type.lower() == "wemos":
+        # Wemos only appears on USB ports
+        possible_ports += glob.glob('/dev/ttyUSB[0-9]*')
+        # For Windows
+        possible_ports += glob.glob('COM[0-9]*')
+    elif device_type.lower() == "arduino":
+        # Arduino only appears on ACM ports
+        possible_ports += glob.glob('/dev/ttyACM[0-9]*')
+        # For some Arduino models on Windows
+        possible_ports += glob.glob('COM[0-9]*')
+    
     return possible_ports
 
 def test_serial_connection(port, device_type="arduino"):
-    """Test if a device is responding on the given port"""
+    """Test if a device is responding on the given port with exact response validation"""
     try:
         with serial.Serial(port, 9600, timeout=2) as test_ser:
             time.sleep(2)  # Wait for device to reset
             test_ser.write(b'PING\r\n')
             response = test_ser.readline().decode().strip()
-            if response:  # If we got any response
-                print(f"Found {device_type} at {port} - Response: {response}")
-                return test_ser
+            
+            # Device-specific validation
+            if device_type.lower() == "wemos":
+                if response == "&#!WEMOS PONG":  # Exact Wemos response
+                    print(f"✓ Valid Wemos found at {port}")
+                    return test_ser
+            elif device_type.lower() == "arduino":
+                if response == "&#!ARDUINO PONG":  # Exact Arduino response
+                    print(f"✓ Valid Arduino found at {port}")
+                    return test_ser
+                    
     except (serial.SerialException, OSError) as e:
-        pass  # Silently handle failures - we'll try the next port
+        pass  # Silently handle failures
     return None
 
 def connect_to_arduino():
@@ -88,19 +98,21 @@ def connect_to_arduino():
         time.sleep(2)
         ser.write(b'PING\r\n')
         response = ser.readline().decode().strip()
-        print(f"Connected to Arduino at {default_port} - Response: {response}")
-        return ser
+        if response == "&#!ARDUINO PONG":
+            print(f"Connected to Arduino at default {default_port}")
+            return ser
+        ser.close()
     except Exception as e:
-        print(f"Default Arduino port {default_port} not found, searching alternatives...")
+        print(f"Default Arduino port {default_port} not available")
     
-    # Search all possible ports
-    possible_ports = find_serial_devices()
+    # Search only ACM ports for Arduino
+    possible_ports = find_serial_devices("arduino")
     for port in possible_ports:
-        ser = test_serial_connection(port, "Arduino")
+        ser = test_serial_connection(port, "arduino")
         if ser:
             return ser
     
-    print("Error: Could not find Arduino on any serial port")
+    print("× Error: No Arduino found on any ACM port")
     return None
 
 def connect_to_wemos():
@@ -112,19 +124,21 @@ def connect_to_wemos():
         time.sleep(2)
         power_ser.write(b'PING\r\n')
         response = power_ser.readline().decode().strip()
-        print(f"Connected to Wemos at {default_port} - Response: {response}")
-        return power_ser
+        if response == "&#!WEMOS PONG":
+            print(f"Connected to Wemos at default {default_port}")
+            return power_ser
+        power_ser.close()
     except Exception as e:
-        print(f"Default Wemos port {default_port} not found, searching alternatives...")
+        print(f"Default Wemos port {default_port} not available")
     
-    # Search all possible ports
-    possible_ports = find_serial_devices()
+    # Search only USB ports for Wemos
+    possible_ports = find_serial_devices("wemos")
     for port in possible_ports:
-        power_ser = test_serial_connection(port, "Wemos")
+        power_ser = test_serial_connection(port, "wemos")
         if power_ser:
             return power_ser
     
-    print("Error: Could not find Wemos on any serial port")
+    print("× Error: No Wemos found on any USB port")
     return None
 
 #def connect_to_wemos():
