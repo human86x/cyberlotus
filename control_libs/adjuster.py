@@ -33,6 +33,8 @@ import statistics
 def circulate_solution():
     while True:  # Continuously loop
         target_plant_pot_level = load_config("target_plant_pot_level")
+        system_state["plant_pot_target_level"]["value"] = plant_level
+        system_state["plant_pot_target_level"]["timestamp"] = int(time.time())
         pump_up = "plant_up"
         pump_down = "plant_down"
         print("Starting circulation – both pumps ON to stabilize")

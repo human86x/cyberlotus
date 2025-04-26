@@ -12,7 +12,7 @@ system_state = {
 
     "plant_chamber_target_humidity": {"value": None, "timestamp": None},
     "plant_chamber_target_temperature": {"value": None, "timestamp": None},
-    
+    "plant_pot_target_level": {"value": None, "timestamp": None},
 
     "ec": {"value": None, "timestamp": None},
     "ec_solution": {"value": None, "timestamp": None},
