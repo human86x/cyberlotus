@@ -5,7 +5,7 @@ from control_libs.temperature import read_solution_temperature
 from config_tools.flow_tune import load_flow_rates, PUMP_COMMANDS, send_command_with_heartbeat
 from config_tools.sequencer import execute_sequence, execute_commands
 from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline, load_ec_baseline, get_ppm
-from control_libs.adjuster import check_chamber_humidity, load_target_values
+from control_libs.adjuster import check_chamber_humidity,circulate_solution, load_target_values
 from config_tools.tank_manager import test_tanks
 import time
 import json
@@ -71,6 +71,7 @@ def chamber_ambiance():
     target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
     
     while True:  # Continuously loop
+        circulate_solution()
         humidifyer = "humidifyer"
         air_heater = "chamber_heater"
         water_heater = "plant_heater"
