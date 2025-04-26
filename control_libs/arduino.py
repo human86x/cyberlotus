@@ -98,7 +98,7 @@ def connect_to_arduino():
         time.sleep(2)
         ser.write(b'PING\r\n')
         response = ser.readline().decode().strip()
-        if response == "&#!ARDUINO PONG":
+        if response == "PONG":
             print(f"Connected to Arduino at default {default_port}")
             return ser
         ser.close()
