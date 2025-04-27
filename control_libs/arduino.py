@@ -545,5 +545,6 @@ def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
         time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    power_ser = connect_to_wemos()
     hard_reset_arduino(power_ser)
     return None
