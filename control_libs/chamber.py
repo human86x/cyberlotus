@@ -76,7 +76,7 @@ def chamber_ambiance():
         print("########################## TURNING LIGHTS ON ###########################")
         print("##############################################################################")
         
-        light_control("all","ON")
+        light_control("grow","ON")
 
         print("########################## ESTABLISHING THE PLANT POT SOLUTION LEVEL ###########################")
         print("##############################################################################")
@@ -196,14 +196,14 @@ def chamber_ambiance():
             # traceback.print_exc()
             
         # Wait before next iteration
-        cycle_check = cycle_generator()
-        while True:
+        #cycle_check = cycle_generator()
+        #while True:
             # Normal operations
-            print("Normal operation...")
+        #    print("Normal operation...")
         
-            if next(cycle_check):
-                perform_ph_test("solution")
-                time.sleep(5)  # Adjust as needed
+        #    if next(cycle_check):
+        #        perform_ph_test("solution")
+        #        time.sleep(5)  # Adjust as needed
 
 
 
