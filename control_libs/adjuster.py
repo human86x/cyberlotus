@@ -31,6 +31,7 @@ import statistics
 
 
 def circulate_solution():
+    
     while True:  # Continuously loop
         target_plant_pot_level = load_config("target_plant_pot_level")
         system_state["plant_pot_target_level"]["value"] = target_plant_pot_level
@@ -75,7 +76,7 @@ def circulate_solution():
         print(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
 
         # Define the acceptable margin
-        LEVEL_MARGIN = 0.2
+        LEVEL_MARGIN = 1
 
         # Control logic based on the level with margin
         level_difference = plant_level - target_plant_pot_level
