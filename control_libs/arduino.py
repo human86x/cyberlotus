@@ -81,9 +81,10 @@ def test_serial_connection(port, device_type="arduino"):
                     print(f"✓ Valid Wemos found at {port}")
                     return test_ser
             elif device_type.lower() == "arduino":
-                if response == "&#!ARDUINO PONG":  # Exact Arduino response
+                if response == "PONG" or "ARDUINO_READY":  # Exact Arduino response
                     print(f"✓ Valid Arduino found at {port}")
-                    return test_ser
+                    ser = test_ser
+                    return ser
                     
     except (serial.SerialException, OSError) as e:
         pass  # Silently handle failures
@@ -282,7 +283,8 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
 
                 print(f"[INFO] Sent command: {command}, waiting for response...")
                 ser.write(command.encode())
-                
+                time.sleep(1)  # Small delay to avoid CPU overuse
+
                 start_time = time.time()
                 while time.time() - start_time < timeout:
                     if ser.in_waiting > 0:
@@ -294,6 +296,10 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
                             print(f"[SUCCESS] Arduino confirmed action: {response}")
                             system_state["relay_states"]["relay_" + pump_name]["state"] = f"{'ON' if state == 'o' else 'OFF'}"
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = cur_time
+                            
+                            print(f"system_state[\relay_states/][relay_ + {pump_name}][state] = {state}")
+                            
+                            
                             return True  # Exit after successful confirmation
                         else:
                             #break  # Exit the inner loop to retry
@@ -486,7 +492,7 @@ import serial
 from serial import SerialException
 
 
-def send_command_and_get_response(ser, command, retries=5, timeout=1.3):
+def send_command_and_get_response(ser, command, retries=5, timeout=2.3):
     attempt = 0
     global power_ser
     while attempt < retries:
