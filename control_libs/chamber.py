@@ -66,6 +66,8 @@ def light_control(light, state):
 def chamber_ambiance():
     #MODIFY FOR TEMP AND HUMIDITY CONTROL
     load_target_values()
+    system_state["stop_all"]["state"] = "GO"
+    system_state["stop_all"]["timestamp"] = int(time.time())
     
     target_plant_temp = system_state["target_temp"]["value"]
     target_chamber_hum = system_state["plant_chamber_target_humidity"]["value"]
@@ -93,6 +95,10 @@ def chamber_ambiance():
         current_time = int(time.time())
         
         try:
+            flag = system_state["stop_all"]["state"]
+            if flag == "STOP":
+                print(f"EXETING THE FUNCTION flag = {flag}")
+                return
             # Get sensor readings with error handling
             plant_temp = get_plant_temp()
             chamber_temp = get_chamber_temp()

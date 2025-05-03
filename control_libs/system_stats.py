@@ -50,6 +50,7 @@ system_state = {
     "light_yellow": {"state": None, "timestamp": None},
     "light_white": {"state": None, "timestamp": None},
     "light_grow": {"state": None, "timestamp": None},
+    "stop_all": {"state": None, "timestamp": None},
     
     "relay_states": {
         "relay_a": {"state": None, "timestamp": None},

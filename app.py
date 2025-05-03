@@ -61,6 +61,16 @@ DATA_DIRECTORY = "data"
 
 
 
+@app.route('/stop_all', methods=['POST'])
+def stop_all_route():
+    #data = request.json
+    #data = data.get('value')  # Extract the 'value' field
+    #load_target_values()
+    
+    system_state["stop_all"]["state"] = "STOP"
+    system_state["stop_all"]["timestamp"] = int(time.time())
+                            
+    return "Done"
 
 
 

@@ -33,6 +33,10 @@ import statistics
 def circulate_solution():
     
     while True:  # Continuously loop
+        flag = system_state["stop_all"]["state"]
+        if flag == "STOP":
+            print(f"EXETING THE FUNCTION flag = {flag}")
+            return
         target_plant_pot_level = load_config("target_plant_pot_level")
         system_state["plant_pot_target_level"]["value"] = target_plant_pot_level
         system_state["plant_pot_target_level"]["timestamp"] = int(time.time())

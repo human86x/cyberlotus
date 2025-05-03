@@ -191,6 +191,11 @@ function circulate_the_solution(){
             const url = '/chamber_autopilot';
             sendRequest(url, { value: parseFloat(value) });
         }
+    function stopAll() {     
+            const value = 0;//document.getElementById('temperatureUpValue').value;
+            const url = '/stop_all';
+            sendRequest(url, { value: parseFloat(value) });
+        }
 
         
         function light_switch(light, state) {
@@ -235,6 +240,8 @@ function circulate_the_solution(){
         <div class="control-group">
             <label for="autopilot">Run Autopilot</label>
             <button onclick="startAutopilotTimer()">Go</button>
+            <button onclick="stopAll()">Stop</button>
+
             <button onclick="resetTimer()" style="margin-left: 10px;">Reset Timer</button>
             <span id="timerDisplay" style="margin-left: 15px;">00:00:00</span>
         </div>
