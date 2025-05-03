@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberLotus Proletject</title>
+    <title>CyberLotus Project</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,14 +11,20 @@
             padding: 0;
             display: flex;
             height: 100vh;
+            flex-direction: column;
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
         }
         .sidebar {
             width: 250px;
             background-color: #333;
             color: #fff;
-            height: 100%;
             padding: 20px;
             box-sizing: border-box;
+            overflow-y: auto;
         }
         .sidebar h2 {
             margin-top: 0;
@@ -48,6 +54,7 @@
             padding: 20px;
             box-sizing: border-box;
             border-left: 1px solid #ddd;
+            overflow-y: auto;
         }
         .right-sidebar h1 {
             margin-top: 0;
@@ -65,41 +72,75 @@
             text-align: left;
             font-size: small;
         }
+        /* Console Output Panel */
+        .console-panel {
+            height: 120px; /* ~5cm tall */
+            background-color: #111;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            overflow-y: auto;
+            border-top: 2px solid #333;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .console-content {
+            white-space: pre-wrap;
+            margin: 0;
+        }
+        /* Adjust main content to avoid overlap */
+        .main-content {
+            padding-bottom: 140px; /* Console height + some margin */
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>CyberLotus</h2>
-        <a href="{{ url_for('dashboard') }}">Dashboard</a>
-        <a href="{{ url_for('relays') }}">Relays</a>
-        <a href="{{ url_for('tanks') }}">Tanks</a>
-        <a href="{{ url_for('pumps') }}">Pumps</a>
-        <a href="{{ url_for('sequences') }}">Sequences</a>
-        <a href="{{ url_for('ph') }}">pH</a>
-        <a href="{{ url_for('ec') }}">EC</a>
-        <a href="{{ url_for('ecosystem') }}">Ecosystem</a>
-        <a href="{{ url_for('automatisation') }}">Automatisation</a>
-        <a href="{{ url_for('plant_chamber') }}">Plant Chamber</a>
+    <div class="main-content">
+        <div class="sidebar">
+            <h2>CyberLotus</h2>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('relays') }}">Relays</a>
+            <a href="{{ url_for('tanks') }}">Tanks</a>
+            <a href="{{ url_for('pumps') }}">Pumps</a>
+            <a href="{{ url_for('sequences') }}">Sequences</a>
+            <a href="{{ url_for('ph') }}">pH</a>
+            <a href="{{ url_for('ec') }}">EC</a>
+            <a href="{{ url_for('ecosystem') }}">Ecosystem</a>
+            <a href="{{ url_for('automatisation') }}">Automatisation</a>
+            <a href="{{ url_for('plant_chamber') }}">Plant Chamber</a>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+            <form action="{{ url_for('emergency_stop_route') }}" method="post">
+                <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
+            </form>
+        </div>
+        <div class="right-sidebar">
+            <h1>Dashboard</h1>
+            <p>Welcome to the CyberLotus Project dashboard.</p>
+            <button onclick="getSystemStats()">Get System Stats</button>
+            <table id="systemStatsTable">
+                <tr>
+                    <th>Sensor/Relay</th>
+                    <th>Value</th>
+                    <th>Timestamp</th>
+                </tr>
+            </table>
+        </div>
     </div>
-    <div class="content">
-        {% block content %}{% endblock %}
-        <form action="{{ url_for('emergency_stop_route') }}" method="post">
-            <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
-        </form>
+
+    <!-- Console Output Panel -->
+    <div class="console-panel">
+        <div class="console-content" id="consoleOutput">
+            System console ready...
+        </div>
     </div>
-    <div class="right-sidebar">
-        <h1>Dashboard</h1>
-        <p>Welcome to the CyberLotus Project dashboard.</p>
-        <button onclick="getSystemStats()">Get System Stats</button>
-        <table id="systemStatsTable">
-            <tr>
-                <th>Sensor/Relay</th>
-                <th>Value</th>
-                <th>Timestamp</th>
-            </tr>
-        </table>
-    </div>
+
     <script>
+        // Existing system stats functions
         function getSystemStats() {
             fetch("/sys_state")
                 .then(response => response.json())
@@ -109,6 +150,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    appendToConsole("Error fetching system stats: " + error.message);
                 });
         }
 
@@ -161,6 +203,24 @@
             });
         }
 
+        // Console output functions
+        function appendToConsole(message) {
+            const consoleOutput = document.getElementById("consoleOutput");
+            const timestamp = new Date().toLocaleTimeString();
+            consoleOutput.innerHTML += `[${timestamp}] ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight; // Auto-scroll
+        }
+
+        // Example usage:
+        appendToConsole("System initialized");
+        appendToConsole("Connected to Raspberry Pi");
+
+        // Simulate incoming logs (replace with your actual log streaming)
+        setInterval(() => {
+            appendToConsole(`Heartbeat: ${new Date().toLocaleTimeString()}`);
+        }, 5000);
+
+        // Poll system stats
         setInterval(getSystemStats, 1000);
     </script>
 </body>
