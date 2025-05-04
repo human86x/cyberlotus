@@ -205,55 +205,47 @@
                 }
             });
         }
+        let lastConsoleUpdate = 0;
 
-        // Console output functions
-         // Improved console output with reliable auto-scrolling
-         function appendToConsole(message) {
-            const consoleOutput = document.getElementById("consoleOutput");
-            const timestamp = new Date().toLocaleTimeString();
-            consoleOutput.innerHTML += `[${timestamp}] ${message}\n`;
-            
-            // Reliable auto-scroll to bottom
-            requestAnimationFrame(() => {
-                consoleOutput.scrollTop = consoleOutput.scrollHeight;
-            });
-        }
-
-        // Force initial scroll to bottom
-        window.addEventListener('load', () => {
-            const consoleOutput = document.getElementById("consoleOutput");
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
-        });
-
-        // Example usage with simulated logs
-        appendToConsole("System initialized");
-        appendToConsole("Connected to Raspberry Pi");
-        
-        // Simulate incoming logs
-        let logCounter = 0;
-        setInterval(() => {
-            logCounter++;
-            appendToConsole(`System heartbeat ${logCounter}: ${new Date().toLocaleTimeString()}`);
-            
-            // Simulate occasional multi-line messages
-            if (logCounter % 3 === 0) {
-                appendToConsole("Additional debug info:\n  - CPU temp: 48°C\n  - Memory: 256MB free");
+function updateConsole() {
+    fetch('/console_output?ts=' + lastConsoleUpdate)
+        .then(response => response.json())
+        .then(data => {
+            if (data.console_messages && data.console_messages.length > 0) {
+                const newMessages = data.console_messages.filter(
+                    msg => msg.timestamp > lastConsoleUpdate
+                );
+                
+                if (newMessages.length > 0) {
+                    lastConsoleUpdate = data.timestamp;
+                    newMessages.forEach(msg => {
+                        appendToConsole(msg.message);
+                    });
+                }
             }
-        }, 2000);
+        })
+        .catch(error => {
+            console.error('Console update error:', error);
+        });
+}
 
-        // Poll system stats
-        setInterval(getSystemStats, 1000);
-        // Example usage:
-        appendToConsole("System initialized");
-        appendToConsole("Connected to Raspberry Pi");
+setInterval(updateConsole, 500);
 
-        // Simulate incoming logs (replace with your actual log streaming)
-        setInterval(() => {
-            appendToConsole(`Heartbeat: ${new Date().toLocaleTimeString()}`);
-        }, 5000);
-
-        // Poll system stats
-        setInterval(getSystemStats, 1000);
+function appendToConsole(message) {
+    const consoleOutput = document.getElementById("consoleOutput");
+    const timestamp = new Date().toLocaleTimeString();
+    
+    const lines = message.split('\n');
+    lines.forEach(line => {
+        if (line.trim() !== '') {
+            consoleOutput.innerHTML += `[${timestamp}] ${line}\n`;
+        }
+    });
+    
+    requestAnimationFrame(() => {
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    });
+}
     </script>
 </body>
 </html>
