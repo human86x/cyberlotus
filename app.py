@@ -12,6 +12,7 @@ from queue import Queue
 from flask import jsonify
 import threading
 import time
+import datetime
 import os
 import sys
 import json
@@ -36,7 +37,7 @@ from flask_socketio import SocketIO, emit
 from control_libs.app_core import CONFIG_FILE_PATH
 from control_libs.electric_conductivity import get_complex_ec_calibration, get_ec_baseline
 
-from control_libs.system_stats import load_system_state
+from control_libs.system_stats import load_system_state, append_console_message
 from control_libs.ph import get_correct_ph
 from control_libs.adjuster import check_chamber_humidity, temperature_control, condition_monitor, load_target_values,ph_down, temperature_up, ph_up, nutrients_up, nutrients_down
 APP_CONFIG_FILE = "data/app_config.json"
@@ -53,12 +54,25 @@ power_ser = connect_to_wemos()
 global PUMP_COMMANDS
 
 #execute_sequence(EC_BASELINE_FILE, load_flow_rates(), set_baseline_ec)
+from threading import Lock
 
+
+
+# Lock for thread-safe console operations
+console_lock = Lock()
 
 
 DATA_DIRECTORY = "data"
 
 
+@app.route('/console_output')
+def get_console_output():
+    """Endpoint to fetch console messages"""
+    with console_lock:
+        return jsonify({
+            "console_messages": system_state["console_output"],
+            "timestamp": datetime.now().timestamp()
+        })
 
 
 @app.route('/stop_all', methods=['POST'])
@@ -69,7 +83,7 @@ def stop_all_route():
     
     system_state["stop_all"]["state"] = "STOP"
     system_state["stop_all"]["timestamp"] = int(time.time())
-                            
+    append_console_message("!!!!!!!DEBUG FRONTEND CONSOLE TEST!!!!!!")
     return "Done"
 
 

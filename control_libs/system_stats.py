@@ -51,6 +51,7 @@ system_state = {
     "light_white": {"state": None, "timestamp": None},
     "light_grow": {"state": None, "timestamp": None},
     "stop_all": {"state": None, "timestamp": None},
+    "console_output": {"state": None, "timestamp": None},
     
     "relay_states": {
         "relay_a": {"state": None, "timestamp": None},
@@ -204,6 +205,30 @@ def history_log(data_type, value, file_path="data/readings_log.json"):
 #history_log("ph", 7.1)
 #history_log("temperature", 25.4)
 
+from threading import Lock
+
+
+
+# Global system state with thread-safe console output
+#system_state = {
+#    "console_output": [],
+    # ... your other system state variables ...
+#}
+
+# Lock for thread-safe console operations
+console_lock = Lock()
+
+def append_console_message(message):
+    """Thread-safe function to add messages to console output"""
+    timestamp = datetime.now().timestamp()
+    with console_lock:
+        # Keep only the last 100 messages to prevent memory issues
+        if len(system_state["console_output"]) >= 100:
+            system_state["console_output"].pop(0)
+        system_state["console_output"].append({
+            "message": message,
+            "timestamp": timestamp
+        })
 
 
 
