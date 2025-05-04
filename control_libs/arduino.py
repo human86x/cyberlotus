@@ -522,7 +522,7 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
             ser.reset_output_buffer()
 
             print(f"Send command and get response -> the command >>> {command}")
-            append_console_message("Sending the command > " + command)
+            append_console_message(f"Sending the command > {command}")
 
             # Send the command to the Arduino
             ser.write(command)  # No need to encode if command is already bytes
@@ -534,7 +534,7 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
             # Read response from Arduino
             line = ser.readline().decode('utf-8').strip()
             print(f"Send command and get response -> the response >>> {line}")
-            append_console_message("Response: " + line)
+            append_console_message(f"Response: {line}")
             # Check if response is a valid float
             try:
                 value = float(line)
@@ -569,7 +569,9 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
         time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
-    append_console_message("Error: No valid responses after " + retries + " for " + command)
+    #append_console_message("Error: No valid responses after " + retries + " for " + command)
+    append_console_message(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    
     power_ser = connect_to_wemos()
     hard_reset_arduino(power_ser)
     return None
