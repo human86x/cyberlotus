@@ -17,6 +17,7 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            padding-bottom: 140px; /* Console height + some margin */
         }
         .sidebar {
             width: 250px;
@@ -63,6 +64,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            table-layout: fixed;
         }
         table, th, td {
             border: 1px solid #ddd;
@@ -71,6 +73,13 @@
             padding: 8px;
             text-align: left;
             font-size: small;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        th {
+            position: sticky;
+            top: 0;
+            background-color: #f0f0f0;
         }
         /* Console Output Panel */
         .console-panel {
@@ -90,13 +99,13 @@
         .console-content {
             white-space: pre-wrap;
             margin: 0;
-            /* Ensure content takes full width */
+            padding: 5px;
+            line-height: 1.4;
             display: block;
             width: 100%;
         }
-        /* Adjust main content to avoid overlap */
-        .main-content {
-            padding-bottom: 140px; /* Console height + some margin */
+        .console-content div {
+            margin: 2px 0;
         }
     </style>
 </head>
@@ -143,12 +152,14 @@
     </div>
 
     <script>
-        // Existing system stats functions
+        // System stats functions
         function getSystemStats() {
             fetch("/sys_state")
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
                 .then(data => {
-                    console.log(data);
                     updateTable(data);
                 })
                 .catch(error => {
@@ -164,88 +175,91 @@
             }
 
             const order = [
-                "stop_all","plant_temperature","water_heater", "chamber_temperature","air_heater", "chamber_humidity","air_humidifyer", "plant_pot_level","plant_pot_target_level", "light_white", "light_yellow","light_grow", "ec_solution" ,"ph_solution","temperature","solution_tank","target_NPK","target_pH","target_temp","plant_chamber_target_temperature","plant_chamber_target_humidity","target_solution" ,"ec", "ppm", "ec_baseline","ph","ec_calibration","ph_baseline","ph_calibration","ph_calibration_HIGH","ph_calibration_LOW","ph_raw", 
-                "fresh_tank", "waste_tank", "sensor_chamber",
-                "relay_a", "relay_b", "relay_c", "relay_d", "relay_e",
-                "relay_f", "relay_g","relay_i",  "relay_h", "relay_k","relay_j",  "relay_l",
-                "relay_m","relay_n", "relay_o", "relay_p", "relay_q", "relay_r",
-                "relay_s", "relay_u", "relay_v", "relay_w", "relay_x",
-                "relay_y", "relay_z"
+                "stop_all","plant_temperature","water_heater","chamber_temperature","air_heater",
+                "chamber_humidity","air_humidifyer","plant_pot_level","plant_pot_target_level",
+                "light_white","light_yellow","light_grow","ec_solution","ph_solution","temperature",
+                "solution_tank","target_NPK","target_pH","target_temp","plant_chamber_target_temperature",
+                "plant_chamber_target_humidity","target_solution","ec","ppm","ec_baseline","ph",
+                "ec_calibration","ph_baseline","ph_calibration","ph_calibration_HIGH","ph_calibration_LOW","ph_raw",
+                "fresh_tank","waste_tank","sensor_chamber",
+                "relay_a","relay_b","relay_c","relay_d","relay_e","relay_f","relay_g","relay_h",
+                "relay_i","relay_j","relay_k","relay_l","relay_m","relay_n","relay_o","relay_p",
+                "relay_q","relay_r","relay_s","relay_t","relay_u","relay_v","relay_w","relay_x",
+                "relay_y","relay_z"
             ];
 
             order.forEach(key => {
-                if (data[key]) {
+                const item = data[key] || (data.relay_states && data.relay_states[key]);
+                if (item) {
                     const row = table.insertRow();
                     const cell1 = row.insertCell();
                     const cell2 = row.insertCell();
                     const cell3 = row.insertCell();
 
-                    let value = "";
-                    if (data[key].value !== undefined) {
-                        value = data[key].value;
-                    } else if (data[key].level !== undefined) {
-                        value = data[key].level;
-                    } else if (data[key].state !== undefined) {
-                        value = data[key].state;
-                    }
+                    cell1.innerHTML = key.toUpperCase().replace(/_/g, ' ');
+                    
+                    let value = "N/A";
+                    if (item.value !== undefined) value = item.value;
+                    else if (item.level !== undefined) value = item.level;
+                    else if (item.state !== undefined) value = item.state;
+                    cell2.innerHTML = value;
 
-                    cell1.innerHTML = key.toUpperCase();
-                    cell2.innerHTML = value !== null ? value : "N/A";
-                    cell3.innerHTML = data[key].timestamp ? new Date(data[key].timestamp * 1000).toLocaleString() : "N/A";
-                } else if (data.relay_states && data.relay_states[key]) {
-                    const row = table.insertRow();
-                    const cell1 = row.insertCell();
-                    const cell2 = row.insertCell();
-                    const cell3 = row.insertCell();
-
-                    const relayState = data.relay_states[key];
-                    cell1.innerHTML = key.toUpperCase();
-                    cell2.innerHTML = relayState.state !== null ? relayState.state : "N/A";
-                    cell3.innerHTML = relayState.timestamp ? new Date(relayState.timestamp * 1000).toLocaleString() : "N/A";
+                    cell3.innerHTML = item.timestamp ? 
+                        new Date(item.timestamp * 1000).toLocaleString() : "N/A";
                 }
             });
         }
+
+        // Console functions
         let lastConsoleUpdate = 0;
+        const consoleInterval = setInterval(updateConsole, 300);
 
-function updateConsole() {
-    fetch('/console_output?ts=' + lastConsoleUpdate)
-        .then(response => response.json())
-        .then(data => {
-            if (data.console_messages && data.console_messages.length > 0) {
-                const newMessages = data.console_messages.filter(
-                    msg => msg.timestamp > lastConsoleUpdate
-                );
-                
-                if (newMessages.length > 0) {
-                    lastConsoleUpdate = data.timestamp;
-                    newMessages.forEach(msg => {
-                        appendToConsole(msg.message);
-                    });
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Console update error:', error);
-        });
-}
-
-setInterval(updateConsole, 500);
-
-function appendToConsole(message) {
-    const consoleOutput = document.getElementById("consoleOutput");
-    const timestamp = new Date().toLocaleTimeString();
-    
-    const lines = message.split('\n');
-    lines.forEach(line => {
-        if (line.trim() !== '') {
-            consoleOutput.innerHTML += `[${timestamp}] ${line}\n`;
+        function updateConsole() {
+            fetch('/console_output?ts=' + lastConsoleUpdate)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.console_messages?.length > 0) {
+                        const newMessages = data.console_messages.filter(
+                            msg => msg.timestamp > lastConsoleUpdate
+                        );
+                        
+                        if (newMessages.length > 0) {
+                            lastConsoleUpdate = data.timestamp;
+                            newMessages.forEach(msg => {
+                                appendToConsole(msg.message);
+                            });
+                        }
+                    }
+                })
+                .catch(error => {
+                    appendToConsole(`Console update error: ${error.message}`);
+                });
         }
-    });
-    
-    requestAnimationFrame(() => {
-        consoleOutput.scrollTop = consoleOutput.scrollHeight;
-    });
-}
+
+        function appendToConsole(message) {
+            const consoleOutput = document.getElementById("consoleOutput");
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const fragment = document.createDocumentFragment();
+            
+            message.split('\n').forEach(line => {
+                if (line.trim() !== '') {
+                    const lineElement = document.createElement('div');
+                    lineElement.textContent = `[${timestamp}] ${line}`;
+                    fragment.appendChild(lineElement);
+                }
+            });
+            
+            consoleOutput.appendChild(fragment);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // Initial load
+        getSystemStats();
+        updateConsole();
     </script>
 </body>
 </html>
