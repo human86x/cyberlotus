@@ -174,43 +174,72 @@
                 });
         }
 
-        function updateSystemStats(data) {
-            const tbody = document.getElementById("systemStatsBody");
-            tbody.innerHTML = '';
-            
-            // Process regular sensors
-            for (const [key, value] of Object.entries(data)) {
-                if (key !== 'relay_states' && key !== 'console_output' && value !== null) {
-                    addTableRow(tbody, key, value);
-                }
+            // Define your order at the top
+    const systemStatsOrder = [
+        "stop_all", "plant_temperature", "water_heater", "chamber_temperature", "air_heater", 
+        "chamber_humidity", "air_humidifyer", "plant_pot_level", "plant_pot_target_level", 
+        "light_white", "light_yellow", "light_grow", "ec_solution", "ph_solution", "temperature",
+        "solution_tank", "target_NPK", "target_pH", "target_temp", "plant_chamber_target_temperature",
+        "plant_chamber_target_humidity", "target_solution", "ec", "ppm", "ec_baseline", "ph",
+        "ec_calibration", "ph_baseline", "ph_calibration", "ph_calibration_HIGH", "ph_calibration_LOW", "ph_raw",
+        "fresh_tank", "waste_tank", "sensor_chamber",
+        "relay_a", "relay_b", "relay_c", "relay_d", "relay_e", "relay_f", "relay_g", "relay_h",
+        "relay_i", "relay_j", "relay_k", "relay_l", "relay_m", "relay_n", "relay_o", "relay_p",
+        "relay_q", "relay_r", "relay_s", "relay_t", "relay_u", "relay_v", "relay_w", "relay_x",
+        "relay_y", "relay_z"
+    ];
+
+    function updateSystemStats(data) {
+        const tbody = document.getElementById("systemStatsBody");
+        tbody.innerHTML = '';
+        
+        // Process items in the specified order
+        systemStatsOrder.forEach(key => {
+            // Check both main data and relay_states
+            const item = data[key] || (data.relay_states && data.relay_states[key]);
+            if (item) {
+                addTableRow(tbody, key, item);
             }
-            
-            // Process relays if they exist
-            if (data.relay_states) {
-                for (const [key, value] of Object.entries(data.relay_states)) {
+        });
+        
+        // Add any remaining items not in the order list (just in case)
+        for (const [key, value] of Object.entries(data)) {
+            if (key !== 'relay_states' && 
+                key !== 'console_output' && 
+                value !== null && 
+                !systemStatsOrder.includes(key)) {
+                addTableRow(tbody, key, value);
+            }
+        }
+        
+        if (data.relay_states) {
+            for (const [key, value] of Object.entries(data.relay_states)) {
+                if (!systemStatsOrder.includes(key)) {
                     addTableRow(tbody, key, value);
                 }
             }
         }
+    }
 
-        function addTableRow(tbody, key, item) {
-            const row = tbody.insertRow();
-            const cell1 = row.insertCell();
-            const cell2 = row.insertCell();
-            const cell3 = row.insertCell();
+    function addTableRow(tbody, key, item) {
+        const row = tbody.insertRow();
+        const cell1 = row.insertCell();
+        const cell2 = row.insertCell();
+        const cell3 = row.insertCell();
 
-            cell1.textContent = key.replace(/_/g, ' ').toUpperCase();
-            
-            let displayValue = "N/A";
-            if (item.value !== undefined && item.value !== null) displayValue = item.value;
-            else if (item.state !== undefined && item.state !== null) displayValue = item.state;
-            else if (item.level !== undefined && item.level !== null) displayValue = item.level;
-            
-            cell2.textContent = displayValue;
-            cell3.textContent = item.timestamp ? 
-                new Date(item.timestamp * 1000).toLocaleString() : "N/A";
-        }
+        cell1.textContent = key.replace(/_/g, ' ').toUpperCase();
+        
+        let displayValue = "N/A";
+        if (item.value !== undefined && item.value !== null) displayValue = item.value;
+        else if (item.state !== undefined && item.state !== null) displayValue = item.state;
+        else if (item.level !== undefined && item.level !== null) displayValue = item.level;
+        
+        cell2.textContent = displayValue;
+        cell3.textContent = item.timestamp ? 
+            new Date(item.timestamp * 1000).toLocaleString() : "N/A";
+    }
 
+    // Rest of your JavaScript remains the same...
         // NEW FOOLPROOF CONSOLE IMPLEMENTATION
         let lastConsoleUpdate = 0;
         const consoleUpdateInterval = setInterval(updateConsole, 300);
