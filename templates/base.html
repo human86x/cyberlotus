@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberLotus Project</title>
     <style>
+
+
+#consoleOutput {
+            white-space: pre-wrap;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+            overflow-anchor: none; /* Important for scroll anchoring */
+        }
+        
+        .console-anchor {
+            overflow-anchor: auto;
+            height: 1px;
+        }
+
+
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -194,57 +211,92 @@
                 new Date(item.timestamp * 1000).toLocaleString() : "N/A";
         }
 
-        // Console Functions
+        // NEW FOOLPROOF CONSOLE IMPLEMENTATION
         let lastConsoleUpdate = 0;
-        const consoleUpdateInterval = setInterval(updateConsole, 500);
+        const consoleUpdateInterval = setInterval(updateConsole, 300);
+        let consoleUpdateInProgress = false;
+        
+        // Create a scroll anchor element
+        const scrollAnchor = document.createElement('div');
+        scrollAnchor.className = 'console-anchor';
+        document.getElementById('consoleOutput').appendChild(scrollAnchor);
 
         function updateConsole() {
+            if (consoleUpdateInProgress) return;
+            consoleUpdateInProgress = true;
+            
             fetch('/console_output?ts=' + lastConsoleUpdate)
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(data => {
-                    if (data.console_messages && data.console_messages.length > 0) {
+                    if (data.console_messages?.length > 0) {
                         const newMessages = data.console_messages.filter(
                             msg => msg.timestamp > lastConsoleUpdate
                         );
                         
                         if (newMessages.length > 0) {
-                            lastConsoleUpdate = newMessages[newMessages.length - 1].timestamp;
-                            newMessages.forEach(msg => {
-                                appendToConsole(msg.message);
-                            });
+                            lastConsoleUpdate = data.timestamp;
+                            appendConsoleMessages(newMessages);
                         }
                     }
                 })
                 .catch(error => {
                     console.error('Console update error:', error);
+                })
+                .finally(() => {
+                    consoleUpdateInProgress = false;
                 });
         }
 
-        function appendToConsole(message, type = 'info') {
-            const consoleOutput = document.getElementById("consoleOutput");
-            const timestamp = new Date().toLocaleTimeString();
+        function appendConsoleMessages(messages) {
+            const consoleOutput = document.getElementById('consoleOutput');
+            const fragment = document.createDocumentFragment();
             
-            // Create new message element
-            const messageElement = document.createElement('div');
-            messageElement.textContent = `[${timestamp}] ${message}`;
+            messages.forEach(msg => {
+                const messageElement = document.createElement('div');
+                const timestamp = new Date(msg.timestamp * 1000).toLocaleTimeString();
+                messageElement.textContent = `[${timestamp}] ${msg.message}`;
+                fragment.appendChild(messageElement);
+            });
             
-            // Add to console
-            consoleOutput.appendChild(messageElement);
+            // Insert before the scroll anchor
+            consoleOutput.insertBefore(fragment, scrollAnchor);
             
-            // Force scroll to bottom
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            // FORCE SCROLL TO BOTTOM - THREE DIFFERENT METHODS FOR MAXIMUM RELIABILITY
+            setTimeout(() => {
+                // Method 1: Standard scroll
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                
+                // Method 2: Smooth scroll as fallback
+                setTimeout(() => {
+                    scrollAnchor.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Method 3: Emergency fallback
+                    setTimeout(() => {
+                        if (consoleOutput.scrollHeight > consoleOutput.clientHeight && 
+                            consoleOutput.scrollTop < consoleOutput.scrollHeight - consoleOutput.clientHeight - 10) {
+                            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                        }
+                    }, 50);
+                }, 50);
+            }, 0);
         }
 
         // Initial load
         document.addEventListener('DOMContentLoaded', () => {
             loadSystemStats();
             updateConsole();
-            
-            // Set interval to refresh system stats every 5 seconds
             setInterval(loadSystemStats, 5000);
+            
+            // Initialize with a test message
+            setTimeout(() => {
+                appendConsoleMessages([{
+                    message: "Console initialized and ready",
+                    timestamp: Date.now() / 1000
+                }]);
+            }, 100);
         });
     </script>
 </body>
