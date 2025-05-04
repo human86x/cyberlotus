@@ -12,12 +12,12 @@
             display: flex;
             height: 100vh;
             flex-direction: column;
+            overflow: hidden;
         }
         .main-content {
             display: flex;
             flex: 1;
-            overflow: hidden;
-            padding-bottom: 140px; /* Console height + some margin */
+            min-height: 0;
         }
         .sidebar {
             width: 250px;
@@ -60,26 +60,21 @@
         .right-sidebar h1 {
             margin-top: 0;
         }
-        table {
+        #systemStatsTable {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            table-layout: fixed;
         }
-        table, th, td {
+        #systemStatsTable th, #systemStatsTable td {
             border: 1px solid #ddd;
-        }
-        th, td {
             padding: 8px;
             text-align: left;
             font-size: small;
-            word-break: break-word;
-            overflow-wrap: break-word;
         }
-        th {
+        #systemStatsTable th {
+            background-color: #f0f0f0;
             position: sticky;
             top: 0;
-            background-color: #f0f0f0;
         }
         /* Console Output Panel */
         .console-panel {
@@ -90,21 +85,14 @@
             padding: 10px;
             overflow-y: auto;
             border-top: 2px solid #333;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
         }
-        .console-content {
+        #consoleOutput {
             white-space: pre-wrap;
             margin: 0;
-            padding: 5px;
+            padding: 0;
             line-height: 1.4;
-            display: block;
-            width: 100%;
         }
-        .console-content div {
+        #consoleOutput div {
             margin: 2px 0;
         }
     </style>
@@ -127,92 +115,88 @@
         <div class="content">
             {% block content %}{% endblock %}
             <form action="{{ url_for('emergency_stop_route') }}" method="post">
-                <button type="submit" class="btn btn-danger">🚨 Emergency Stop</button>
+                <button type="submit">🚨 Emergency Stop</button>
             </form>
         </div>
         <div class="right-sidebar">
             <h1>Dashboard</h1>
             <p>Welcome to the CyberLotus Project dashboard.</p>
-            <button onclick="getSystemStats()">Get System Stats</button>
+            <button onclick="loadSystemStats()">Refresh System Stats</button>
             <table id="systemStatsTable">
-                <tr>
-                    <th>Sensor/Relay</th>
-                    <th>Value</th>
-                    <th>Timestamp</th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>Sensor/Relay</th>
+                        <th>Value</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="systemStatsBody">
+                    <!-- Data will be inserted here -->
+                </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Console Output Panel -->
     <div class="console-panel">
-        <div class="console-content" id="consoleOutput">
-            System console ready...
-        </div>
+        <div id="consoleOutput">System console ready...</div>
     </div>
 
     <script>
-        // System stats functions
-        function getSystemStats() {
+        // System State Functions
+        function loadSystemStats() {
             fetch("/sys_state")
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(data => {
-                    updateTable(data);
+                    updateSystemStats(data);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    appendToConsole("Error fetching system stats: " + error.message);
+                    appendToConsole("Error loading system stats: " + error.message, 'error');
                 });
         }
 
-        function updateTable(data) {
-            const table = document.getElementById("systemStatsTable");
-            while (table.rows.length > 1) {
-                table.deleteRow(1);
-            }
-
-            const order = [
-                "stop_all","plant_temperature","water_heater","chamber_temperature","air_heater",
-                "chamber_humidity","air_humidifyer","plant_pot_level","plant_pot_target_level",
-                "light_white","light_yellow","light_grow","ec_solution","ph_solution","temperature",
-                "solution_tank","target_NPK","target_pH","target_temp","plant_chamber_target_temperature",
-                "plant_chamber_target_humidity","target_solution","ec","ppm","ec_baseline","ph",
-                "ec_calibration","ph_baseline","ph_calibration","ph_calibration_HIGH","ph_calibration_LOW","ph_raw",
-                "fresh_tank","waste_tank","sensor_chamber",
-                "relay_a","relay_b","relay_c","relay_d","relay_e","relay_f","relay_g","relay_h",
-                "relay_i","relay_j","relay_k","relay_l","relay_m","relay_n","relay_o","relay_p",
-                "relay_q","relay_r","relay_s","relay_t","relay_u","relay_v","relay_w","relay_x",
-                "relay_y","relay_z"
-            ];
-
-            order.forEach(key => {
-                const item = data[key] || (data.relay_states && data.relay_states[key]);
-                if (item) {
-                    const row = table.insertRow();
-                    const cell1 = row.insertCell();
-                    const cell2 = row.insertCell();
-                    const cell3 = row.insertCell();
-
-                    cell1.innerHTML = key.toUpperCase().replace(/_/g, ' ');
-                    
-                    let value = "N/A";
-                    if (item.value !== undefined) value = item.value;
-                    else if (item.level !== undefined) value = item.level;
-                    else if (item.state !== undefined) value = item.state;
-                    cell2.innerHTML = value;
-
-                    cell3.innerHTML = item.timestamp ? 
-                        new Date(item.timestamp * 1000).toLocaleString() : "N/A";
+        function updateSystemStats(data) {
+            const tbody = document.getElementById("systemStatsBody");
+            tbody.innerHTML = '';
+            
+            // Process regular sensors
+            for (const [key, value] of Object.entries(data)) {
+                if (key !== 'relay_states' && key !== 'console_output' && value !== null) {
+                    addTableRow(tbody, key, value);
                 }
-            });
+            }
+            
+            // Process relays if they exist
+            if (data.relay_states) {
+                for (const [key, value] of Object.entries(data.relay_states)) {
+                    addTableRow(tbody, key, value);
+                }
+            }
         }
 
-        // Console functions
+        function addTableRow(tbody, key, item) {
+            const row = tbody.insertRow();
+            const cell1 = row.insertCell();
+            const cell2 = row.insertCell();
+            const cell3 = row.insertCell();
+
+            cell1.textContent = key.replace(/_/g, ' ').toUpperCase();
+            
+            let displayValue = "N/A";
+            if (item.value !== undefined && item.value !== null) displayValue = item.value;
+            else if (item.state !== undefined && item.state !== null) displayValue = item.state;
+            else if (item.level !== undefined && item.level !== null) displayValue = item.level;
+            
+            cell2.textContent = displayValue;
+            cell3.textContent = item.timestamp ? 
+                new Date(item.timestamp * 1000).toLocaleString() : "N/A";
+        }
+
+        // Console Functions
         let lastConsoleUpdate = 0;
-        const consoleInterval = setInterval(updateConsole, 300);
+        const consoleUpdateInterval = setInterval(updateConsole, 500);
 
         function updateConsole() {
             fetch('/console_output?ts=' + lastConsoleUpdate)
@@ -221,13 +205,13 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data.console_messages?.length > 0) {
+                    if (data.console_messages && data.console_messages.length > 0) {
                         const newMessages = data.console_messages.filter(
                             msg => msg.timestamp > lastConsoleUpdate
                         );
                         
                         if (newMessages.length > 0) {
-                            lastConsoleUpdate = data.timestamp;
+                            lastConsoleUpdate = newMessages[newMessages.length - 1].timestamp;
                             newMessages.forEach(msg => {
                                 appendToConsole(msg.message);
                             });
@@ -235,31 +219,33 @@
                     }
                 })
                 .catch(error => {
-                    appendToConsole(`Console update error: ${error.message}`);
+                    console.error('Console update error:', error);
                 });
         }
 
-        function appendToConsole(message) {
+        function appendToConsole(message, type = 'info') {
             const consoleOutput = document.getElementById("consoleOutput");
             const timestamp = new Date().toLocaleTimeString();
             
-            const fragment = document.createDocumentFragment();
+            // Create new message element
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `[${timestamp}] ${message}`;
             
-            message.split('\n').forEach(line => {
-                if (line.trim() !== '') {
-                    const lineElement = document.createElement('div');
-                    lineElement.textContent = `[${timestamp}] ${line}`;
-                    fragment.appendChild(lineElement);
-                }
-            });
+            // Add to console
+            consoleOutput.appendChild(messageElement);
             
-            consoleOutput.appendChild(fragment);
+            // Force scroll to bottom
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
 
         // Initial load
-        getSystemStats();
-        updateConsole();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSystemStats();
+            updateConsole();
+            
+            // Set interval to refresh system stats every 5 seconds
+            setInterval(loadSystemStats, 5000);
+        });
     </script>
 </body>
 </html>
