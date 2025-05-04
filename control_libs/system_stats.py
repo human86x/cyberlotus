@@ -51,8 +51,8 @@ system_state = {
     "light_white": {"state": None, "timestamp": None},
     "light_grow": {"state": None, "timestamp": None},
     "stop_all": {"state": None, "timestamp": None},
-    "console_output": {"state": None, "timestamp": None},
-    
+    #"console_output": {"state": None, "timestamp": None},
+    "console_output": [],  # Change this to a list instead of dict
     "relay_states": {
         "relay_a": {"state": None, "timestamp": None},
         "relay_b": {"state": None, "timestamp": None},
@@ -229,7 +229,6 @@ def append_console_message(message):
             "message": message,
             "timestamp": timestamp
         })
-
 
 
 # Example Usage
