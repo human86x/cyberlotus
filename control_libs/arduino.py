@@ -179,8 +179,8 @@ def connect_to_wemos():
     #    return None
 
 
-def hard_reset_arduino(power_ser):
-
+def hard_reset_arduino():
+    global power_ser
     power_ser.write(b'RE\r\n')  # Test command
     response = power_ser.readline().decode().strip()
     print("Response from Wemos after the reset:", response)
