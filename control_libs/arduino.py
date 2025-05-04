@@ -2,6 +2,8 @@ import serial
 import time
 from serial.tools import list_ports
 from control_libs.system_stats import system_state, save_system_state, load_system_state
+from control_libs.system_stats import append_console_message
+
 #i#mport SerialException
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from control_libs.arduino import connect_to_arduino, send_command_and_get_response
@@ -53,7 +55,7 @@ import glob
 def find_serial_devices(device_type="arduino"):
     """Search for possible serial devices with device-specific filtering"""
     possible_ports = []
-    
+    append_console_message("Searching for Arduino and Wemos boards..")
     if device_type.lower() == "wemos":
         # Wemos only appears on USB ports
         possible_ports += glob.glob('/dev/ttyUSB[0-9]*')
@@ -69,6 +71,7 @@ def find_serial_devices(device_type="arduino"):
 
 def test_serial_connection(port, device_type="arduino"):
     """Test if a device is responding on the given port with exact response validation"""
+    append_console_message("Testing the serial connection")
     try:
         with serial.Serial(port, 9600, timeout=2) as test_ser:
             time.sleep(2)  # Wait for device to reset
@@ -79,10 +82,13 @@ def test_serial_connection(port, device_type="arduino"):
             if device_type.lower() == "wemos":
                 if response == "&#!WEMOS PONG":  # Exact Wemos response
                     print(f"✓ Valid Wemos found at {port}")
+                    append_console_message("✓ Wemos found.")
                     return test_ser
             elif device_type.lower() == "arduino":
                 if response == "PONG" or "ARDUINO_READY":  # Exact Arduino response
                     print(f"✓ Valid Arduino found at {port}")
+                     
+                    append_console_message("✓ Arduino found.")
                     ser = test_ser
                     return ser
                     
@@ -94,6 +100,7 @@ def connect_to_arduino():
     global ser
     # Try default port first
     default_port = '/dev/arduino_mega'
+    append_console_message("Connecting to Arduino...")
     try:
         ser = serial.Serial(default_port, 9600, timeout=2)
         time.sleep(2)
@@ -102,6 +109,7 @@ def connect_to_arduino():
         print(f"############    response - {response}")
         if response == "PONG" or "ARDUINO_READY":
             print(f"Connected to Arduino at default {default_port}")
+            append_console_message("✓ Connected to Arduino.")
             return ser
         ser.close()
     except Exception as e:
@@ -121,6 +129,7 @@ def connect_to_wemos():
     global power_ser
     # Try default port first
     default_port = '/dev/ttyUSB0'
+    append_console_message("Connecting to Wemos")
     try:
         power_ser = serial.Serial(default_port, 9600, timeout=2)
         time.sleep(2)
@@ -128,6 +137,7 @@ def connect_to_wemos():
         response = power_ser.readline().decode().strip()
         if response == "&#!WEMOS PONG":
             print(f"Connected to Wemos at default {default_port}")
+            append_console_message("✓ Connected Wemos.")
             return power_ser
         power_ser.close()
     except Exception as e:
@@ -499,9 +509,11 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
         # Ensure serial connection is open
         if ser is None or not ser.is_open:
             print("Serial port is not open, attempting to reconnect...")
+            append_console_message("Serial port is not open, attempting to reconnect")
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
+                append_console_message("Error Unable to connect.")
                 return None
         
         try:
@@ -510,6 +522,7 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
             ser.reset_output_buffer()
 
             print(f"Send command and get response -> the command >>> {command}")
+            append_console_message("Sending the command > " + command)
 
             # Send the command to the Arduino
             ser.write(command)  # No need to encode if command is already bytes
@@ -521,26 +534,31 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
             # Read response from Arduino
             line = ser.readline().decode('utf-8').strip()
             print(f"Send command and get response -> the response >>> {line}")
-
+            append_console_message("Response: " + line)
             # Check if response is a valid float
             try:
                 value = float(line)
                 print(f"******VALUE = {value}")
+                append_console_message("✓ Valid value.")
                 return value  # Valid response, return the float
             except ValueError:
                 print(f"Error: Invalid response: {line}, not a valid float")
+                append_console_message("Error: Not a valid float!")
 
         except SerialException as e:
             print(f"Serial I/O error: {e}")
             print("Attempting to reconnect to Arduino...")
+            append_console_message("Attempting to reconect to arduino")
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
+                append_console_message("Error: Unable to connect..")
                 return None
 
         except Exception as e:
             print(f"Unexpected error: {e}")
             print("Attempting to reconnect to Arduino...")
+            
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
@@ -551,6 +569,7 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
         time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    append_console_message("Error: No valid responses after " + retries + " for " + command)
     power_ser = connect_to_wemos()
     hard_reset_arduino(power_ser)
     return None
