@@ -91,6 +91,8 @@ def test_serial_connection(port, device_type="arduino"):
                     print("✓ Arduino found.")
                     ser = test_ser
                     return ser
+                else:
+                    hard_reset_arduino()
                     
     except (serial.SerialException, OSError) as e:
         pass  # Silently handle failures
