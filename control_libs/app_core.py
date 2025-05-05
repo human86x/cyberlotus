@@ -12,18 +12,18 @@ SEQUENCE_DIR = "sequences/"
 SYSTEM_STATE_FILE = "data/system_state.json"
 
 #########################DUPLICATING THE FUNCTION FROM SYSTEM_STATS TO AVOID CICULAR IMPORTING###############
-def append_console_message(message):
-    """Thread-safe function to add messages to console output"""
-    print(message)
-    timestamp = datetime.now().timestamp()
-    with console_lock:
-        # Keep only the last 100 messages to prevent memory issues
-        if len(system_state["console_output"]) >= 100:
-            system_state["console_output"].pop(0)
-        system_state["console_output"].append({
-            "message": message,
-            "timestamp": timestamp
-        })
+#def append_console_message(message):
+#    """Thread-safe function to add messages to console output"""
+#    print(message)
+#    timestamp = datetime.now().timestamp()
+#    with console_lock:
+#        # Keep only the last 100 messages to prevent memory issues
+#        if len(system_state["console_output"]) >= 100:
+#            system_state["console_output"].pop(0)
+#        system_state["console_output"].append({
+##            "message": message,
+#            "timestamp": timestamp
+#        })
 ##########################################33
 
 
@@ -48,7 +48,7 @@ def save_config(key, value):
     with open(calibration_file, 'w') as file:
         json.dump(calibration_data, file, indent=4)
 
-    append_console_message(f"App configuration has been updated:{key} = {value} in {calibration_file}")
+    print(f"App configuration has been updated:{key} = {value} in {calibration_file}")
 
 
 
