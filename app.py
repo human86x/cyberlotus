@@ -1447,4 +1447,4 @@ def test_tanks_route():
 
 if __name__ == '__main__':
     app.jinja_env.cache = {}
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5050, debug=True)
