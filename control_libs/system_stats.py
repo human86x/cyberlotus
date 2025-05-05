@@ -2,7 +2,7 @@ import json
 import os
 from control_libs.app_core import SYSTEM_STATE_FILE
 import time
-from control_libs.system_stats import append_console_message
+#from control_libs.system_stats import append_console_message
 global system_state
 system_state = {
 
