@@ -37,7 +37,7 @@ from flask_socketio import SocketIO, emit
 from control_libs.app_core import CONFIG_FILE_PATH
 from control_libs.electric_conductivity import get_complex_ec_calibration, get_ec_baseline
 
-from control_libs.system_stats import load_system_state, print
+from control_libs.system_stats import load_system_state, append_console_message
 from control_libs.ph import get_correct_ph
 from control_libs.adjuster import check_chamber_humidity, temperature_control, condition_monitor, load_target_values,ph_down, temperature_up, ph_up, nutrients_up, nutrients_down
 APP_CONFIG_FILE = "data/app_config.json"
