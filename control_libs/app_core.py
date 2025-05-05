@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-from control_libs.system_stats import append_console_message
+#from control_libs.system_stats import append_console_message
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -10,6 +10,21 @@ CALIBRATION_FILE = os.path.join(base_dir, '../data/calibration.json')
 SEQUENCE_DIR = "sequences/"
 
 SYSTEM_STATE_FILE = "data/system_state.json"
+
+#########################DUPLICATING THE FUNCTION FROM SYSTEM_STATS TO AVOID CICULAR IMPORTING###############
+def append_console_message(message):
+    """Thread-safe function to add messages to console output"""
+    print(message)
+    timestamp = datetime.now().timestamp()
+    with console_lock:
+        # Keep only the last 100 messages to prevent memory issues
+        if len(system_state["console_output"]) >= 100:
+            system_state["console_output"].pop(0)
+        system_state["console_output"].append({
+            "message": message,
+            "timestamp": timestamp
+        })
+##########################################33
 
 
 def save_config(key, value):
