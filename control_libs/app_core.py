@@ -12,7 +12,7 @@ SEQUENCE_DIR = "sequences/"
 SYSTEM_STATE_FILE = "data/system_state.json"
 
 #########################DUPLICATING THE FUNCTION FROM SYSTEM_STATS TO AVOID CICULAR IMPORTING###############
-#def append_console_message(message):
+#def print(message):
 #    """Thread-safe function to add messages to console output"""
 #    print(message)
 #    timestamp = datetime.now().timestamp()

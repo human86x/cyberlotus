@@ -75,39 +75,39 @@ void loop() {
 
     // Connection test command (must be first)
     if (command == "PING") {
-      Serial.append_console_messageln("PONG");
+      Serial.println("PONG");
       return;
     }
     // Temperature reading
     else if (command == "T") {
       sensors.requestTemperatures();
       float temperature = sensors.getTempCByIndex(0);
-      Serial.append_console_messageln(temperature);
+      Serial.println(temperature);
     }
     // Ultrasonic sensor readings
     else if (command == "F") {
-      Serial.append_console_messageln(getDistance(TRIG_PIN_1, ECHO_PIN_1));
+      Serial.println(getDistance(TRIG_PIN_1, ECHO_PIN_1));
     }
     else if (command == "S") {
-      Serial.append_console_messageln(getDistance(TRIG_PIN_2, ECHO_PIN_2));
+      Serial.println(getDistance(TRIG_PIN_2, ECHO_PIN_2));
     }
     else if (command == "W") {
-      Serial.append_console_messageln(getDistance(TRIG_PIN_3, ECHO_PIN_3));
+      Serial.println(getDistance(TRIG_PIN_3, ECHO_PIN_3));
     }
     else if (command == "C") {
-      Serial.append_console_messageln(getDistance(TRIG_PIN_4, ECHO_PIN_4));
+      Serial.println(getDistance(TRIG_PIN_4, ECHO_PIN_4));
     }
     // TDS/EC reading
     else if (command == "D") {
-      Serial.append_console_messageln(getECValue());
+      Serial.println(getECValue());
     }
     // pH reading
     else if (command == "P") {
-      Serial.append_console_messageln(readPHSensor());
+      Serial.println(readPHSensor());
     }
     // Heartbeat
     else if (command == "H") {
-      Serial.append_console_messageln("HEARTBEAT");
+      Serial.println("HEARTBEAT");
     }
     // All pumps off
     else if (command == "X") {
@@ -115,7 +115,7 @@ void loop() {
     }
     // Soil moisture
     else if (command == "Q") {
-      Serial.append_console_messageln(getSoilMoisture());
+      Serial.println(getSoilMoisture());
     }
     // Simple pump control (2-character commands)
     else if (command.length() == 2) {
@@ -131,7 +131,7 @@ void loop() {
     }
     // Invalid command
     else {
-      Serial.append_console_messageln("INVALID_CMD");
+      Serial.println("INVALID_CMD");
     }
   }
 }
@@ -173,27 +173,27 @@ void controlPump(char pumpCommand, char state) {
       case ':': pumpIndex = 45; break;
       case ',': pumpIndex = 46; break;
       case '.': pumpIndex = 47; break;
-      default: Serial.append_console_messageln("INVALID_PUMP"); return;
+      default: Serial.println("INVALID_PUMP"); return;
     }
   }
 
   if (pumpIndex < 0 || pumpIndex >= sizeof(pumpPins) / sizeof(pumpPins[0])) {
-    Serial.append_console_messageln("INVALID_PUMP_IDX");
+    Serial.println("INVALID_PUMP_IDX");
     return;
   }
 
   if (state == 'o') {
     digitalWrite(pumpPins[pumpIndex], LOW);
-    Serial.append_console_message("ON_");
-    Serial.append_console_messageln(pumpCommand);
+    Serial.print("ON_");
+    Serial.println(pumpCommand);
   }
   else if (state == 'f') {
     digitalWrite(pumpPins[pumpIndex], HIGH);
-    Serial.append_console_message("OFF_");
-    Serial.append_console_messageln(pumpCommand);
+    Serial.print("OFF_");
+    Serial.println(pumpCommand);
   }
   else {
-    Serial.append_console_messageln("INVALID_STATE");
+    Serial.println("INVALID_STATE");
   }
 }
 
@@ -201,20 +201,20 @@ void precisePumpDelivery(char pumpCommand, int duration) {
   int pumpIndex = pumpCommand - 'a';
 
   if (pumpIndex < 0 || pumpIndex >= sizeof(pumpPins) / sizeof(pumpPins[0])) {
-    Serial.append_console_messageln("INVALID_PUMP_IDX");
+    Serial.println("INVALID_PUMP_IDX");
     return;
   }
 
   if (duration <= 0) {
-    Serial.append_console_messageln("INVALID_DURATION");
+    Serial.println("INVALID_DURATION");
     return;
   }
 
   digitalWrite(pumpPins[pumpIndex], LOW);
-  Serial.append_console_message("ON_");
-  Serial.append_console_message(pumpCommand);
-  Serial.append_console_message("_");
-  Serial.append_console_messageln(duration);
+  Serial.print("ON_");
+  Serial.print(pumpCommand);
+  Serial.print("_");
+  Serial.println(duration);
 
   delay(duration);
   digitalWrite(pumpPins[pumpIndex], HIGH);
@@ -224,7 +224,7 @@ void turnOffAllPumps() {
   for (int i = 0; i < sizeof(pumpPins) / sizeof(pumpPins[0]); i++) {
     digitalWrite(pumpPins[i], HIGH);
   }
-  Serial.append_console_messageln("ALL_OFF");
+  Serial.println("ALL_OFF");
 }
 
 float getDistance(int trigPin, int echoPin) {

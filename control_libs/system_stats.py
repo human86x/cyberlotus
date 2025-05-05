@@ -127,16 +127,16 @@ def save_system_state(state):
 def load_system_state():
     global system_state
     """Loads the system_state dictionary from a JSON file. If the file does not exist, returns an empty default structure."""
-    append_console_message(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
+    print(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
     if not os.path.exists(SYSTEM_STATE_FILE):
-        append_console_message(f"Path does not exist")
+        print(f"Path does not exist")
         return None  # Indicate that no previous state exists
     #load_ec_baseline()    
     with open(SYSTEM_STATE_FILE, "r") as f:
         x = json.load(f)
         #system_state = x
         update_dict(system_state, x)
-        append_console_message(f"Loaded data:{system_state}")
+        print(f"Loaded data:{system_state}")
         return x
 
 
@@ -198,7 +198,7 @@ def history_log(data_type, value, file_path="data/readings_log.json"):
     with open(file_path, "w") as f:
         json.dump(data, f, indent=4)
     
-    append_console_message(f"Logged {data_type}: {value}")
+    print(f"Logged {data_type}: {value}")
 
 # Example usage
 #history_log("ec", 1.23)
@@ -223,14 +223,16 @@ def append_console_message(message):
     print("Message from the console: ")
     print(f"{message}")
     timestamp = datetime.now().timestamp()
-    #with console_lock:
+    with console_lock:
         # Keep only the last 100 messages to prevent memory issues
-    if len(system_state["console_output"]) >= 100:
-        system_state["console_output"].pop(0)
+        if len(system_state["console_output"]) >= 100:
+            system_state["console_output"].pop(0)
         system_state["console_output"].append({
             "message": message,
             "timestamp": timestamp
         })
+
+
 
 
 # Example Usage

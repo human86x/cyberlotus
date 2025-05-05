@@ -29,7 +29,7 @@ ser = connect_to_arduino()#get_serial_connection() #serial.Serial(SERIAL_PORT, B
 def load_pump_commands():
     """Load pump commands from JSON file."""
     if not os.path.exists(PUMP_COMMANDS_FILE):
-        append_console_message(f"Error: {PUMP_COMMANDS_FILE} not found.")
+        print(f"Error: {PUMP_COMMANDS_FILE} not found.")
         return {}
     with open(PUMP_COMMANDS_FILE, 'r') as file:
         return json.load(file)
@@ -54,7 +54,7 @@ def wait_for_heartbeat(timeout=HEARTBEAT_TIMEOUT):
 def load_flow_rates():
     """Load flow rates from JSON file."""
     if not os.path.exists(FLOW_RATES_FILE):
-        append_console_message(f"Error: {FLOW_RATES_FILE} not found.")
+        print(f"Error: {FLOW_RATES_FILE} not found.")
         return {}
     with open(FLOW_RATES_FILE, 'r') as file:
         return json.load(file)
@@ -80,80 +80,80 @@ def send_command_with_heartbeat(command, duration=None):
     time.sleep(2)
     # Try to connect to Arduino if the port is not open
     if not ser.is_open:
-        append_console_message("Arduino port not open. Attempting to reconnect...")
+        print("Arduino port not open. Attempting to reconnect...")
         ser = connect_to_arduino()
         if not ser:
-            append_console_message("Error: Unable to connect to Arduino. Aborting command.")
+            print("Error: Unable to connect to Arduino. Aborting command.")
             return False
 
-    append_console_message(f"Preparing to send command '{command}' to Arduino...")
+    print(f"Preparing to send command '{command}' to Arduino...")
 
     if duration == 0:
         # Turn ON the pump and exit immediately
         safe_serial_write(command, "o")  # "o" for ON
-        append_console_message(f"Pump '{command}' turned ON.")
+        print(f"Pump '{command}' turned ON.")
         return True
     elif duration == -1:
         # Turn OFF the pump and exit immediately
         safe_serial_write(command, "f")  # "f" for OFF
-        append_console_message(f"Pump '{command}' turned OFF.")
+        print(f"Pump '{command}' turned OFF.")
         return True
     elif duration > 0:
         # Turn ON the pump, wait for the duration, then turn OFF the pump
         safe_serial_write(command, "o")  # "o" for ON
-        append_console_message(f"Pump '{command}' turned ON. Waiting for {duration:.2f}s...")
+        print(f"Pump '{command}' turned ON. Waiting for {duration:.2f}s...")
 
         start_time = time.time()
         while time.time() - start_time < duration:
             time_elapsed = time.time() - start_time
             progress = min(int((time_elapsed / duration) * 100), 100)  # Ensure max progress is 100%
-            append_console_message(f"Operation in progress... {progress}% complete.", end="\r")
+            print(f"Operation in progress... {progress}% complete.", end="\r")
             time.sleep(0.1)  # Small delay to avoid excessive CPU usage
 
         safe_serial_write(command, "f")  # "f" for OFF
-        append_console_message(f"\nPump '{command}' turned OFF.")
+        print(f"\nPump '{command}' turned OFF.")
         return True
     else:
-        append_console_message(f"Error: Invalid duration value {duration}. Duration must be 0, -1, or a positive number.")
+        print(f"Error: Invalid duration value {duration}. Duration must be 0, -1, or a positive number.")
         return False
 
 def calibrate_pump(pump_name):
     """Calibrate the pump by determining its flow rate."""
     flow_rates = load_flow_rates()
     if pump_name not in PUMP_COMMANDS:
-        append_console_message(f"Error: Invalid pump name '{pump_name}'")
+        print(f"Error: Invalid pump name '{pump_name}'")
         return
 
-    append_console_message(f"Calibrating pump '{pump_name}'.")
+    print(f"Calibrating pump '{pump_name}'.")
     input("Place the container on the scale and press Enter to start calibration.")
-    append_console_message("Pumping for 10 seconds...")
+    print("Pumping for 10 seconds...")
     if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=10):  # Set calibration duration to 10 seconds
-        append_console_message("Error: Calibration failed due to Arduino communication issue.")
+        print("Error: Calibration failed due to Arduino communication issue.")
         return
 
     weight = float(input("Enter the weight of liquid pumped (in grams): "))
     flow_rate = weight / 10  # Calculate flow rate (grams per second), adjusted for 10 seconds
-    append_console_message(f"Calibration complete. Flow rate for '{pump_name}' is {flow_rate:.3f} g/s.")
+    print(f"Calibration complete. Flow rate for '{pump_name}' is {flow_rate:.3f} g/s.")
     flow_rates[pump_name] = flow_rate
     save_flow_rates(flow_rates)
-    append_console_message(f"Updated flow rates saved to {FLOW_RATES_FILE}.")
+    print(f"Updated flow rates saved to {FLOW_RATES_FILE}.")
 
 def test_pump(pump_name, weight):
     """Test pump accuracy by dispensing a specific weight of liquid."""
     flow_rates = load_flow_rates()
     if pump_name not in flow_rates:
-        append_console_message(f"Error: Flow rate for '{pump_name}' not found.")
+        print(f"Error: Flow rate for '{pump_name}' not found.")
         return
     if pump_name not in PUMP_COMMANDS:
-        append_console_message(f"Error: Invalid pump name '{pump_name}'")
+        print(f"Error: Invalid pump name '{pump_name}'")
         return
 
     flow_rate = flow_rates[pump_name]
     duration = weight / flow_rate
 
-    append_console_message(f"Activating pump '{pump_name}' for {duration:.2f} seconds to dispense {weight} grams.")
+    print(f"Activating pump '{pump_name}' for {duration:.2f} seconds to dispense {weight} grams.")
     if not send_command_with_heartbeat(PUMP_COMMANDS[pump_name], duration=duration):
-        append_console_message(f"Error: Failed to complete operation for pump '{pump_name}'.")
+        print(f"Error: Failed to complete operation for pump '{pump_name}'.")
 
 
 pump_progress ={}
@@ -168,7 +168,7 @@ def test_pump_with_progress(pump_name, weight):
     """Test the pump with progress updates."""
     
     flow_rates = load_flow_rates()
-    append_console_message(f"******pump_name======={pump_name}")
+    print(f"******pump_name======={pump_name}")
     if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
         pump_progress[pump_name] = -1  # Error state
         return
@@ -181,7 +181,7 @@ def test_pump_with_progress(pump_name, weight):
     for i in range(int(duration * 10)):
         pump_progress[pump_name] = int((i / (duration * 10)) * 100)
         time.sleep(0.1)
-        append_console_message(f"Adjustment process - {pump_progress[pump_name]}")
+        print(f"Adjustment process - {pump_progress[pump_name]}")
 
     #ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
     safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn Off
@@ -197,10 +197,10 @@ def test_pump_with_progress(pump_name, weight):
 # Example usage
 if __name__ == "__main__":
     while True:
-        append_console_message("\nOptions:")
-        append_console_message("1. Calibrate pump")
-        append_console_message("2. Test pump")
-        append_console_message("3. Exit")
+        print("\nOptions:")
+        print("1. Calibrate pump")
+        print("2. Test pump")
+        print("3. Exit")
         choice = input("Enter your choice: ")
         if choice == "1":
             pump = input("Enter pump name (e.g., NPK, pH_plus): ")
@@ -210,7 +210,7 @@ if __name__ == "__main__":
             weight = float(input("Enter desired weight (grams): "))
             test_pump(pump, weight)
         elif choice == "3":
-            append_console_message("Exiting...")
+            print("Exiting...")
             break
         else:
-            append_console_message("Invalid choice. Try again.")
+            print("Invalid choice. Try again.")

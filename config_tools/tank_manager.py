@@ -14,7 +14,7 @@ def load_tanks():
     if os.path.exists(DATA_PATH):
         with open(DATA_PATH, 'r') as file:
             x = json.load(file)
-            append_console_message(f"****LOADED DATA FROM  TANKS FILE {DATA_PATH} DATA= {x}")
+            print(f"****LOADED DATA FROM  TANKS FILE {DATA_PATH} DATA= {x}")
             return x
     return {}
 
@@ -75,23 +75,23 @@ def test_tanks(tanks = None, serial_conn = None):
     test_results = {}
     tanks = load_tanks()
     serial_conn = get_serial_connection()
-    append_console_message(f"************TANKS LOADED - {tanks}")
+    print(f"************TANKS LOADED - {tanks}")
     for name, info in tanks.items():
         try:
             # Debugging: Log the start of the process
-            append_console_message(f"[DEBUG] Sending code {info['arduino_code']} to Arduino for {name}...")
+            print(f"[DEBUG] Sending code {info['arduino_code']} to Arduino for {name}...")
             code = info['arduino_code']
             # Send the command and wait for a response
             code_bytes = code.encode()  # Converts 'L1' to b'L1'
             
-            append_console_message(f"[DEBUG] Sending code {code_bytes} to Arduino for {name}...")
+            print(f"[DEBUG] Sending code {code_bytes} to Arduino for {name}...")
             
             response = send_command_and_get_response(serial_conn, code_bytes)
-            append_console_message(f"***value recieved response={response}")
+            print(f"***value recieved response={response}")
             # Attempt to parse the response as a float
             distance = float(response)#.strip()  # Strip any extra whitespace or newline characters
             
-            append_console_message(f"[DEBUG] Distance received for {name}: {distance}")
+            print(f"[DEBUG] Distance received for {name}: {distance}")
             
             # Calculate fill percentage
             fill_percentage = max(0, min(100, ((info['empty_cm'] - distance) / 
@@ -104,8 +104,8 @@ def test_tanks(tanks = None, serial_conn = None):
                 'fill_percentage': round(fill_percentage, 2),
                 'current_volume': round(current_volume, 2)
             }
-            append_console_message(f"******test results of the pump {name} - are : {test_results[name]}")
-            append_console_message(f"########test_results[]:{test_results}")
+            print(f"******test results of the pump {name} - are : {test_results[name]}")
+            print(f"########test_results[]:{test_results}")
             ############################################
 
             system_state[f"{name}_tank"]["value"] = test_results[name]["fill_percentage"]
@@ -121,12 +121,12 @@ def test_tanks(tanks = None, serial_conn = None):
             ############################################
         except ValueError as e:
             # Handle case where the response is not a valid float
-            append_console_message(f"[ERROR] Invalid response for {name}: {response}. Error: {e}")
+            print(f"[ERROR] Invalid response for {name}: {response}. Error: {e}")
             test_results[name] = {'error': f'Invalid response: {response}'}
         
         except Exception as e:
             # Handle any other unexpected errors
-            append_console_message(f"[ERROR] An exception occurred for {name}: {e}")
+            print(f"[ERROR] An exception occurred for {name}: {e}")
             test_results[name] = {'error': str(e)}
     
     return test_results
@@ -134,7 +134,7 @@ def test_tanks(tanks = None, serial_conn = None):
 
 def adjust_tank_level(tank_name):
     global PUMP_COMMANDS
-    append_console_message(f"Adjusting tank level for {tank_name}...")
+    print(f"Adjusting tank level for {tank_name}...")
 
     try:
         # Load configuration from app_config.json
@@ -148,13 +148,13 @@ def adjust_tank_level(tank_name):
         
         # Fetch the tank levels from `tank_manager.py`
         tank_results = test_tanks()  # This function will give you the current levels
-        append_console_message(f"Tank data fetched****{tank_results}")
+        print(f"Tank data fetched****{tank_results}")
         
         # Get the data for the specific tank
         tank_data = load_tanks()
         
         if not tank_data:
-            append_console_message(f"Tank {tank_name} not found in the results.")
+            print(f"Tank {tank_name} not found in the results.")
             return jsonify({"status": "error", "message": f"Tank {tank_name} not found"}), 400
 
         current_volume = tank_results[tank_name]['current_volume']
@@ -163,26 +163,26 @@ def adjust_tank_level(tank_name):
         # Calculate the volume to add or drain
         stored_volume = (solution_level / 100) * total_volume
         volume_difference = current_volume - stored_volume
-        append_console_message(f"Volume Difference {volume_difference}...")
+        print(f"Volume Difference {volume_difference}...")
         if volume_difference > 0:
             # Need to drain liquid
-            append_console_message(f"Draining {volume_difference:.2f} L of solution from {tank_name}.")
+            print(f"Draining {volume_difference:.2f} L of solution from {tank_name}.")
             weight_to_drain = volume_difference * 1000  # Convert to weight (multiply by 100)
-            append_console_message(f"Weight to drain {weight_to_drain}...")
+            print(f"Weight to drain {weight_to_drain}...")
             test_pump_with_progress(drain_pump, weight_to_drain)
         elif volume_difference < 0:
             # Need to add liquid
-            append_console_message(f"Adding {-volume_difference:.2f} L of solution to {tank_name}.")
+            print(f"Adding {-volume_difference:.2f} L of solution to {tank_name}.")
             weight_to_add = -volume_difference * 1000  # Convert to weight (multiply by 100)
-            append_console_message(f"Weight_to_add {weight_to_add}...")
+            print(f"Weight_to_add {weight_to_add}...")
             test_pump_with_progress(fill_pump, weight_to_add)
         else:
-            append_console_message(f"Tank {tank_name} is already at the correct level.")
+            print(f"Tank {tank_name} is already at the correct level.")
 
         return jsonify({"status": "success", "message": f"Tank {tank_name} adjusted successfully"})
 
     except Exception as e:
-        append_console_message(f"Error adjusting tank level: {e}")
+        print(f"Error adjusting tank level: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 

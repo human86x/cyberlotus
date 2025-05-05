@@ -24,51 +24,51 @@ def save_calibration_data(data):
     try:
         with open(CALIBRATION_FILE, "w") as file:
             json.dump(data, file, indent=4)
-        append_console_message(f"Calibration data saved to {CALIBRATION_FILE}.")
+        print(f"Calibration data saved to {CALIBRATION_FILE}.")
     except Exception as e:
-        append_console_message(f"Error saving calibration data: {e}")
+        print(f"Error saving calibration data: {e}")
 
 def load_calibration_data():
     try:
         with open(CALIBRATION_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        append_console_message(f"Calibration file {CALIBRATION_FILE} not found. Returning empty data.")
+        print(f"Calibration file {CALIBRATION_FILE} not found. Returning empty data.")
         return {}
     except Exception as e:
-        append_console_message(f"Error loading calibration data: {e}")
+        print(f"Error loading calibration data: {e}")
         return {}
 
 
 
 #def main():
 #    while True:
-#        append_console_message("\n--- Calibration Menu ---")
-#        append_console_message("1. Calibrate EC Sensor")
-#        append_console_message("2. Set Calibration Solution Value")
-#        append_console_message("3. Read EC Value")
-#        append_console_message("4. Set Water EC Baseline")
-#        append_console_message("5. Exit")#
+#        print("\n--- Calibration Menu ---")
+#        print("1. Calibrate EC Sensor")
+#        print("2. Set Calibration Solution Value")
+#        print("3. Read EC Value")
+#        print("4. Set Water EC Baseline")
+#        print("5. Exit")#
 #
 #        choice = input("Select an option: ")
 
         #if choice == "1":
         #    temp = load_flow_rates()
-        #    append_console_message(f"flow rates: {temp}")#
+        #    print(f"flow rates: {temp}")#
 #
 #            execute_sequence(EC_SEQUENCE_FILE, load_flow_rates(), calibrate_ec_sensor)
 #        elif choice == "2":
 #            set_calibration_solution()
 #        elif choice == "3":
 #            ec_value = get_correct_EC()
-#            append_console_message(f"Current EC value: {ec_value}")
+#            print(f"Current EC value: {ec_value}")
 #        elif choice == "4":
 #            execute_sequence(EC_BASELINE_FILE, load_flow_rates(), set_baseline_ec)
 #        elif choice == "5":
-#            append_console_message("Exiting calibration tool. Goodbye!")
+#            print("Exiting calibration tool. Goodbye!")
 #            break
 #        else:
-#            append_console_message("Invalid option. Please try again.")
+#            print("Invalid option. Please try again.")
 
 if __name__ == "__main__":
     main()

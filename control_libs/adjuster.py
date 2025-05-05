@@ -35,14 +35,14 @@ def circulate_solution():
     while True:  # Continuously loop
         flag = system_state["stop_all"]["state"]
         if flag == "STOP":
-            append_console_message(f"EXETING THE FUNCTION flag = {flag}")
+            print(f"EXETING THE FUNCTION flag = {flag}")
             return
         target_plant_pot_level = load_config("target_plant_pot_level")
         system_state["plant_pot_target_level"]["value"] = target_plant_pot_level
         system_state["plant_pot_target_level"]["timestamp"] = int(time.time())
         pump_up = "plant_up"
         pump_down = "plant_down"
-        append_console_message("Starting circulation – both pumps ON to stabilize")
+        print("Starting circulation – both pumps ON to stabilize")
         #send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
         #send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
 
@@ -59,25 +59,25 @@ def circulate_solution():
             #    if 1 <= plant_level <= 50:
             #        readings.append(plant_level)
             #    else:
-            #        append_console_message(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
+            #        print(f"⚠️ Invalid plant level (out of range): {plant_level}. Retrying...")
             #except (ValueError, TypeError):
-            #    append_console_message(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
+            #    print(f"⚠️ Invalid plant level (non-numeric): {plant_level}. Retrying...")
             
             #time.sleep(1)  # Delay between readings
 
         #if readings:
         #    plant_level = int(statistics.median(readings))  # Use median value
         #else:
-        #    append_console_message("⚠️ Failed to get valid readings. Retrying...")
+        #    print("⚠️ Failed to get valid readings. Retrying...")
         #    continue  # Restart the loop
 
-        append_console_message(f"✅ Retrieved valid plant pot solution level: {plant_level} (median of 3 readings)")
+        print(f"✅ Retrieved valid plant pot solution level: {plant_level} (median of 3 readings)")
 
         # Update system state
         system_state["plant_pot_level"]["value"] = plant_level
         system_state["plant_pot_level"]["timestamp"] = int(time.time())
 
-        append_console_message(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
+        print(f"Plant pot current water level is {plant_level} and target level is {target_plant_pot_level}")
 
         # Define the acceptable margin
         LEVEL_MARGIN = 1
@@ -86,16 +86,16 @@ def circulate_solution():
         level_difference = plant_level - target_plant_pot_level
 
         if abs(level_difference) <= LEVEL_MARGIN:
-            append_console_message("Within acceptable range - both pumps ON to maintain circulation")
+            print("Within acceptable range - both pumps ON to maintain circulation")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)  # Adjust these values as needed for circulation
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
             return
         elif level_difference < -LEVEL_MARGIN:
-            append_console_message("Draining the plant pot...")
+            print("Draining the plant pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
         else:  # level_difference > LEVEL_MARGIN
-            append_console_message("Adding more solution to the pot...")
+            print("Adding more solution to the pot...")
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
         #time.sleep(5)  # Wait before checking again
@@ -108,7 +108,7 @@ def get_ppm(baseline, ec):
     #ec = system_state["ec_solution"]["value"]
     #baseline = system_state["ec_baseline"]["value"]
     ppm = float(ec) - float(baseline)
-    append_console_message(f"*****PPM:{ppm}")
+    print(f"*****PPM:{ppm}")
     return ppm
 
 
@@ -120,7 +120,7 @@ def check_chamber_humidity():
     flow_rates = load_flow_rates()  # This loads the flow rates as intended
     
     if not flow_rates:
-        append_console_message("Error: Flow rates not loaded.")
+        print("Error: Flow rates not loaded.")
         return {}
     
     start_time = time.time()  # Record the start time
@@ -129,77 +129,77 @@ def check_chamber_humidity():
     while True:  # Use a loop to retry instead of `goto`
         # Check if the time limit has been exceeded
         if time.time() - start_time > time_limit:
-            append_console_message("Time limit exceeded. Assuming humidity value is 0.")
+            print("Time limit exceeded. Assuming humidity value is 0.")
             system_state["sensor_chamber"]["value"] = 0
             system_state["sensor_chamber"]["timestamp"] = int(time.time())
-            append_console_message("Updated the Sensor chambers humidity data to 0.")
+            print("Updated the Sensor chambers humidity data to 0.")
             return 0  # Exit the function with a humidity value of 0
 
         num_readings = 3
         ph_values = []
 
-        append_console_message("Collecting Humidity Readings from Sensor Chambers...")
+        print("Collecting Humidity Readings from Sensor Chambers...")
         for _ in range(num_readings):
             time.sleep(1)
             raw_ph_value = send_command_and_get_response(ser, b'Q')
-            append_console_message(f"Retrieved Humidity value: '{raw_ph_value}'")
+            print(f"Retrieved Humidity value: '{raw_ph_value}'")
 
             if raw_ph_value is None:
-                append_console_message("Error: Invalid Humidity value read from the sensor.")
+                print("Error: Invalid Humidity value read from the sensor.")
                 continue
 
             try:
                 raw_ph_value = float(raw_ph_value)
             except ValueError:
-                append_console_message(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
+                print(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
                 continue
 
             if 0 <= raw_ph_value <= 100:
                 ph_values.append(raw_ph_value)
 
         if len(ph_values) == 0:
-            append_console_message("Error: No valid Humidity readings collected.")
+            print("Error: No valid Humidity readings collected.")
             continue  # Retry the loop if no valid readings
 
         estimated_ph_value = statistics.median(ph_values)
-        append_console_message(f"Estimated Humidity value (median of valid readings): {estimated_ph_value}")
+        print(f"Estimated Humidity value (median of valid readings): {estimated_ph_value}")
         response = estimated_ph_value
 
         # Update system state with the sensor data
         system_state["sensor_chamber"]["value"] = response
         system_state["sensor_chamber"]["timestamp"] = int(time.time())
-        append_console_message("Updated the Sensor chambers humidity data.")
+        print("Updated the Sensor chambers humidity data.")
 
         if response > 0:
-            append_console_message("Humidity is high, turning on the device.")
+            print("Humidity is high, turning on the device.")
             safe_serial_write("m", "o")  # Turn on the device
             safe_serial_write("l", "o")  # Turn on the device
             # Continuously monitor humidity until it drops below 57
             while True:
                 # Check if the time limit has been exceeded
                 if time.time() - start_time > time_limit:
-                    append_console_message("Time limit exceeded. Assuming humidity value is 0.")
+                    print("Time limit exceeded. Assuming humidity value is 0.")
                     safe_serial_write("m", "f")  # Turn off the device
                     safe_serial_write("l", "f")  # Turn off the device
                     system_state["sensor_chamber"]["value"] = 0
                     system_state["sensor_chamber"]["timestamp"] = int(time.time())
-                    append_console_message("Updated the Sensor chambers humidity data to 0.")
+                    print("Updated the Sensor chambers humidity data to 0.")
                     return 0  # Exit the function with a humidity value of 0
 
                 time.sleep(5)  # Wait for 5 seconds before taking the next reading
                 raw_ph_value = send_command_and_get_response(ser, b'Q')
                 if raw_ph_value is None:
-                    append_console_message("Error: Invalid Humidity value read from the sensor.")
+                    print("Error: Invalid Humidity value read from the sensor.")
                     continue
 
                 try:
                     raw_ph_value = float(raw_ph_value)
                 except ValueError:
-                    append_console_message(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
+                    print(f"Error: Invalid Humidity value '{raw_ph_value}' received, cannot convert to float.")
                     continue
 
                 if raw_ph_value < 57:
-                    append_console_message("Humidity is now below threshold, turning off the device.")
+                    print("Humidity is now below threshold, turning off the device.")
                     safe_serial_write("m", "f")  # Turn off the device
                     safe_serial_write("l", "f")  # Turn off the device
                     break  # Exit the inner loop
@@ -208,7 +208,7 @@ def check_chamber_humidity():
                     safe_serial_write("l", "o")  # Turn on the device
             break  # Exit the outer loop after the device is turned off
         else:
-            append_console_message("Chambers are dry, proceeding with the test.")
+            print("Chambers are dry, proceeding with the test.")
             break  # Exit the loop if humidity is <= 0
 
 
@@ -247,7 +247,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     cur_ppm = get_ppm(base_ec, NPK)
     target_ppm = base_ec + target_NPK
     
-    append_console_message(f"base_ec = {base_ec}  cur_ppm = {cur_ppm} cur_ec = {NPK} target_ppm = {target_NPK} target_ec = {target_ppm}")
+    print(f"base_ec = {base_ec}  cur_ppm = {cur_ppm} cur_ec = {NPK} target_ppm = {target_NPK} target_ec = {target_ppm}")
 
     # Calculate adjustments
     NPK_adj = target_NPK - cur_ppm
@@ -260,7 +260,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     ##########################
     if NPK >= 1000:
         NPK_adj = 0
-        append_console_message(f"!!!!!!!!!!TDS Sensor reached its maximum measurment value, NO FURTHER FERTILIZER WILL BE ADDED TO THE SYSTEM!!!!!!!!")
+        print(f"!!!!!!!!!!TDS Sensor reached its maximum measurment value, NO FURTHER FERTILIZER WILL BE ADDED TO THE SYSTEM!!!!!!!!")
 
 
 
@@ -284,7 +284,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     pH_minus_mult = float(multiplyers["pH_minus_mult"])
     drop_mult = float(multiplyers["drop_mult"])
     
-    append_console_message(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult} drop mult - {drop_mult}")
+    print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult} drop mult - {drop_mult}")
 
     history_log("solution_adj", solution_adj)
     history_log("NPK_adj", NPK_adj)
@@ -296,28 +296,28 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     if solution_adj > 0:
         # Add fresh water first
         sol_adj = solution_adj * 30
-        append_console_message(f"Solution adjustment weight - {sol_adj}")
+        print(f"Solution adjustment weight - {sol_adj}")
         single_commands["fresh_solution"] = sol_adj
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
     else:
         # Add fresh water first
         sol_adj = solution_adj * 30
-        append_console_message(f"Solution adjustment weight - {sol_adj}")
+        print(f"Solution adjustment weight - {sol_adj}")
         single_commands["solution_waste"] = abs(sol_adj)
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
 
-    # Debugging: append_console_message values and types
-    append_console_message(f"target_NPK: {target_NPK}, type: {type(target_NPK)}")
-    append_console_message(f"final_volume: {final_volume}, type: {type(final_volume)}")
-    append_console_message(f"NPK: {NPK}, type: {type(NPK)}")
-    append_console_message(f"current_volume: {current_volume}, type: {type(current_volume)}")
+    # Debugging: print values and types
+    print(f"target_NPK: {target_NPK}, type: {type(target_NPK)}")
+    print(f"final_volume: {final_volume}, type: {type(final_volume)}")
+    print(f"NPK: {NPK}, type: {type(NPK)}")
+    print(f"current_volume: {current_volume}, type: {type(current_volume)}")
 
-    append_console_message(f"NPK_mult: {NPK_mult}, type: {type(NPK_mult)}")
-    append_console_message(f"drop_mult: {drop_mult}, type: {type(drop_mult)}")
-    append_console_message(f"ph_min_mult: {pH_minus_mult}, type: {type(pH_minus_mult)}")
-    append_console_message(f"ph_mlus_mult: {pH_plus_mult}, type: {type(pH_plus_mult)}")
+    print(f"NPK_mult: {NPK_mult}, type: {type(NPK_mult)}")
+    print(f"drop_mult: {drop_mult}, type: {type(drop_mult)}")
+    print(f"ph_min_mult: {pH_minus_mult}, type: {type(pH_minus_mult)}")
+    print(f"ph_mlus_mult: {pH_plus_mult}, type: {type(pH_plus_mult)}")
 
 
 
@@ -327,13 +327,13 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         #required_NPK = ((target_NPK * final_volume) - (NPK * current_volume)) / 100
         required_NPK = NPK_adj#target_NPK - NPK 
         
-        append_console_message(f"required_NPK: {required_NPK}, type: {type(required_NPK)}")
+        print(f"required_NPK: {required_NPK}, type: {type(required_NPK)}")
         if required_NPK > 0:
             z = required_NPK * NPK_mult
-            append_console_message(f"NPK adjustment weight - {z}")
+            print(f"NPK adjustment weight - {z}")
             single_commands["NPK"] = z
         elif required_NPK < 0:
-            append_console_message(f"drop_mult = {drop_mult}     required_NPK = {required_NPK}")
+            print(f"drop_mult = {drop_mult}     required_NPK = {required_NPK}")
             # If NPK is too high, use solution_waste to remove excess and fresh_solution to dilute
             single_commands["solution_waste"] = abs(float(required_NPK)) * drop_mult
             #
@@ -349,14 +349,14 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Calculate the required pH chemical weight to achieve the target pH in the final volume
         #required_pH = ((target_pH * final_volume) - (pH * current_volume)) / 100
         required_pH = target_pH - pH
-        append_console_message(f"Required adjustment pH - {required_pH}")
+        print(f"Required adjustment pH - {required_pH}")
         if pH_adj < 0:
             x = abs(required_pH) * pH_minus_mult
-            append_console_message(f"administring pH down - {x}")
+            print(f"administring pH down - {x}")
             single_commands["pH_minus"] = x
         elif pH_adj > 0:
             y = required_pH * pH_plus_mult
-            append_console_message(f"administring pH up - {y}")
+            print(f"administring pH up - {y}")
             single_commands["pH_plus"] = y
 
     # Always mix the solution at the end
@@ -408,7 +408,7 @@ def compile_sequence_to_file(file_path, single_commands=None, multi_commands=Non
     with open(file_path, 'w') as file:
         json.dump(sequence_data, file, indent=4)
 
-    append_console_message(f"Sequence file written to {file_path}")
+    print(f"Sequence file written to {file_path}")
 
 # Example usage
 
@@ -417,7 +417,7 @@ def compile_sequence_to_file(file_path, single_commands=None, multi_commands=Non
 
 
 def ph_up(weight):
-    append_console_message(f"______________weight - {weight}")
+    print(f"______________weight - {weight}")
     adjust_chemistry("pH_plus", weight)
 
 def ph_down(weight):
@@ -447,7 +447,7 @@ def adjust_chemistry(pump_name, weight):
     """Adjusting the chemical balance."""
    
     flow_rates = load_flow_rates()
-    append_console_message(f"******pump_name======={pump_name}")
+    print(f"******pump_name======={pump_name}")
     if pump_name not in flow_rates or pump_name not in PUMP_COMMANDS:
         pump_progress[pump_name] = -1  # Error state
         return
@@ -460,7 +460,7 @@ def adjust_chemistry(pump_name, weight):
     for i in range(int(duration * 10)):
         pump_progress[pump_name] = int((i / (duration * 10)) * 100)
         time.sleep(0.1)
-        append_console_message(f"Adjustment process - {pump_progress[pump_name]}")
+        print(f"Adjustment process - {pump_progress[pump_name]}")
 
     #ser.write(f"{PUMP_COMMANDS[pump_name]}f".encode())
     safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn Off
@@ -476,7 +476,7 @@ def condition_monitor():
         
 
     if not flow_rates:
-        append_console_message("Error: Flow rates not loaded.")
+        print("Error: Flow rates not loaded.")
         return {}
     global system_state
 
@@ -495,10 +495,10 @@ def condition_monitor():
     target_solution = system_state["target_solution"]["value"]
     #system_state["target_solution"]["timestamp"] = int(time.time())
 
-    append_console_message(f"################target_NPK = {target_NPK}")
+    print(f"################target_NPK = {target_NPK}")
     NPK = system_state["ec_solution"]["value"]
-    append_console_message(f"################ec_solution from system state = {NPK}")
-    append_console_message(f"################system state dump = {system_state}")
+    print(f"################ec_solution from system state = {NPK}")
+    print(f"################system state dump = {system_state}")
 
     NPK = system_state["ec_solution"]["value"]
     NPK_time = system_state["ec_solution"]["timestamp"]
@@ -523,7 +523,7 @@ def condition_monitor():
 
     execute_sequence(SEQUENCE_FILE, flow_rates)#, 
 
-    #append_console_message(f"NPK TO ADJUST:{NPK_adj}   pH TO ADJUST:{pH_adj}    Temperature TO ADJUST:{temp_adj}          SOLUTION LEVEL TO ADJUST:{solution_adj}")
+    #print(f"NPK TO ADJUST:{NPK_adj}   pH TO ADJUST:{pH_adj}    Temperature TO ADJUST:{temp_adj}          SOLUTION LEVEL TO ADJUST:{solution_adj}")
 
 from control_libs.temperature import read_solution_temperature
 
@@ -539,10 +539,10 @@ def temperature_control():
 
 
     if solution_temperature < target_temp:
-        append_console_message("Heating Up the Solution")
+        print("Heating Up the Solution")
         safe_serial_write(PUMP_COMMANDS[pump_name], 'o')  # Turn ON
     else:
-        append_console_message("Cooling Off the Solution")
+        print("Cooling Off the Solution")
         safe_serial_write(PUMP_COMMANDS[pump_name], 'f')  # Turn OFF
 
     return None
@@ -551,13 +551,13 @@ def load_target_values():
     global system_state  # Declare system_state as global
     SYSTEM_STATE_FILE = "data/desired_parameters.json"
     """Loads the system_state dictionary from a JSON file. If the file does not exist, returns an empty default structure."""
-    append_console_message(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
+    print(f"Loading sys_state from file name:{SYSTEM_STATE_FILE}")
     if not os.path.exists(SYSTEM_STATE_FILE):
-        append_console_message(f"Path does not exist")
+        print(f"Path does not exist")
         return None  # Indicate that no previous state exists
     with open(SYSTEM_STATE_FILE, "r") as f:
         x = json.load(f)
-        append_console_message(f"Loaded data:{x}")
+        print(f"Loaded data:{x}")
 
         target_NPK = x.get('EC')  # Extract the 'value' field
         target_temp = x.get('temperature')  # Extract the 'value' field
@@ -589,5 +589,5 @@ def load_target_values():
         
 
 
-        append_console_message("Updated Target Values.")
+        print("Updated Target Values.")
     return None

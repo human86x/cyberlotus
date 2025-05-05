@@ -28,7 +28,7 @@ def execute_commands(commands, weights, flow_rates):
     Returns:
         bool: True if all commands were executed successfully, False otherwise.
     """
-    append_console_message(f"Executing commands: {commands} for weights {weights}")
+    print(f"Executing commands: {commands} for weights {weights}")
 
     arduino_commands = []
     durations = []
@@ -41,22 +41,22 @@ def execute_commands(commands, weights, flow_rates):
 
     # Validate commands and weights alignment
     if len(commands) != len(weights):
-        append_console_message("Error: Number of commands and weights do not match.")
+        print("Error: Number of commands and weights do not match.")
         return False
 
     # Debugging outputs
-    append_console_message(f"Final Commands: {commands}")
-    append_console_message(f"Final Weights: {weights}")
+    print(f"Final Commands: {commands}")
+    print(f"Final Weights: {weights}")
 
     for command, weight in zip(commands, weights):
         # Check for missing flow rates
         if command not in flow_rates:
-            append_console_message(f"Error: Flow rate for '{command}' not found in flow rates file.")
+            print(f"Error: Flow rate for '{command}' not found in flow rates file.")
             return False
 
         # Check for invalid pump commands
         if command not in PUMP_COMMANDS:
-            append_console_message(f"Error: Command '{command}' not recognized in PUMP_COMMANDS.")
+            print(f"Error: Command '{command}' not recognized in PUMP_COMMANDS.")
             return False
 
         # Translate logical command to Arduino command
@@ -65,7 +65,7 @@ def execute_commands(commands, weights, flow_rates):
         # Calculate duration based on flow rate
         flow_rate = flow_rates[command]
         if flow_rate == 0:
-            append_console_message(f"Error: Flow rate for '{command}' is zero, cannot calculate duration.")
+            print(f"Error: Flow rate for '{command}' is zero, cannot calculate duration.")
             return False
 
         duration = weight / flow_rate
@@ -73,46 +73,46 @@ def execute_commands(commands, weights, flow_rates):
         durations.append(duration)
 
         # Debugging: Show command translation and execution details
-        append_console_message(f"Debug: Command '{command}' translated to '{arduino_command}', "
+        print(f"Debug: Command '{command}' translated to '{arduino_command}', "
               f"Weight {weight}g, Flow rate {flow_rate} g/s, Duration {duration:.2f}s")
 
     # Ensure all durations are the same (required for simultaneous operation)
     if len(set(durations)) != 1:
-        append_console_message("Error: Durations must be the same for simultaneous pump operation.")
+        print("Error: Durations must be the same for simultaneous pump operation.")
         return False
 
     duration = durations[0]  # All durations are the same
     duration_ms = int(round(duration * 1000))
 
     if duration_ms <= 0:
-        append_console_message(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
+        print(f"Error: Invalid duration value {duration:.2f}s. Duration must be positive.")
         return False
 
     # Turn ON all pumps sequentially
     for arduino_command in arduino_commands:
-        append_console_message(f"Debug: Turning ON '{arduino_command}'.")
+        print(f"Debug: Turning ON '{arduino_command}'.")
         if not send_command_with_heartbeat(arduino_command, duration=0):  # Turn ON without waiting
-            append_console_message(f"Error: Failed to turn ON '{arduino_command}'.")
+            print(f"Error: Failed to turn ON '{arduino_command}'.")
             return False
 
     # Wait for the required duration
-    append_console_message(f"Debug: Waiting for {duration:.2f}s.")
-    #append_console_message(f"Pump '{command}' turned ON. Waiting for {duration:.2f}s...")
+    print(f"Debug: Waiting for {duration:.2f}s.")
+    #print(f"Pump '{command}' turned ON. Waiting for {duration:.2f}s...")
 
     start_time = time.time()
     while time.time() - start_time < duration:
         time_elapsed = time.time() - start_time
         progress = min(int((time_elapsed / duration) * 100), 100)  # Ensure max progress is 100%
-        append_console_message(f"Operation in progress(execute_commands)... {progress}% complete.", end="\r")
+        print(f"Operation in progress(execute_commands)... {progress}% complete.", end="\r")
         time.sleep(0.1)  # Small delay to avoid excessive CPU usage
 
     #time.sleep(duration)
 
     # Turn OFF all pumps sequentially
     for arduino_command in arduino_commands:
-        append_console_message(f"Debug: Turning OFF '{arduino_command}'.")
+        print(f"Debug: Turning OFF '{arduino_command}'.")
         if not send_command_with_heartbeat(arduino_command, duration=-1):  # Turn OFF
-            append_console_message(f"Error: Failed to turn OFF '{arduino_command}'.")
+            print(f"Error: Failed to turn OFF '{arduino_command}'.")
             return False
 
     return True
@@ -126,7 +126,7 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
         flow_rates (dict): Dictionary containing flow rates for each pump.
         calibration_callback (function): Optional callback for calibration steps.
     """
-    append_console_message("SEQUENCE FUNCTION    ENTRY POINT")
+    print("SEQUENCE FUNCTION    ENTRY POINT")
     #sequence_file = "sequences/" + sequence_file 
     readings = None
     if flow_rates is None:
@@ -135,11 +135,11 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
     try:
         with open(sequence_file, 'r') as file:
             data = json.load(file)
-            append_console_message(f"SEQUENCE FUNCTION {sequence_file} file LOADED data={data}")
+            print(f"SEQUENCE FUNCTION {sequence_file} file LOADED data={data}")
     except FileNotFoundError:
-        append_console_message(f"Error: {sequence_file} not found.")
+        print(f"Error: {sequence_file} not found.")
         return
-    append_console_message("SEQUENCE FUNCTION IS ACTIVATED AND SEQUENCE FILE FOUND")
+    print("SEQUENCE FUNCTION IS ACTIVATED AND SEQUENCE FILE FOUND")
     for action in data["sequence"]:
         # Handle the case where multiple commands (pumps) are given
         if "commands" in action and "weights" in action:
@@ -147,18 +147,18 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
             weights = action["weights"]
 
             # Execute the commands simultaneously
-            append_console_message(f"Executing {commands} simultaneously.")
+            print(f"Executing {commands} simultaneously.")
             if not execute_commands(commands, weights, flow_rates):
-                append_console_message(f"Error: Failed to execute commands {commands}.")
+                print(f"Error: Failed to execute commands {commands}.")
                 break
 
             # Check for calibration actions after execution
             if "calibration" in action and action["calibration"]:
-                append_console_message(f"Calibration step detected for {commands}.")
+                print(f"Calibration step detected for {commands}.")
                 if calibration_callback:
                     readings = calibration_callback()  # Call the calibration function
                 else:
-                    append_console_message("Debug: Calibration callback executed.")
+                    print("Debug: Calibration callback executed.")
 
         else:
             # Handle the case of a single command
@@ -166,22 +166,22 @@ def execute_sequence(sequence_file, flow_rates=None, calibration_callback=None):
             weight = action["weight"]
 
             # Execute the command
-            append_console_message(f"Executing {command}.")
+            print(f"Executing {command}.")
             if not execute_commands(command, weight, flow_rates):
-                append_console_message(f"Error: Failed to execute command {command}.")
+                print(f"Error: Failed to execute command {command}.")
                 break
 
             # Check for calibration actions after execution
             if "calibration" in action and action["calibration"]:
-                append_console_message(f"Calibration step detected for {command}.")
+                print(f"Calibration step detected for {command}.")
                 if calibration_callback:
                     calibration_callback()  # Call the calibration function
                 else:
-                    append_console_message("Debug: Calibration callback executed.")
+                    print("Debug: Calibration callback executed.")
 
         time.sleep(1)  # Small delay to prevent overwhelming the system
 
-    append_console_message("Sequence complete.")
+    print("Sequence complete.")
     return readings
 
 def list_sequence_files():
@@ -192,14 +192,14 @@ def list_sequence_files():
         files = os.listdir(SEQUENCE_DIRECTORY)
         sequence_files = [f for f in files if f.endswith('.json')]
         if not sequence_files:
-            append_console_message("No sequence files found.")
+            print("No sequence files found.")
             return None
-        append_console_message("Available sequence files:")
+        print("Available sequence files:")
         for idx, filename in enumerate(sequence_files, start=1):
-            append_console_message(f"{idx}. {filename}")
+            print(f"{idx}. {filename}")
         return sequence_files
     except FileNotFoundError:
-        append_console_message(f"Error: {SEQUENCE_DIRECTORY} not found.")
+        print(f"Error: {SEQUENCE_DIRECTORY} not found.")
         return None
 
 def choose_sequence_file():
@@ -214,27 +214,27 @@ def choose_sequence_file():
         if 1 <= choice <= len(sequence_files):
             return os.path.join(SEQUENCE_DIRECTORY, sequence_files[choice - 1])
         else:
-            append_console_message("Invalid choice.")
+            print("Invalid choice.")
             return None
     except ValueError:
-        append_console_message("Invalid input.")
+        print("Invalid input.")
         return None
 
 if __name__ == "__main__":
     # Load flow rates from the JSON file
     flow_rates = load_flow_rates()
-    append_console_message(f"Debug: Loaded flow rates: {flow_rates}")
+    print(f"Debug: Loaded flow rates: {flow_rates}")
     
     if flow_rates:
         # Ask user to choose a sequence file
         sequence_file = choose_sequence_file()
         if sequence_file:
-            append_console_message(f"Running sequence from file: {sequence_file}")
+            print(f"Running sequence from file: {sequence_file}")
             execute_sequence(sequence_file, flow_rates)
         else:
-            append_console_message("No valid sequence file chosen. Exiting.")
+            print("No valid sequence file chosen. Exiting.")
     else:
-        append_console_message("Error: Flow rates not loaded. Ensure the flow_rates.json file exists and is valid.")
+        print("Error: Flow rates not loaded. Ensure the flow_rates.json file exists and is valid.")
 
 
 
