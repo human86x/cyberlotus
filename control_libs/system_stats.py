@@ -223,10 +223,10 @@ def append_console_message(message):
     print("Message from the console: ")
     print(f"{message}")
     timestamp = datetime.now().timestamp()
-    with console_lock:
+    #with console_lock:
         # Keep only the last 100 messages to prevent memory issues
-        if len(system_state["console_output"]) >= 100:
-            system_state["console_output"].pop(0)
+    if len(system_state["console_output"]) >= 100:
+        system_state["console_output"].pop(0)
         system_state["console_output"].append({
             "message": message,
             "timestamp": timestamp
