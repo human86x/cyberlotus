@@ -299,7 +299,7 @@ def close_serial_connection():
         ser.close()
         print("[INFO] Serial connection closed.")
 
-def safe_serial_write(pump_name, state, retries=5, timeout=2):
+def safe_serial_write(pump_name, state, retries=5, timeout=3):
     global ser
     global system_state
     ser = get_serial_connection()
@@ -538,7 +538,7 @@ import serial
 from serial import SerialException
 
 
-def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
+def send_command_and_get_response(ser, command, retries=1, timeout=3.3):
     attempt = 0
     global power_ser
     while attempt < retries:
