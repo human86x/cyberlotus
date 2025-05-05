@@ -127,32 +127,50 @@ def connect_to_arduino():
 
 def connect_to_wemos():
     global power_ser
-    # Try default port first
-    default_port = '/dev/ttyUSB0'
-    append_console_message("Connecting to Wemos")
-    try:
-        power_ser = serial.Serial(default_port, 9600, timeout=2)
-        time.sleep(2)
-        power_ser.write(b'PING\r\n')
-        response = power_ser.readline().decode().strip()
-        if response == "&#!WEMOS PONG":
-            print(f"Connected to Wemos at default {default_port}")
-            append_console_message("✓ Connected Wemos.")
-            return power_ser
-        power_ser.close()
-    except Exception as e:
-        print(f"Default Wemos port {default_port} not available")
+    max_attempts = 3
+    append_console_message("Connecting to Wemos...")
     
-    # Search only USB ports for Wemos
-    possible_ports = find_serial_devices("wemos")
-    for port in possible_ports:
-        power_ser = test_serial_connection(port, "wemos")
-        if power_ser:
-            return power_ser
+    for attempt in range(max_attempts):
+        try:
+            # Try default port first
+            default_port = '/dev/ttyUSB0'
+            power_ser = serial.Serial(default_port, 9600, timeout=2)
+            time.sleep(2)  # Allow time for initialization
+            
+            # Test connection
+            power_ser.write(b'PING\r\n')
+            response = power_ser.readline().decode().strip()
+            
+            if response == "&#!WEMOS PONG":
+                append_console_message(f"✓ Connected to Wemos on {default_port} (Attempt {attempt + 1})")
+                return power_ser
+                
+            power_ser.close()
+        except Exception as e:
+            append_console_message(f"Attempt {attempt + 1} failed: {str(e)}")
+        
+        # If default port failed, search USB ports
+        possible_ports = find_serial_devices("wemos")
+        for port in possible_ports:
+            try:
+                power_ser = serial.Serial(port, 9600, timeout=2)
+                time.sleep(2)
+                power_ser.write(b'PING\r\n')
+                response = power_ser.readline().decode().strip()
+                
+                if response == "&#!WEMOS PONG":
+                    append_console_message(f"✓ Connected to Wemos on {port} (Attempt {attempt + 1})")
+                    return power_ser
+                    
+                power_ser.close()
+            except Exception as e:
+                append_console_message(f"Failed on port {port}: {str(e)}")
+        
+        if attempt < max_attempts - 1:
+            time.sleep(1)  # Wait before retrying
     
-    print("× Error: No Wemos found on any USB port")
+    append_console_message("× Error: Failed to connect to Wemos after multiple attempts", "error")
     return None
-
 #def connect_to_wemos():
 #    global power_ser
     
@@ -181,10 +199,24 @@ def connect_to_wemos():
 
 def hard_reset_arduino():
     global power_ser
-    power_ser = connect_to_wemos()
-    power_ser.write(b'RE\r\n')  # Test command
-    response = power_ser.readline().decode().strip()
-    print("Response from Wemos after the reset:", response)
+    try:
+        # Ensure we have a connection
+        if power_ser is None:
+            power_ser = connect_to_wemos()
+            if power_ser is None:
+                append_console_message("Cannot reset - no Wemos connection", "error")
+                return False
+                
+        # Send reset command
+        power_ser.write(b'RE\r\n')
+        response = power_ser.readline().decode().strip()
+        append_console_message(f"Wemos reset response: {response}")
+        return True
+        
+    except Exception as e:
+        append_console_message(f"Reset failed: {str(e)}", "error")
+        power_ser = None  # Force reconnect on next attempt
+        return False
 
 
 
