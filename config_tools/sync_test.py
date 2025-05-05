@@ -1,6 +1,6 @@
 import serial
 import time
-
+from control_libs.system_stats import append_console_message
 # Set the correct port and baud rate for Linux
 arduino_port = '/dev/ttyACM0'  # Replace with your actual port if different
 baud_rate = 9600

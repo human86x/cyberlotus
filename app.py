@@ -219,7 +219,7 @@ def load_data():
             data = json.load(file)
         return data
     except Exception as e:
-        print(f"Error loading data: {e}")
+        append_console_message(f"Error loading data: {e}")
         return []
 
 #@app.route('/')
@@ -231,7 +231,7 @@ from flask import jsonify
 
 @app.route('/data')
 def get_data():
-    print("######### Trying to get data.....")
+    append_console_message("######### Trying to get data.....")
     try:
         data = load_data()  # Load your data from file or database
         
@@ -251,7 +251,7 @@ def get_data():
         
         for entry in data:
             if not isinstance(entry, dict):
-                print(f"Skipping invalid entry: {entry}")
+                append_console_message(f"Skipping invalid entry: {entry}")
                 continue
                 
             timestamp = entry.get("timestamp")
@@ -285,11 +285,11 @@ def get_data():
             filtered_data["NPK_adj"].append(clean_value(entry.get("NPK_adj")))
             filtered_data["pH_adj"].append(clean_value(entry.get("pH_adj")))
         
-        print("########## Data retrieval successful")
+        append_console_message("########## Data retrieval successful")
         return jsonify(filtered_data)
         
     except Exception as e:
-        print(f"########## Error in get_data: {str(e)}")
+        append_console_message(f"########## Error in get_data: {str(e)}")
         # Return empty but properly structured data on error
         error_response = {
             "timestamps": [],
@@ -324,7 +324,7 @@ def get_history():
             data = json.load(f)
         except json.JSONDecodeError:
             data = []
-    #print(f"History data: {data}")        
+    #append_console_message(f"History data: {data}")        
     return jsonify(data)
 
 
@@ -334,14 +334,14 @@ def get_history():
 @app.route("/sys_state", methods=["GET"])
 def get_system_state():
 
-    #print(f"***********System state {system_state}")
+    #append_console_message(f"***********System state {system_state}")
     return jsonify(system_state)
 
 
 @app.route("/load_sys_state", methods=["GET"])
 def load_system_state_route():
     global system_state
-    print("trying to load system state file......")
+    append_console_message("trying to load system state file......")
     loaded_state = load_system_state()
     #system_state = loaded_state
     return loaded_state
@@ -352,7 +352,7 @@ from control_libs.electric_conductivity import load_ec_baseline, get_ppm
 @app.route("/ppm", methods=["GET"])
 def load_ec_baseline_route():
     global system_state
-    print("trying to load system state file......")
+    append_console_message("trying to load system state file......")
     load_ec_baseline
     ppm = get_ppm()
     return ppm
@@ -418,14 +418,14 @@ def plant_chamber():
 def set_water_level():
     new_target = float(request.form['water_level_target'])
     # Update the target water level (you would replace this with actual logic)
-    print(f"New target water level set to: {new_target} L")
+    append_console_message(f"New target water level set to: {new_target} L")
     return "True"#redirect(url_for('control_panel'))
 
 @app.route('/start_circulation', methods=['GET'])
 def start_circulation():
     global circulation_status
     circulation_status = not circulation_status  # Toggle circulation status
-    print(f"Solution circulation is now {'on' if circulation_status else 'off'}")
+    append_console_message(f"Solution circulation is now {'on' if circulation_status else 'off'}")
     
     circulate_solution()
 
@@ -439,7 +439,7 @@ def chamber_data_route():
     
 
     #circulation_status = not circulation_status  # Toggle circulation status
-    print(f"Retriving data from the chamber...")
+    append_console_message(f"Retriving data from the chamber...")
     
     get_chamber_humidity()
     get_chamber_temp()
@@ -461,14 +461,14 @@ def circulate_solution_route():
 
 # Function to load app configuration from the JSON file
 def load_app_config():
-    print("Loading app config to EC page")
+    append_console_message("Loading app config to EC page")
     try:
         with open(CONFIG_FILE_PATH, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
         return {}  # Return empty dict if the file does not exist
     except Exception as e:
-        print(f"Error loading config file: {e}")
+        append_console_message(f"Error loading config file: {e}")
         return {}
 
 # Route to get the stored configuration
@@ -483,7 +483,7 @@ def save_app_config(config):
         with open(CONFIG_FILE_PATH, 'w') as f:
             json.dump(config, f, indent=2)
     except Exception as e:
-        print(f"Error saving config file: {e}")
+        append_console_message(f"Error saving config file: {e}")
 
 # Route to save the configuration
 @app.route('/save_app_config', methods=['POST'])
@@ -529,12 +529,12 @@ def auto_pilot_loop(pause_minutes):
             if start_index == 7:
                 start_index = 0
                 last_successful_task = None
-            print(f"start_index = {start_index}")
-            print(f"tasks[start_index:] = {tasks[start_index:]}")
+            append_console_message(f"start_index = {start_index}")
+            append_console_message(f"tasks[start_index:] = {tasks[start_index:]}")
             if tasks[start_index:] == "":
                 start_index = 0 
                 last_successful_task = None
-            print(f"auto_pilot_running = {auto_pilot_running}")
+            append_console_message(f"auto_pilot_running = {auto_pilot_running}")
             
 
 
@@ -544,7 +544,7 @@ def auto_pilot_loop(pause_minutes):
             for task in tasks[start_index:]:
                 if not auto_pilot_running:
                     break  # Exit if stop command is received
-                print(f"task = {task}")
+                append_console_message(f"task = {task}")
                 logging.info(f"Executing task: {task.__name__}")
                 task()  # Execute the task
                 last_successful_task = task  # Update the last successful task
@@ -614,7 +614,7 @@ def get_temperature():
         
         # Read temperature using the function from temperature.py
         temperature = read_solution_temperature(ser)
-        print(f"Flash temperature update****{temperature}")
+        append_console_message(f"Flash temperature update****{temperature}")
         # Close the serial connection after reading
         ser.close()
         
@@ -802,7 +802,7 @@ def get_app_setting():
     """
     Flask route to retrieve app configuration.
     """
-    print("Reading the configuration file...")
+    append_console_message("Reading the configuration file...")
     try:
         key = request.args.get('key')
         if key:
@@ -850,7 +850,7 @@ def start_callback_sequence(sequence):
 
     try:
         # Here you can handle different test sequences
-        print(f"Starting test sequence: {sequence}")
+        append_console_message(f"Starting test sequence: {sequence}")
         execute_sequence(sequence, load_flow_rates(), trigger)
         return jsonify({'status': 'success', 'message': f'Started {sequence} test sequence'})
     except Exception as e:
@@ -922,7 +922,7 @@ def load_sequence():
     if not filename:
         return jsonify({"status": "error", "message": "No filename provided."})
     filepath = SEQUENCE_DIRECTORY + '/' + filename
-    print(f"Sequence dir is - {SEQUENCE_DIRECTORY}")
+    append_console_message(f"Sequence dir is - {SEQUENCE_DIRECTORY}")
     try:
         with open(filepath, 'r') as file:
             content = file.read()
@@ -1018,7 +1018,7 @@ def load_relay_names():
     if not filename:
         return jsonify({"status": "error", "message": "No filename provided."})
     filepath = DATA_DIRECTORY + '/' + filename
-    print(f"Data dir is - {DATA_DIRECTORY}")
+    append_console_message(f"Data dir is - {DATA_DIRECTORY}")
     try:
         with open(filepath, 'r') as file:
             content = file.read()
@@ -1076,18 +1076,18 @@ def drain_waste():
         x = test_tanks()
         to_drain = x["waste"]["current_volume"]
         drain_volume_liters = to_drain  # Drain 1 liter
-        print("to_drain and weight_to_drain:")
-        print(to_drain)
+        append_console_message("to_drain and weight_to_drain:")
+        append_console_message(to_drain)
         
         weight_to_drain = drain_volume_liters * 1000  # Convert liters to pump units
-        print(weight_to_drain)
+        append_console_message(weight_to_drain)
         # Activate the pump
         test_pump_with_progress(waste_pump, weight_to_drain)
 
         return jsonify({"status": "success", "pump_used": waste_pump})
 
     except Exception as e:
-        print(f"Error during waste drain: {e}")
+        append_console_message(f"Error during waste drain: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -1102,7 +1102,7 @@ def adjust_solution_tank():
 
 @app.route('/compare_solution_level', methods=['GET'])
 def compare_solution_level():
-    print("Compare solution level function started*************")
+    append_console_message("Compare solution level function started*************")
     try:
         # Load the current solution level
         with open('data/app_config.json', 'r') as file:
@@ -1112,18 +1112,18 @@ def compare_solution_level():
 
         # Fetch the tank levels from `tank_manager.py`
         tank_results = test_tanks()  # This function will give you the current levels
-        print(f"Tank data fetched****{tank_results}")
+        append_console_message(f"Tank data fetched****{tank_results}")
         changes_needed = {}
 
         for tank, data in tank_results.items():
             current_volume = data['current_volume']
             total_volume = data['total_volume']
-            print(f"Current volume - {current_volume}")
-            print(f"Total volume - {total_volume}")
+            append_console_message(f"Current volume - {current_volume}")
+            append_console_message(f"Total volume - {total_volume}")
             
             # Calculate the difference between current volume and stored solution level
             stored_volume = (stored_level / 100) * total_volume
-            print(f"Target volume - {stored_volume}")
+            append_console_message(f"Target volume - {stored_volume}")
             if current_volume > stored_volume:
                 # Need to drain liquid
                 volume_to_drain = current_volume - stored_volume
@@ -1136,7 +1136,7 @@ def compare_solution_level():
         return jsonify(changes_needed)
 
     except Exception as e:
-        print(f"Error comparing solution levels: {e}")
+        append_console_message(f"Error comparing solution levels: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 def compare_and_calculate_difference(current_level, tank_name):
@@ -1193,7 +1193,7 @@ def get_solution_level():
             solution_level = app_config.get('solution_level', 50)  # Default to 50 if not found
         return jsonify({"solution_level": solution_level})
     except Exception as e:
-        print(f"Error reading config file: {e}")
+        append_console_message(f"Error reading config file: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -1201,7 +1201,7 @@ def get_solution_level():
 def save_solution_level():
     data = request.get_json()
     solution_level = data.get('solution_level')
-    print("***********************save_solution_level....")
+    append_console_message("***********************save_solution_level....")
 
     # Update the app_config.json file with the new solution level
     try:
@@ -1214,13 +1214,13 @@ def save_solution_level():
             app_config = {"solution_level": 50}
 
         app_config['solution_level'] = solution_level
-        print("***********************Writing to a config file....")
+        append_console_message("***********************Writing to a config file....")
         with open('data/app_config.json', 'w') as file:
             json.dump(app_config, file, indent=4)
 
         return jsonify({"status": "success", "message": "Solution level saved successfully."})
     except Exception as e:
-        print(f"Error: {e}")
+        append_console_message(f"Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -1229,7 +1229,7 @@ def save_pump_assignment():
     data = request.get_json()
     fill_pump = data.get('fill_pump')
     drain_pump = data.get('drain_pump')
-    print("saving function***********")
+    append_console_message("saving function***********")
     try:
         with open('data/app_config.json', 'r+') as file:
             app_config = json.load(file)
@@ -1240,21 +1240,21 @@ def save_pump_assignment():
 
         with open('data/app_config.json', 'w') as file:
             json.dump(app_config, file, indent=4)
-            print("writing to a file***********")
+            append_console_message("writing to a file***********")
         return jsonify({"status": "success", "message": "Pump assignments saved successfully."})
     except Exception as e:
-        print(f"Error: {e}")
+        append_console_message(f"Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route('/get_saved_pumps', methods=['GET'])
 def get_saved_pumps():
-    print("Reading the assignment fle...")
+    append_console_message("Reading the assignment fle...")
     try:
         # Load the app configuration from your config file
         with open('data/app_config.json', 'r') as config_file:
             config = json.load(config_file)
-        print("OK...")
+        append_console_message("OK...")
     
         # Assuming 'fill_pump' and 'drain_pump' are stored in your config
         return jsonify({
@@ -1287,10 +1287,10 @@ def emergency_stop_route():
         flash("🚨 Emergency Stop activated! All pumps stopped.", "error")
         return jsonify({'status': 'success', 'message': 'Emergency Stop activated!'})
     except Exception as e:
-        print(f"[ERROR] Emergency Stop failed: {e}")
+        append_console_message(f"[ERROR] Emergency Stop failed: {e}")
         connect_to_arduino()
         #attempt += 1
-        #print(f"Reconnection attemp N: {attemp}")
+        #append_console_message(f"Reconnection attemp N: {attemp}")
 
         return jsonify({'status': 'error', 'message': 'Emergency Stop failed.'}), 500
 
@@ -1379,7 +1379,7 @@ def calibrate_pump_with_progress(pump_name):
         pump_progress[pump_name] = 100
 
     except Exception as e:
-        print(f"[ERROR] Calibration failed for {pump_name}: {e}")
+        append_console_message(f"[ERROR] Calibration failed for {pump_name}: {e}")
         emergency_stop(pump_name)
         pump_progress[pump_name] = -1
 
@@ -1442,7 +1442,7 @@ def create_tank_route():
 @app.route('/test_tanks_route', methods=['GET'])
 def test_tanks_route():
     results = test_tanks()
-    print(f"****************test_tanks_route - {results}")
+    append_console_message(f"****************test_tanks_route - {results}")
     return jsonify(results)
 
 if __name__ == '__main__':

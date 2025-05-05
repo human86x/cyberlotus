@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-
+from control_libs.system_stats import append_console_message
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -33,7 +33,7 @@ def save_config(key, value):
     with open(calibration_file, 'w') as file:
         json.dump(calibration_data, file, indent=4)
 
-    print(f"App configuration has been updated:{key} = {value} in {calibration_file}")
+    append_console_message(f"App configuration has been updated:{key} = {value} in {calibration_file}")
 
 
 

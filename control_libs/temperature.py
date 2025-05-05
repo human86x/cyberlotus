@@ -4,7 +4,7 @@ import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from control_libs.arduino import connect_to_arduino, send_command_and_get_response
 from control_libs.system_stats import system_state, history_log ,save_system_state, load_system_state
-
+from control_libs.system_stats import append_console_message
 
 
 def read_solution_temperature(ser, max_retries=3, min_temp=5, max_temp=30):

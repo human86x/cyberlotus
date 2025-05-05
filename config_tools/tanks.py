@@ -2,7 +2,7 @@ import json
 import os
 import time
 from control_libs.arduino import send_command_and_get_response, connect_to_arduino
-
+from control_libs.system_stats import append_console_message
 # Use absolute path for data file
 base_dir = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(base_dir, 'data/tanks.json')

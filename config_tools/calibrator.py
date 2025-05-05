@@ -15,7 +15,7 @@ from control_libs.app_core import CALIBRATION_FILE
 # Use absolute paths for file locations
 EC_SEQUENCE_FILE = os.path.join(base_dir, '../sequences/EC_calibration.json')
 EC_BASELINE_FILE = os.path.join(base_dir, '../sequences/EC_baseline.json')
-
+from control_libs.system_stats import append_console_message
 global ser
 ser = connect_to_arduino()
 
@@ -24,51 +24,51 @@ def save_calibration_data(data):
     try:
         with open(CALIBRATION_FILE, "w") as file:
             json.dump(data, file, indent=4)
-        print(f"Calibration data saved to {CALIBRATION_FILE}.")
+        append_console_message(f"Calibration data saved to {CALIBRATION_FILE}.")
     except Exception as e:
-        print(f"Error saving calibration data: {e}")
+        append_console_message(f"Error saving calibration data: {e}")
 
 def load_calibration_data():
     try:
         with open(CALIBRATION_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        print(f"Calibration file {CALIBRATION_FILE} not found. Returning empty data.")
+        append_console_message(f"Calibration file {CALIBRATION_FILE} not found. Returning empty data.")
         return {}
     except Exception as e:
-        print(f"Error loading calibration data: {e}")
+        append_console_message(f"Error loading calibration data: {e}")
         return {}
 
 
 
 #def main():
 #    while True:
-#        print("\n--- Calibration Menu ---")
-#        print("1. Calibrate EC Sensor")
-#        print("2. Set Calibration Solution Value")
-#        print("3. Read EC Value")
-#        print("4. Set Water EC Baseline")
-#        print("5. Exit")#
+#        append_console_message("\n--- Calibration Menu ---")
+#        append_console_message("1. Calibrate EC Sensor")
+#        append_console_message("2. Set Calibration Solution Value")
+#        append_console_message("3. Read EC Value")
+#        append_console_message("4. Set Water EC Baseline")
+#        append_console_message("5. Exit")#
 #
 #        choice = input("Select an option: ")
 
         #if choice == "1":
         #    temp = load_flow_rates()
-        #    print(f"flow rates: {temp}")#
+        #    append_console_message(f"flow rates: {temp}")#
 #
 #            execute_sequence(EC_SEQUENCE_FILE, load_flow_rates(), calibrate_ec_sensor)
 #        elif choice == "2":
 #            set_calibration_solution()
 #        elif choice == "3":
 #            ec_value = get_correct_EC()
-#            print(f"Current EC value: {ec_value}")
+#            append_console_message(f"Current EC value: {ec_value}")
 #        elif choice == "4":
 #            execute_sequence(EC_BASELINE_FILE, load_flow_rates(), set_baseline_ec)
 #        elif choice == "5":
-#            print("Exiting calibration tool. Goodbye!")
+#            append_console_message("Exiting calibration tool. Goodbye!")
 #            break
 #        else:
-#            print("Invalid option. Please try again.")
+#            append_console_message("Invalid option. Please try again.")
 
 if __name__ == "__main__":
     main()

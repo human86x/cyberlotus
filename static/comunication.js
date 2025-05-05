@@ -165,7 +165,7 @@ function loadCalibrationData() {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                const calibrationData = JSON.stringify(data.data, null, 2); // Pretty print JSON
+                const calibrationData = JSON.stringify(data.data, null, 2); // Pretty append_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_messaged_console_message JSON
                 document.getElementById('calibrationData').value = calibrationData;
             } else {
                 alert('Failed to load calibration data.');

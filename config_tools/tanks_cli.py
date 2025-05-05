@@ -2,7 +2,7 @@ import json
 import time
 import os
 import sys
-
+from control_libs.system_stats import append_console_message
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 

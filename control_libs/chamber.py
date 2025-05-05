@@ -8,6 +8,7 @@ from control_libs.electric_conductivity import get_correct_EC, save_ec_baseline,
 from control_libs.adjuster import check_chamber_humidity,circulate_solution, load_target_values
 from config_tools.tank_manager import test_tanks
 from control_libs.ph import perform_ph_test
+from control_libs.system_stats import append_console_message
 import time
 import json
 import statistics
@@ -75,18 +76,18 @@ def chamber_ambiance():
     
     while True:  # Continuously loop
         # Always turn lights on (assuming this is safe)
-        print("########################## TURNING LIGHTS ON ###########################")
-        print("##############################################################################")
+        append_console_message("########################## TURNING LIGHTS ON ###########################")
+        append_console_message("##############################################################################")
         
         light_control("grow","ON")
 
-        print("########################## ESTABLISHING THE PLANT POT SOLUTION LEVEL ###########################")
-        print("##############################################################################")
+        append_console_message("########################## ESTABLISHING THE PLANT POT SOLUTION LEVEL ###########################")
+        append_console_message("##############################################################################")
         
 
         circulate_solution()
-        print("########################## CIRCULATION ESTABLISHED ###########################")
-        print("##############################################################################")
+        append_console_message("########################## CIRCULATION ESTABLISHED ###########################")
+        append_console_message("##############################################################################")
         
         
         humidifyer = "humidifyer"
@@ -97,7 +98,7 @@ def chamber_ambiance():
         try:
             flag = system_state["stop_all"]["state"]
             if flag == "STOP":
-                print(f"EXETING THE FUNCTION flag = {flag}")
+                append_console_message(f"EXETING THE FUNCTION flag = {flag}")
                 return
             # Get sensor readings with error handling
             plant_temp = get_plant_temp()
@@ -121,7 +122,7 @@ def chamber_ambiance():
             system_state["chamber_temperature"]["value"] = chamber_temp
             system_state["chamber_temperature"]["timestamp"] = current_time
             
-            print(f"✅ Retrieved: Plant temp: {plant_temp}°C, Chamber temp: {chamber_temp}°C, Humidity: {chamber_hum}%")
+            append_console_message(f"✅ Retrieved: Plant temp: {plant_temp}°C, Chamber temp: {chamber_temp}°C, Humidity: {chamber_hum}%")
 
             # Define the acceptable margin
             LEVEL_MARGIN = 0.2
@@ -133,79 +134,79 @@ def chamber_ambiance():
                 level_difference = plant_temp - target_plant_temp
 
                 if abs(level_difference) <= LEVEL_MARGIN:
-                    print("Within acceptable range - water heater is off")
+                    append_console_message("Within acceptable range - water heater is off")
                     send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
                     system_state["water_heater"]["state"] = "OFF"
                     system_state["water_heater"]["timestamp"] = current_time
                 elif level_difference < -LEVEL_MARGIN:
-                    print("Turning water heating ON...")
+                    append_console_message("Turning water heating ON...")
                     send_command_with_heartbeat(PUMP_COMMANDS[water_heater], 0)
                     system_state["water_heater"]["state"] = "ON"
                     system_state["water_heater"]["timestamp"] = current_time
                 else:
-                    print("Water heating is OFF...")
+                    append_console_message("Water heating is OFF...")
                     send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
                     system_state["water_heater"]["state"] = "OFF"
                     system_state["water_heater"]["timestamp"] = current_time
             else:
-                print("⚠️ Invalid plant temperature reading, skipping water heater control")
+                append_console_message("⚠️ Invalid plant temperature reading, skipping water heater control")
 
             ###################### CHAMBER TEMPERATURE #######################
             if not math.isnan(chamber_temp):
                 level_difference = chamber_temp - target_chamber_temp
-                print(f"Temp diff: {level_difference}°C (Current: {chamber_temp}°C, Target: {target_chamber_temp}°C)")
+                append_console_message(f"Temp diff: {level_difference}°C (Current: {chamber_temp}°C, Target: {target_chamber_temp}°C)")
                 
                 if abs(level_difference) <= LEVEL_MARGIN:
-                    print("Within acceptable range - air heater is off")
+                    append_console_message("Within acceptable range - air heater is off")
                     send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
                     system_state["air_heater"]["state"] = "OFF"
                     system_state["air_heater"]["timestamp"] = current_time
                 elif level_difference < -LEVEL_MARGIN:
-                    print("Turning air heating ON...")
+                    append_console_message("Turning air heating ON...")
                     send_command_with_heartbeat(PUMP_COMMANDS[air_heater], 0)
                     system_state["air_heater"]["state"] = "ON"
                     system_state["air_heater"]["timestamp"] = current_time
                 else:
-                    print("Air heating is OFF...")
+                    append_console_message("Air heating is OFF...")
                     send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
                     system_state["air_heater"]["state"] = "OFF"
                     system_state["air_heater"]["timestamp"] = current_time
             else:
-                print("⚠️ Invalid chamber temperature reading, skipping air heater control")
+                append_console_message("⚠️ Invalid chamber temperature reading, skipping air heater control")
 
             ######################## HUMIDITY ############################        
             if not math.isnan(chamber_hum):
                 level_difference = chamber_hum - target_chamber_hum
 
                 if abs(level_difference) <= LEVEL_MARGIN:
-                    print("Within acceptable range - HUMIDIFIER is off")
+                    append_console_message("Within acceptable range - HUMIDIFIER is off")
                     send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
                     system_state["air_humidifyer"]["state"] = "OFF"
                     system_state["air_humidifyer"]["timestamp"] = current_time
                 elif level_difference < -LEVEL_MARGIN:
-                    print("Turning HUMIDIFIER ON...")
+                    append_console_message("Turning HUMIDIFIER ON...")
                     send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], 0)
                     system_state["air_humidifyer"]["state"] = "ON"
                     system_state["air_humidifyer"]["timestamp"] = current_time
                 else:
-                    print("HUMIDIFIER is OFF...")
+                    append_console_message("HUMIDIFIER is OFF...")
                     send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
                     system_state["air_humidifyer"]["state"] = "OFF"
                     system_state["air_humidifyer"]["timestamp"] = current_time
             else:
-                print("⚠️ Invalid humidity reading, skipping humidifier control")
+                append_console_message("⚠️ Invalid humidity reading, skipping humidifier control")
 
         except Exception as e:
-            print(f"⚠️ Error in chamber ambiance control: {str(e)}")
+            append_console_message(f"⚠️ Error in chamber ambiance control: {str(e)}")
             # Optionally log the full traceback for debugging:
             # import traceback
-            # traceback.print_exc()
+            # traceback.append_console_message_exc()
             
         # Wait before next iteration
         #cycle_check = cycle_generator()
         #while True:
             # Normal operations
-        #    print("Normal operation...")
+        #    append_console_message("Normal operation...")
         
         #    if next(cycle_check):
         #        perform_ph_test("solution")
@@ -244,7 +245,7 @@ def get_chamber_humidity():
         try:
             return response
         except ValueError:
-            print(f"Error reading Humidity: {response}")
+            append_console_message(f"Error reading Humidity: {response}")
     return response
 
 
@@ -260,7 +261,7 @@ def get_chamber_temp():
         try:
             return response
         except ValueError:
-            print(f"Error reading Humidity: {response}")
+            append_console_message(f"Error reading Humidity: {response}")
     return response
 
 
@@ -277,5 +278,5 @@ def get_plant_temp():
         try:
             return response
         except ValueError:
-            print(f"Error reading Humidity: {response}")
+            append_console_message(f"Error reading Humidity: {response}")
     return response

@@ -17,7 +17,7 @@ from control_libs.temperature import read_solution_temperature
 from control_libs.adjuster import check_chamber_humidity
 from control_libs.adjuster import get_ppm
 ser = get_serial_connection()
-
+from control_libs.system_stats import append_console_message
 
 def save_ec_baseline(value):
     # Define the path to the calibration JSON file

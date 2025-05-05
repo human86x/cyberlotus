@@ -10,7 +10,7 @@ from config_tools.tank_manager import test_tanks
 import time
 import json
 import statistics
-
+from control_libs.system_stats import append_console_message
 ser = get_serial_connection()
 
 import time
@@ -33,7 +33,7 @@ def get_ph(ser):
         try:
             return response
         except ValueError:
-            print(f"Error reading pH: {response}")
+            append_console_message(f"Error reading pH: {response}")
     return None
 
 def get_ph_calibration_factor_low():
@@ -44,18 +44,18 @@ def get_ph_calibration_factor_low():
             
             system_state[f"ph_calibration_LOW"]["value"] = x
             system_state[f"ph_calibration_LOW"]["timestamp"] = int(time.time())
-            #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
+            #append_console_message(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
             return x
     except FileNotFoundError:
-        print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
+        append_console_message(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
         return 1.0
     except Exception as e:
-        print(f"Error loading calibration factor: {e}")
+        append_console_message(f"Error loading calibration factor: {e}")
         return 1.0
     #system_state[f"ph_calibration_{calibration_type}"]["value"] = readings
         #system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
-        #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
+        #append_console_message(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
         
 def get_ph_calibration_factor_high():
     try:
@@ -64,14 +64,14 @@ def get_ph_calibration_factor_high():
             x = float(calibration_data.get("pH_calibration_HIGH", 1.0))
             system_state[f"ph_calibration_HIGH"]["value"] = x
             system_state[f"ph_calibration_HIGH"]["timestamp"] = int(time.time())
-            #print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
+            #append_console_message(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
             return x
     except FileNotFoundError:
-        print(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
+        append_console_message(f"Calibration file {CALIBRATION_FILE} not found. Using default calibration factor of 1.0.")
         return 1.0
     except Exception as e:
-        print(f"Error loading calibration factor: {e}")
+        append_console_message(f"Error loading calibration factor: {e}")
         return 1.0
 
 def calibrate_ph(calibration_type):
@@ -85,27 +85,27 @@ def calibrate_ph(calibration_type):
         float: The calculated calibration factor.
     """
     if calibration_type not in ["LOW", "HIGH"]:
-        print("Error: Invalid calibration type. Use 'LOW' or 'HIGH'.")
+        append_console_message("Error: Invalid calibration type. Use 'LOW' or 'HIGH'.")
         return None
 
     # Define the target pH value based on calibration type
     target_ph = 4.0 if calibration_type == "LOW" else 9.0
 
-    print(f"Starting pH calibration for {calibration_type} solution (Target pH: {target_ph})...")
+    append_console_message(f"Starting pH calibration for {calibration_type} solution (Target pH: {target_ph})...")
 
     # Read solution temperature
     #solution_temperature = read_solution_temperature(ser)
     #if solution_temperature is None:
-    #    print("Error: Failed to read solution temperature.")
+    #    append_console_message("Error: Failed to read solution temperature.")
     #    return None
 
     #try:
     #    solution_temperature = float(solution_temperature)
     #except ValueError:
-    #    print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
+    #    append_console_message(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
     #    return None
 
-    #print(f"Solution temperature: {solution_temperature}°C")
+    #append_console_message(f"Solution temperature: {solution_temperature}°C")
 
     # Collect multiple pH readings
     num_readings = 4
@@ -114,40 +114,40 @@ def calibrate_ph(calibration_type):
     for _ in range(num_readings):
         time.sleep(1)
         raw_ph_value = get_ph(ser)
-        print(f"Retrieved pH value: '{raw_ph_value}'")
+        append_console_message(f"Retrieved pH value: '{raw_ph_value}'")
 
         if raw_ph_value is None:
-            print("Error: Invalid pH value read from the sensor.")
+            append_console_message("Error: Invalid pH value read from the sensor.")
             continue
 
         try:
             raw_ph_value = float(raw_ph_value)
-            print(f"***********Raw pH value {raw_ph_value}")
+            append_console_message(f"***********Raw pH value {raw_ph_value}")
         except ValueError:
-            print(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
+            append_console_message(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
             continue
 
         ph_values.append(raw_ph_value)
 
     if len(ph_values) == 0:
-        print("Error: No valid pH readings collected.")
+        append_console_message("Error: No valid pH readings collected.")
         return None
 
     # Calculate the median pH value from readings
     estimated_ph_value = statistics.median(ph_values)
-    print(f"Estimated pH value (median of valid readings): {estimated_ph_value}")
+    append_console_message(f"Estimated pH value (median of valid readings): {estimated_ph_value}")
 
     # Apply temperature correction if needed
     #if solution_temperature != 25:
     #    corrected_ph_value = estimated_ph_value / (1 + 0.02 * (solution_temperature - 25))
-    #    print(f"Corrected pH value at 25°C: {corrected_ph_value}")
+    #    append_console_message(f"Corrected pH value at 25°C: {corrected_ph_value}")
     #else:
     #    corrected_ph_value = estimated_ph_value
 
     # Calculate the calibration factor
-    #print(f"***********Target pH value {target_ph}")
+    #append_console_message(f"***********Target pH value {target_ph}")
     #calibration_factor =  corrected_ph_value / target_ph 
-    #print(f"Calculated calibration factor: {calibration_factor}")
+    #append_console_message(f"Calculated calibration factor: {calibration_factor}")
 
 
     # Save the calibration factor to the calibration file
@@ -157,7 +157,7 @@ def calibrate_ph(calibration_type):
     except FileNotFoundError:
         calibration_data = {}
     except Exception as e:
-        print(f"Error reading calibration file: {e}")
+        append_console_message(f"Error reading calibration file: {e}")
         calibration_data = {}
 
     #calibration_data["pH_calibration_factor"] = calibration_factor
@@ -169,9 +169,9 @@ def calibrate_ph(calibration_type):
     try:
         with open(CALIBRATION_FILE, "w") as file:
             json.dump(calibration_data, file, indent=4)
-        print(f"Calibration factor saved to {CALIBRATION_FILE}.")
+        append_console_message(f"Calibration factor saved to {CALIBRATION_FILE}.")
     except Exception as e:
-        print(f"Error saving calibration factor: {e}")
+        append_console_message(f"Error saving calibration factor: {e}")
 
     return estimated_ph_value
 
@@ -201,29 +201,29 @@ def perform_ph_calibration(calibration_type):
         flow_rates = load_flow_rates()  # This loads the flow rates as intended
 
         if not flow_rates:
-            print("Error: Flow rates not loaded.")
+            append_console_message("Error: Flow rates not loaded.")
             return {}
 
         # Execute the sequence and return the readings
-        print(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
+        append_console_message(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
         
         #sreadings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
         readings = execute_sequence(SEQUENCE_FILE, flow_rates, lambda: calibrate_ph(calibration_type))
 
         # Ensure readings are returned or handle case where no readings are received
         if not readings:
-            print("Error: No readings returned from the sequence.")
+            append_console_message("Error: No readings returned from the sequence.")
             readings = {}
 
         # Update the system state with the pH readings
         #system_state[f"ph_calibration_{calibration_type}"]["value"] = readings
         #system_state[f"ph_calibration_{calibration_type}"]["timestamp"] = int(time.time())
-        print(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
+        append_console_message(f"Updated the pH values from complex reading using {SEQUENCE_FILE} sequence.")
         
         return readings
 
     except Exception as e:
-        print(f"Error while retrieving pH readings: {e}")
+        append_console_message(f"Error while retrieving pH readings: {e}")
         raise
 
 
@@ -243,31 +243,31 @@ def get_correct_ph():
     num_readings = 3
     ph_values = []
 
-    print("Collecting pH readings...")
+    append_console_message("Collecting pH readings...")
     for _ in range(num_readings):
         time.sleep(1)
         raw_ph_value = get_ph(ser)
-        print(f"Retrieved pH value: '{raw_ph_value}'")
+        append_console_message(f"Retrieved pH value: '{raw_ph_value}'")
 
         if raw_ph_value is None:
-            print("Error: Invalid pH value read from the sensor.")
+            append_console_message("Error: Invalid pH value read from the sensor.")
             continue
 
         try:
             raw_ph_value = float(raw_ph_value)
         except ValueError:
-            print(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
+            append_console_message(f"Error: Invalid pH value '{raw_ph_value}' received, cannot convert to float.")
             continue
 
         if 700 <= raw_ph_value <= 1024:
             ph_values.append(raw_ph_value)
 
     if len(ph_values) == 0:
-        print("Error: No valid pH readings collected.")
+        append_console_message("Error: No valid pH readings collected.")
         return None
 
     estimated_ph_value = statistics.median(ph_values)
-    print(f"Estimated pH value (median of valid readings): {estimated_ph_value}")
+    append_console_message(f"Estimated pH value (median of valid readings): {estimated_ph_value}")
 #######################
 
 
@@ -289,25 +289,25 @@ def get_correct_ph():
 #######################
     solution_temperature = read_solution_temperature(ser)
     if solution_temperature is None:
-        print("Error: Failed to read solution temperature.")
+        append_console_message("Error: Failed to read solution temperature.")
         return None
 
     try:
         solution_temperature = float(solution_temperature)
     except ValueError:
-        print(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
+        append_console_message(f"Error: Invalid temperature value '{solution_temperature}' received, cannot convert to float.")
         return None
 
-    print(f"Solution temperature: {solution_temperature}°C")
+    append_console_message(f"Solution temperature: {solution_temperature}°C")
 
     if solution_temperature != 25:
         corrected_ph_value = estimated_ph_value / (1 + 0.02 * (solution_temperature - 25))
-        print(f"Corrected pH value at 25°C: {corrected_ph_value}")
+        append_console_message(f"Corrected pH value at 25°C: {corrected_ph_value}")
     else:
         corrected_ph_value = estimated_ph_value
     
     #corrected_ph_value =  corrected_ph_value / calibration_factor
-    print(f"Final corrected pH value after applying calibration factor is: {corrected_ph_value}")
+    append_console_message(f"Final corrected pH value after applying calibration factor is: {corrected_ph_value}")
 
     corrected_ph_value = round(corrected_ph_value, 2)
 
@@ -326,7 +326,7 @@ def perform_ph_test(test_type):
     flow_rates = load_flow_rates()  # This loads the flow rates as intended
     
     if not flow_rates:
-        print("Error: Flow rates not loaded.")
+        append_console_message("Error: Flow rates not loaded.")
         return {}
 
     check_chamber_humidity()
@@ -348,11 +348,11 @@ def perform_ph_test(test_type):
         flow_rates = load_flow_rates()  # This loads the flow rates as intended
 
         if not flow_rates:
-            print("Error: Flow rates not loaded.")
+            append_console_message("Error: Flow rates not loaded.")
             return {}
 
         # Execute the sequence and return the readings
-        print(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
+        append_console_message(f"Sending sequence file to the sequencer {SEQUENCE_FILE}.")
         
         #sreadings = execute_sequence(SEQUENCE_FILE, flow_rates, calibrate_ph(calibration_type))
         readings = execute_sequence(SEQUENCE_FILE, flow_rates, get_ph_and_ec)#, 
@@ -364,19 +364,19 @@ def perform_ph_test(test_type):
         ec_value = int(ec_value)  # Convert EC to integer
         ph_value = float(ph_value)  # Convert pH to float
 
-        print(f"EC: {ec_value}, pH: {ph_value}")
+        append_console_message(f"EC: {ec_value}, pH: {ph_value}")
         # Ensure readings are returned or handle case where no readings are received
         if not readings:
-            print("Error: No readings returned from the sequence.")
+            append_console_message("Error: No readings returned from the sequence.")
             readings = {}
         
-        print(f"**********TEST TYPE IS {test_type}")
+        append_console_message(f"**********TEST TYPE IS {test_type}")
      
         # Update the system state with the pH readings
         if test_type == "solution":
             system_state[f"ph_solution"]["value"] = ph_value
             system_state[f"ph_solution"]["timestamp"] = int(time.time())
-            print(f"Updated the pH Solution values from complex reading using {SEQUENCE_FILE} sequence.")
+            append_console_message(f"Updated the pH Solution values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
             history_log("pH", ph_value)
             ###############ec############
@@ -402,7 +402,7 @@ def perform_ph_test(test_type):
         else:
             system_state[f"ph_baseline"]["value"] = ph_value
             system_state[f"ph_baseline"]["timestamp"] = int(time.time())
-            print(f"Updated the pH Baseline values from complex reading using {SEQUENCE_FILE} sequence.")
+            append_console_message(f"Updated the pH Baseline values from complex reading using {SEQUENCE_FILE} sequence.")
             save_system_state(system_state)
             history_log("pH_baseline", ph_value)
 
@@ -411,14 +411,14 @@ def perform_ph_test(test_type):
             save_ec_baseline(ec_value)
             system_state["ec_baseline"]["value"] = ec_value
             system_state["ec_baseline"]["timestamp"] = int(time.time())
-            print(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
+            append_console_message(f"Updated the EC baseline using {SEQUENCE_FILE} sequence.")
             history_log("EC_baseline", ec_value)
         test_tanks()
         check_chamber_humidity()
         return readings
 
     except Exception as e:
-        print(f"Error while retrieving pH readings: {e}")
+        append_console_message(f"Error while retrieving pH readings: {e}")
         raise
 
 
