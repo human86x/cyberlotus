@@ -535,7 +535,7 @@ import serial
 from serial import SerialException
 
 
-def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
+ddef send_command_and_get_response(ser, command, retries=1, timeout=2.3):
     attempt = 0
     global power_ser
     while attempt < retries:
@@ -555,19 +555,24 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
             ser.reset_output_buffer()
 
             print(f"Send command and get response -> the command >>> {command}")
-            print(f"Sending the command > {command}")
 
             # Send the command to the Arduino
-            ser.write(command)  # No need to encode if command is already bytes
-            print(f"Successfully communicated command - {command}")
-
+            ser.write(command)
+            
             # Wait for the Arduino to process the command
             time.sleep(timeout)
 
             # Read response from Arduino
             line = ser.readline().decode('utf-8').strip()
             print(f"Send command and get response -> the response >>> {line}")
-            print(f"Response: {line}")
+            
+            # Check for special responses that require retrying
+            if line in ["ARDUINO_READY", "PONG"]:
+                print(f"Received {line}, requesting readings again...")
+                attempt -= 1  # Don't count this as a failed attempt
+                time.sleep(timeout)
+                continue
+                
             # Check if response is a valid float
             try:
                 value = float(line)
@@ -597,12 +602,10 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
                 print("Error: Unable to reconnect to Arduino.")
                 return None
             
-
         attempt += 1
         time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
-    #print("Error: No valid responses after " + retries + " for " + command)
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
     
     power_ser = connect_to_wemos()
