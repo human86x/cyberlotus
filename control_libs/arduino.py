@@ -319,7 +319,7 @@ def safe_serial_write(pump_name, state, retries=5, timeout=2):
 
                                 # Reset Arduino via DTR
                             print(f"##################Reseting Arduino#####################: {response}")
-                            hard_reset_arduino(power_ser)
+                            hard_reset_arduino()
                             #ser.dtr = True  # Set DTR line to reset Arduino
                             #time.sleep(0.1)  # Short delay to ensure reset
                             #ser.dtr = False  # Release DTR line
@@ -458,7 +458,7 @@ def safe_serial_write_emergency():
         try:
             if ser and ser.is_open:
                 #ser.write(b'X')
-                hard_reset_arduino(power_ser)
+                hard_reset_arduino()
                 ser.flush()
                 print(f"[ALERT] 🚨 Emergency RESET using external relay - Attempt {attempt + 1}")
 
@@ -573,5 +573,5 @@ def send_command_and_get_response(ser, command, retries=1, timeout=2.3):
     append_console_message(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
     
     power_ser = connect_to_wemos()
-    hard_reset_arduino(power_ser)
+    hard_reset_arduino()
     return None
