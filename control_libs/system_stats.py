@@ -220,6 +220,7 @@ console_lock = Lock()
 
 def append_console_message(message):
     """Thread-safe function to add messages to console output"""
+    print("Message from the console: ")
     print(message)
     timestamp = datetime.now().timestamp()
     with console_lock:
