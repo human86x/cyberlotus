@@ -50,6 +50,11 @@ def circulate_solution():
         readings = []
         for _ in range(3):  # Take 3 readings
             plant_level = send_command_and_get_response(ser, b'C')
+            if plant_level is None:
+                print("⚠️ Failed to get plant level reading. Retrying...")
+                append_console_message("⚠️ Failed to get plant level reading. Retrying...")
+                continue  # Skip to next iteration to try again
+            
             system_state["plant_pot_level"]["value"] = plant_level
             system_state["plant_pot_level"]["timestamp"] = int(time.time())
             
@@ -83,7 +88,14 @@ def circulate_solution():
         LEVEL_MARGIN = 1
 
         # Control logic based on the level with margin
-        level_difference = plant_level - target_plant_pot_level
+        try:
+            level_difference = plant_level - target_plant_pot_level
+        
+        except TypeError:
+            print("⚠️ Invalid plant level reading (None). Attempting to get new readings...")
+            append_console_message("⚠️ Invalid plant level reading (None). Attempting to get new readings...")
+            
+            continue  # This will make the loop try again
 
         if abs(level_difference) <= LEVEL_MARGIN:
             print("Within acceptable range - both pumps ON to maintain circulation")
@@ -99,6 +111,7 @@ def circulate_solution():
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
         #time.sleep(5)  # Wait before checking again
+        
 
 
 def get_ppm(baseline, ec):
