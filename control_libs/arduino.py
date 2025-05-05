@@ -56,6 +56,7 @@ def find_serial_devices(device_type="arduino"):
     """Search for possible serial devices with device-specific filtering"""
     possible_ports = []
     print("Searching for Arduino and Wemos boards..")
+    append_console_message("Searching for Arduino and Wemos boards..")
     if device_type.lower() == "wemos":
         # Wemos only appears on USB ports
         possible_ports += glob.glob('/dev/ttyUSB[0-9]*')
@@ -72,6 +73,7 @@ def find_serial_devices(device_type="arduino"):
 def test_serial_connection(port, device_type="arduino"):
     """Test if a device is responding on the given port with exact response validation"""
     print("Testing the serial connection")
+    append_console_message("Testing the serial connection")
     try:
         with serial.Serial(port, 9600, timeout=2) as test_ser:
             time.sleep(2)  # Wait for device to reset
@@ -82,16 +84,17 @@ def test_serial_connection(port, device_type="arduino"):
             if device_type.lower() == "wemos":
                 if response == "&#!WEMOS PONG":  # Exact Wemos response
                     print(f"✓ Valid Wemos found at {port}")
-                    print("✓ Wemos found.")
+                    append_console_message(f"✓ Valid Wemos found at {port}")
                     return test_ser
             elif device_type.lower() == "arduino":
                 if response == "PONG" or "ARDUINO_READY":  # Exact Arduino response
                     print(f"✓ Valid Arduino found at {port}")
-                     
-                    print("✓ Arduino found.")
+                    append_console_message(f"✓ Valid Arduino found at {port}")
+                    #print("✓ Arduino found.")
                     ser = test_ser
                     return ser
                 else:
+                    append_console_message(f"HARD RESETING ARDUINO FROM - test_serial_connection())")
                     hard_reset_arduino()
                     
     except (serial.SerialException, OSError) as e:
@@ -103,20 +106,24 @@ def connect_to_arduino():
     # Try default port first
     default_port = '/dev/arduino_mega'
     print("Connecting to Arduino...")
+    append_console_message("Connecting to Arduino...")
     try:
         ser = serial.Serial(default_port, 9600, timeout=2)
         time.sleep(2)
         ser.write(b'PING\r\n')
         response = ser.readline().decode().strip()
         print(f"############    response - {response}")
+        append_console_message(f"############    response - {response}")
+        
         if response == "PONG" or "ARDUINO_READY":
-            print(f"Connected to Arduino at default {default_port}")
             print("✓ Connected to Arduino.")
+            append_console_message("✓ Connected to Arduino.")
+            
             return ser
         ser.close()
     except Exception as e:
         print(f"Default Arduino port {default_port} not available")
-    
+        append_console_message(f"Default Arduino port {default_port} not available")
     # Search only ACM ports for Arduino
     possible_ports = find_serial_devices("arduino")
     for port in possible_ports:
@@ -125,6 +132,8 @@ def connect_to_arduino():
             return ser
     
     print("× Error: No Arduino found on any ACM port")
+    append_console_message("× Error: No Arduino found on any ACM port")
+    
     hard_reset_arduino()
     return None
 
@@ -132,12 +141,15 @@ def connect_to_wemos():
     global power_ser
     max_attempts = 3
     print("Connecting to Wemos...")
-    
+    append_console_message("Connecting to Wemos...")
     for attempt in range(max_attempts):
         try:
             # Try default port first
             default_port = '/dev/ttyUSB0'
             power_ser = serial.Serial(default_port, 9600, timeout=2)
+            print(f"Connected to Arduino at default {default_port}")
+            append_console_message(f"Connected to Arduino at default {default_port}")
+            
             time.sleep(2)  # Allow time for initialization
             
             # Test connection
@@ -146,6 +158,8 @@ def connect_to_wemos():
             
             if response == "&#!WEMOS PONG":
                 print(f"✓ Connected to Wemos on {default_port} (Attempt {attempt + 1})")
+                append_console_message(f"✓ Connected to Wemos on {default_port} (Attempt {attempt + 1})")
+                
                 return power_ser
                 
             power_ser.close()
@@ -163,16 +177,21 @@ def connect_to_wemos():
                 
                 if response == "&#!WEMOS PONG":
                     print(f"✓ Connected to Wemos on {port} (Attempt {attempt + 1})")
+                    append_console_message(f"✓ Connected to Wemos on {port} (Attempt {attempt + 1})")
+                    
                     return power_ser
                     
                 power_ser.close()
             except Exception as e:
                 print(f"Failed on port {port}: {str(e)}")
+                append_console_message(f"Failed on port {port}: {str(e)}")
         
         if attempt < max_attempts - 1:
             time.sleep(1)  # Wait before retrying
     
     print("× Error: Failed to connect to Wemos after multiple attempts", "error")
+    append_console_message("× Error: Failed to connect to Wemos after multiple attempts", "error")
+    
     return None
 #def connect_to_wemos():
 #    global power_ser
@@ -208,16 +227,19 @@ def hard_reset_arduino():
             power_ser = connect_to_wemos()
             if power_ser is None:
                 print("Cannot reset - no Wemos connection", "error")
+                append_console_message("Cannot reset - no Wemos connection", "error")
                 return False
                 
         # Send reset command
         power_ser.write(b'RE\r\n')
         response = power_ser.readline().decode().strip()
         print(f"Wemos reset response: {response}")
+        append_console_message(f"Wemos reset response: {response}")
         return True
         
     except Exception as e:
         print(f"Reset failed: {str(e)}", "error")
+        append_console_message(f"Reset failed: {str(e)}", "error")
         power_ser = None  # Force reconnect on next attempt
         return False
 
@@ -281,6 +303,7 @@ def get_serial_connection():
         return ser
     else:
         print("[ERROR] Serial connection is not established.")
+        append_console_message("[ERROR] Serial connection is not established.")
         ser = connect_to_arduino()
         return ser
 
@@ -290,6 +313,8 @@ def get_wemos_connection():
         return power_ser
     else:
         print("[ERROR] Serial connection is not established.")
+        append_console_message("[ERROR] Serial connection is not established.")
+        
         power_ser = connect_to_wemos()
         return power_ser
 
@@ -298,6 +323,7 @@ def close_serial_connection():
     if ser and ser.is_open:
         ser.close()
         print("[INFO] Serial connection closed.")
+        append_console_message("[INFO] Serial connection closed.")
 
 def safe_serial_write(pump_name, state, retries=5, timeout=3):
     global ser
@@ -328,6 +354,8 @@ def safe_serial_write(pump_name, state, retries=5, timeout=3):
                 ser.flushOutput()  # Clears the output buffer
 
                 print(f"[INFO] Sent command: {command}, waiting for response...")
+                append_console_message(f"[INFO] Sent command: {command}, waiting for response...")
+                
                 ser.write(command.encode())
                 time.sleep(1)  # Small delay to avoid CPU overuse
 
@@ -336,15 +364,16 @@ def safe_serial_write(pump_name, state, retries=5, timeout=3):
                     if ser.in_waiting > 0:
                         response = ser.readline().decode().strip()
                         print(f"[INFO] Received response: {response}")
-
+                        append_console_message(f"[INFO] Received response: {response}")
                         # Changed from == to in to check for partial match
                         if expected_response in response:
                             print(f"[SUCCESS] Arduino confirmed action: {response}")
+                            append_console_message(f"[SUCCESS] Arduino confirmed action: {response}")
                             system_state["relay_states"]["relay_" + pump_name]["state"] = f"{'ON' if state == 'o' else 'OFF'}"
                             system_state["relay_states"]["relay_" + pump_name]["timestamp"] = cur_time
                             
                             print(f"system_state[\relay_states/][relay_ + {pump_name}][state] = {state}")
-                            
+                            append_console_message(f"system_state[\relay_states/][relay_ + {pump_name}][state] = {state}")
                             
                             return True  # Exit after successful confirmation
                         else:
@@ -355,6 +384,7 @@ def safe_serial_write(pump_name, state, retries=5, timeout=3):
 
                                 # Reset Arduino via DTR
                             print(f"##################Reseting Arduino#####################: {response}")
+                            append_console_message("######RESETING ARDUINO######### - safe_serial_write()")
                             hard_reset_arduino()
                             #ser.dtr = True  # Set DTR line to reset Arduino
                             #time.sleep(0.1)  # Short delay to ensure reset
@@ -366,20 +396,27 @@ def safe_serial_write(pump_name, state, retries=5, timeout=3):
                     time.sleep(0.1)  # Small delay to avoid CPU overuse
 
                 print(f"[ERROR] No valid response. Retrying... (Attempt {attempt + 1}/{retries})")
+                append_console_message(f"[ERROR] No valid response. Retrying... (Attempt {attempt + 1}/{retries})")
                 attempt += 1
             else:
                 print("[ERROR] Serial port is not open. Cannot send command.")
+                append_console_message("[ERROR] Serial port is not open. Cannot send command.")
+                
                 return
 
         # After retries fail
         print("[ERROR] Failed to confirm command after retries. Attempting emergency stop.")
+        append_console_message("[ERROR] Failed to confirm command after retries. Attempting emergency stop.")
+        
         safe_serial_write_emergency()
 
     except serial.SerialException as e:
         print(f"[ERROR] Serial write failed for {pump_name}: {e}")
+        append_console_message(f"[ERROR] Serial write failed for {pump_name}: {e}")
         safe_serial_write_emergency()
     except Exception as e:
         print(f"[ERROR] Unexpected error while writing to serial: {e}")
+        append_console_message(f"[ERROR] Serial write failed for {pump_name}: {e}")
         safe_serial_write_emergency()
 
 def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
@@ -455,16 +492,20 @@ def emergency_stop(pump_name):
     """Immediately stop the specified pump in case of error."""
     try:
         print(f"[EMERGENCY] Stopping {pump_name} immediately!")
+        append_console_message(f"[EMERGENCY] Stopping {pump_name} immediately!")
+        
         if ser and ser.is_open:
             ser.write(f"{pump_name}f".encode())
             ser.flush()
         else:
             print("[ERROR] Serial port is not open. Attempting reconnection...")
+            append_console_message("[ERROR] Serial port is not open. Attempting reconnection...")
+            
             connect_to_arduino()
             ser.write(f"{pump_name}f".encode())
     except Exception as e:
         print(f"[CRITICAL] Failed to stop {pump_name}: {e}")
-
+        append_console_message(f"[CRITICAL] Failed to stop {pump_name}: {e}")
 
 # Usage example
 #t#ry:
@@ -494,6 +535,7 @@ def safe_serial_write_emergency():
         try:
             if ser and ser.is_open:
                 #ser.write(b'X')
+                append_console_message("######RESETING ARDUINO#### 🚨 safe_serial_write_emergency()")
                 hard_reset_arduino()
                 ser.flush()
                 print(f"[ALERT] 🚨 Emergency RESET using external relay - Attempt {attempt + 1}")
@@ -501,31 +543,36 @@ def safe_serial_write_emergency():
                 # Wait for Arduino response
                 response = ser.readline().decode().strip()
                 print(f"[INFO] Arduino response: {response}")
-
+                append_console_message(f"[INFO] Arduino response: {response}")
                 if response == "All pumps turned OFF":
                     print("[SUCCESS] ✅ Arduino confirmed: All pumps are OFF.")
                     return  # Exit function if successful
                 else:
                     print("[WARNING] ⚠️ Unexpected response. Reconnecting and retrying...")
-
+                    append_console_message("UNEXPECTED RESPONSE FROM ARDUINO - safe_serial_write_emergency()")
             else:
                 print("[ERROR] Serial port is not open. Attempting to reconnect...")
-
+                append_console_message("[ERROR] Serial port is not open. Attempting to reconnect...")
             # Reconnect and retry
             connect_to_arduino()
             attempt += 1
 
         except serial.SerialException as e:
             print(f"[ERROR] Serial write failed during Emergency Stop: {e}. Reconnecting and retrying...")
+            append_console_message(f"[ERROR] Serial write failed during Emergency Stop: {e}. Reconnecting and retrying...")
             connect_to_arduino()
             attempt += 1
 
         except Exception as e:
             print(f"[ERROR] Unexpected error during Emergency Stop: {e}. Reconnecting and retrying...")
+            append_console_message(f"[ERROR] Unexpected error during Emergency Stop: {e}. Reconnecting and retrying...")
+            
             connect_to_arduino()
             attempt += 1
 
     print("[FAILURE] ❌ Emergency Stop failed after multiple attempts. Manual intervention may be required.")
+    append_console_message("[FAILURE] ❌ Emergency Stop failed after multiple attempts. Manual intervention may be required.")
+    
 
 
 
@@ -545,11 +592,11 @@ def send_command_and_get_response(ser, command, retries=1, timeout=3.3):
         # Ensure serial connection is open
         if ser is None or not ser.is_open:
             print("Serial port is not open, attempting to reconnect...")
-            print("Serial port is not open, attempting to reconnect")
+            append_console_message("Serial port is not open, attempting to reconnect")
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
-                print("Error Unable to connect.")
+                append_console_message("Error Unable to connect.")
                 return None
         
         try:
@@ -558,7 +605,8 @@ def send_command_and_get_response(ser, command, retries=1, timeout=3.3):
             ser.reset_output_buffer()
 
             print(f"Send command and get response -> the command >>> {command}")
-
+            append_console_message(f"Send command and get response -> the command >>> {command}")
+            
             # Send the command to the Arduino
             ser.write(command)
             
@@ -568,10 +616,13 @@ def send_command_and_get_response(ser, command, retries=1, timeout=3.3):
             # Read response from Arduino
             line = ser.readline().decode('utf-8').strip()
             print(f"Send command and get response -> the response >>> {line}")
+            append_console_message(f"Send command and get response -> the response >>> {line}")
             
             # Check for special responses that require retrying
             if line in ["ARDUINO_READY", "PONG"]:
                 print(f"Received {line}, requesting readings again...")
+                append_console_message(f"Received {line}, requesting readings again...")
+                
                 attempt -= 1  # Don't count this as a failed attempt
                 time.sleep(timeout)
                 continue
@@ -580,36 +631,37 @@ def send_command_and_get_response(ser, command, retries=1, timeout=3.3):
             try:
                 value = float(line)
                 print(f"******VALUE = {value}")
-                print("✓ Valid value.")
+                append_console_message(f"✓ Valid value of {value}")
                 return value  # Valid response, return the float
             except ValueError:
                 print(f"Error: Invalid response: {line}, not a valid float")
-                print("Error: Not a valid float!")
+                append_console_message(f"Error: Invalid response: {line}, not a valid float")
 
         except SerialException as e:
             print(f"Serial I/O error: {e}")
             print("Attempting to reconnect to Arduino...")
-            print("Attempting to reconect to arduino")
+            append_console_message(f"Serial I/O error: {e} Attempting to reconect to arduino")
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
-                print("Error: Unable to connect..")
+                append_console_message("Error: Unable to connect..")
                 return None
 
         except Exception as e:
             print(f"Unexpected error: {e}")
-            print("Attempting to reconnect to Arduino...")
+            append_console_message(f"Attempting to reconnect to Arduino...  {e}")
             
             ser = connect_to_arduino()  # Reconnect to Arduino
             if ser is None or not ser.is_open:
                 print("Error: Unable to reconnect to Arduino.")
+                append_console_message("Error: Unable to reconnect to Arduino.")
                 return None
             
         attempt += 1
         time.sleep(timeout)  # Retry delay
     
     print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
-    print(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
+    append_console_message(f"Error: No valid response after {retries} retries for command {command.decode('utf-8')}")
     
     power_ser = connect_to_wemos()
     hard_reset_arduino()
