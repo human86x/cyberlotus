@@ -257,6 +257,9 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     NPK_margin = 20
     pH_margin = 1
     solution_margin = 5
+
+    if solution_adj < 0: solution_adj=0
+
     ##########################
     if NPK >= 1000:
         NPK_adj = 0
