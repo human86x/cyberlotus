@@ -221,7 +221,7 @@ console_lock = Lock()
 def append_console_message(message):
     """Thread-safe function to add messages to console output"""
     print("Message from the console: ")
-    print(message)
+    print(f"{message}")
     timestamp = datetime.now().timestamp()
     with console_lock:
         # Keep only the last 100 messages to prevent memory issues
