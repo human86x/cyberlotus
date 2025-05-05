@@ -125,6 +125,7 @@ def connect_to_arduino():
             return ser
     
     print("× Error: No Arduino found on any ACM port")
+    hard_reset_arduino()
     return None
 
 def connect_to_wemos():
