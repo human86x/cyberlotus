@@ -75,7 +75,7 @@ def test_serial_connection(port, device_type="arduino"):
     print("Testing the serial connection")
     append_console_message("Testing the serial connection")
     try:
-        with serial.Serial(port, 9600, timeout=2) as test_ser:
+        with serial.Serial(port, 115200, timeout=2) as test_ser:
             time.sleep(2)  # Wait for device to reset
             test_ser.write(b'PING\r\n')
             response = test_ser.readline().decode().strip()
@@ -108,7 +108,7 @@ def connect_to_arduino():
     print("Connecting to Arduino...")
     append_console_message("Connecting to Arduino...")
     try:
-        ser = serial.Serial(default_port, 9600, timeout=2)
+        ser = serial.Serial(default_port, 115200, timeout=2)
         time.sleep(2)
         ser.write(b'PING\r\n')
         response = ser.readline().decode().strip()
@@ -266,7 +266,7 @@ def construction_connect_to_arduino():
     # Try connecting via symlink only
     try:
         print(f"DEBUG: Trying symlink {SYMLINK}")
-        ser = serial.Serial(SYMLINK, baudrate=9600, timeout=1)
+        ser = serial.Serial(SYMLINK, baudrate=115200, timeout=1)
         time.sleep(2)
         if test_connection(ser):
             print(f"✓ Connected via symlink {SYMLINK}")
