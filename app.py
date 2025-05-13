@@ -514,12 +514,12 @@ def auto_pilot_loop(pause_minutes):
     # Define the sequence of tasks
     tasks = [
         load_target_values,
-        temperature_control,
+        #temperature_control,
         lambda: perform_ph_test("solution"),
-        temperature_control,
-        condition_monitor,
-        temperature_control,
-        lambda: perform_ph_test("solution")
+        #temperature_control,
+        #condition_monitor,
+        #temperature_control,
+        #lambda: perform_ph_test("solution")
     ]
 
     while auto_pilot_running:
