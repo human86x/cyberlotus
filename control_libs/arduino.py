@@ -419,7 +419,7 @@ def safe_serial_write(pump_name, state, retries=5, timeout=3):
         append_console_message(f"[ERROR] Serial write failed for {pump_name}: {e}")
         safe_serial_write_emergency()
 
-def safe_serial_write_precise(pump_name, duration, retries=5, timeout=2):
+def safe_serial_write_precise(pump_name, duration, retries=3, timeout=2):
     global ser
     global system_state
     ser = get_serial_connection()
@@ -585,7 +585,7 @@ import serial
 from serial import SerialException
 
 
-def send_command_and_get_response(ser, command, retries=3, timeout=3.3):
+def send_command_and_get_response(ser, command, retries=1, timeout=3.3):
     attempt = 0
     global power_ser
     while attempt < retries:
