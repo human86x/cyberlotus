@@ -209,8 +209,8 @@ def chamber_ambiance():
         #    print("Normal operation...")
         
         #    if next(cycle_check):
-        #        perform_ph_test("solution")
-        #        time.sleep(5)  # Adjust as needed
+        perform_ph_test("solution")
+        time.sleep(5)  # Adjust as needed
 
 
 
