@@ -377,23 +377,40 @@
             });
         }
 
-        async function updateCharts() {
-            const data = await fetchData();
-            const clean = arr => arr.map(x => x !== null ? x : NaN);
+        
+    async function updateCharts() {
+        const data = await fetchData();
+        const clean = arr => arr.map(x => x !== null ? x : NaN);
 
-            // Update each chart
-            Object.keys(allCharts).forEach(chartId => {
-                if (chartId === 'solutionTankBar' || chartId === 'relayStatesPie') return;
-                
-                const chart = allCharts[chartId];
-                if (chart && data[chartId.replace('Chart', '')]) {
+        // Update each chart
+        Object.keys(allCharts).forEach(chartId => {
+            if (chartId === 'solutionTankBar' || chartId === 'relayStatesPie') return;
+            
+            const chart = allCharts[chartId];
+            if (chart) {
+                // Map chart IDs to their corresponding data keys
+                const dataKeyMap = {
+                    'ecChart': 'ec',
+                    'phChart': 'ph',
+                    'ppmChart': 'ppm',
+                    'tempChart': 'temperature',
+                    'solutionAdjChart': 'solution_adj',
+                    'npkAdjChart': 'NPK_adj',
+                    'phAdjChart': 'pH_adj',
+                    'plantTempChart': 'plant_temp',
+                    'chamberTempChart': 'chamber_temp',
+                    'chamberHumidityChart': 'chamber_humidity'
+                };
+
+                const dataKey = dataKeyMap[chartId];
+                if (dataKey && data[dataKey]) {
                     chart.data.labels = data.timestamps;
-                    chart.data.datasets[0].data = clean(data[chartId.replace('Chart', '')]);
+                    chart.data.datasets[0].data = clean(data[dataKey]);
                     chart.update();
                 }
-            });
-        }
-
+            }
+        });
+    }
         async function initCharts() {
             // Initialize all charts
             allCharts.ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32');
