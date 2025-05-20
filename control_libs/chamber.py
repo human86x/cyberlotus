@@ -85,7 +85,7 @@ def chamber_ambiance():
         print("##############################################################################")
         
 
-        circulate_solution()
+        #circulate_solution()
         print("########################## CIRCULATION ESTABLISHED ###########################")
         print("##############################################################################")
         
@@ -209,7 +209,7 @@ def chamber_ambiance():
         #    print("Normal operation...")
         
         #    if next(cycle_check):
-        perform_ph_test("solution")
+        #perform_ph_test("solution")
         time.sleep(5)  # Adjust as needed
 
 
