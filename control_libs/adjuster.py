@@ -175,8 +175,8 @@ def set_water_level():
         
         # Determine required action
         if level_difference < -LEVEL_MARGIN:  # Too low - need to add water
-            print("Adding more solution to the pot...")
-            append_console_message("🔼 Raising water level...")
+            print("Draining the plant pot...")
+            append_console_message("🔽 Lowering water level...")
             
             # Turn on down pump (adding solution)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
@@ -184,9 +184,9 @@ def set_water_level():
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             
         else:  # Too high - need to drain
-            print("Draining the plant pot...")
-            append_console_message("🔽 Lowering water level...")
             
+            print("Adding more solution to the pot...")
+            append_console_message("🔼 Raising water level...")
             # Turn on up pump (draining)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             # Turn off down pump
