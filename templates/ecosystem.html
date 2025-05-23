@@ -158,13 +158,14 @@
         .unit-toggle:hover {
             background-color: #8e44ad;
         }
+        .loading {
+            color: #7f8c8d;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">
-            <img src="{{ url_for('static', filename='cyberlotus-logo.png') }}" alt="CyberLotus Logo">
-        </div>
         <h1>CyberLotus Environmental Control System</h1>
         
         <!-- Ambient Data Display -->
@@ -187,12 +188,13 @@
                     <div>%</div>
                 </div>
                 <div class="ambient-item">
-                    <div>Light Intensity</div>
-                    <div class="ambient-value" id="ambient-light">-</div>
-                    <div>lux</div>
+                    <div>Root Temperature</div>
+                    <div class="ambient-value" id="ambient-root-temp">-</div>
+                    <div>°C</div>
                 </div>
             </div>
             <button class="refresh-btn" id="refresh-ambient">Refresh Readings</button>
+            <div id="refresh-status" class="sensor-note">Last update: Never</div>
         </div>
         
         <!-- Automatic Setup Section -->
@@ -343,7 +345,61 @@
         document.getElementById('refresh-ambient').addEventListener('click', updateAmbientData);
         
         // Initial ambient data load
-        updateAmbientData();
+        function updateAmbientDisplay(data) {
+            if (data.chamber_temperature && data.chamber_temperature.value !== null) {
+                document.getElementById('ambient-air-temp').textContent = data.chamber_temperature.value;
+            }
+            if (data.temperature && data.temperature.value !== null) {
+                document.getElementById('ambient-water-temp').textContent = data.temperature.value;
+            }
+            if (data.chamber_humidity && data.chamber_humidity.value !== null) {
+                document.getElementById('ambient-humidity').textContent = data.chamber_humidity.value;
+            }
+            if (data.plant_temperature && data.plant_temperature.value !== null) {
+                document.getElementById('ambient-root-temp').textContent = data.plant_temperature.value;
+            }
+            
+            // Update last refresh time
+            const now = new Date();
+            document.getElementById('refresh-status').textContent = 
+                `Last update: ${now.toLocaleTimeString()}`;
+        }
+
+        // Function to fetch chamber data
+        async function fetchChamberData() {
+            try {
+                document.getElementById('refresh-status').textContent = "Updating...";
+                document.getElementById('refresh-ambient').disabled = true;
+                
+                const response = await fetch('/chamber_data_update');
+                if (response.ok) {
+                    // Give the Arduino a moment to respond
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Fetch the updated system state
+                    const stateResponse = await fetch('/get_system_state');
+                    if (stateResponse.ok) {
+                        const data = await stateResponse.json();
+                        updateAmbientDisplay(data);
+                    } else {
+                        console.error('Failed to fetch system state');
+                    }
+                } else {
+                    console.error('Failed to trigger data update');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('refresh-status').textContent = "Error updating data";
+            } finally {
+                document.getElementById('refresh-ambient').disabled = false;
+            }
+        }
+
+        // Connect refresh button
+        document.getElementById('refresh-ambient').addEventListener('click', fetchChamberData);
+        
+        // Initial data load
+        fetchChamberData();
 
         // EC Unit toggle
         const ecUnitToggle = document.getElementById('ec-unit-toggle');
