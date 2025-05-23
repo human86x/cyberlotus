@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Initial load
-    fetchChamberData();
+    //fetchChamberData();
 });
 
 function updateAmbientDisplay(data) {
@@ -461,11 +461,21 @@ function updateAmbientDisplay(data) {
             
             updateCurrentValues();
         });
-
+        function circulate_the_solution(){
+        fetch('/start_circulation')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Circulation started:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error with Circulation Proess:', error);
+        });
+    }
         document.getElementById('set-water-btn').addEventListener('click', function() {
             const envType = document.getElementById('env-type').value;
             const waterHeight = document.getElementById('water-height').value;
             alert(`Setting water level to ${waterHeight}cm for ${envType} environment`);
+            circulate_the_solution();
             document.getElementById('current-water').textContent = 
                 `${waterHeight}cm (${envType === 'aquatic' ? 'Aquatic' : 'Terrestrial'})`;
         });
