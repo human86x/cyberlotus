@@ -126,7 +126,7 @@ def set_water_level():
     
     # Constants
     LEVEL_MARGIN = 1  # cm acceptable margin
-    MAX_ATTEMPTS = 20  # Maximum adjustment attempts before giving up
+    MAX_ATTEMPTS = 200  # Maximum adjustment attempts before giving up
     READING_RETRIES = 3  # Number of reading attempts before considering it failed
     DELAY_BETWEEN_ACTIONS = 5  # seconds between adjustments
     
