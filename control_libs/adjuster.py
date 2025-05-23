@@ -114,6 +114,99 @@ def circulate_solution():
         
 
 
+def set_water_level():
+    target_plant_pot_level = load_config("target_plant_pot_level")
+    system_state["plant_pot_target_level"]["value"] = target_plant_pot_level
+    system_state["plant_pot_target_level"]["timestamp"] = int(time.time())
+    pump_up = "plant_up"
+    pump_down = "plant_down"
+    
+    print("Setting the water level")
+    append_console_message("Adjusting water level..")
+    
+    # Constants
+    LEVEL_MARGIN = 1  # cm acceptable margin
+    MAX_ATTEMPTS = 20  # Maximum adjustment attempts before giving up
+    READING_RETRIES = 3  # Number of reading attempts before considering it failed
+    DELAY_BETWEEN_ACTIONS = 5  # seconds between adjustments
+    
+    attempts = 0
+    
+    while attempts < MAX_ATTEMPTS:
+        attempts += 1
+        valid_reading = False
+        plant_level = None
+        
+        # Take multiple readings to ensure accuracy
+        for _ in range(READING_RETRIES):
+            try:
+                plant_level = send_command_and_get_response(ser, b'C')
+                if plant_level is not None:
+                    valid_reading = True
+                    break
+            except Exception as e:
+                print(f"⚠️ Error reading water level: {str(e)}")
+                append_console_message(f"⚠️ Error reading water level: {str(e)}")
+                time.sleep(1)
+        
+        if not valid_reading:
+            append_console_message("❌ Failed to get valid water level reading")
+            return False
+        
+        # Update system state with the reading
+        system_state["plant_pot_level"]["value"] = plant_level
+        system_state["plant_pot_level"]["timestamp"] = int(time.time())
+        
+        append_console_message(f"✅ Current water distance: {plant_level}cm | Target: {target_plant_pot_level}cm")
+        print(f"Current: {plant_level}cm | Target: {target_plant_pot_level}cm | Attempt {attempts}/{MAX_ATTEMPTS}")
+        
+        # Calculate difference
+        level_difference = plant_level - target_plant_pot_level
+        
+        # Check if we're within acceptable range
+        if abs(level_difference) <= LEVEL_MARGIN:
+            print("✅ Water level within acceptable range")
+            append_console_message("✅ Water level adjustment complete")
+            
+            # Turn off both pumps
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+            return True
+        
+        # Determine required action
+        if level_difference < -LEVEL_MARGIN:  # Too low - need to add water
+            print("Adding more solution to the pot...")
+            append_console_message("🔼 Raising water level...")
+            
+            # Turn on down pump (adding solution)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
+            # Turn off up pump
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+            
+        else:  # Too high - need to drain
+            print("Draining the plant pot...")
+            append_console_message("🔽 Lowering water level...")
+            
+            # Turn on up pump (draining)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
+            # Turn off down pump
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+        
+        # Wait before checking again
+        time.sleep(DELAY_BETWEEN_ACTIONS)
+    
+    # If we get here, we've exceeded max attempts
+    print("❌ Failed to reach target water level after maximum attempts")
+    append_console_message("❌ Water level adjustment failed after maximum attempts")
+    
+    # Turn off both pumps before exiting
+    send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+    send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+    return False
+
+
+
+
 def get_ppm(baseline, ec):
     global system_state
     

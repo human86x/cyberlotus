@@ -430,6 +430,16 @@ def start_circulation():
     circulate_solution()
 
     return "True"#redirect(url_for('control_panel'))
+from control_libs.adjuster import set_water_level
+@app.route('/set_water_level')
+def set_water_level_route():
+    if set_water_level():
+        return jsonify({"status": "success", "message": "Water level adjusted successfully"})
+    else:
+        return jsonify({"status": "error", "message": "Failed to adjust water level"}), 500
+
+
+
 
 from control_libs.chamber import get_chamber_humidity, get_chamber_temp, get_plant_temp
 
