@@ -367,31 +367,34 @@
             }
         });
 
-        // Function to update ambient data display from systemStats
-        function updateAmbientDisplay() {
-            // Check if systemStats is available
-            if (typeof systemStats === 'undefined') {
-                console.log("systemStats not available yet");
-                return;
-            }
+       // In ecosystem.html
+document.addEventListener('DOMContentLoaded', function() {
+    // Listen for system stats updates
+    document.addEventListener('systemStatsUpdated', function(e) {
+        updateAmbientDisplay(e.detail);
+    });
+    
+    // Initial load
+    fetchChamberData();
+});
 
-            // Get the values from the global systemStats array
-            const airTemp = systemStats.chamber_temperature?.value;
-            const waterTemp = systemStats.temperature?.value;
-            const humidity = systemStats.chamber_humidity?.value;
-            const rootTemp = systemStats.plant_temperature?.value;
-            
-            // Update the display elements with visual feedback
-            updateSensorDisplay('ambient-air-temp', airTemp, '°C');
-            updateSensorDisplay('ambient-water-temp', waterTemp, '°C');
-            updateSensorDisplay('ambient-humidity', humidity, '%');
-            updateSensorDisplay('ambient-root-temp', rootTemp, '°C');
-            
-            // Update last refresh time
-            const now = new Date();
-            document.getElementById('last-update-time').textContent = now.toLocaleTimeString();
-        }
-
+function updateAmbientDisplay(data) {
+    // Get the values from the data
+    const airTemp = data.chamber_temperature?.value;
+    const waterTemp = data.temperature?.value;
+    const humidity = data.chamber_humidity?.value;
+    const rootTemp = data.plant_temperature?.value;
+    
+    // Update the display elements with visual feedback
+    updateSensorDisplay('ambient-air-temp', airTemp, '°C');
+    updateSensorDisplay('ambient-water-temp', waterTemp, '°C');
+    updateSensorDisplay('ambient-humidity', humidity, '%');
+    updateSensorDisplay('ambient-root-temp', rootTemp, '°C');
+    
+    // Update last refresh time
+    const now = new Date();
+    document.getElementById('last-update-time').textContent = now.toLocaleTimeString();
+}
         // Helper function to update sensor display with animation
         function updateSensorDisplay(elementId, value, unit) {
             const element = document.getElementById(elementId);
