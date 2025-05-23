@@ -330,46 +330,56 @@
                 });
         }
 
-        function updateSystemStats(data) {
-            const tbody = document.getElementById("systemStatsBody");
-            tbody.innerHTML = '';
-            
-            // Create a map of all available data for quick lookup
-            const dataMap = {};
-            for (const [key, value] of Object.entries(data)) {
-                if (key !== 'relay_states' && key !== 'console_output') {
-                    dataMap[key] = value;
-                }
-            }
-            
-            if (data.relay_states) {
-                for (const [key, value] of Object.entries(data.relay_states)) {
-                    dataMap[key] = value;
-                }
-            }
-            
-            // Process by groups
-            dashboardGroups.forEach(group => {
-                // Add group header
-                const groupHeader = tbody.insertRow();
-                groupHeader.innerHTML = `<td colspan="4" style="background-color: #e0e0e0; font-weight: bold;">
-                    <i class="fas ${group.icon}"></i> ${group.name}
-                </td>`;
-                
-                // Add items in this group
-                systemStatsOrder.forEach(item => {
-                    if (item.group === group.name && dataMap[item.key]) {
-                        addTableRow(tbody, item.key, dataMap[item.key], item.icon);
-                        
-                        // Add target value if exists
-                        const targetKey = `target_${item.key}`;
-                        if (dataMap[targetKey]) {
-                            addTableRow(tbody, targetKey, dataMap[targetKey], "fa-bullseye");
-                        }
-                    }
-                });
-            });
+// Define the global systemStats variable at the top level
+let systemStats = {};
+
+function updateSystemStats(data) {
+    // Update the global systemStats variable with the new data
+    systemStats = {...data}; // Create a shallow copy of the data
+    
+    const tbody = document.getElementById("systemStatsBody");
+    tbody.innerHTML = '';
+    
+    // Create a map of all available data for quick lookup
+    const dataMap = {};
+    for (const [key, value] of Object.entries(data)) {
+        if (key !== 'relay_states' && key !== 'console_output') {
+            dataMap[key] = value;
         }
+    }
+    
+    if (data.relay_states) {
+        for (const [key, value] of Object.entries(data.relay_states)) {
+            dataMap[key] = value;
+        }
+    }
+    
+    // Process by groups
+    dashboardGroups.forEach(group => {
+        // Add group header
+        const groupHeader = tbody.insertRow();
+        groupHeader.innerHTML = `<td colspan="4" style="background-color: #e0e0e0; font-weight: bold;">
+            <i class="fas ${group.icon}"></i> ${group.name}
+        </td>`;
+        
+        // Add items in this group
+        systemStatsOrder.forEach(item => {
+            if (item.group === group.name && dataMap[item.key]) {
+                addTableRow(tbody, item.key, dataMap[item.key], item.icon);
+                
+                // Add target value if exists
+                const targetKey = `target_${item.key}`;
+                if (dataMap[targetKey]) {
+                    addTableRow(tbody, targetKey, dataMap[targetKey], "fa-bullseye");
+                }
+            }
+        });
+    });
+    
+    // After updating the table, trigger an event to notify other components
+    const event = new CustomEvent('systemStatsUpdated', { detail: systemStats });
+    document.dispatchEvent(event);
+}
 
         function addTableRow(tbody, key, item, icon) {
             const row = tbody.insertRow();
