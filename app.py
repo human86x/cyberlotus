@@ -431,7 +431,7 @@ def start_circulation():
 
     return "True"#redirect(url_for('control_panel'))
 from control_libs.adjuster import set_water_level
-
+from control_libs.electric_conductivity import save_config
 @app.route('/set_water_level', methods=['POST'])
 def set_water_level_route():
     try:
@@ -443,7 +443,7 @@ def set_water_level_route():
         target_level = float(data['target_level'])
         
         # First save the configuration
-        save_app_config("target_plant_pot_level", target_level)
+        save_config("target_plant_pot_level", target_level)
         
         # Then execute the water level adjustment
         if set_water_level():
