@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberLotus Environment Control</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #16a085;
+            margin-top: 20px;
+        }
+        .section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .control-group label {
+            width: 200px;
+            font-weight: bold;
+        }
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .plant-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-left: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .value-display {
+            font-weight: bold;
+            color: #e74c3c;
+            margin-left: 10px;
+        }
+        .subsection {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #16a085;
+        }
+        .special-button {
+            background-color: #e74c3c;
+        }
+        .special-button:hover {
+            background-color: #c0392b;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="cyberlotus-logo.png" alt="CyberLotus Logo">
+        </div>
+        <h1>CyberLotus Environmental Control System</h1>
+        
+        <!-- Automatic Setup Section -->
+        <div class="section">
+            <h2>Automatic Setup</h2>
+            <div class="control-group">
+                <label for="plant-select">Select Plant:</label>
+                <select id="plant-select">
+                    <option value="lotus">Sacred Lotus (Nelumbo nucifera)</option>
+                    <option value="succulent">Echeveria Succulent</option>
+                </select>
+                <img id="plant-image" src="lotus.jpg" class="plant-image" alt="Selected plant">
+                <button id="auto-setup-btn">Setup Environment</button>
+            </div>
+            <div class="control-group">
+                <label>Current Configuration:</label>
+                <div id="current-config" class="value-display">Not configured</div>
+            </div>
+        </div>
+        
+        <!-- Manual Configuration Section -->
+        <div class="section">
+            <h2>Manual Configuration</h2>
+            
+            <!-- Environment Type -->
+            <div class="subsection">
+                <h3>Environment Type</h3>
+                <div class="control-group">
+                    <label for="env-type">Environment Type:</label>
+                    <select id="env-type">
+                        <option value="aquatic">Aquatic</option>
+                        <option value="terrestrial">Terrestrial</option>
+                    </select>
+                    <label for="water-height">Water Height (cm):</label>
+                    <input type="number" id="water-height" min="0" max="30" value="15">
+                    <button id="set-water-btn">Set Water Level</button>
+                </div>
+                <div class="control-group">
+                    <label>Current Water Level:</label>
+                    <div id="current-water" class="value-display">-</div>
+                </div>
+            </div>
+            
+            <!-- Climate Conditions -->
+            <div class="subsection">
+                <h3>Climate Conditions</h3>
+                <div class="control-group">
+                    <label for="root-temp">Root Temperature (°C):</label>
+                    <input type="number" id="root-temp" min="10" max="40" value="25">
+                    <label for="air-temp">Air Temperature (°C):</label>
+                    <input type="number" id="air-temp" min="10" max="40" value="25">
+                </div>
+                <div class="control-group">
+                    <label for="humidity">Humidity (%):</label>
+                    <input type="number" id="humidity" min="20" max="100" value="70">
+                    <button id="set-climate-btn">Set Climate</button>
+                </div>
+                <div class="control-group">
+                    <label>Current Conditions:</label>
+                    <div id="current-climate" class="value-display">-</div>
+                </div>
+            </div>
+            
+            <!-- Nutrient Solution -->
+            <div class="subsection">
+                <h3>Nutrient Solution</h3>
+                <div class="control-group">
+                    <label for="ph-level">pH Level:</label>
+                    <input type="number" id="ph-level" min="3" max="9" step="0.1" value="6.5">
+                    <label for="npk-ec">NPK (EC mS/cm):</label>
+                    <input type="number" id="npk-ec" min="0" max="5" step="0.1" value="1.8">
+                    <button id="set-nutrients-btn">Set Nutrients</button>
+                </div>
+                <div class="control-group">
+                    <label>Current Solution:</label>
+                    <div id="current-nutrients" class="value-display">-</div>
+                </div>
+            </div>
+            
+            <!-- Lighting Schedule -->
+            <div class="subsection">
+                <h3>Lighting Schedule</h3>
+                <div class="control-group">
+                    <label for="light-hours">Daily Light Hours:</label>
+                    <input type="number" id="light-hours" min="4" max="18" value="12">
+                    <button id="set-lighting-btn">Set Lighting</button>
+                </div>
+                <div class="control-group">
+                    <label>Current Schedule:</label>
+                    <div id="current-lighting" class="value-display">-</div>
+                </div>
+            </div>
+            
+            <!-- Special Functions -->
+            <div class="subsection">
+                <h3>Special Functions</h3>
+                <div class="control-group">
+                    <button id="add-bacteria-btn" class="special-button">Add Beneficial Bacteria</button>
+                    <button id="save-config-btn">Save Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Plant selection and image update
+        const plantSelect = document.getElementById('plant-select');
+        const plantImage = document.getElementById('plant-image');
+        
+        plantSelect.addEventListener('change', function() {
+            const plant = this.value;
+            if (plant === 'lotus') {
+                plantImage.src = 'lotus.jpg';
+                document.getElementById('env-type').value = 'aquatic';
+                document.getElementById('water-height').value = '20';
+                document.getElementById('root-temp').value = '28';
+                document.getElementById('air-temp').value = '25';
+                document.getElementById('humidity').value = '80';
+                document.getElementById('ph-level').value = '6.0';
+                document.getElementById('npk-ec').value = '1.5';
+                document.getElementById('light-hours').value = '14';
+            } else if (plant === 'succulent') {
+                plantImage.src = 'succulent.jpg';
+                document.getElementById('env-type').value = 'terrestrial';
+                document.getElementById('water-height').value = '5';
+                document.getElementById('root-temp').value = '22';
+                document.getElementById('air-temp').value = '25';
+                document.getElementById('humidity').value = '40';
+                document.getElementById('ph-level').value = '6.8';
+                document.getElementById('npk-ec').value = '1.2';
+                document.getElementById('light-hours').value = '12';
+            }
+        });
+
+        // Button click handlers (these would be connected to your Flask backend)
+        document.getElementById('auto-setup-btn').addEventListener('click', function() {
+            const plant = plantSelect.value;
+            alert(`Setting up automatic environment for ${plant === 'lotus' ? 'Sacred Lotus' : 'Echeveria Succulent'}`);
+            document.getElementById('current-config').textContent = 
+                `${plant === 'lotus' ? 'Sacred Lotus' : 'Echeveria Succulent'} profile applied`;
+            
+            // Update all current value displays
+            updateCurrentValues();
+        });
+
+        document.getElementById('set-water-btn').addEventListener('click', function() {
+            const envType = document.getElementById('env-type').value;
+            const waterHeight = document.getElementById('water-height').value;
+            alert(`Setting water level to ${waterHeight}cm for ${envType} environment`);
+            document.getElementById('current-water').textContent = 
+                `${waterHeight}cm (${envType === 'aquatic' ? 'Aquatic' : 'Terrestrial'})`;
+        });
+
+        document.getElementById('set-climate-btn').addEventListener('click', function() {
+            const rootTemp = document.getElementById('root-temp').value;
+            const airTemp = document.getElementById('air-temp').value;
+            const humidity = document.getElementById('humidity').value;
+            alert(`Setting climate: Root ${rootTemp}°C, Air ${airTemp}°C, Humidity ${humidity}%`);
+            document.getElementById('current-climate').textContent = 
+                `Root: ${rootTemp}°C, Air: ${airTemp}°C, Humidity: ${humidity}%`;
+        });
+
+        document.getElementById('set-nutrients-btn').addEventListener('click', function() {
+            const ph = document.getElementById('ph-level').value;
+            const ec = document.getElementById('npk-ec').value;
+            alert(`Setting nutrient solution: pH ${ph}, EC ${ec}mS/cm`);
+            document.getElementById('current-nutrients').textContent = 
+                `pH: ${ph}, EC: ${ec}mS/cm`;
+        });
+
+        document.getElementById('set-lighting-btn').addEventListener('click', function() {
+            const hours = document.getElementById('light-hours').value;
+            alert(`Setting lighting schedule: ${hours} hours/day`);
+            document.getElementById('current-lighting').textContent = 
+                `${hours} hours/day`;
+        });
+
+        document.getElementById('add-bacteria-btn').addEventListener('click', function() {
+            alert('Adding beneficial bacteria to the system');
+        });
+
+        document.getElementById('save-config-btn').addEventListener('click', function() {
+            alert('Configuration saved');
+        });
+
+        // Helper function to update all current values
+        function updateCurrentValues() {
+            const plant = plantSelect.value;
+            const envType = document.getElementById('env-type').value;
+            const waterHeight = document.getElementById('water-height').value;
+            const rootTemp = document.getElementById('root-temp').value;
+            const airTemp = document.getElementById('air-temp').value;
+            const humidity = document.getElementById('humidity').value;
+            const ph = document.getElementById('ph-level').value;
+            const ec = document.getElementById('npk-ec').value;
+            const hours = document.getElementById('light-hours').value;
+            
+            document.getElementById('current-water').textContent = 
+                `${waterHeight}cm (${envType === 'aquatic' ? 'Aquatic' : 'Terrestrial'})`;
+            document.getElementById('current-climate').textContent = 
+                `Root: ${rootTemp}°C, Air: ${airTemp}°C, Humidity: ${humidity}%`;
+            document.getElementById('current-nutrients').textContent = 
+                `pH: ${ph}, EC: ${ec}mS/cm`;
+            document.getElementById('current-lighting').textContent = 
+                `${hours} hours/day`;
+        }
+    </script>
+</body>
+</html>
+{% endblock %}
