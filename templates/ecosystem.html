@@ -158,14 +158,25 @@
         .unit-toggle:hover {
             background-color: #8e44ad;
         }
-        .loading {
-            color: #7f8c8d;
-            font-style: italic;
+        .sensor-updating {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        #refresh-status {
+            margin-top: 10px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='cyberlotus-logo.png') }}" alt="CyberLotus Logo">
+        </div>
         <h1>CyberLotus Environmental Control System</h1>
         
         <!-- Ambient Data Display -->
@@ -194,7 +205,7 @@
                 </div>
             </div>
             <button class="refresh-btn" id="refresh-ambient">Refresh Readings</button>
-            <div id="refresh-status" class="sensor-note">Last update: Never</div>
+            <div id="refresh-status" class="sensor-note">Last update: <span id="last-update-time">Never</span></div>
         </div>
         
         <!-- Automatic Setup Section -->
@@ -333,74 +344,6 @@
             }
         });
 
-        // Ambient data refresh
-        function updateAmbientData() {
-            // Simulate Sagres, Portugal June conditions
-            document.getElementById('ambient-air-temp').textContent = '24';
-            document.getElementById('ambient-water-temp').textContent = '23';
-            document.getElementById('ambient-humidity').textContent = '75';
-            document.getElementById('ambient-light').textContent = '12000';
-        }
-
-        document.getElementById('refresh-ambient').addEventListener('click', updateAmbientData);
-        
-        // Initial ambient data load
-        function updateAmbientDisplay(data) {
-            if (data.chamber_temperature && data.chamber_temperature.value !== null) {
-                document.getElementById('ambient-air-temp').textContent = data.chamber_temperature.value;
-            }
-            if (data.temperature && data.temperature.value !== null) {
-                document.getElementById('ambient-water-temp').textContent = data.temperature.value;
-            }
-            if (data.chamber_humidity && data.chamber_humidity.value !== null) {
-                document.getElementById('ambient-humidity').textContent = data.chamber_humidity.value;
-            }
-            if (data.plant_temperature && data.plant_temperature.value !== null) {
-                document.getElementById('ambient-root-temp').textContent = data.plant_temperature.value;
-            }
-            
-            // Update last refresh time
-            const now = new Date();
-            document.getElementById('refresh-status').textContent = 
-                `Last update: ${now.toLocaleTimeString()}`;
-        }
-
-        // Function to fetch chamber data
-        async function fetchChamberData() {
-            try {
-                document.getElementById('refresh-status').textContent = "Updating...";
-                document.getElementById('refresh-ambient').disabled = true;
-                
-                const response = await fetch('/chamber_data_update');
-                if (response.ok) {
-                    // Give the Arduino a moment to respond
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    // Fetch the updated system state
-                    const stateResponse = await fetch('/get_system_state');
-                    if (stateResponse.ok) {
-                        const data = await stateResponse.json();
-                        updateAmbientDisplay(data);
-                    } else {
-                        console.error('Failed to fetch system state');
-                    }
-                } else {
-                    console.error('Failed to trigger data update');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('refresh-status').textContent = "Error updating data";
-            } finally {
-                document.getElementById('refresh-ambient').disabled = false;
-            }
-        }
-
-        // Connect refresh button
-        document.getElementById('refresh-ambient').addEventListener('click', fetchChamberData);
-        
-        // Initial data load
-        fetchChamberData();
-
         // EC Unit toggle
         const ecUnitToggle = document.getElementById('ec-unit-toggle');
         const npkEcInput = document.getElementById('npk-ec');
@@ -423,6 +366,88 @@
                 usingMicroSiemens = true;
             }
         });
+
+        // Function to update ambient data display from systemStats
+        function updateAmbientDisplay() {
+            // Check if systemStats is available
+            if (typeof systemStats === 'undefined') {
+                console.log("systemStats not available yet");
+                return;
+            }
+
+            // Get the values from the global systemStats array
+            const airTemp = systemStats.chamber_temperature?.value;
+            const waterTemp = systemStats.temperature?.value;
+            const humidity = systemStats.chamber_humidity?.value;
+            const rootTemp = systemStats.plant_temperature?.value;
+            
+            // Update the display elements with visual feedback
+            updateSensorDisplay('ambient-air-temp', airTemp, '°C');
+            updateSensorDisplay('ambient-water-temp', waterTemp, '°C');
+            updateSensorDisplay('ambient-humidity', humidity, '%');
+            updateSensorDisplay('ambient-root-temp', rootTemp, '°C');
+            
+            // Update last refresh time
+            const now = new Date();
+            document.getElementById('last-update-time').textContent = now.toLocaleTimeString();
+        }
+
+        // Helper function to update sensor display with animation
+        function updateSensorDisplay(elementId, value, unit) {
+            const element = document.getElementById(elementId);
+            if (value !== undefined && value !== null) {
+                element.textContent = value;
+                element.classList.add('sensor-updating');
+                setTimeout(() => element.classList.remove('sensor-updating'), 1500);
+            } else {
+                element.textContent = '-';
+            }
+        }
+
+        // Function to trigger sensor readings and update display
+        async function fetchChamberData() {
+            try {
+                document.getElementById('refresh-status').textContent = "Updating sensor data...";
+                document.getElementById('refresh-ambient').disabled = true;
+                
+                // Trigger sensor readings
+                const response = await fetch('/chamber_data_update');
+                if (response.ok) {
+                    // Give the hardware a moment to respond
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    // The systemStats global variable will be updated by the existing JavaScript
+                    updateAmbientDisplay();
+                    document.getElementById('refresh-status').textContent = "Last update: " + new Date().toLocaleTimeString();
+                } else {
+                    throw new Error('Failed to trigger data update');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('refresh-status').textContent = "Error updating: " + error.message;
+            } finally {
+                document.getElementById('refresh-ambient').disabled = false;
+            }
+        }
+
+        // Connect refresh button
+        document.getElementById('refresh-ambient').addEventListener('click', fetchChamberData);
+        
+        // Initial data load
+        if (typeof systemStats !== 'undefined') {
+            updateAmbientDisplay();
+        } else {
+            // If systemStats isn't loaded yet, set up a listener
+            const checkSystemStats = setInterval(() => {
+                if (typeof systemStats !== 'undefined') {
+                    clearInterval(checkSystemStats);
+                    updateAmbientDisplay();
+                }
+            }, 100);
+        }
+
+        // Auto-refresh every 30 seconds
+        const autoRefreshInterval = setInterval(fetchChamberData, 30000);
 
         // Button click handlers
         document.getElementById('auto-setup-btn').addEventListener('click', function() {
@@ -499,6 +524,6 @@
                 `${hours} hours/day`;
         }
     </script>
-</body>  
+</body>
 </html>
 {% endblock %}
