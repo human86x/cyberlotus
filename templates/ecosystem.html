@@ -475,7 +475,8 @@ function updateAmbientDisplay(data) {
             const envType = document.getElementById('env-type').value;
             const waterHeight = document.getElementById('water-height').value;
             alert(`Setting water level to ${waterHeight}cm for ${envType} environment`);
-            circulate_the_solution();
+            setWaterLevel(waterHeight);
+            //circulate_the_solution();
             document.getElementById('current-water').textContent = 
                 `${waterHeight}cm (${envType === 'aquatic' ? 'Aquatic' : 'Terrestrial'})`;
         });
@@ -536,6 +537,45 @@ function updateAmbientDisplay(data) {
             document.getElementById('current-lighting').textContent = 
                 `${hours} hours/day`;
         }
+
+
+
+
+
+
+        async function setWaterLevel(targetLevel) {
+    try {
+        const response = await fetch('/set_water_level', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ target_level: targetLevel })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            console.log('Success:', result.message);
+            // Update UI with result.current_level
+        } else {
+            console.error('Error:', result.message);
+            // Show error to user
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('Network error:', error);
+        // Show network error to user
+    }
+}
+
+// Example usage:
+// setWaterLevel(15);  // Set target level to 15cm
+
+
+
+
     </script>
 </body>
 </html>

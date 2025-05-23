@@ -169,8 +169,8 @@ def set_water_level():
             append_console_message("✅ Water level adjustment complete")
             
             # Turn off both pumps
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
             return True
         
         # Determine required action
@@ -179,18 +179,18 @@ def set_water_level():
             append_console_message("🔼 Raising water level...")
             
             # Turn on down pump (adding solution)
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
             # Turn off up pump
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             
         else:  # Too high - need to drain
             print("Draining the plant pot...")
             append_console_message("🔽 Lowering water level...")
             
             # Turn on up pump (draining)
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             # Turn off down pump
-            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+            send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
         
         # Wait before checking again
         time.sleep(DELAY_BETWEEN_ACTIONS)
@@ -200,8 +200,8 @@ def set_water_level():
     append_console_message("❌ Water level adjustment failed after maximum attempts")
     
     # Turn off both pumps before exiting
-    send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
-    send_command_with_heartbeat(PUMP_COMMANDS[pump_down], 0)
+    send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
+    send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
     return False
 
 

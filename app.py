@@ -431,13 +431,38 @@ def start_circulation():
 
     return "True"#redirect(url_for('control_panel'))
 from control_libs.adjuster import set_water_level
-@app.route('/set_water_level')
-def set_water_level_route():
-    if set_water_level():
-        return jsonify({"status": "success", "message": "Water level adjusted successfully"})
-    else:
-        return jsonify({"status": "error", "message": "Failed to adjust water level"}), 500
 
+@app.route('/set_water_level', methods=['POST'])
+def set_water_level_route():
+    try:
+        # Get the target water level from the POST request
+        data = request.get_json()
+        if not data or 'target_level' not in data:
+            return jsonify({"status": "error", "message": "Missing target_level parameter"}), 400
+            
+        target_level = float(data['target_level'])
+        
+        # First save the configuration
+        save_app_config("target_plant_pot_level", target_level)
+        
+        # Then execute the water level adjustment
+        if set_water_level():
+            return jsonify({
+                "status": "success", 
+                "message": f"Water level set to {target_level}cm successfully",
+                "current_level": system_state["plant_pot_level"]["value"]
+            })
+        else:
+            return jsonify({
+                "status": "error", 
+                "message": f"Failed to reach target level of {target_level}cm",
+                "current_level": system_state["plant_pot_level"]["value"]
+            }), 500
+            
+    except ValueError:
+        return jsonify({"status": "error", "message": "Invalid target level value"}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Unexpected error: {str(e)}"}), 500
 
 
 
