@@ -41,6 +41,28 @@
             padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+        .sidebar.collapsed {
+            transform: translateX(-250px);
+        }
+        .sidebar-toggle {
+            position: absolute;
+            right: -40px;
+            top: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
         }
         .sidebar h2 {
             margin-top: 0;
@@ -60,6 +82,10 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            transition: margin-left 0.3s ease;
+        }
+        .content.expanded {
+            margin-left: -250px;
         }
         h1, h2 {
             color: #333;
@@ -139,7 +165,10 @@
 </head>
 <body>
     <div class="main-content">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-chevron-left" id="toggleIcon"></i>
+            </button>
             <h2>CyberLotus</h2>
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
             <a href="{{ url_for('relays') }}">Relays</a>
@@ -152,7 +181,7 @@
             <a href="{{ url_for('automatisation') }}">Automatisation</a>
             <a href="{{ url_for('plant_chamber') }}">Plant Chamber</a>
         </div>
-        <div class="content">
+        <div class="content" id="mainContent">
             {% block content %}{% endblock %}
             <form action="{{ url_for('emergency_stop_route') }}" method="post">
                 <button type="submit">🚨 Emergency Stop</button>
@@ -177,6 +206,49 @@
     </div>
 
     <script>
+        // Toggle sidebar functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            let isCollapsed = false;
+            
+            sidebarToggle.addEventListener('click', function() {
+                isCollapsed = !isCollapsed;
+                
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                    toggleIcon.classList.remove('fa-chevron-left');
+                    toggleIcon.classList.add('fa-chevron-right');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                    toggleIcon.classList.remove('fa-chevron-right');
+                    toggleIcon.classList.add('fa-chevron-left');
+                }
+            });
+            
+            // Auto-collapse when mouse leaves sidebar for 3 seconds
+            let collapseTimeout;
+            sidebar.addEventListener('mouseleave', function() {
+                collapseTimeout = setTimeout(function() {
+                    if (!isCollapsed) {
+                        sidebarToggle.click();
+                    }
+                }, 3000);
+            });
+            
+            sidebar.addEventListener('mouseenter', function() {
+                clearTimeout(collapseTimeout);
+                if (isCollapsed) {
+                    sidebarToggle.click();
+                }
+            });
+        });
+
         // Define your order and groupings
         const systemStatsOrder = [
             // Plant Chamber
