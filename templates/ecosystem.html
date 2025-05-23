@@ -133,6 +133,31 @@
         .refresh-btn:hover {
             background-color: #27ae60;
         }
+        .sensor-note {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-left: 10px;
+        }
+        .warning-badge {
+            background-color: #f39c12;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .unit-toggle {
+            background-color: #9b59b6;
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .unit-toggle:hover {
+            background-color: #8e44ad;
+        }
     </style>
 </head>
 <body>
@@ -233,17 +258,21 @@
             
             <!-- Nutrient Solution -->
             <div class="subsection">
-                <h3>Nutrient Solution</h3>
+                <h3>Nutrient Solution <span class="warning-badge">Current Sensor Limit: 1000μS/cm</span></h3>
                 <div class="control-group">
                     <label for="ph-level">pH Level:</label>
                     <input type="number" id="ph-level" min="3" max="9" step="0.1" value="6.5">
-                    <label for="npk-ec">NPK (EC mS/cm):</label>
-                    <input type="number" id="npk-ec" min="0" max="5" step="0.1" value="1.8">
+                    <label for="npk-ec">NPK (EC):</label>
+                    <input type="number" id="npk-ec" min="0" max="1000" step="1" value="400">
+                    <span class="unit-toggle" id="ec-unit-toggle">μS/cm</span>
                     <button id="set-nutrients-btn">Set Nutrients</button>
                 </div>
                 <div class="control-group">
                     <label>Current Solution:</label>
                     <div id="current-nutrients" class="value-display">-</div>
+                </div>
+                <div class="sensor-note">
+                    Note: Current sensor range 0-1000μS/cm (K=10 probe). Upgrade planned for full hydroponic range (0-10mS/cm).
                 </div>
             </div>
             
@@ -287,7 +316,7 @@
                 document.getElementById('air-temp').value = '25';
                 document.getElementById('humidity').value = '80';
                 document.getElementById('ph-level').value = '6.0';
-                document.getElementById('npk-ec').value = '1.5';
+                document.getElementById('npk-ec').value = '800'; // 800μS/cm
                 document.getElementById('light-hours').value = '14';
             } else if (plant === 'vanilla') {
                 plantImage.src = "{{ url_for('static', filename='vanilla-orchid.jpg') }}";
@@ -297,15 +326,14 @@
                 document.getElementById('air-temp').value = '28';
                 document.getElementById('humidity').value = '85';
                 document.getElementById('ph-level').value = '6.8';
-                document.getElementById('npk-ec').value = '1.2';
+                document.getElementById('npk-ec').value = '600'; // 600μS/cm
                 document.getElementById('light-hours').value = '12';
             }
         });
 
         // Ambient data refresh
         function updateAmbientData() {
-            // In a real implementation, this would fetch from your Flask backend
-            // For demo purposes, we'll simulate realistic Sagres, Portugal June values
+            // Simulate Sagres, Portugal June conditions
             document.getElementById('ambient-air-temp').textContent = '24';
             document.getElementById('ambient-water-temp').textContent = '23';
             document.getElementById('ambient-humidity').textContent = '75';
@@ -317,14 +345,36 @@
         // Initial ambient data load
         updateAmbientData();
 
-        // Button click handlers (these would be connected to your Flask backend)
+        // EC Unit toggle
+        const ecUnitToggle = document.getElementById('ec-unit-toggle');
+        const npkEcInput = document.getElementById('npk-ec');
+        let usingMicroSiemens = true;
+        
+        ecUnitToggle.addEventListener('click', function() {
+            if (usingMicroSiemens) {
+                // Switch to mS/cm
+                npkEcInput.value = (parseFloat(npkEcInput.value) / 1000).toFixed(2);
+                npkEcInput.max = "10";
+                npkEcInput.step = "0.1";
+                ecUnitToggle.textContent = "mS/cm";
+                usingMicroSiemens = false;
+            } else {
+                // Switch to μS/cm
+                npkEcInput.value = (parseFloat(npkEcInput.value) * 1000).toFixed(0);
+                npkEcInput.max = "1000";
+                npkEcInput.step = "1";
+                ecUnitToggle.textContent = "μS/cm";
+                usingMicroSiemens = true;
+            }
+        });
+
+        // Button click handlers
         document.getElementById('auto-setup-btn').addEventListener('click', function() {
             const plant = plantSelect.value;
             alert(`Setting up automatic environment for ${plant === 'lotus' ? 'Sacred Lotus' : 'Vanilla Orchid'}`);
             document.getElementById('current-config').textContent = 
                 `${plant === 'lotus' ? 'Sacred Lotus' : 'Vanilla Orchid'} profile applied`;
             
-            // Update all current value displays
             updateCurrentValues();
         });
 
@@ -348,9 +398,11 @@
         document.getElementById('set-nutrients-btn').addEventListener('click', function() {
             const ph = document.getElementById('ph-level').value;
             const ec = document.getElementById('npk-ec').value;
-            alert(`Setting nutrient solution: pH ${ph}, EC ${ec}mS/cm`);
+            const unit = usingMicroSiemens ? "μS/cm" : "mS/cm";
+            
+            alert(`Setting nutrient solution: pH ${ph}, EC ${ec}${unit}`);
             document.getElementById('current-nutrients').textContent = 
-                `pH: ${ph}, EC: ${ec}mS/cm`;
+                `pH: ${ph}, EC: ${ec}${unit}`;
         });
 
         document.getElementById('set-lighting-btn').addEventListener('click', function() {
@@ -379,17 +431,18 @@
             const ph = document.getElementById('ph-level').value;
             const ec = document.getElementById('npk-ec').value;
             const hours = document.getElementById('light-hours').value;
+            const unit = usingMicroSiemens ? "μS/cm" : "mS/cm";
             
             document.getElementById('current-water').textContent = 
                 `${waterHeight}cm (${envType === 'aquatic' ? 'Aquatic' : 'Terrestrial'})`;
             document.getElementById('current-climate').textContent = 
                 `Root: ${rootTemp}°C, Air: ${airTemp}°C, Humidity: ${humidity}%`;
             document.getElementById('current-nutrients').textContent = 
-                `pH: ${ph}, EC: ${ec}mS/cm`;
+                `pH: ${ph}, EC: ${ec}${unit}`;
             document.getElementById('current-lighting').textContent = 
                 `${hours} hours/day`;
         }
     </script>
-</body>
+</body>  
 </html>
 {% endblock %}
