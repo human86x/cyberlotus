@@ -14,6 +14,7 @@
             padding: 20px;
             background-color: #f5f5f5;
             color: #333;
+            background-image: linear-gradient(to bottom, #e6f7ff, #f5f5f5);
         }
         .container {
             max-width: 1000px;
@@ -22,11 +23,13 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border: 1px solid #3498db;
         }
         h1 {
             color: #2c3e50;
             text-align: center;
             margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         h2 {
             color: #3498db;
@@ -37,23 +40,27 @@
         h3 {
             color: #16a085;
             margin-top: 20px;
+            font-size: 1.2em;
         }
         .section {
-            background-color: #f9f9f9;
+            background-color: rgba(249, 249, 249, 0.8);
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
             border-left: 4px solid #3498db;
+            backdrop-filter: blur(2px);
         }
         .control-group {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
             flex-wrap: wrap;
+            gap: 10px;
         }
         .control-group label {
             width: 200px;
             font-weight: bold;
+            color: #2c3e50;
         }
         select, input {
             padding: 8px 12px;
@@ -61,6 +68,8 @@
             border-radius: 4px;
             margin-right: 10px;
             font-size: 16px;
+            background-color: white;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
         button {
             background-color: #3498db;
@@ -70,10 +79,16 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         button:hover {
             background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
         }
         .plant-image {
             width: 150px;
@@ -81,25 +96,27 @@
             object-fit: cover;
             border-radius: 8px;
             margin-left: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            border: 2px solid white;
         }
         .value-display {
             font-weight: bold;
             color: #e74c3c;
             margin-left: 10px;
+            min-width: 200px;
         }
         .subsection {
-            background-color: #ecf0f1;
+            background-color: rgba(236, 240, 241, 0.7);
             padding: 15px;
             border-radius: 6px;
             margin-top: 15px;
             border-left: 4px solid #16a085;
         }
         .special-button {
-            background-color: #e74c3c;
+            background-color: #27ae60;
         }
         .special-button:hover {
-            background-color: #c0392b;
+            background-color: #219653;
         }
         .logo {
             text-align: center;
@@ -107,6 +124,30 @@
         }
         .logo img {
             height: 80px;
+            filter: drop-shadow(0 0 5px rgba(52, 152, 219, 0.5));
+        }
+        .ambient-display {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .system-status {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .plant-image {
+                margin-left: 0;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -115,7 +156,11 @@
         <div class="logo">
             <img src="cyberlotus-logo.png" alt="CyberLotus Logo">
         </div>
-        <h1>CyberLotus Environmental Control System</h1>
+        <h1>CyberLotus Precision Plant Environment System</h1>
+        
+        <div class="system-status">
+            System Status: <strong>Online</strong> | Location: Sagres, Portugal | Ambient: 23°C, 70% RH
+        </div>
         
         <!-- Automatic Setup Section -->
         <div class="section">
@@ -124,7 +169,7 @@
                 <label for="plant-select">Select Plant:</label>
                 <select id="plant-select">
                     <option value="lotus">Sacred Lotus (Nelumbo nucifera)</option>
-                    <option value="succulent">Echeveria Succulent</option>
+                    <option value="vanilla">Vanilla Orchid (Vanilla planifolia)</option>
                 </select>
                 <img id="plant-image" src="lotus.jpg" class="plant-image" alt="Selected plant">
                 <button id="auto-setup-btn">Setup Environment</button>
@@ -132,6 +177,9 @@
             <div class="control-group">
                 <label>Current Configuration:</label>
                 <div id="current-config" class="value-display">Not configured</div>
+            </div>
+            <div class="ambient-display">
+                Base conditions: 23°C air/water, 70% relative humidity (Sagres coastal climate)
             </div>
         </div>
         
@@ -141,65 +189,83 @@
             
             <!-- Environment Type -->
             <div class="subsection">
-                <h3>Environment Type</h3>
+                <h3>1. Environment Type</h3>
                 <div class="control-group">
                     <label for="env-type">Environment Type:</label>
                     <select id="env-type">
                         <option value="aquatic">Aquatic</option>
                         <option value="terrestrial">Terrestrial</option>
                     </select>
+                </div>
+                <div class="control-group">
                     <label for="water-height">Water Height (cm):</label>
-                    <input type="number" id="water-height" min="0" max="30" value="15">
+                    <input type="number" id="water-height" min="0" max="30" value="20">
                     <button id="set-water-btn">Set Water Level</button>
                 </div>
                 <div class="control-group">
                     <label>Current Water Level:</label>
                     <div id="current-water" class="value-display">-</div>
                 </div>
+                <div class="ambient-display">
+                    Hydroponic clay pebbles adjust function based on water level
+                </div>
             </div>
             
             <!-- Climate Conditions -->
             <div class="subsection">
-                <h3>Climate Conditions</h3>
+                <h3>2. Climate Conditions</h3>
                 <div class="control-group">
                     <label for="root-temp">Root Temperature (°C):</label>
-                    <input type="number" id="root-temp" min="10" max="40" value="25">
+                    <input type="number" id="root-temp" min="22" max="35" value="28">
+                    <span class="ambient-display">(ambient: 23°C)</span>
+                </div>
+                <div class="control-group">
                     <label for="air-temp">Air Temperature (°C):</label>
-                    <input type="number" id="air-temp" min="10" max="40" value="25">
+                    <input type="number" id="air-temp" min="22" max="35" value="26">
+                    <span class="ambient-display">(ambient: 23°C)</span>
                 </div>
                 <div class="control-group">
                     <label for="humidity">Humidity (%):</label>
-                    <input type="number" id="humidity" min="20" max="100" value="70">
+                    <input type="number" id="humidity" min="40" max="90" value="75">
+                    <span class="ambient-display">(ambient: 70%)</span>
                     <button id="set-climate-btn">Set Climate</button>
                 </div>
                 <div class="control-group">
                     <label>Current Conditions:</label>
-                    <div id="current-climate" class="value-display">-</div>
+                    <div id="current-climate" class="value-display">Not set</div>
+                </div>
+                <div class="ambient-display">
+                    System can only heat (not cool) from ambient Sagres conditions
                 </div>
             </div>
             
             <!-- Nutrient Solution -->
             <div class="subsection">
-                <h3>Nutrient Solution</h3>
+                <h3>3. Nutrient Solution</h3>
                 <div class="control-group">
                     <label for="ph-level">pH Level:</label>
-                    <input type="number" id="ph-level" min="3" max="9" step="0.1" value="6.5">
+                    <input type="number" id="ph-level" min="3" max="9" step="0.1" value="6.0">
+                </div>
+                <div class="control-group">
                     <label for="npk-ec">NPK (EC mS/cm):</label>
-                    <input type="number" id="npk-ec" min="0" max="5" step="0.1" value="1.8">
+                    <input type="number" id="npk-ec" min="0" max="5" step="0.1" value="1.5">
                     <button id="set-nutrients-btn">Set Nutrients</button>
                 </div>
                 <div class="control-group">
                     <label>Current Solution:</label>
                     <div id="current-nutrients" class="value-display">-</div>
                 </div>
+                <div class="ambient-display">
+                    EC measurements approximate NPK values
+                </div>
             </div>
             
             <!-- Lighting Schedule -->
             <div class="subsection">
-                <h3>Lighting Schedule</h3>
+                <h3>4. Lighting Schedule</h3>
                 <div class="control-group">
                     <label for="light-hours">Daily Light Hours:</label>
-                    <input type="number" id="light-hours" min="4" max="18" value="12">
+                    <input type="number" id="light-hours" min="4" max="18" value="14">
                     <button id="set-lighting-btn">Set Lighting</button>
                 </div>
                 <div class="control-group">
@@ -210,10 +276,13 @@
             
             <!-- Special Functions -->
             <div class="subsection">
-                <h3>Special Functions</h3>
+                <h3>5. Special Functions</h3>
                 <div class="control-group">
                     <button id="add-bacteria-btn" class="special-button">Add Beneficial Bacteria</button>
-                    <button id="save-config-btn">Save Configuration</button>
+                    <button id="save-config-btn">Save as New Profile</button>
+                </div>
+                <div class="ambient-display">
+                    Bacteria is essential for aquatic plant root health
                 </div>
             </div>
         </div>
@@ -224,6 +293,11 @@
         const plantSelect = document.getElementById('plant-select');
         const plantImage = document.getElementById('plant-image');
         
+        // Current date for presentation
+        const presentationDate = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.querySelector('.system-status').innerHTML += ` | Date: ${presentationDate.toLocaleDateString('en-US', options)}`;
+        
         plantSelect.addEventListener('change', function() {
             const plant = this.value;
             if (plant === 'lotus') {
@@ -231,39 +305,50 @@
                 document.getElementById('env-type').value = 'aquatic';
                 document.getElementById('water-height').value = '20';
                 document.getElementById('root-temp').value = '28';
-                document.getElementById('air-temp').value = '25';
+                document.getElementById('air-temp').value = '26';
                 document.getElementById('humidity').value = '80';
                 document.getElementById('ph-level').value = '6.0';
                 document.getElementById('npk-ec').value = '1.5';
                 document.getElementById('light-hours').value = '14';
-            } else if (plant === 'succulent') {
-                plantImage.src = 'succulent.jpg';
+            } else if (plant === 'vanilla') {
+                plantImage.src = 'vanilla-orchid.jpg';
                 document.getElementById('env-type').value = 'terrestrial';
                 document.getElementById('water-height').value = '5';
-                document.getElementById('root-temp').value = '22';
-                document.getElementById('air-temp').value = '25';
-                document.getElementById('humidity').value = '40';
+                document.getElementById('root-temp').value = '25';
+                document.getElementById('air-temp').value = '28';
+                document.getElementById('humidity').value = '85';
                 document.getElementById('ph-level').value = '6.8';
                 document.getElementById('npk-ec').value = '1.2';
                 document.getElementById('light-hours').value = '12';
             }
         });
 
-        // Button click handlers (these would be connected to your Flask backend)
+        // Button click handlers
         document.getElementById('auto-setup-btn').addEventListener('click', function() {
             const plant = plantSelect.value;
-            alert(`Setting up automatic environment for ${plant === 'lotus' ? 'Sacred Lotus' : 'Echeveria Succulent'}`);
-            document.getElementById('current-config').textContent = 
-                `${plant === 'lotus' ? 'Sacred Lotus' : 'Echeveria Succulent'} profile applied`;
+            const plantName = plant === 'lotus' ? 'Sacred Lotus' : 'Vanilla Orchid';
+            const plantType = plant === 'lotus' ? 'aquatic' : 'terrestrial';
             
-            // Update all current value displays
+            // Create a more informative alert for presentation
+            const alertMessage = plant === 'lotus' 
+                ? `Configuring aquatic environment for Sacred Lotus:\n\n- Water height: 20cm (full aquatic)\n- Root temp: 28°C (+5°C from ambient)\n- Humidity: 80% (+10% from coastal)\n- Tropical light cycle: 14 hours`
+                : `Configuring tropical environment for Vanilla Orchid:\n\n- Terrestrial mode (5cm water)\n- Air temp: 28°C (+5°C from ambient)\n- High humidity: 85% (challenge in coastal climate)\n- Dappled light cycle: 12 hours`;
+            
+            alert(alertMessage);
+            
+            document.getElementById('current-config').textContent = `${plantName} (${plantType})`;
             updateCurrentValues();
         });
 
         document.getElementById('set-water-btn').addEventListener('click', function() {
             const envType = document.getElementById('env-type').value;
             const waterHeight = document.getElementById('water-height').value;
-            alert(`Setting water level to ${waterHeight}cm for ${envType} environment`);
+            
+            // Special message for presentation
+            if (envType === 'aquatic' && waterHeight < 15) {
+                alert("Note: For true aquatic plants like lotus, we recommend at least 15cm water depth.\nThe clay pebbles will function as a water bed at this level.");
+            }
+            
             document.getElementById('current-water').textContent = 
                 `${waterHeight}cm (${envType === 'aquatic' ? 'Aquatic' : 'Terrestrial'})`;
         });
@@ -272,7 +357,12 @@
             const rootTemp = document.getElementById('root-temp').value;
             const airTemp = document.getElementById('air-temp').value;
             const humidity = document.getElementById('humidity').value;
-            alert(`Setting climate: Root ${rootTemp}°C, Air ${airTemp}°C, Humidity ${humidity}%`);
+            
+            // Show heating challenge for presentation
+            if (airTemp > 28) {
+                alert("Notice: Heating above 28°C demonstrates our system's capability to create tropical conditions\nbeyond Sagres' natural climate (max summer temps ~26-28°C)");
+            }
+            
             document.getElementById('current-climate').textContent = 
                 `Root: ${rootTemp}°C, Air: ${airTemp}°C, Humidity: ${humidity}%`;
         });
@@ -280,24 +370,30 @@
         document.getElementById('set-nutrients-btn').addEventListener('click', function() {
             const ph = document.getElementById('ph-level').value;
             const ec = document.getElementById('npk-ec').value;
-            alert(`Setting nutrient solution: pH ${ph}, EC ${ec}mS/cm`);
+            
+            // Special note about lotus nutrients
+            if (plantSelect.value === 'lotus' && ph > 6.5) {
+                alert("FYI: Lotus plants prefer slightly acidic conditions (pH 5.5-6.5)\nfor optimal nutrient absorption.");
+            }
+            
             document.getElementById('current-nutrients').textContent = 
                 `pH: ${ph}, EC: ${ec}mS/cm`;
         });
 
         document.getElementById('set-lighting-btn').addEventListener('click', function() {
             const hours = document.getElementById('light-hours').value;
-            alert(`Setting lighting schedule: ${hours} hours/day`);
             document.getElementById('current-lighting').textContent = 
-                `${hours} hours/day`;
+                `${hours} hours/day (${hours > 12 ? 'long' : 'short'} day plant)`;
         });
 
         document.getElementById('add-bacteria-btn').addEventListener('click', function() {
-            alert('Adding beneficial bacteria to the system');
+            alert('Adding beneficial bacteria (Bacillus spp.) to root zone:\n\n- Improves nutrient availability\n- Prevents root pathogens\n- Essential for aquatic plant health');
         });
 
         document.getElementById('save-config-btn').addEventListener('click', function() {
-            alert('Configuration saved');
+            const plant = plantSelect.value;
+            const plantName = plant === 'lotus' ? 'Sacred Lotus' : 'Vanilla Orchid';
+            alert(`Profile "${plantName} - Sagres Summer" saved!\n\nThis configuration can now be recalled anytime.`);
         });
 
         // Helper function to update all current values
@@ -321,6 +417,9 @@
             document.getElementById('current-lighting').textContent = 
                 `${hours} hours/day`;
         }
+
+        // Initialize with lotus settings
+        updateCurrentValues();
     </script>
 </body>
 </html>
