@@ -582,7 +582,7 @@ function updateAmbientDisplay(data) {
                 `Root: ${rootTemp}°C, Air: ${airTemp}°C, Humidity: ${humidity}%`;
         });
 
-        document.getElementById('set-nutrients-btn').addEventListener('click', function() {
+document.getElementById('set-nutrients-btn').addEventListener('click', async function() {
     const ph = parseFloat(document.getElementById('ph-level').value);
     const ec = parseFloat(document.getElementById('npk-ec').value);
     const unit = usingMicroSiemens ? "μS/cm" : "mS/cm";
@@ -592,32 +592,37 @@ function updateAmbientDisplay(data) {
     document.getElementById('current-nutrients').textContent = 
         `pH: ${ph}, EC: ${ec}${unit}`;
 
-    // Prepare parameters object
-    const params = {
-        EC: ec,
-        pH: ph,
-        // You can include other default values or leave them unchanged
-        solution: 0,        // Default value
-        temperature: 0,     // Default value
-        air_temperature: 0, // Default value
-        air_humidity: 0     // Default value
-    };
+    try {
+        // First load current parameters
+        const currentParams = await fetch('/get_desired_parameters')
+            .then(response => response.json());
+        
+        // Update only the parameters we want to change
+        const updatedParams = {
+            ...currentParams,  // Keep existing values
+            EC: ec,           // Update EC
+            pH: ph            // Update pH
+            // Other values remain unchanged
+        };
 
-    // Call the save function
-    saveDesiredParameters(params)
-        .then(success => {
-            if (success) {
-                console.log('Nutrient parameters saved successfully');
-                // Optional: Show success message to user
-                // alert('Nutrient settings saved!');
-            } else {
-                console.error('Failed to save nutrient parameters');
-                // Optional: Show error message to user
-                // alert('Failed to save settings!');
-            }
-        });
+        // Save the updated parameters
+        const success = await saveDesiredParameters(updatedParams);
+        
+        if (success) {
+            console.log('Nutrient parameters updated successfully');
+            // Optional: Show success message
+            // alert('pH and EC settings saved!');
+        } else {
+            console.error('Failed to update parameters');
+            // Optional: Show error message
+            // alert('Failed to save settings!');
+        }
+    } catch (error) {
+        console.error('Error updating parameters:', error);
+        // Optional: Show error message
+        // alert('Error saving settings!');
+    }
 });
-
         document.getElementById('set-lighting-btn').addEventListener('click', function() {
             const hours = document.getElementById('light-hours').value;
             alert(`Setting lighting schedule: ${hours} hours/day`);
