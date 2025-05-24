@@ -21,7 +21,7 @@ from control_libs.system_stats import append_console_message
 
 def save_ec_baseline(value):
     # Define the path to the calibration JSON file
-    calibration_file = 'data/calibration.json'
+    calibration_file = 'data/app_config.json'
 
     # Ensure the directory exists
     os.makedirs(os.path.dirname(calibration_file), exist_ok=True)
@@ -47,7 +47,7 @@ def save_ec_baseline(value):
 def load_ec_baseline():
     global system_state
     # Define the path to the calibration JSON file
-    calibration_file = 'data/calibration.json'
+    calibration_file = 'data/app_config.json'
     print("reading calibration file****************")
     # Check if the file exists
     if os.path.exists(calibration_file):
