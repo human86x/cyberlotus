@@ -424,8 +424,8 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     print(f"base_ec = {base_ec}  cur_ppm = {cur_ppm} cur_ec = {NPK} target_ppm = {target_NPK} target_ec = {target_ppm}")
 
     # Calculate adjustments
-    NPK_adj = target_NPK - cur_ppm
-    pH_adj = target_pH - pH
+    NPK_adj = (target_NPK - cur_ppm) * (solution / 1000)  # Adjusts based on liters (assuming solution is in ml)
+    pH_adj = (target_pH - pH) * (solution / 500)  # More sensitive adjustment (halved base multiplier)
     temp_adj = target_temp - temp
     solution_adj = target_solution - solution
     NPK_margin = 20
