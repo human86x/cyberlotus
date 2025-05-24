@@ -489,7 +489,22 @@ def chamber_data_route():
     ph_solution_test_route()
     return "True"#redirect(url_for('control_panel'))
   
-  
+@app.route('/set_ec_baseline')
+def set_ec_baseline_route(): 
+
+    readings = system_state["ec_baseline"]["value"]
+       
+    print(f"EC Baseline set to {readings}")
+    #history_log("EC_baseline", readings)
+        #calibration_data = load_calibration_data()
+        #calibration_data["EC_baseline"] = estimated_ec_value
+        #save_calibration_data(calibration_data)
+    save_config("EC_baseline", readings)
+    append_console_message(f"✅ EC Baseline is set to - {readings}")
+        
+
+
+
 
 from control_libs.adjuster import circulate_solution
 

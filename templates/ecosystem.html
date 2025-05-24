@@ -244,6 +244,7 @@
             <div class="ec-container" style="height: 30px; width: 100%; background: linear-gradient(to right, #e0f7fa, #00bcd4, #006064); margin: 5px auto; position: relative; border-radius: 5px;">
                 <div id="ec-indicator" style="position: absolute; top: -15px; width: 2px; height: 60px; background: black; left: 0%; transform: translateX(-50%);"></div>
                 <div class="ambient-value" id="ambient-ec">- μS/cm</div>
+                <button class="refresh-btn" id="set_baseline" onclick = "set_ec_baseline()">Set as Baseline</button>
             </div>
         </div>
     </div>
@@ -358,6 +359,22 @@
     </div>
 
     <script>
+
+function set_ec_baseline(){
+        fetch('/set_ec_baseline')
+            .then(response => response.json())
+            .then(data => {
+                console.log('EC baseline:', data.readings);
+        })
+        .catch(error => {
+            console.error('Error fetching EC baseline:', error);
+        });
+    }
+
+
+
+
+
         // Plant selection and image update
         const plantSelect = document.getElementById('plant-select');
         const plantImage = document.getElementById('plant-image');
