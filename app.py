@@ -553,6 +553,25 @@ def save_desired_parameters_route():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+@app.route('/get_desired_parameters')
+def get_desired_parameters():
+    try:
+        with open(DESIRED_PARAMS_FILE, 'r') as f:
+            params = json.load(f)
+        return jsonify(params)
+    except FileNotFoundError:
+        # Return default values if file doesn't exist
+        return jsonify({
+            "EC": 0.0,
+            "solution": 0.0,
+            "pH": 0.0,
+            "temperature": 0.0,
+            "air_temperature": 0.0,
+            "air_humidity": 0.0
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/adjust_solution', methods=['POST'])
 def adjust_solution_route():
     try:
