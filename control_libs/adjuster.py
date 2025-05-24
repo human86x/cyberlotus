@@ -405,6 +405,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     Returns:
         dict: A dictionary containing the sequence of commands.
     """
+    append_console_message("Initiating needed calculations to adjust the solution.")
     # Validate inputs
     for var_name, var in zip(
         ["target_NPK", "NPK", "target_pH", "pH", "target_temp", "temp", "target_solution", "solution", "current_volume", "tank_capacity"],
@@ -428,7 +429,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     temp_adj = target_temp - temp
     solution_adj = target_solution - solution
     NPK_margin = 20
-    pH_margin = 1
+    pH_margin = 0.2
     solution_margin = 5
 
     if solution_adj < 0: solution_adj=0
@@ -473,14 +474,14 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Add fresh water first
         sol_adj = solution_adj * 30
         print(f"Solution adjustment weight - {sol_adj}")
-        single_commands["fresh_solution"] = sol_adj
+        #single_commands["fresh_solution"] = sol_adj
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
     else:
         # Add fresh water first
         sol_adj = solution_adj * 30
         print(f"Solution adjustment weight - {sol_adj}")
-        single_commands["solution_waste"] = abs(sol_adj)
+        #single_commands["solution_waste"] = abs(sol_adj)
         # Update the current volume after adding fresh water
         final_volume = current_volume + solution_adj
 
