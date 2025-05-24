@@ -665,17 +665,21 @@ document.getElementById('adj-nutrients-btn').addEventListener('click', async fun
     // Display confirmation
     alert(`Adjusting the solution `);
 
-    try {
-        // First load current parameters
-        const currentParams = await fetch('/condition_monitor')
-            .then(response => response.json());
-        
-        
-    } catch (error) {
-        console.error('Error adjusting parameters:', error);
-        // Optional: Show error message
-        // alert('Error saving settings!');
-    }
+    fetch('/condition_monitor', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    // Optional: include a JSON body if your Flask route expects it
+    body: JSON.stringify({ value: "some_value" })
+  })
+  .then(response => response.text())
+  .then(data => {
+    console.log('Response from server:', data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
 });
 
 
