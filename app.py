@@ -488,6 +488,105 @@ def chamber_data_route():
     get_water_level()
     ph_solution_test_route()
     return "True"#redirect(url_for('control_panel'))
+
+
+from flask import jsonify, request
+
+# Path to the desired parameters file
+DESIRED_PARAMS_FILE = "data/desired_parameters.json"
+
+def save_desired_parameters(params):
+    """
+    Save desired parameters to JSON file
+    
+    Args:
+        params (dict): Dictionary containing the parameters to save
+                      Expected keys: EC, solution, pH, temperature, 
+                                    air_temperature, air_humidity
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(DESIRED_PARAMS_FILE), exist_ok=True)
+        
+        # Validate and convert parameters
+        validated_params = {
+            "EC": float(params.get("EC", 0)),
+            "solution": float(params.get("solution", 0)),
+            "pH": float(params.get("pH", 0)),
+            "temperature": float(params.get("temperature", 0)),
+            "air_temperature": float(params.get("air_temperature", 0)),
+            "air_humidity": float(params.get("air_humidity", 0))
+        }
+        
+        # Write to file
+        with open(DESIRED_PARAMS_FILE, 'w') as f:
+            json.dump(validated_params, f, indent=4)
+            
+        return True
+    except Exception as e:
+        print(f"Error saving desired parameters: {str(e)}")
+        return False
+
+@app.route('/save_desired_parameters', methods=['POST'])
+def save_desired_parameters_route():
+    """
+    Flask endpoint to save desired parameters
+    Expects JSON payload with the parameters to save
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "No data provided"}), 400
+            
+        if save_desired_parameters(data):
+            return jsonify({
+                "status": "success",
+                "message": "Parameters saved successfully",
+                "parameters": data
+            })
+        else:
+            return jsonify({"status": "error", "message": "Failed to save parameters"}), 500
+            
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/adjust_solution', methods=['POST'])
+def adjust_solution_route():
+    try:
+        # Get the target water level from the POST request
+        data = request.get_json()
+        if not data or 'target_ph' not in data:
+            return jsonify({"status": "error", "message": "Missing target_ph parameter"}), 400
+            
+        target_ph = float(data['target_ph'])
+        target_ec = float(data['target_ec'])
+        # First save the configuration
+        save_config("target_plant_pot_level", target_ph)
+        save_config("target_plant_pot_level", target_ph)
+
+        # Then execute the water level adjustment
+        if set_water_level():
+            return jsonify({
+                "status": "success", 
+                "message": f"Water level set to {target_level}cm successfully",
+                "current_level": system_state["plant_pot_level"]["value"]
+            })
+        else:
+            return jsonify({
+                "status": "error", 
+                "message": f"Failed to reach target level of {target_level}cm",
+                "current_level": system_state["plant_pot_level"]["value"]
+            }), 500
+            
+    except ValueError:
+        return jsonify({"status": "error", "message": "Invalid target level value"}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Unexpected error: {str(e)}"}), 500
+
+
   
 @app.route('/set_ec_baseline')
 def set_ec_baseline_route(): 

@@ -583,14 +583,40 @@ function updateAmbientDisplay(data) {
         });
 
         document.getElementById('set-nutrients-btn').addEventListener('click', function() {
-            const ph = document.getElementById('ph-level').value;
-            const ec = document.getElementById('npk-ec').value;
-            const unit = usingMicroSiemens ? "μS/cm" : "mS/cm";
-            
-            alert(`Setting nutrient solution: pH ${ph}, EC ${ec}${unit}`);
-            document.getElementById('current-nutrients').textContent = 
-                `pH: ${ph}, EC: ${ec}${unit}`;
+    const ph = parseFloat(document.getElementById('ph-level').value);
+    const ec = parseFloat(document.getElementById('npk-ec').value);
+    const unit = usingMicroSiemens ? "μS/cm" : "mS/cm";
+    
+    // Display confirmation
+    alert(`Setting nutrient solution: pH ${ph}, EC ${ec}${unit}`);
+    document.getElementById('current-nutrients').textContent = 
+        `pH: ${ph}, EC: ${ec}${unit}`;
+
+    // Prepare parameters object
+    const params = {
+        EC: ec,
+        pH: ph,
+        // You can include other default values or leave them unchanged
+        solution: 0,        // Default value
+        temperature: 0,     // Default value
+        air_temperature: 0, // Default value
+        air_humidity: 0     // Default value
+    };
+
+    // Call the save function
+    saveDesiredParameters(params)
+        .then(success => {
+            if (success) {
+                console.log('Nutrient parameters saved successfully');
+                // Optional: Show success message to user
+                // alert('Nutrient settings saved!');
+            } else {
+                console.error('Failed to save nutrient parameters');
+                // Optional: Show error message to user
+                // alert('Failed to save settings!');
+            }
         });
+});
 
         document.getElementById('set-lighting-btn').addEventListener('click', function() {
             const hours = document.getElementById('light-hours').value;
@@ -664,6 +690,41 @@ function updateAmbientDisplay(data) {
 
 // Example usage:
 // setWaterLevel(15);  // Set target level to 15cm
+
+async function saveDesiredParameters(params) {
+    try {
+        const response = await fetch('/save_desired_parameters', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(params)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            console.log('Parameters saved:', result);
+            return true;
+        } else {
+            console.error('Error saving parameters:', result.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('Network error:', error);
+        return false;
+    }
+}
+
+// Example usage:
+//const myParams = {
+//    EC: 500.00,
+//    solution: 32.00,
+//    pH: 6.60,
+//    temperature: 30.00,
+//    air_temperature: 36.00,
+//    air_humidity: 100
+//};
 
 
 
