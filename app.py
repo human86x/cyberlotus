@@ -485,6 +485,7 @@ def chamber_data_route():
     get_chamber_temp()
     get_plant_temp()
     get_temperature()
+    ph_solution_test_route()
     return "True"#redirect(url_for('control_panel'))
   
   
