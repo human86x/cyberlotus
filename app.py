@@ -181,6 +181,7 @@ def chamber_autopilot_route():
 def condition_monitor_route():
     #data = request.json
     #data = data.get('value')  # Extract the 'value' field
+    load_target_route()
     condition_monitor()
     return "Done"
 
