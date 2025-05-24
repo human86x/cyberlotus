@@ -471,7 +471,7 @@ from control_libs.chamber import get_chamber_humidity, get_chamber_temp, get_pla
 @app.route('/chamber_data_update', methods=['GET'])
 def chamber_data_route():
     global circulation_status
-    
+    global ser
 
     #circulation_status = not circulation_status  # Toggle circulation status
     print(f"Retriving data from the chamber...")
@@ -479,7 +479,7 @@ def chamber_data_route():
     get_chamber_humidity()
     get_chamber_temp()
     get_plant_temp()
-    read_solution_temperature()
+    read_solution_temperature(ser)
     return "True"#redirect(url_for('control_panel'))
   
   
