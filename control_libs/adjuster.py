@@ -129,36 +129,51 @@ def set_water_level():
     MAX_ATTEMPTS = 200  # Maximum adjustment attempts before giving up
     READING_RETRIES = 3  # Number of reading attempts before considering it failed
     DELAY_BETWEEN_ACTIONS = 5  # seconds between adjustments
+    NUM_READINGS = 3  # Number of readings to take for median calculation
     
     attempts = 0
     
     while attempts < MAX_ATTEMPTS:
         attempts += 1
-        valid_reading = False
-        plant_level = None
+        valid_readings = []
         
         # Take multiple readings to ensure accuracy
         for _ in range(READING_RETRIES):
             try:
-                plant_level = send_command_and_get_response(ser, b'C')
-                if plant_level is not None:
-                    valid_reading = True
+                readings = []
+                # Take NUM_READINGS measurements
+                for _ in range(NUM_READINGS):
+                    level = send_command_and_get_response(ser, b'C')
+                    if level is not None:
+                        readings.append(float(level))
+                        time.sleep(0.5)  # Small delay between readings
+                
+                if len(readings) >= NUM_READINGS:
+                    # Calculate median
+                    readings_sorted = sorted(readings)
+                    median_index = NUM_READINGS // 2
+                    plant_level = readings_sorted[median_index]
+                    valid_readings.append(plant_level)
                     break
+                    
             except Exception as e:
                 print(f"⚠️ Error reading water level: {str(e)}")
                 append_console_message(f"⚠️ Error reading water level: {str(e)}")
                 time.sleep(1)
         
-        if not valid_reading:
-            append_console_message("❌ Failed to get valid water level reading")
+        if not valid_readings:
+            append_console_message("❌ Failed to get valid water level readings")
             return False
+        
+        # Use the median of the valid readings
+        plant_level = valid_readings[len(valid_readings)//2]
         
         # Update system state with the reading
         system_state["plant_pot_level"]["value"] = plant_level
         system_state["plant_pot_level"]["timestamp"] = int(time.time())
         history_log("water_level", plant_level)
         
-        append_console_message(f"✅ Current water distance: {plant_level}cm | Target: {target_plant_pot_level}cm")
+        append_console_message(f"✅ Current water distance: {plant_level}cm (median of {NUM_READINGS} readings) | Target: {target_plant_pot_level}cm")
         print(f"Current: {plant_level}cm | Target: {target_plant_pot_level}cm | Attempt {attempts}/{MAX_ATTEMPTS}")
         
         # Calculate difference
@@ -185,7 +200,6 @@ def set_water_level():
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
             
         else:  # Too high - need to drain
-            
             print("Adding more solution to the pot...")
             append_console_message("🔼 Raising water level...")
             # Turn on up pump (draining)
@@ -204,7 +218,6 @@ def set_water_level():
     send_command_with_heartbeat(PUMP_COMMANDS[pump_up], -1)
     send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
     return False
-
 
 
 
