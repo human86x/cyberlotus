@@ -422,11 +422,50 @@ async function updateCharts() {
             allCharts.phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF');
             allCharts.ppmChart = createChart(document.getElementById('ppmChart').getContext('2d'), 'PPM', '#32CD32');
             allCharts.tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500');
-            allCharts.waterLevelChart = createChart(
-        document.getElementById('waterLevelChart').getContext('2d'), 
-        'Water Level (cm)', 
-        '#00BFFF'  // Nice blue color for water
-    );
+            // In your initCharts() function, modify the water level chart creation:
+allCharts.waterLevelChart = new Chart(
+    document.getElementById('waterLevelChart').getContext('2d'), 
+    {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Water Level (cm)',
+                borderColor: '#00BFFF',
+                backgroundColor: '#00BFFF33',
+                data: [],
+                fill: true,
+                tension: 0.3,
+                spanGaps: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { display: true },
+                y: { 
+                    display: true,
+                    reverse: true,  // This inverts the Y-axis
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Depth (cm)'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Depth: ${context.parsed.y} cm`;
+                        }
+                    }
+                }
+            }
+        }
+    }
+);
     
             
             
