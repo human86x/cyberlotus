@@ -431,7 +431,10 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     NPK_margin = 20
     pH_margin = 0.2
     solution_margin = 5
-
+    
+    append_console_message(f"NPK to add {NPK_adj} (formula {target_NPK} - {cur_ppm} * {solution} / 1000)")
+    append_console_message(f"pH to adjust {pH_adj} (formula {target_pH} - {pH} * {solution} / 500)")
+    
     if solution_adj < 0: solution_adj=0
 
     ##########################
