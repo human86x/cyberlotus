@@ -501,7 +501,7 @@ def set_ec_baseline_route():
         #save_calibration_data(calibration_data)
     save_config("EC_baseline", readings)
     append_console_message(f"✅ EC Baseline is set to - {readings}")
-        
+    return True
 
 
 
