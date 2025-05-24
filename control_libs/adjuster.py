@@ -156,6 +156,7 @@ def set_water_level():
         # Update system state with the reading
         system_state["plant_pot_level"]["value"] = plant_level
         system_state["plant_pot_level"]["timestamp"] = int(time.time())
+        history_log("water_level", plant_level)
         
         append_console_message(f"✅ Current water distance: {plant_level}cm | Target: {target_plant_pot_level}cm")
         print(f"Current: {plant_level}cm | Target: {target_plant_pot_level}cm | Attempt {attempts}/{MAX_ATTEMPTS}")

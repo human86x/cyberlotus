@@ -231,7 +231,7 @@ from flask import jsonify
 
 @app.route('/data')
 def get_data():
-    print("######### Trying to get data.....")
+    print("######### Accessing History Log for graphs..")
     try:
         data = load_data()  # Load your data from file or database
         
@@ -240,6 +240,7 @@ def get_data():
             "chamber_temp": [],
             "chamber_humidity": [],
             "plant_temp": [],
+            "water_level": [],
             "temperature": [],
             "ec": [],
             "ph": [],
@@ -278,6 +279,8 @@ def get_data():
             filtered_data["chamber_temp"].append(clean_value(entry.get("chamber_temp")))
             filtered_data["chamber_humidity"].append(clean_value(entry.get("chamber_humidity")))
             filtered_data["plant_temp"].append(clean_value(entry.get("plant_temp")))
+            filtered_data["water_level"].append(clean_value(entry.get("water_level")))
+            
             filtered_data["ec"].append(clean_value(entry.get("EC")))
             filtered_data["ph"].append(clean_value(entry.get("pH")))
             filtered_data["ppm"].append(clean_value(entry.get("ppm")))
@@ -285,7 +288,7 @@ def get_data():
             filtered_data["NPK_adj"].append(clean_value(entry.get("NPK_adj")))
             filtered_data["pH_adj"].append(clean_value(entry.get("pH_adj")))
         
-        print("########## Data retrieval successful")
+        print("########## Histor Log retrived sucessfully")
         return jsonify(filtered_data)
         
     except Exception as e:
@@ -296,6 +299,8 @@ def get_data():
             "chamber_temp": [],
             "chamber_humidity": [],
             "plant_temp": [],
+            "water_level": [],
+            
             "temperature": [],
             "ec": [],
             "ph": [],

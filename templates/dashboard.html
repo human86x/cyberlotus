@@ -160,27 +160,30 @@
         </div>
 
         <!-- Water Measurements Section -->
-        <div class="chart-section">
-            <div class="section-title">
-                <i class="fas fa-tint"></i>
-                <h2>Water Measurements</h2>
-            </div>
-            <div class="chart-grid">
-                <div class="chart-container">
-                    <canvas id="ecChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="phChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="ppmChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="tempChart"></canvas>
-                </div>
-            </div>
+        <!-- Water Measurements Section -->
+<div class="chart-section">
+    <div class="section-title">
+        <i class="fas fa-tint"></i>
+        <h2>Water Measurements</h2>
+    </div>
+    <div class="chart-grid">
+        <div class="chart-container">
+            <canvas id="ecChart"></canvas>
         </div>
-
+        <div class="chart-container">
+            <canvas id="phChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="ppmChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="tempChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="waterLevelChart"></canvas>
+        </div>
+    </div>
+</div>
         <!-- Tank Levels Section -->
         <div class="chart-section">
             <div class="section-title">
@@ -378,45 +381,55 @@
         }
 
         
-    async function updateCharts() {
-        const data = await fetchData();
-        const clean = arr => arr.map(x => x !== null ? x : NaN);
+    
+async function updateCharts() {
+    const data = await fetchData();
+    const clean = arr => arr.map(x => x !== null ? x : NaN);
 
-        // Update each chart
-        Object.keys(allCharts).forEach(chartId => {
-            if (chartId === 'solutionTankBar' || chartId === 'relayStatesPie') return;
-            
-            const chart = allCharts[chartId];
-            if (chart) {
-                // Map chart IDs to their corresponding data keys
-                const dataKeyMap = {
-                    'ecChart': 'ec',
-                    'phChart': 'ph',
-                    'ppmChart': 'ppm',
-                    'tempChart': 'temperature',
-                    'solutionAdjChart': 'solution_adj',
-                    'npkAdjChart': 'NPK_adj',
-                    'phAdjChart': 'pH_adj',
-                    'plantTempChart': 'plant_temp',
-                    'chamberTempChart': 'chamber_temp',
-                    'chamberHumidityChart': 'chamber_humidity'
-                };
+    // Update each chart including the new one
+    Object.keys(allCharts).forEach(chartId => {
+        if (chartId === 'solutionTankBar' || chartId === 'relayStatesPie') return;
+        
+        const chart = allCharts[chartId];
+        if (chart) {
+            // Updated dataKeyMap with water_level
+            const dataKeyMap = {
+                'ecChart': 'ec',
+                'phChart': 'ph',
+                'ppmChart': 'ppm',
+                'tempChart': 'temperature',
+                'waterLevelChart': 'water_level',  // New mapping
+                'solutionAdjChart': 'solution_adj',
+                'npkAdjChart': 'NPK_adj',
+                'phAdjChart': 'pH_adj',
+                'plantTempChart': 'plant_temp',
+                'chamberTempChart': 'chamber_temp',
+                'chamberHumidityChart': 'chamber_humidity'
+            };
 
-                const dataKey = dataKeyMap[chartId];
-                if (dataKey && data[dataKey]) {
-                    chart.data.labels = data.timestamps;
-                    chart.data.datasets[0].data = clean(data[dataKey]);
-                    chart.update();
-                }
+            const dataKey = dataKeyMap[chartId];
+            if (dataKey && data[dataKey]) {
+                chart.data.labels = data.timestamps;
+                chart.data.datasets[0].data = clean(data[dataKey]);
+                chart.update();
             }
-        });
-    }
+        }
+    });
+}
         async function initCharts() {
             // Initialize all charts
             allCharts.ecChart = createChart(document.getElementById('ecChart').getContext('2d'), 'EC (µS/cm)', '#32CD32');
             allCharts.phChart = createChart(document.getElementById('phChart').getContext('2d'), 'pH', '#1E90FF');
             allCharts.ppmChart = createChart(document.getElementById('ppmChart').getContext('2d'), 'PPM', '#32CD32');
             allCharts.tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Temperature (°C)', '#FFA500');
+            allCharts.waterLevelChart = createChart(
+        document.getElementById('waterLevelChart').getContext('2d'), 
+        'Water Level (cm)', 
+        '#00BFFF'  // Nice blue color for water
+    );
+    
+            
+            
             allCharts.solutionAdjChart = createChart(document.getElementById('solutionAdjChart').getContext('2d'), 'Solution Adjustment', '#FF6347');
             allCharts.npkAdjChart = createChart(document.getElementById('npkAdjChart').getContext('2d'), 'NPK Adjustment', '#8A2BE2');
             allCharts.phAdjChart = createChart(document.getElementById('phAdjChart').getContext('2d'), 'pH Adjustment', '#FF1493');
