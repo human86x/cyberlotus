@@ -573,15 +573,48 @@ function updateAmbientDisplay(data) {
                 `${waterHeight}cm (${envType === 'aquatic' ? 'Aquatic' : 'Terrestrial'})`;
         });
 
-        document.getElementById('set-climate-btn').addEventListener('click', function() {
-            const rootTemp = document.getElementById('root-temp').value;
-            const airTemp = document.getElementById('air-temp').value;
-            const humidity = document.getElementById('humidity').value;
-            alert(`Setting climate: Root ${rootTemp}°C, Air ${airTemp}°C, Humidity ${humidity}%`);
-            document.getElementById('current-climate').textContent = 
-                `Root: ${rootTemp}°C, Air: ${airTemp}°C, Humidity: ${humidity}%`;
-        });
+document.getElementById('set-climate-btn').addEventListener('click', async function() {
+    const rootTemp = parseFloat(document.getElementById('root-temp').value);
+    const airTemp = parseFloat(document.getElementById('air-temp').value);
+    const humidity = parseFloat(document.getElementById('humidity').value);
+    
+    // Display confirmation
+    alert(`Setting climate: Root ${rootTemp}°C, Air ${airTemp}°C, Humidity ${humidity}%`);
+    document.getElementById('current-climate').textContent = 
+        `Root: ${rootTemp}°C, Air: ${airTemp}°C, Humidity: ${humidity}%`;
 
+    try {
+        // First load current parameters
+        const currentParams = await fetch('/get_desired_parameters')
+            .then(response => response.json());
+        
+        // Update only the climate parameters we want to change
+        const updatedParams = {
+            ...currentParams,          // Keep existing values
+            temperature: rootTemp,     // Update root temperature (assuming this is your solution temperature)
+            air_temperature: airTemp,   // Update air temperature
+            air_humidity: humidity      // Update humidity
+            // Other values (EC, pH, solution) remain unchanged
+        };
+
+        // Save the updated parameters
+        const success = await saveDesiredParameters(updatedParams);
+        
+        if (success) {
+            console.log('Climate parameters updated successfully');
+            // Optional: Show success message
+            // alert('Climate settings saved!');
+        } else {
+            console.error('Failed to update climate parameters');
+            // Optional: Show error message
+            // alert('Failed to save climate settings!');
+        }
+    } catch (error) {
+        console.error('Error updating climate parameters:', error);
+        // Optional: Show error message
+        // alert('Error saving climate settings!');
+    }
+});
 document.getElementById('set-nutrients-btn').addEventListener('click', async function() {
     const ph = parseFloat(document.getElementById('ph-level').value);
     const ec = parseFloat(document.getElementById('npk-ec').value);
