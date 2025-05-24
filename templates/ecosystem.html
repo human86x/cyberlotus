@@ -436,7 +436,7 @@ function updateAmbientDisplay(data) {
     // New water level visualization (inverted - 0 at top, 20 at bottom)
     const waterLevel = data.plant_pot_level?.value;
     if (waterLevel !== undefined && waterLevel !== null) {
-        const maxLevel = 20; // Maximum water level in cm
+        const maxLevel = 30; // Maximum water level in cm
         const percentage = Math.min(100, Math.max(2, (waterLevel / maxLevel) * 100));
         document.getElementById('water-level-indicator').style.height = `${100 - percentage}%`;
         document.getElementById('water-level-value').textContent = waterLevel;
