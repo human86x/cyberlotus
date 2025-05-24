@@ -472,7 +472,7 @@ def set_water_level_route():
 
 
 from control_libs.chamber import get_chamber_humidity, get_chamber_temp, get_plant_temp
-
+from control_libs.adjuster import get_water_level
 @app.route('/chamber_data_update', methods=['GET'])
 def chamber_data_route():
     global circulation_status
@@ -485,6 +485,7 @@ def chamber_data_route():
     get_chamber_temp()
     get_plant_temp()
     get_temperature()
+    get_water_level()
     ph_solution_test_route()
     return "True"#redirect(url_for('control_panel'))
   

@@ -111,8 +111,61 @@ def circulate_solution():
             send_command_with_heartbeat(PUMP_COMMANDS[pump_up], 0)
             send_command_with_heartbeat(PUMP_COMMANDS[pump_down], -1)
         #time.sleep(5)  # Wait before checking again
+def get_water_level():
+    print("Reading the water level")
+    append_console_message("Reading the water level...")
+    
+    # Number of readings to take
+    NUM_READINGS = 3
+    readings = []
+    
+    for i in range(NUM_READINGS):
+        try:
+            level = send_command_and_get_response(ser, b'C')
+            if level is not None:
+                readings.append(float(level))
+                print(f"Reading {i+1}/{NUM_READINGS}: {level}cm")
+                append_console_message(f"Reading {i+1}/{NUM_READINGS}: {level}cm")
+            else:
+                print(f"⚠️ Empty reading {i+1}/{NUM_READINGS}")
+                append_console_message(f"⚠️ Empty reading {i+1}/{NUM_READINGS}")
+            
+            # Small delay between readings if not the last one
+            if i < NUM_READINGS - 1:
+                time.sleep(0.5)
+                
+        except Exception as e:
+            print(f"⚠️ Error during reading {i+1}: {str(e)}")
+            append_console_message(f"⚠️ Error during reading {i+1}: {str(e)}")
+    
+    # Calculate median if we got enough readings
+    if len(readings) >= NUM_READINGS:
+        readings_sorted = sorted(readings)
+        median_index = NUM_READINGS // 2
+        plant_level = readings_sorted[median_index]
         
-
+        print(f"✅ Water level readings: {readings} | Median: {plant_level}cm")
+        append_console_message(f"✅ Water level readings: {[f'{x}cm' for x in readings]} | Median: {plant_level}cm")
+        
+        system_state["plant_pot_level"]["value"] = plant_level
+        system_state["plant_pot_level"]["timestamp"] = int(time.time())
+        history_log("water_level", plant_level)
+        
+        return plant_level
+    elif readings:  # If we got some readings but not enough
+        average = sum(readings) / len(readings)
+        print(f"⚠️ Only got {len(readings)} readings, using average: {average}cm")
+        append_console_message(f"⚠️ Only got {len(readings)} readings, using average: {average}cm")
+        
+        system_state["plant_pot_level"]["value"] = average
+        system_state["plant_pot_level"]["timestamp"] = int(time.time())
+        history_log("water_level", average)
+        
+        return average
+    else:
+        print("❌ Failed to get any valid water level readings")
+        append_console_message("❌ Failed to get any valid water level readings")
+        return None
 
 def set_water_level():
     target_plant_pot_level = load_config("target_plant_pot_level")
