@@ -479,7 +479,7 @@ def chamber_data_route():
     get_chamber_humidity()
     get_chamber_temp()
     get_plant_temp()
-
+    read_solution_temperature()
     return "True"#redirect(url_for('control_panel'))
   
   
