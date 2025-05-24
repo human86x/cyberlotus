@@ -492,7 +492,7 @@ def chamber_data_route():
 @app.route('/set_ec_baseline')
 def set_ec_baseline_route(): 
 
-    readings = system_state["ec_baseline"]["value"]
+    readings = system_state["ec"]["value"]
        
     print(f"EC Baseline set to {readings}")
     #history_log("EC_baseline", readings)
