@@ -537,7 +537,8 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
 
     # Always mix the solution at the end
     single_commands["mixer_1"] = 2
-    ph_temp = x+y
+    ph_temp = (abs(required_pH) * pH_minus_mult ) + (required_pH * pH_plus_mult)
+    z = required_NPK * NPK_mult
     append_console_message(f"NPK to add {z} (formula {target_NPK} - {cur_ppm} * {solution} / 1000)")
     append_console_message(f"pH+ to adjust {ph_temp} (formula {target_pH} - {pH} * {solution} / 500)")
     
