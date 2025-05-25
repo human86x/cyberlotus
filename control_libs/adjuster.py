@@ -428,7 +428,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     pH_adj = (target_pH - pH) * (solution / 5)  # More sensitive adjustment (halved base multiplier)
     temp_adj = target_temp - temp
     solution_adj = target_solution - solution
-    NPK_margin = 20
+    NPK_margin = 0.5
     pH_margin = 0.02
     solution_margin = 5
     
@@ -445,7 +445,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
 
 
     ##########################
-    if NPK_adj <= NPK_margin:
+    if abs(NPK_adj) <= NPK_margin:
         NPK_adj = 0
     if abs(pH_adj) <= pH_margin:
         pH_adj = 0
