@@ -432,8 +432,6 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     pH_margin = 0.02
     solution_margin = 5
     
-    append_console_message(f"NPK to add {NPK_adj} (formula {target_NPK} - {cur_ppm} * {solution} / 1000)")
-    append_console_message(f"pH to adjust {pH_adj} (formula {target_pH} - {pH} * {solution} / 500)")
     
     if solution_adj < 0: solution_adj=0
 
@@ -465,10 +463,8 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     drop_mult = float(multiplyers["drop_mult"])
     
     print(f"********Loaded multiplyers {NPK_mult} --  {pH_minus_mult}  --  {pH_plus_mult} drop mult - {drop_mult}")
-
-    history_log("solution_adj", solution_adj)
-    history_log("NPK_adj", NPK_adj)
-    history_log("pH_adj", pH_adj)
+    
+    
     
 
 
@@ -541,6 +537,16 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
 
     # Always mix the solution at the end
     single_commands["mixer_1"] = 2
+    ph_temp = x+y
+    append_console_message(f"NPK to add {z} (formula {target_NPK} - {cur_ppm} * {solution} / 1000)")
+    append_console_message(f"pH+ to adjust {ph_temp} (formula {target_pH} - {pH} * {solution} / 500)")
+    
+    history_log("solution_adj", solution_adj)
+    history_log("NPK_adj", z)
+    history_log("pH_adj", ph_temp)
+
+
+
 
     # Generate the sequence file
     compile_sequence_to_file(
