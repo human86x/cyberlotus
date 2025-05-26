@@ -73,7 +73,10 @@ def chamber_ambiance():
     target_plant_temp = system_state["target_temp"]["value"]
     target_chamber_hum = system_state["plant_chamber_target_humidity"]["value"]
     target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
-    target_plant_temp = target_plant_temp -1
+    
+    target_chamber_hum = target_chamber_hum - 2
+    target_plant_temp = target_plant_temp -1.7
+    
     while True:  # Continuously loop
         # Always turn lights on (assuming this is safe)
         print("########################## TURNING LIGHTS ON ###########################")
@@ -135,7 +138,7 @@ def chamber_ambiance():
             print(f"✅ Retrieved: Plant temp: {plant_temp}°C, Chamber temp: {chamber_temp}°C, Humidity: {chamber_hum}%")
 
             # Define the acceptable margin
-            LEVEL_MARGIN = 0.2
+            LEVEL_MARGIN = 0.05
             
          
 
