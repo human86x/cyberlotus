@@ -519,7 +519,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
             #single_commands["solution_waste"] = re * Z
             #single_commands["fresh_solution"] = W * Z
 
-
+    required_pH = target_pH - pH
     # Handle pH adjustment (compensate for dilution)
     if pH_adj != 0:
         # Calculate the required pH chemical weight to achieve the target pH in the final volume
@@ -540,7 +540,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
 
     # Always mix the solution at the end
     single_commands["mixer_1"] = 2
-    ph_temp = required_pH#(abs(required_pH) * pH_minus_mult ) + (required_pH * pH_plus_mult)
+    ph_temp = required_pH #(abs(required_pH) * pH_minus_mult ) + (required_pH * pH_plus_mult)
     z = required_NPK * NPK_mult
     append_console_message(f"NPK to add {z} (formula {target_NPK} - {cur_ppm} * {solution} / 1000)")
     append_console_message(f"pH+ to adjust {ph_temp} (formula {target_pH} - {pH} * {solution} / 500)")
