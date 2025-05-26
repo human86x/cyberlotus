@@ -247,6 +247,12 @@
                 <button class="refresh-btn" id="set_baseline" onclick = "set_ec_baseline()">Set as Baseline</button>
             </div>
         </div>
+        <!-- New PPM indicator -->
+        <div class="ambient-item">
+            <div>PPM</div>
+            <div class="ambient-value" id="ambient-ppm">-</div>
+            <div>ppm</div>
+        </div>
     </div>
     <button class="refresh-btn" id="refresh-ambient">Refresh Readings</button>
     <div id="refresh-status" class="sensor-note">Last update: <span id="last-update-time">Never</span></div>
@@ -446,11 +452,13 @@ function updateAmbientDisplay(data) {
     const waterTemp = data.temperature?.value;
     const humidity = data.chamber_humidity?.value;
     const rootTemp = data.plant_temperature?.value;
+    const ppm = data.ppm?.value;
     
     updateSensorDisplay('ambient-air-temp', airTemp, '°C');
     updateSensorDisplay('ambient-water-temp', waterTemp, '°C');
     updateSensorDisplay('ambient-humidity', humidity, '%');
     updateSensorDisplay('ambient-root-temp', rootTemp, '°C');
+    updateSensorDisplay('ambient-ppm', ppm, 'ppm');
     
     // New water level visualization (inverted - 0 at top, 20 at bottom)
     const waterLevel = data.plant_pot_level?.value;
@@ -481,6 +489,7 @@ function updateAmbientDisplay(data) {
         // Position indicator on EC scale (0-2000 μS/cm)
         const ecPosition = Math.min(100, Math.max(0, (ecValue / 2000) * 100));
         document.getElementById('ec-indicator').style.left = `${ecPosition}%`;
+        document.getElementById('ambient-ppm').textContent = `${ppmValue} ppm`;
     } else {
         document.getElementById('ambient-ec').textContent = '- μS/cm';
     }
