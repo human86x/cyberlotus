@@ -324,43 +324,42 @@
 
         // Define your order and groupings
         const systemStatsOrder = [
-            // Root Zone
-            { key: "plant_pot_temperature", label: "Root Temperature", icon: "fa-seedling", group: "Root Zone" },
-            { key: "target_root_temperature", label: "Target Root Temp", icon: "fa-bullseye", group: "Root Zone" },
-            { key: "plant_pot_level", label: "Root Zone Level", icon: "fa-vial", group: "Root Zone" },
-            { key: "target_pot_level", label: "Target Root Level", icon: "fa-bullseye", group: "Root Zone" },
-            
-            // Water System
-            { key: "temperature", label: "Water Temperature", icon: "fa-temperature-half", group: "Water System" },
-            { key: "target_temp", label: "Target Water Temp", icon: "fa-bullseye", group: "Water System" },
-            { key: "ph", label: "pH Level", icon: "fa-vial", group: "Water System" },
-            { key: "target_pH", label: "Target pH", icon: "fa-bullseye", group: "Water System" },
-            { key: "ec", label: "EC Level", icon: "fa-flask", group: "Water System" },
-            { key: "target_NPK", label: "Target EC", icon: "fa-bullseye", group: "Water System" },
-            
-            // Air Environment
-            { key: "chamber_temperature", label: "Air Temperature", icon: "fa-temperature-half", group: "Air Environment" },
-            { key: "target_air_temperature", label: "Target Air Temp", icon: "fa-bullseye", group: "Air Environment" },
-            { key: "chamber_humidity", label: "Air Humidity", icon: "fa-droplet", group: "Air Environment" },
-            { key: "target_humidity", label: "Target Humidity", icon: "fa-bullseye", group: "Air Environment" },
-            
-            // Lighting
-            { key: "light_white", label: "White Light", icon: "fa-lightbulb", group: "Lighting" },
-            { key: "light_yellow", label: "Yellow Light", icon: "fa-lightbulb", group: "Lighting" },
-            { key: "light_grow", label: "Grow Light", icon: "fa-sun", group: "Lighting" },
-            
-            // Tanks
-            { key: "solution_tank", label: "Nutrient Tank", icon: "fa-droplet", group: "Tanks" },
-            { key: "fresh_tank", label: "Fresh Water Tank", icon: "fa-bottle-water", group: "Tanks" },
-            { key: "waste_tank", label: "Waste Tank", icon: "fa-trash", group: "Tanks" },
-            
-            // Controls
-            { key: "water_heater", label: "Water Heater", icon: "fa-fire", group: "Controls" },
-            { key: "air_heater", label: "Air Heater", icon: "fa-fire", group: "Controls" },
-            { key: "air_humidifyer", label: "Humidifier", icon: "fa-wind", group: "Controls" },
-            { key: "stop_all", label: "Emergency Stop", icon: "fa-triangle-exclamation", group: "Emergency" }
-        ];
-
+    // Root Zone
+    { key: "plant_pot_temperature", label: "Root Temperature", icon: "fa-seedling", group: "Root Zone" },
+    { key: "target_root_temperature", label: "Target Root Temp", icon: "fa-bullseye", group: "Root Zone" },
+    { key: "plant_pot_level", label: "Root Zone Level", icon: "fa-vial", group: "Root Zone" },
+    { key: "target_pot_level", label: "Target Root Level", icon: "fa-bullseye", group: "Root Zone" },
+    
+    // Water System
+    { key: "temperature", label: "Water Temperature", icon: "fa-temperature-half", group: "Water System" },
+    { key: "target_temp", label: "Target Water Temp", icon: "fa-bullseye", group: "Water System" },
+    { key: "ph", label: "pH Level", icon: "fa-vial", group: "Water System" },
+    { key: "target_pH", label: "Target pH", icon: "fa-bullseye", group: "Water System" },
+    { key: "ec", label: "EC Level", icon: "fa-flask", group: "Water System" },
+    { key: "target_ec", label: "Target EC", icon: "fa-bullseye", group: "Water System" },
+    
+    // Air Environment
+    { key: "chamber_temperature", label: "Air Temperature", icon: "fa-temperature-half", group: "Air Environment" },
+    { key: "target_air_temperature", label: "Target Air Temp", icon: "fa-bullseye", group: "Air Environment" },
+    { key: "chamber_humidity", label: "Air Humidity", icon: "fa-droplet", group: "Air Environment" },
+    { key: "target_humidity", label: "Target Humidity", icon: "fa-bullseye", group: "Air Environment" },
+    
+    // Lighting
+    { key: "light_white", label: "White Light", icon: "fa-lightbulb", group: "Lighting" },
+    { key: "light_yellow", label: "Yellow Light", icon: "fa-lightbulb", group: "Lighting" },
+    { key: "light_grow", label: "Grow Light", icon: "fa-sun", group: "Lighting" },
+    
+    // Tanks
+    { key: "solution_tank", label: "Nutrient Tank", icon: "fa-droplet", group: "Tanks" },
+    { key: "fresh_tank", label: "Fresh Water Tank", icon: "fa-bottle-water", group: "Tanks" },
+    { key: "waste_tank", label: "Waste Tank", icon: "fa-trash", group: "Tanks" },
+    
+    // Controls
+    { key: "water_heater", label: "Water Heater", icon: "fa-fire", group: "Controls" },
+    { key: "air_heater", label: "Air Heater", icon: "fa-fire", group: "Controls" },
+    { key: "air_humidifyer", label: "Humidifier", icon: "fa-wind", group: "Controls" },
+    { key: "stop_all", label: "Emergency Stop", icon: "fa-triangle-exclamation", group: "Emergency" }
+];
         // Map of icons for specific keys
         const iconMap = {
             "plant_temperature": "fa-seedling",
@@ -411,120 +410,127 @@
         }
 
         function updateSystemStats(data) {
-            // Update the global systemStats variable with the new data
-            systemStats = {...data}; // Create a shallow copy of the data
-            
-            const tbody = document.getElementById("systemStatsBody");
-            tbody.innerHTML = '';
-            
-            // Create a map of all available data for quick lookup
-            const dataMap = {};
-            for (const [key, value] of Object.entries(data)) {
-                if (key !== 'relay_states' && key !== 'console_output') {
-                    dataMap[key] = value;
-                }
-            }
-            
-            if (data.relay_states) {
-                for (const [key, value] of Object.entries(data.relay_states)) {
-                    dataMap[key] = value;
-                }
-            }
-            
-            // Process by groups
-            dashboardGroups.forEach(group => {
-                // Add group header
-                const groupHeader = tbody.insertRow();
-                groupHeader.className = "group-header";
-                groupHeader.innerHTML = `<td colspan="4">
-                    <i class="fas ${group.icon}"></i> ${group.name}
-                </td>`;
-                
-                // Add items in this group
-                systemStatsOrder.forEach(item => {
-                    if (item.group === group.name && dataMap[item.key]) {
-                        addTableRow(tbody, item.key, dataMap[item.key], item.icon);
-                        
-                        // Add target value if exists
-                        const targetKey = `target_${item.key.replace('target_', '')}`;
-                        if (dataMap[targetKey]) {
-                            addTableRow(tbody, targetKey, dataMap[targetKey], "fa-bullseye");
-                        }
-                    }
-                });
-            });
-            
-            // After updating the table, trigger an event to notify other components
-            const event = new CustomEvent('systemStatsUpdated', { detail: systemStats });
-            document.dispatchEvent(event);
+    // Update the global systemStats variable with the new data
+    systemStats = {...data}; // Create a shallow copy of the data
+    
+    const tbody = document.getElementById("systemStatsBody");
+    tbody.innerHTML = '';
+    
+    // Create a map of all available data for quick lookup
+    const dataMap = {};
+    for (const [key, value] of Object.entries(data)) {
+        if (key !== 'relay_states' && key !== 'console_output') {
+            dataMap[key] = value;
         }
-
-        function addTableRow(tbody, key, item, icon) {
-            const row = tbody.insertRow();
-            
-            // Find the label from systemStatsOrder
-            const statConfig = systemStatsOrder.find(item => item.key === key);
-            const label = statConfig ? statConfig.label : key.replace(/_/g, ' ')
-                .replace(/\btarget\b/gi, '')
-                .replace(/\bNPK\b/, 'EC')
-                .replace(/\btemp\b/, 'Temperature')
-                .trim();
-            
-            // Icon cell
-            const iconCell = row.insertCell();
-            iconCell.className = "icon-cell";
-            iconCell.innerHTML = `<i class="fas ${icon || iconMap[key] || 'fa-circle-info'}"></i>`;
-            
-            // Name cell
-            const nameCell = row.insertCell();
-            nameCell.className = "sensor-name";
-            nameCell.textContent = label;
-            
-            // Value cell
-            const valueCell = row.insertCell();
-            let displayValue = "N/A";
-            if (item.value !== undefined && item.value !== null) displayValue = item.value;
-            else if (item.state !== undefined && item.state !== null) displayValue = item.state;
-            else if (item.level !== undefined && item.level !== null) displayValue = item.level;
-            
-            // Handle ON/OFF states with icons and colors
-            if (typeof displayValue === 'string' && (displayValue.toLowerCase() === 'on' || displayValue.toLowerCase() === 'off')) {
-                const isOn = displayValue.toLowerCase() === 'on';
-                valueCell.innerHTML = `<span class="sensor-value ${isOn ? 'status-on' : 'status-off'}">
-                    <i class="fas ${isOn ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${displayValue.charAt(0).toUpperCase() + displayValue.slice(1)}
-                </span>`;
-            } else {
-                valueCell.innerHTML = `<span class="sensor-value">${displayValue}</span>`;
-                
-                // Apply value coloring based on conditions
-                if (typeof displayValue === 'number') {
-                    if (key.includes('temperature')) {
-                        if (displayValue > 30) valueCell.classList.add('danger-value');
-                        else if (displayValue > 28) valueCell.classList.add('warning-value');
-                        else valueCell.classList.add('good-value');
-                    } else if (key.includes('ph')) {
-                        if (displayValue < 5 || displayValue > 7) valueCell.classList.add('danger-value');
-                        else if (displayValue < 5.5 || displayValue > 6.5) valueCell.classList.add('warning-value');
-                        else valueCell.classList.add('good-value');
-                    } else if (key.includes('humidity')) {
-                        if (displayValue < 30 || displayValue > 80) valueCell.classList.add('danger-value');
-                        else if (displayValue < 40 || displayValue > 70) valueCell.classList.add('warning-value');
-                        else valueCell.classList.add('good-value');
-                    } else if (key.includes('level')) {
-                        if (displayValue < 20) valueCell.classList.add('danger-value');
-                        else if (displayValue < 40) valueCell.classList.add('warning-value');
-                        else valueCell.classList.add('good-value');
+    }
+    
+    if (data.relay_states) {
+        for (const [key, value] of Object.entries(data.relay_states)) {
+            dataMap[key] = value;
+        }
+    }
+    
+    // Process by groups
+    dashboardGroups.forEach(group => {
+        // Add group header
+        const groupHeader = tbody.insertRow();
+        groupHeader.className = "group-header";
+        groupHeader.innerHTML = `<td colspan="4">
+            <i class="fas ${group.icon}"></i> ${group.name}
+        </td>`;
+        
+        // Add items in this group
+        systemStatsOrder.forEach(item => {
+            if (item.group === group.name && dataMap[item.key]) {
+                // Only add if it's not a target value (we'll handle targets separately)
+                if (!item.key.startsWith('target_')) {
+                    addTableRow(tbody, item.key, dataMap[item.key], item.icon);
+                    
+                    // Add target value if exists
+                    const targetKey = `target_${item.key}`;
+                    if (dataMap[targetKey]) {
+                        addTableRow(tbody, targetKey, dataMap[targetKey], "fa-bullseye");
                     }
                 }
             }
-            
-            // Timestamp cell
-            const timeCell = row.insertCell();
-            timeCell.className = "timestamp";
-            timeCell.textContent = item.timestamp ? 
-                new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "N/A";
-        }
+        });
+    });
+    
+    // After updating the table, trigger an event to notify other components
+    const event = new CustomEvent('systemStatsUpdated', { detail: systemStats });
+    document.dispatchEvent(event);
+}
 
+function addTableRow(tbody, key, item, icon) {
+    const row = tbody.insertRow();
+    
+    // Find the label from systemStatsOrder
+    const statConfig = systemStatsOrder.find(item => item.key === key);
+    const label = statConfig ? statConfig.label : key.replace(/_/g, ' ')
+        .replace(/\btarget\b/gi, '')
+        .replace(/\bNPK\b/, 'EC')
+        .replace(/\btemp\b/, 'Temperature')
+        .trim();
+    
+    // Icon cell
+    const iconCell = row.insertCell();
+    iconCell.className = "icon-cell";
+    iconCell.innerHTML = `<i class="fas ${icon || iconMap[key] || 'fa-circle-info'}"></i>`;
+    
+    // Name cell
+    const nameCell = row.insertCell();
+    nameCell.className = "sensor-name";
+    nameCell.textContent = label;
+    
+    // Value cell
+    const valueCell = row.insertCell();
+    let displayValue = "N/A";
+    if (item.value !== undefined && item.value !== null) displayValue = item.value;
+    else if (item.state !== undefined && item.state !== null) displayValue = item.state;
+    else if (item.level !== undefined && item.level !== null) displayValue = item.level;
+    
+    // Handle ON/OFF states with icons and colors
+    if (typeof displayValue === 'string' && (displayValue.toLowerCase() === 'on' || displayValue.toLowerCase() === 'off')) {
+        const isOn = displayValue.toLowerCase() === 'on';
+        valueCell.innerHTML = `<span class="sensor-value ${isOn ? 'status-on' : 'status-off'}">
+            <i class="fas ${isOn ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${displayValue.charAt(0).toUpperCase() + displayValue.slice(1)}
+        </span>`;
+    } else {
+        valueCell.innerHTML = `<span class="sensor-value">${displayValue}</span>`;
+        
+        // Apply value coloring based on conditions
+        if (typeof displayValue === 'number') {
+            if (key.includes('temperature')) {
+                if (displayValue > 30) valueCell.classList.add('danger-value');
+                else if (displayValue > 28) valueCell.classList.add('warning-value');
+                else valueCell.classList.add('good-value');
+            } else if (key.includes('ph')) {
+                if (displayValue < 5 || displayValue > 7) valueCell.classList.add('danger-value');
+                else if (displayValue < 5.5 || displayValue > 6.5) valueCell.classList.add('warning-value');
+                else valueCell.classList.add('good-value');
+            } else if (key.includes('humidity')) {
+                if (displayValue < 30 || displayValue > 80) valueCell.classList.add('danger-value');
+                else if (displayValue < 40 || displayValue > 70) valueCell.classList.add('warning-value');
+                else valueCell.classList.add('good-value');
+            } else if (key.includes('level') || key === 'plant_pot_level') {
+                // Updated thresholds for root zone level
+                if (displayValue < 2 || displayValue > 14) {
+                    valueCell.classList.add('danger-value');
+                } else if (displayValue < 4 || displayValue > 12) {
+                    valueCell.classList.add('warning-value');
+                } else {
+                    valueCell.classList.add('good-value');
+                }
+            }
+        }
+    }
+    
+    // Timestamp cell
+    const timeCell = row.insertCell();
+    timeCell.className = "timestamp";
+    timeCell.textContent = item.timestamp ? 
+        new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "N/A";
+}
         // Console functions
         let lastConsoleUpdate = 0;
         const consoleUpdateInterval = setInterval(updateConsole, 300);
