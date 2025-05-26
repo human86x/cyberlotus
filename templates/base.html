@@ -382,45 +382,52 @@ function updateSystemStats(data) {
     document.dispatchEvent(event);
 }
 
-        function addTableRow(tbody, key, item, icon) {
-            const row = tbody.insertRow();
+function addTableRow(tbody, key, item, icon) {
+    const row = tbody.insertRow();
     
+    // Find the item definition from systemStatsOrder
+    const itemDef = systemStatsOrder.find(i => i.key === key) || { 
+        icon: icon || iconMap[key] || 'fa-circle-info',
+        label: key.replace(/_/g, ' ').replace(/\btarget\b/gi, '').trim()
+    };
+
     // Icon cell
     const iconCell = row.insertCell();
     iconCell.className = "icon-cell";
-    iconCell.innerHTML = `<i class="fas ${item.icon}"></i>`;
+    iconCell.innerHTML = `<i class="fas ${itemDef.icon}"></i>`;
     
-    // Name cell (using the label property)
+    // Name cell (using the label from systemStatsOrder)
     const nameCell = row.insertCell();
     nameCell.className = "sensor-name";
-    nameCell.textContent = item.label;
-            // Value cell
-            const valueCell = row.insertCell();
-            let displayValue = "N/A";
-            if (item.value !== undefined && item.value !== null) displayValue = item.value;
-            else if (item.state !== undefined && item.state !== null) displayValue = item.state;
-            else if (item.level !== undefined && item.level !== null) displayValue = item.level;
-            
-            valueCell.innerHTML = `<span class="sensor-value">${displayValue}</span>`;
-            
-            // Apply value coloring based on some conditions (you can customize this)
-            if (typeof displayValue === 'number') {
-                if (key.includes('temperature')) {
-                    if (displayValue > 30) valueCell.classList.add('danger-value');
-                    else if (displayValue > 28) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                } else if (key.includes('ph')) {
-                    if (displayValue < 5 || displayValue > 7) valueCell.classList.add('danger-value');
-                    else if (displayValue < 5.5 || displayValue > 6.5) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                }
-            }
-            
-            // Timestamp cell
-            const timeCell = row.insertCell();
-            timeCell.textContent = item.timestamp ? 
-                new Date(item.timestamp * 1000).toLocaleTimeString() : "N/A";
+    nameCell.textContent = itemDef.label;
+    
+    // Value cell
+    const valueCell = row.insertCell();
+    let displayValue = "N/A";
+    if (item.value !== undefined && item.value !== null) displayValue = item.value;
+    else if (item.state !== undefined && item.state !== null) displayValue = item.state;
+    else if (item.level !== undefined && item.level !== null) displayValue = item.level;
+    
+    valueCell.innerHTML = `<span class="sensor-value">${displayValue}</span>`;
+    
+    // Apply value coloring
+    if (typeof displayValue === 'number') {
+        if (key.includes('temperature')) {
+            if (displayValue > 30) valueCell.classList.add('danger-value');
+            else if (displayValue > 28) valueCell.classList.add('warning-value');
+            else valueCell.classList.add('good-value');
+        } else if (key.includes('ph')) {
+            if (displayValue < 5 || displayValue > 7) valueCell.classList.add('danger-value');
+            else if (displayValue < 5.5 || displayValue > 6.5) valueCell.classList.add('warning-value');
+            else valueCell.classList.add('good-value');
         }
+    }
+    
+    // Timestamp cell
+    const timeCell = row.insertCell();
+    timeCell.textContent = item.timestamp ? 
+        new Date(item.timestamp * 1000).toLocaleTimeString() : "N/A";
+}
 
         // Console functions remain the same...
         let lastConsoleUpdate = 0;
