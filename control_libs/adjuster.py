@@ -496,7 +496,7 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
     print(f"ph_mlus_mult: {pH_plus_mult}, type: {type(pH_plus_mult)}")
 
 
-
+    required_NPK = NPK_adj#target_NPK - NPK 
     # Handle NPK adjustment (compensate for dilution)
     if NPK_adj != 0:
         # Calculate the required NPK weight to achieve the target concentration in the final volume
