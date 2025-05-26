@@ -252,32 +252,32 @@
         // Define your order and groupings
         const systemStatsOrder = [
     // Plant Chamber
-    { key: "plant_temperature", icon: "fa-temperature-half", group: "Plant Chamber", label: "Plant Temp" },
-    { key: "plant_chamber_target_temperature", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Plant Temp" },
-    { key: "chamber_temperature", icon: "fa-house", group: "Plant Chamber", label: "Chamber Temp" },
+    { key: "plant_temperature", icon: "fa-temperature-half", group: "Plant Chamber", label: "Root Temperature" },
+    { key: "target_temp", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target Root Temperature" },
+    { key: "chamber_temperature", icon: "fa-house", group: "Plant Chamber", label: "Air Temperature" },
+    { key: "plant_chamber_target_temperature", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Air Temperature" },
     { key: "chamber_humidity", icon: "fa-droplet", group: "Plant Chamber", label: "Chamber Humidity" },
     { key: "plant_chamber_target_humidity", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Humidity" },
-    { key: "plant_pot_level", icon: "fa-vial", group: "Plant Chamber", label: "Pot Level" },
-    { key: "plant_pot_target_level", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Pot Level" },
+    { key: "plant_pot_level", icon: "fa-vial", group: "Plant Chamber", label: "Root Water Level" },
+    { key: "plant_pot_target_level", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Root Water Level" },
     { key: "light_white", icon: "fa-lightbulb", group: "Plant Chamber", label: "White Light" },
     { key: "light_yellow", icon: "fa-lightbulb", group: "Plant Chamber", label: "Yellow Light" },
     { key: "light_grow", icon: "fa-sun", group: "Plant Chamber", label: "Grow Light" },
     
     // Nutrient Solution
     { key: "ec", icon: "fa-flask", group: "Nutrient Solution", label: "EC" },
-    { key: "target_NPK", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target EC" },
-    { key: "ec_baseline", icon: "fa-ruler", group: "Nutrient Solution", label: "EC Baseline" },
     { key: "ppm", icon: "fa-percent", group: "Nutrient Solution", label: "PPM" },
+    
+    { key: "target_NPK", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target PPM" },
+    { key: "ec_baseline", icon: "fa-ruler", group: "Nutrient Solution", label: "EC Baseline" },
     { key: "ph", icon: "fa-vial", group: "Nutrient Solution", label: "pH" },
     { key: "target_pH", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target pH" },
-    { key: "ph_baseline", icon: "fa-ruler", group: "Nutrient Solution", label: "pH Baseline" },
-    { key: "temperature", icon: "fa-temperature-half", group: "Nutrient Solution", label: "Solution Temp" },
-    { key: "target_temp", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target Solution Temp" },
+    { key: "temperature", icon: "fa-temperature-half", group: "Nutrient Solution", label: "Solution Temperature" },
     
     // Tanks
-    { key: "solution_tank", icon: "fa-droplet", group: "Tanks", label: "Solution Tank" },
-    { key: "fresh_tank", icon: "fa-bottle-water", group: "Tanks", label: "Fresh Water" },
-    { key: "waste_tank", icon: "fa-trash", group: "Tanks", label: "Waste Tank" },
+    { key: "solution_tank", icon: "fa-droplet", group: "Tanks", label: "Solution Tank %" },
+    { key: "fresh_tank", icon: "fa-bottle-water", group: "Tanks", label: "Fresh Water %" },
+    { key: "waste_tank", icon: "fa-trash", group: "Tanks", label: "Waste Tank %" },
     
     // Relays
     { key: "water_heater", icon: "fa-fire", group: "Relays", label: "Water Heater" },
