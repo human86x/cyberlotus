@@ -73,7 +73,7 @@ def chamber_ambiance():
     target_plant_temp = system_state["target_temp"]["value"]
     target_chamber_hum = system_state["plant_chamber_target_humidity"]["value"]
     target_chamber_temp = system_state["plant_chamber_target_temperature"]["value"]
-    
+    target_plant_temp = target_plant_temp -1
     while True:  # Continuously loop
         # Always turn lights on (assuming this is safe)
         print("########################## TURNING LIGHTS ON ###########################")
@@ -99,6 +99,16 @@ def chamber_ambiance():
             flag = system_state["stop_all"]["state"]
             if flag == "STOP":
                 print(f"EXETING THE FUNCTION flag = {flag}")
+                send_command_with_heartbeat(PUMP_COMMANDS[water_heater], -1)
+                system_state["water_heater"]["state"] = "OFF"
+                system_state["water_heater"]["timestamp"] = current_time
+                send_command_with_heartbeat(PUMP_COMMANDS[air_heater], -1)
+                system_state["air_heater"]["state"] = "OFF"
+                system_state["air_heater"]["timestamp"] = current_time
+                send_command_with_heartbeat(PUMP_COMMANDS[humidifyer], -1)
+                system_state["air_humidifyer"]["state"] = "OFF"
+                system_state["air_humidifyer"]["timestamp"] = current_time
+
                 return
             # Get sensor readings with error handling
             plant_temp = get_plant_temp()
