@@ -4,22 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberLotus Project</title>
-    <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        #consoleOutput {
-            white-space: pre-wrap;
-            margin: 0;
-            padding: 0;
-            line-height: 1.4;
-            overflow-anchor: none; /* Important for scroll anchoring */
-        }
-        
-        .console-anchor {
-            overflow-anchor: auto;
-            height: 1px;
-        }
-
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -87,9 +73,6 @@
         .content.expanded {
             margin-left: -250px;
         }
-        h1, h2 {
-            color: #333;
-        }
         .right-sidebar {
             width: 300px;
             background-color: #f0f0f0;
@@ -98,26 +81,39 @@
             border-left: 1px solid #ddd;
             overflow-y: auto;
         }
-        .right-sidebar h1 {
-            margin-top: 0;
-        }
         #systemStatsTable {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
-        #systemStatsTable th, #systemStatsTable td {
-            border: 1px solid #ddd;
+        #systemStatsTable td {
             padding: 8px;
-            text-align: left;
-            font-size: small;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
         }
-        #systemStatsTable th {
-            background-color: #f0f0f0;
-            position: sticky;
-            top: 0;
+        #systemStatsTable .section-header {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            border-bottom: 2px solid #bbb;
         }
-        /* Console Output Panel */
+        #systemStatsTable .section-header td {
+            padding: 10px 8px;
+        }
+        .sensor-value {
+            font-weight: bold;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 12px;
+        }
+        .good-value {
+            color: green;
+        }
+        .warning-value {
+            color: orange;
+        }
+        .danger-value {
+            color: red;
+        }
         .console-panel {
             height: 120px;
             background-color: #111;
@@ -136,30 +132,8 @@
         #consoleOutput div {
             margin: 2px 0;
         }
-        
-        /* New styles for improved system stats */
-        .sensor-value {
-            font-weight: bold;
-        }
-        .target-value {
-            color: #666;
-            font-style: italic;
-        }
-        .good-value {
-            color: green;
-        }
-        .warning-value {
-            color: orange;
-        }
-        .danger-value {
-            color: red;
-        }
-        .icon-cell {
-            width: 24px;
-            text-align: center;
-        }
-        .sensor-name {
-            min-width: 120px;
+        .console-anchor {
+            height: 1px;
         }
     </style>
 </head>
@@ -189,13 +163,110 @@
         </div>
         <div class="right-sidebar">
             <table id="systemStatsTable">
-                <thead>
-                    <tr>
-                        <th colspan="4">System Measurements</th>
-                    </tr>
-                </thead>
                 <tbody id="systemStatsBody">
-                    <!-- Data will be inserted here -->
+                    <!-- Plant Chamber Section -->
+                    <tr class="section-header">
+                        <td colspan="4"><i class="fas fa-seedling"></i> Plant Chamber</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-temperature-half"></i></td>
+                        <td>Chamber Temp</td>
+                        <td class="sensor-value" data-key="chamber_temperature">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-bullseye"></i></td>
+                        <td>Target Temp</td>
+                        <td class="sensor-value" data-key="plant_chamber_target_temperature">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-droplet"></i></td>
+                        <td>Humidity</td>
+                        <td class="sensor-value" data-key="chamber_humidity">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-bullseye"></i></td>
+                        <td>Target Humidity</td>
+                        <td class="sensor-value" data-key="plant_chamber_target_humidity">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    
+                    <!-- Nutrient Solution Section -->
+                    <tr class="section-header">
+                        <td colspan="4"><i class="fas fa-flask"></i> Nutrient Solution</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-flask"></i></td>
+                        <td>EC</td>
+                        <td class="sensor-value" data-key="ec">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-bullseye"></i></td>
+                        <td>Target EC</td>
+                        <td class="sensor-value" data-key="target_NPK">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-vial"></i></td>
+                        <td>pH</td>
+                        <td class="sensor-value" data-key="ph">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-bullseye"></i></td>
+                        <td>Target pH</td>
+                        <td class="sensor-value" data-key="target_pH">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    
+                    <!-- Tanks Section -->
+                    <tr class="section-header">
+                        <td colspan="4"><i class="fas fa-droplet"></i> Tanks</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-droplet"></i></td>
+                        <td>Solution Tank</td>
+                        <td class="sensor-value" data-key="solution_tank">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-bottle-water"></i></td>
+                        <td>Fresh Water</td>
+                        <td class="sensor-value" data-key="fresh_tank">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-trash"></i></td>
+                        <td>Waste Tank</td>
+                        <td class="sensor-value" data-key="waste_tank">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    
+                    <!-- Relays Section -->
+                    <tr class="section-header">
+                        <td colspan="4"><i class="fas fa-plug"></i> Relays</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-fire"></i></td>
+                        <td>Water Heater</td>
+                        <td class="sensor-value" data-key="water_heater">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-fire"></i></td>
+                        <td>Air Heater</td>
+                        <td class="sensor-value" data-key="air_heater">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-wind"></i></td>
+                        <td>Humidifier</td>
+                        <td class="sensor-value" data-key="air_humidifyer">-</td>
+                        <td class="timestamp">-</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -203,10 +274,11 @@
 
     <div class="console-panel">
         <div id="consoleOutput">System console ready...</div>
+        <div class="console-anchor"></div>
     </div>
 
     <script>
-        // Toggle sidebar functionality
+        // Sidebar toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
@@ -231,215 +303,90 @@
                 }
             });
             
-            // Auto-collapse when mouse leaves sidebar for 3 seconds
+            // Auto-collapse when mouse leaves sidebar
             let collapseTimeout;
             sidebar.addEventListener('mouseleave', function() {
                 collapseTimeout = setTimeout(function() {
-                    if (!isCollapsed) {
-                        sidebarToggle.click();
-                    }
+                    if (!isCollapsed) sidebarToggle.click();
                 }, 3000);
             });
             
             sidebar.addEventListener('mouseenter', function() {
                 clearTimeout(collapseTimeout);
-                if (isCollapsed) {
-                    sidebarToggle.click();
-                }
+                if (isCollapsed) sidebarToggle.click();
             });
         });
 
-        // Define your order and groupings
-        const systemStatsOrder = [
-            // Plant Chamber
-            { key: "plant_temperature", icon: "fa-temperature-half", group: "Plant Chamber" },
-            { key: "plant_chamber_target_temperature", icon: "fa-bullseye", group: "Plant Chamber" },
-            { key: "chamber_temperature", icon: "fa-temperature-half", group: "Plant Chamber" },
-            { key: "chamber_humidity", icon: "fa-droplet", group: "Plant Chamber" },
-            { key: "plant_chamber_target_humidity", icon: "fa-bullseye", group: "Plant Chamber" },
-            { key: "plant_pot_level", icon: "fa-vial", group: "Plant Chamber" },
-            { key: "plant_pot_target_level", icon: "fa-bullseye", group: "Plant Chamber" },
-            { key: "light_white", icon: "fa-lightbulb", group: "Plant Chamber" },
-            { key: "light_yellow", icon: "fa-lightbulb", group: "Plant Chamber" },
-            { key: "light_grow", icon: "fa-sun", group: "Plant Chamber" },
-            
-            // Nutrient Solution
-            { key: "ec", icon: "fa-flask", group: "Nutrient Solution" },
-            { key: "target_NPK", icon: "fa-bullseye", group: "Nutrient Solution" },
-            { key: "ph", icon: "fa-vial", group: "Nutrient Solution" },
-            { key: "target_pH", icon: "fa-bullseye", group: "Nutrient Solution" },
-            { key: "temperature", icon: "fa-temperature-half", group: "Nutrient Solution" },
-            { key: "target_temp", icon: "fa-bullseye", group: "Nutrient Solution" },
-            { key: "ppm", icon: "fa-percent", group: "Nutrient Solution" },
-            { key: "ec_baseline", icon: "fa-ruler", group: "Nutrient Solution" },
-            { key: "ph_baseline", icon: "fa-ruler", group: "Nutrient Solution" },
-            
-            // Tanks
-            { key: "solution_tank", icon: "fa-droplet", group: "Tanks" },
-            { key: "fresh_tank", icon: "fa-bottle-water", group: "Tanks" },
-            { key: "waste_tank", icon: "fa-trash", group: "Tanks" },
-            
-            // Relays
-            { key: "water_heater", icon: "fa-fire", group: "Relays" },
-            { key: "air_heater", icon: "fa-fire", group: "Relays" },
-            { key: "air_humidifyer", icon: "fa-wind", group: "Relays" },
-            { key: "stop_all", icon: "fa-triangle-exclamation", group: "Emergency" }
-        ];
-
-        // Map of icons for specific keys
-        const iconMap = {
-            "plant_temperature": "fa-seedling",
-            "chamber_temperature": "fa-house",
-            "chamber_humidity": "fa-cloud",
-            "ec": "fa-flask",
-            "ph": "fa-vial",
-            "temperature": "fa-temperature-half",
-            "solution_tank": "fa-droplet",
-            "fresh_tank": "fa-bottle-water",
-            "waste_tank": "fa-trash",
-            "water_heater": "fa-fire",
-            "air_heater": "fa-fire",
-            "air_humidifyer": "fa-wind",
-            "light_white": "fa-lightbulb",
-            "light_yellow": "fa-lightbulb",
-            "light_grow": "fa-sun",
-            "plant_pot_level": "fa-vial",
-            "stop_all": "fa-triangle-exclamation"
-        };
-
-        // Groupings for the dashboard
-        const dashboardGroups = [
-            { name: "Plant Chamber", icon: "fa-seedling" },
-            { name: "Nutrient Solution", icon: "fa-flask" },
-            { name: "Tanks", icon: "fa-droplet" },
-            { name: "Relays", icon: "fa-plug" },
-            { name: "Emergency", icon: "fa-triangle-exclamation" }
-        ];
-
-        function loadSystemStats() {
-            fetch("/sys_state")
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    updateSystemStats(data);
-                })
-                .catch(error => {
-                    appendToConsole("Error loading system stats: " + error.message, 'error');
-                });
-        }
-
-// Define the global systemStats variable at the top level
-let systemStats = {};
-
-function updateSystemStats(data) {
-    // Update the global systemStats variable with the new data
-    systemStats = {...data}; // Create a shallow copy of the data
-    
-    const tbody = document.getElementById("systemStatsBody");
-    tbody.innerHTML = '';
-    
-    // Create a map of all available data for quick lookup
-    const dataMap = {};
-    for (const [key, value] of Object.entries(data)) {
-        if (key !== 'relay_states' && key !== 'console_output') {
-            dataMap[key] = value;
-        }
-    }
-    
-    if (data.relay_states) {
-        for (const [key, value] of Object.entries(data.relay_states)) {
-            dataMap[key] = value;
-        }
-    }
-    
-    // Process by groups
-    dashboardGroups.forEach(group => {
-        // Add group header
-        const groupHeader = tbody.insertRow();
-        groupHeader.innerHTML = `<td colspan="4" style="background-color: #e0e0e0; font-weight: bold;">
-            <i class="fas ${group.icon}"></i> ${group.name}
-        </td>`;
-        
-        // Add items in this group
-        systemStatsOrder.forEach(item => {
-            if (item.group === group.name && dataMap[item.key]) {
-                addTableRow(tbody, item.key, dataMap[item.key], item.icon);
+        // System stats update functions
+        function updateSystemStats(data) {
+            document.querySelectorAll('.sensor-value').forEach(cell => {
+                const key = cell.getAttribute('data-key');
+                const value = getValueFromData(data, key);
                 
-                // Add target value if exists
-                const targetKey = `target_${item.key}`;
-                if (dataMap[targetKey]) {
-                    addTableRow(tbody, targetKey, dataMap[targetKey], "fa-bullseye");
+                if (value !== undefined && value !== null) {
+                    // Update displayed value
+                    cell.textContent = value.value !== undefined ? value.value : 
+                                     value.state !== undefined ? value.state : 
+                                     value.level !== undefined ? value.level : '-';
+                    
+                    // Update timestamp if available
+                    const timestampCell = cell.parentElement.querySelector('.timestamp');
+                    if (timestampCell && value.timestamp) {
+                        timestampCell.textContent = new Date(value.timestamp * 1000).toLocaleTimeString();
+                    }
+                    
+                    // Apply styling based on value
+                    updateCellStyle(cell, key, cell.textContent);
                 }
-            }
-        });
-    });
-    
-    // After updating the table, trigger an event to notify other components
-    const event = new CustomEvent('systemStatsUpdated', { detail: systemStats });
-    document.dispatchEvent(event);
-}
-
-        function addTableRow(tbody, key, item, icon) {
-            const row = tbody.insertRow();
-            
-            // Icon cell
-            const iconCell = row.insertCell();
-            iconCell.className = "icon-cell";
-            iconCell.innerHTML = `<i class="fas ${icon || iconMap[key] || 'fa-circle-info'}"></i>`;
-            
-            // Name cell
-            const nameCell = row.insertCell();
-            nameCell.className = "sensor-name";
-            nameCell.textContent = key.replace(/_/g, ' ').replace(/\btarget\b/gi, '').trim();
-            
-            // Value cell
-            const valueCell = row.insertCell();
-            let displayValue = "N/A";
-            if (item.value !== undefined && item.value !== null) displayValue = item.value;
-            else if (item.state !== undefined && item.state !== null) displayValue = item.state;
-            else if (item.level !== undefined && item.level !== null) displayValue = item.level;
-            
-            valueCell.innerHTML = `<span class="sensor-value">${displayValue}</span>`;
-            
-            // Apply value coloring based on some conditions (you can customize this)
-            if (typeof displayValue === 'number') {
-                if (key.includes('temperature')) {
-                    if (displayValue > 30) valueCell.classList.add('danger-value');
-                    else if (displayValue > 28) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                } else if (key.includes('ph')) {
-                    if (displayValue < 5 || displayValue > 7) valueCell.classList.add('danger-value');
-                    else if (displayValue < 5.5 || displayValue > 6.5) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                }
-            }
-            
-            // Timestamp cell
-            const timeCell = row.insertCell();
-            timeCell.textContent = item.timestamp ? 
-                new Date(item.timestamp * 1000).toLocaleTimeString() : "N/A";
+            });
         }
 
-        // Console functions remain the same...
+        function getValueFromData(data, key) {
+            // Check main data first
+            if (data[key]) return data[key];
+            
+            // Check relay states if not found
+            if (data.relay_states && data.relay_states[key]) {
+                return data.relay_states[key];
+            }
+            
+            return null;
+        }
+
+        function updateCellStyle(cell, key, value) {
+            // Reset previous classes
+            cell.classList.remove('good-value', 'warning-value', 'danger-value');
+            
+            // Skip if not a number
+            if (isNaN(value)) return;
+            
+            value = parseFloat(value);
+            
+            // Apply new classes based on value and key
+            if (key.includes('temperature')) {
+                if (value > 30) cell.classList.add('danger-value');
+                else if (value > 28) cell.classList.add('warning-value');
+                else cell.classList.add('good-value');
+            } 
+            else if (key.includes('ph')) {
+                if (value < 5 || value > 7) cell.classList.add('danger-value');
+                else if (value < 5.5 || value > 6.5) cell.classList.add('warning-value');
+                else cell.classList.add('good-value');
+            }
+            // Add more conditions as needed
+        }
+
+        // Console functions
         let lastConsoleUpdate = 0;
         const consoleUpdateInterval = setInterval(updateConsole, 300);
         let consoleUpdateInProgress = false;
         
-        const scrollAnchor = document.createElement('div');
-        scrollAnchor.className = 'console-anchor';
-        document.getElementById('consoleOutput').appendChild(scrollAnchor);
-
         function updateConsole() {
             if (consoleUpdateInProgress) return;
             consoleUpdateInProgress = true;
             
             fetch('/console_output?ts=' + lastConsoleUpdate)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     if (data.console_messages?.length > 0) {
                         const newMessages = data.console_messages.filter(
@@ -452,9 +399,7 @@ function updateSystemStats(data) {
                         }
                     }
                 })
-                .catch(error => {
-                    console.error('Console update error:', error);
-                })
+                .catch(console.error)
                 .finally(() => {
                     consoleUpdateInProgress = false;
                 });
@@ -471,31 +416,30 @@ function updateSystemStats(data) {
                 fragment.appendChild(messageElement);
             });
             
-            consoleOutput.insertBefore(fragment, scrollAnchor);
-            
-            setTimeout(() => {
-                consoleOutput.scrollTop = consoleOutput.scrollHeight;
-                setTimeout(() => {
-                    scrollAnchor.scrollIntoView({ behavior: 'smooth' });
-                    setTimeout(() => {
-                        if (consoleOutput.scrollHeight > consoleOutput.clientHeight && 
-                            consoleOutput.scrollTop < consoleOutput.scrollHeight - consoleOutput.clientHeight - 10) {
-                            consoleOutput.scrollTop = consoleOutput.scrollHeight;
-                        }
-                    }, 50);
-                }, 50);
-            }, 0);
+            consoleOutput.insertBefore(fragment, document.querySelector('.console-anchor'));
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
 
         // Initial load
         document.addEventListener('DOMContentLoaded', () => {
-            loadSystemStats();
-            updateConsole();
-            setInterval(loadSystemStats, 5000);
+            // Load system stats
+            fetch("/sys_state")
+                .then(response => response.json())
+                .then(data => updateSystemStats(data))
+                .catch(console.error);
             
+            // Set up periodic updates
+            setInterval(() => {
+                fetch("/sys_state")
+                    .then(response => response.json())
+                    .then(data => updateSystemStats(data))
+                    .catch(console.error);
+            }, 5000);
+            
+            // Initial console message
             setTimeout(() => {
                 appendConsoleMessages([{
-                    message: "Console initialized and ready",
+                    message: "System initialized and ready",
                     timestamp: Date.now() / 1000
                 }]);
             }, 100);
