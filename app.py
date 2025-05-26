@@ -434,7 +434,8 @@ def start_circulation():
     global circulation_status
     circulation_status = not circulation_status  # Toggle circulation status
     print(f"Solution circulation is now {'on' if circulation_status else 'off'}")
-    
+    append_console_message(f"✅ Circulating the solution")
+
     circulate_solution()
 
     return "True"#redirect(url_for('control_panel'))
@@ -442,6 +443,8 @@ from control_libs.adjuster import set_water_level
 from control_libs.electric_conductivity import save_config
 @app.route('/set_water_level', methods=['POST'])
 def set_water_level_route():
+    append_console_message(f"✅ Setting the water level")
+
     try:
         # Get the target water level from the POST request
         data = request.get_json()
@@ -480,6 +483,7 @@ from control_libs.adjuster import get_water_level
 def chamber_data_route():
     global circulation_status
     global ser
+    append_console_message(f"Obtaining data from the sensors...")
 
     #circulation_status = not circulation_status  # Toggle circulation status
     print(f"Retriving data from the chamber...")
@@ -490,6 +494,8 @@ def chamber_data_route():
     get_temperature()
     get_water_level()
     ph_solution_test_route()
+    append_console_message(f"✅ Ecosystem sensor data retrived")
+
     return "True"#redirect(url_for('control_panel'))
 
 
@@ -534,6 +540,8 @@ def save_desired_parameters(params):
 
 @app.route('/save_desired_parameters', methods=['POST'])
 def save_desired_parameters_route():
+    append_console_message(f"✅ Saving Ecosystem values")
+
     """
     Flask endpoint to save desired parameters
     Expects JSON payload with the parameters to save
@@ -558,6 +566,8 @@ def save_desired_parameters_route():
 
 @app.route('/get_desired_parameters')
 def get_desired_parameters():
+    append_console_message(f"✅ Target Ecosystem values loaded")
+
     try:
         with open(DESIRED_PARAMS_FILE, 'r') as f:
             params = json.load(f)
@@ -624,7 +634,9 @@ def set_ec_baseline_route():
     append_console_message(f"✅ EC Baseline is set to - {readings}")
     
     load_ec_baseline()
+    system_state["ppm"]["value"] = 0
     append_console_message(f"✅ Baseline is reloaded")
+
 
     return True
 

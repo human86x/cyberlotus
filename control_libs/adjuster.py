@@ -525,6 +525,8 @@ def generate_adjustment_sequence(target_NPK, NPK, target_pH, pH, target_temp, te
         # Calculate the required pH chemical weight to achieve the target pH in the final volume
         #required_pH = ((target_pH * final_volume) - (pH * current_volume)) / 100
         required_pH = target_pH - pH
+        append_console_message(f"✅ required_ph {required_pH} = target_ph {target_pH} - ph {pH}")
+
         print(f"Required adjustment pH - {required_pH}")
         if pH_adj < 0:
             x = abs(required_pH) * pH_minus_mult
