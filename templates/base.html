@@ -251,41 +251,42 @@
 
         // Define your order and groupings
         const systemStatsOrder = [
-            // Plant Chamber
-            { key: "plant_temperature", icon: "fa-temperature-half", group: "Plant Chamber" },
-            { key: "plant_chamber_target_temperature", icon: "fa-bullseye", group: "Plant Chamber" },
-            { key: "chamber_temperature", icon: "fa-temperature-half", group: "Plant Chamber" },
-            { key: "chamber_humidity", icon: "fa-droplet", group: "Plant Chamber" },
-            { key: "plant_chamber_target_humidity", icon: "fa-bullseye", group: "Plant Chamber" },
-            { key: "plant_pot_level", icon: "fa-vial", group: "Plant Chamber" },
-            { key: "plant_pot_target_level", icon: "fa-bullseye", group: "Plant Chamber" },
-            { key: "light_white", icon: "fa-lightbulb", group: "Plant Chamber" },
-            { key: "light_yellow", icon: "fa-lightbulb", group: "Plant Chamber" },
-            { key: "light_grow", icon: "fa-sun", group: "Plant Chamber" },
-            
-            // Nutrient Solution
-            { key: "ec", icon: "fa-flask", group: "Nutrient Solution" },
-            { key: "target_NPK", icon: "fa-bullseye", group: "Nutrient Solution" },
-            { key: "ph", icon: "fa-vial", group: "Nutrient Solution" },
-            { key: "target_pH", icon: "fa-bullseye", group: "Nutrient Solution" },
-            { key: "temperature", icon: "fa-temperature-half", group: "Nutrient Solution" },
-            { key: "target_temp", icon: "fa-bullseye", group: "Nutrient Solution" },
-            { key: "ppm", icon: "fa-percent", group: "Nutrient Solution" },
-            { key: "ec_baseline", icon: "fa-ruler", group: "Nutrient Solution" },
-            { key: "ph_baseline", icon: "fa-ruler", group: "Nutrient Solution" },
-            
-            // Tanks
-            { key: "solution_tank", icon: "fa-droplet", group: "Tanks" },
-            { key: "fresh_tank", icon: "fa-bottle-water", group: "Tanks" },
-            { key: "waste_tank", icon: "fa-trash", group: "Tanks" },
-            
-            // Relays
-            { key: "water_heater", icon: "fa-fire", group: "Relays" },
-            { key: "air_heater", icon: "fa-fire", group: "Relays" },
-            { key: "air_humidifyer", icon: "fa-wind", group: "Relays" },
-            { key: "stop_all", icon: "fa-triangle-exclamation", group: "Emergency" }
-        ];
-
+    // Plant Chamber
+    { key: "plant_temperature", icon: "fa-temperature-half", group: "Plant Chamber", label: "Plant Temp" },
+    { key: "plant_chamber_target_temperature", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Plant Temp" },
+    { key: "chamber_temperature", icon: "fa-house", group: "Plant Chamber", label: "Chamber Temp" },
+    { key: "chamber_humidity", icon: "fa-droplet", group: "Plant Chamber", label: "Chamber Humidity" },
+    { key: "plant_chamber_target_humidity", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Humidity" },
+    { key: "plant_pot_level", icon: "fa-vial", group: "Plant Chamber", label: "Pot Level" },
+    { key: "plant_pot_target_level", icon: "fa-bullseye", group: "Plant Chamber", label: "Target Pot Level" },
+    { key: "light_white", icon: "fa-lightbulb", group: "Plant Chamber", label: "White Light" },
+    { key: "light_yellow", icon: "fa-lightbulb", group: "Plant Chamber", label: "Yellow Light" },
+    { key: "light_grow", icon: "fa-sun", group: "Plant Chamber", label: "Grow Light" },
+    
+    // Nutrient Solution
+    { key: "ec", icon: "fa-flask", group: "Nutrient Solution", label: "EC" },
+    { key: "target_NPK", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target EC" },
+    { key: "ec_baseline", icon: "fa-ruler", group: "Nutrient Solution", label: "EC Baseline" },
+    { key: "ppm", icon: "fa-percent", group: "Nutrient Solution", label: "PPM" },
+    { key: "ph", icon: "fa-vial", group: "Nutrient Solution", label: "pH" },
+    { key: "target_pH", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target pH" },
+    { key: "ph_baseline", icon: "fa-ruler", group: "Nutrient Solution", label: "pH Baseline" },
+    { key: "temperature", icon: "fa-temperature-half", group: "Nutrient Solution", label: "Solution Temp" },
+    { key: "target_temp", icon: "fa-bullseye", group: "Nutrient Solution", label: "Target Solution Temp" },
+    
+    // Tanks
+    { key: "solution_tank", icon: "fa-droplet", group: "Tanks", label: "Solution Tank" },
+    { key: "fresh_tank", icon: "fa-bottle-water", group: "Tanks", label: "Fresh Water" },
+    { key: "waste_tank", icon: "fa-trash", group: "Tanks", label: "Waste Tank" },
+    
+    // Relays
+    { key: "water_heater", icon: "fa-fire", group: "Relays", label: "Water Heater" },
+    { key: "air_heater", icon: "fa-fire", group: "Relays", label: "Air Heater" },
+    { key: "air_humidifyer", icon: "fa-wind", group: "Relays", label: "Humidifier" },
+    
+    // Emergency
+    { key: "stop_all", icon: "fa-triangle-exclamation", group: "Emergency", label: "Emergency Stop" }
+];
         // Map of icons for specific keys
         const iconMap = {
             "plant_temperature": "fa-seedling",
@@ -383,17 +384,16 @@ function updateSystemStats(data) {
 
         function addTableRow(tbody, key, item, icon) {
             const row = tbody.insertRow();
-            
-            // Icon cell
-            const iconCell = row.insertCell();
-            iconCell.className = "icon-cell";
-            iconCell.innerHTML = `<i class="fas ${icon || iconMap[key] || 'fa-circle-info'}"></i>`;
-            
-            // Name cell
-            const nameCell = row.insertCell();
-            nameCell.className = "sensor-name";
-            nameCell.textContent = key.replace(/_/g, ' ').replace(/\btarget\b/gi, '').trim();
-            
+    
+    // Icon cell
+    const iconCell = row.insertCell();
+    iconCell.className = "icon-cell";
+    iconCell.innerHTML = `<i class="fas ${item.icon}"></i>`;
+    
+    // Name cell (using the label property)
+    const nameCell = row.insertCell();
+    nameCell.className = "sensor-name";
+    nameCell.textContent = item.label;
             // Value cell
             const valueCell = row.insertCell();
             let displayValue = "N/A";
