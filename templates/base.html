@@ -1,219 +1,608 @@
-<div class="right-sidebar">
-    <table id="systemStatsTable">
-        <thead>
-            <tr>
-                <th colspan="4">System Measurements</th>
-            </tr>
-        </thead>
-        <tbody id="systemStatsBody">
-            <!-- Data will be inserted here -->
-        </tbody>
-    </table>
-</div>
-
-<style>
-    /* Update these styles in your existing CSS */
-    .right-sidebar {
-        width: 300px;
-        background-color: #f8f9fa;
-        padding: 15px;
-        box-sizing: border-box;
-        border-left: 1px solid #dee2e6;
-        overflow-y: auto;
-    }
-    
-    #systemStatsTable {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        font-size: 0.9em;
-    }
-    
-    #systemStatsTable th {
-        background-color: #e9ecef;
-        position: sticky;
-        top: 0;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8em;
-        letter-spacing: 0.5px;
-    }
-    
-    #systemStatsTable th, #systemStatsTable td {
-        border: 1px solid #dee2e6;
-        padding: 8px 10px;
-        text-align: left;
-    }
-    
-    .group-header {
-        background-color: #e9ecef !important;
-        font-weight: 600;
-        color: #495057;
-    }
-    
-    .group-header i {
-        margin-right: 8px;
-        color: #6c757d;
-    }
-    
-    .sensor-value {
-        font-weight: bold;
-    }
-    
-    .good-value {
-        color: #28a745;
-    }
-    
-    .warning-value {
-        color: #fd7e14;
-    }
-    
-    .danger-value {
-        color: #dc3545;
-    }
-    
-    .icon-cell {
-        width: 24px;
-        text-align: center;
-        color: #6c757d;
-    }
-    
-    .sensor-name {
-        min-width: 120px;
-        font-weight: 500;
-        color: #495057;
-    }
-    
-    .status-on {
-        color: #28a745;
-    }
-    
-    .status-off {
-        color: #6c757d;
-    }
-    
-    .target-value {
-        color: #6c757d;
-        font-style: italic;
-    }
-    
-    .timestamp {
-        font-size: 0.8em;
-        color: #adb5bd;
-    }
-</style>
-
-<script>
-    // Update the systemStatsOrder array with proper labels and organization
-    const systemStatsOrder = [
-        // Root Zone
-        { key: "plant_pot_temperature", label: "Root Temperature", icon: "fa-seedling", group: "Root Zone" },
-        { key: "target_root_temperature", label: "Target Root Temp", icon: "fa-bullseye", group: "Root Zone" },
-        { key: "plant_pot_level", label: "Root Zone Level", icon: "fa-vial", group: "Root Zone" },
-        { key: "target_pot_level", label: "Target Root Level", icon: "fa-bullseye", group: "Root Zone" },
-        
-        // Water System
-        { key: "temperature", label: "Water Temperature", icon: "fa-temperature-half", group: "Water System" },
-        { key: "target_temp", label: "Target Water Temp", icon: "fa-bullseye", group: "Water System" },
-        { key: "ph", label: "pH Level", icon: "fa-vial", group: "Water System" },
-        { key: "target_pH", label: "Target pH", icon: "fa-bullseye", group: "Water System" },
-        { key: "ec", label: "EC Level", icon: "fa-flask", group: "Water System" },
-        { key: "target_NPK", label: "Target EC", icon: "fa-bullseye", group: "Water System" },
-        
-        // Air Environment
-        { key: "chamber_temperature", label: "Air Temperature", icon: "fa-temperature-half", group: "Air Environment" },
-        { key: "target_air_temperature", label: "Target Air Temp", icon: "fa-bullseye", group: "Air Environment" },
-        { key: "chamber_humidity", label: "Air Humidity", icon: "fa-droplet", group: "Air Environment" },
-        { key: "target_humidity", label: "Target Humidity", icon: "fa-bullseye", group: "Air Environment" },
-        
-        // Lighting
-        { key: "light_white", label: "White Light", icon: "fa-lightbulb", group: "Lighting" },
-        { key: "light_yellow", label: "Yellow Light", icon: "fa-lightbulb", group: "Lighting" },
-        { key: "light_grow", label: "Grow Light", icon: "fa-sun", group: "Lighting" },
-        
-        // Tanks
-        { key: "solution_tank", label: "Nutrient Tank", icon: "fa-droplet", group: "Tanks" },
-        { key: "fresh_tank", label: "Fresh Water Tank", icon: "fa-bottle-water", group: "Tanks" },
-        { key: "waste_tank", label: "Waste Tank", icon: "fa-trash", group: "Tanks" },
-        
-        // Controls
-        { key: "water_heater", label: "Water Heater", icon: "fa-fire", group: "Controls" },
-        { key: "air_heater", label: "Air Heater", icon: "fa-fire", group: "Controls" },
-        { key: "air_humidifyer", label: "Humidifier", icon: "fa-wind", group: "Controls" },
-        { key: "stop_all", label: "Emergency Stop", icon: "fa-triangle-exclamation", group: "Emergency" }
-    ];
-
-    // Update the dashboard groups
-    const dashboardGroups = [
-        { name: "Root Zone", icon: "fa-seedling" },
-        { name: "Water System", icon: "fa-tint" },
-        { name: "Air Environment", icon: "fa-wind" },
-        { name: "Lighting", icon: "fa-lightbulb" },
-        { name: "Tanks", icon: "fa-droplet" },
-        { name: "Controls", icon: "fa-sliders-h" },
-        { name: "Emergency", icon: "fa-triangle-exclamation" }
-    ];
-
-    // Update the addTableRow function
-    function addTableRow(tbody, key, item, icon) {
-        const row = tbody.insertRow();
-        
-        // Find the label from systemStatsOrder
-        const statConfig = systemStatsOrder.find(item => item.key === key);
-        const label = statConfig ? statConfig.label : key.replace(/_/g, ' ').replace(/\btarget\b/gi, '').trim();
-        
-        // Icon cell
-        const iconCell = row.insertCell();
-        iconCell.className = "icon-cell";
-        iconCell.innerHTML = `<i class="fas ${icon || iconMap[key] || 'fa-circle-info'}"></i>`;
-        
-        // Name cell
-        const nameCell = row.insertCell();
-        nameCell.className = "sensor-name";
-        nameCell.textContent = label;
-        
-        // Value cell
-        const valueCell = row.insertCell();
-        let displayValue = "N/A";
-        if (item.value !== undefined && item.value !== null) displayValue = item.value;
-        else if (item.state !== undefined && item.state !== null) displayValue = item.state;
-        else if (item.level !== undefined && item.level !== null) displayValue = item.level;
-        
-        // Handle ON/OFF states with icons and colors
-        if (typeof displayValue === 'string' && (displayValue.toLowerCase() === 'on' || displayValue.toLowerCase() === 'off')) {
-            const isOn = displayValue.toLowerCase() === 'on';
-            valueCell.innerHTML = `<span class="sensor-value ${isOn ? 'status-on' : 'status-off'}">
-                <i class="fas ${isOn ? 'fa-power-off' : 'fa-power-off'}"></i> ${displayValue}
-            </span>`;
-        } else {
-            valueCell.innerHTML = `<span class="sensor-value">${displayValue}</span>`;
-            
-            // Apply value coloring based on conditions
-            if (typeof displayValue === 'number') {
-                if (key.includes('temperature')) {
-                    if (displayValue > 30) valueCell.classList.add('danger-value');
-                    else if (displayValue > 28) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                } else if (key.includes('ph')) {
-                    if (displayValue < 5 || displayValue > 7) valueCell.classList.add('danger-value');
-                    else if (displayValue < 5.5 || displayValue > 6.5) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                } else if (key.includes('humidity')) {
-                    if (displayValue < 30 || displayValue > 80) valueCell.classList.add('danger-value');
-                    else if (displayValue < 40 || displayValue > 70) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                } else if (key.includes('level')) {
-                    if (displayValue < 20) valueCell.classList.add('danger-value');
-                    else if (displayValue < 40) valueCell.classList.add('warning-value');
-                    else valueCell.classList.add('good-value');
-                }
-            }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberLotus Project</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        #consoleOutput {
+            white-space: pre-wrap;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+            overflow-anchor: none; /* Important for scroll anchoring */
         }
         
-        // Timestamp cell
-        const timeCell = row.insertCell();
-        timeCell.className = "timestamp";
-        timeCell.textContent = item.timestamp ? 
-            new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "N/A";
-    }
-</script>
+        .console-anchor {
+            overflow-anchor: auto;
+            height: 1px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+        .sidebar.collapsed {
+            transform: translateX(-250px);
+        }
+        .sidebar-toggle {
+            position: absolute;
+            right: -40px;
+            top: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+        .sidebar h2 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        .sidebar a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 0;
+            margin: 10px 0;
+            border-bottom: 1px solid #555;
+            transition: all 0.3s ease;
+        }
+        .sidebar a:hover {
+            background-color: #555;
+            padding-left: 10px;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            transition: margin-left 0.3s ease;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .content.expanded {
+            margin-left: -250px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        
+        /* Right Sidebar Styles */
+        .right-sidebar {
+            width: 300px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            box-sizing: border-box;
+            border-left: 1px solid #dee2e6;
+            overflow-y: auto;
+        }
+        
+        #systemStatsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        #systemStatsTable th {
+            background-color: #e9ecef;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 0.5px;
+        }
+        
+        #systemStatsTable th, #systemStatsTable td {
+            border: 1px solid #dee2e6;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        
+        .group-header {
+            background-color: #e9ecef !important;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .group-header i {
+            margin-right: 8px;
+            color: #6c757d;
+        }
+        
+        .sensor-value {
+            font-weight: bold;
+        }
+        
+        .good-value {
+            color: #28a745;
+        }
+        
+        .warning-value {
+            color: #fd7e14;
+        }
+        
+        .danger-value {
+            color: #dc3545;
+        }
+        
+        .icon-cell {
+            width: 24px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .sensor-name {
+            min-width: 120px;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .status-on {
+            color: #28a745;
+        }
+        
+        .status-off {
+            color: #6c757d;
+        }
+        
+        .target-value {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .timestamp {
+            font-size: 0.8em;
+            color: #adb5bd;
+        }
+
+        /* Console Output Panel */
+        .console-panel {
+            height: 120px;
+            background-color: #111;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            overflow-y: auto;
+            border-top: 2px solid #333;
+        }
+        #consoleOutput {
+            white-space: pre-wrap;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+        #consoleOutput div {
+            margin: 2px 0;
+        }
+        
+        /* Emergency Stop Button */
+        .emergency-stop {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .emergency-stop:hover {
+            background-color: #c82333;
+            transform: scale(1.02);
+        }
+        
+        .emergency-stop i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-chevron-left" id="toggleIcon"></i>
+            </button>
+            <h2>CyberLotus</h2>
+            <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('relays') }}"><i class="fas fa-plug"></i> Relays</a>
+            <a href="{{ url_for('tanks') }}"><i class="fas fa-droplet"></i> Tanks</a>
+            <a href="{{ url_for('pumps') }}"><i class="fas fa-tint"></i> Pumps</a>
+            <a href="{{ url_for('sequences') }}"><i class="fas fa-list-ol"></i> Sequences</a>
+            <a href="{{ url_for('ph') }}"><i class="fas fa-vial"></i> pH</a>
+            <a href="{{ url_for('ec') }}"><i class="fas fa-flask"></i> EC</a>
+            <a href="{{ url_for('ecosystem') }}"><i class="fas fa-leaf"></i> Ecosystem</a>
+            <a href="{{ url_for('automatisation') }}"><i class="fas fa-robot"></i> Automatisation</a>
+            <a href="{{ url_for('plant_chamber') }}"><i class="fas fa-seedling"></i> Plant Chamber</a>
+        </div>
+        <div class="content" id="mainContent">
+            {% block content %}{% endblock %}
+            <form action="{{ url_for('emergency_stop_route') }}" method="post">
+                <button type="submit" class="emergency-stop">
+                    <i class="fas fa-power-off"></i> EMERGENCY STOP
+                </button>
+            </form>
+        </div>
+        <div class="right-sidebar">
+            <table id="systemStatsTable">
+                <thead>
+                    <tr>
+                        <th colspan="4">System Measurements</th>
+                    </tr>
+                </thead>
+                <tbody id="systemStatsBody">
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="console-panel">
+        <div id="consoleOutput">System console ready...</div>
+    </div>
+
+    <script>
+        // Toggle sidebar functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            let isCollapsed = false;
+            
+            sidebarToggle.addEventListener('click', function() {
+                isCollapsed = !isCollapsed;
+                
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                    toggleIcon.classList.remove('fa-chevron-left');
+                    toggleIcon.classList.add('fa-chevron-right');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                    toggleIcon.classList.remove('fa-chevron-right');
+                    toggleIcon.classList.add('fa-chevron-left');
+                }
+            });
+            
+            // Auto-collapse when mouse leaves sidebar for 3 seconds
+            let collapseTimeout;
+            sidebar.addEventListener('mouseleave', function() {
+                collapseTimeout = setTimeout(function() {
+                    if (!isCollapsed) {
+                        sidebarToggle.click();
+                    }
+                }, 3000);
+            });
+            
+            sidebar.addEventListener('mouseenter', function() {
+                clearTimeout(collapseTimeout);
+                if (isCollapsed) {
+                    sidebarToggle.click();
+                }
+            });
+        });
+
+        // Define your order and groupings
+        const systemStatsOrder = [
+            // Root Zone
+            { key: "plant_pot_temperature", label: "Root Temperature", icon: "fa-seedling", group: "Root Zone" },
+            { key: "target_root_temperature", label: "Target Root Temp", icon: "fa-bullseye", group: "Root Zone" },
+            { key: "plant_pot_level", label: "Root Zone Level", icon: "fa-vial", group: "Root Zone" },
+            { key: "target_pot_level", label: "Target Root Level", icon: "fa-bullseye", group: "Root Zone" },
+            
+            // Water System
+            { key: "temperature", label: "Water Temperature", icon: "fa-temperature-half", group: "Water System" },
+            { key: "target_temp", label: "Target Water Temp", icon: "fa-bullseye", group: "Water System" },
+            { key: "ph", label: "pH Level", icon: "fa-vial", group: "Water System" },
+            { key: "target_pH", label: "Target pH", icon: "fa-bullseye", group: "Water System" },
+            { key: "ec", label: "EC Level", icon: "fa-flask", group: "Water System" },
+            { key: "target_NPK", label: "Target EC", icon: "fa-bullseye", group: "Water System" },
+            
+            // Air Environment
+            { key: "chamber_temperature", label: "Air Temperature", icon: "fa-temperature-half", group: "Air Environment" },
+            { key: "target_air_temperature", label: "Target Air Temp", icon: "fa-bullseye", group: "Air Environment" },
+            { key: "chamber_humidity", label: "Air Humidity", icon: "fa-droplet", group: "Air Environment" },
+            { key: "target_humidity", label: "Target Humidity", icon: "fa-bullseye", group: "Air Environment" },
+            
+            // Lighting
+            { key: "light_white", label: "White Light", icon: "fa-lightbulb", group: "Lighting" },
+            { key: "light_yellow", label: "Yellow Light", icon: "fa-lightbulb", group: "Lighting" },
+            { key: "light_grow", label: "Grow Light", icon: "fa-sun", group: "Lighting" },
+            
+            // Tanks
+            { key: "solution_tank", label: "Nutrient Tank", icon: "fa-droplet", group: "Tanks" },
+            { key: "fresh_tank", label: "Fresh Water Tank", icon: "fa-bottle-water", group: "Tanks" },
+            { key: "waste_tank", label: "Waste Tank", icon: "fa-trash", group: "Tanks" },
+            
+            // Controls
+            { key: "water_heater", label: "Water Heater", icon: "fa-fire", group: "Controls" },
+            { key: "air_heater", label: "Air Heater", icon: "fa-fire", group: "Controls" },
+            { key: "air_humidifyer", label: "Humidifier", icon: "fa-wind", group: "Controls" },
+            { key: "stop_all", label: "Emergency Stop", icon: "fa-triangle-exclamation", group: "Emergency" }
+        ];
+
+        // Map of icons for specific keys
+        const iconMap = {
+            "plant_temperature": "fa-seedling",
+            "chamber_temperature": "fa-house",
+            "chamber_humidity": "fa-cloud",
+            "ec": "fa-flask",
+            "ph": "fa-vial",
+            "temperature": "fa-temperature-half",
+            "solution_tank": "fa-droplet",
+            "fresh_tank": "fa-bottle-water",
+            "waste_tank": "fa-trash",
+            "water_heater": "fa-fire",
+            "air_heater": "fa-fire",
+            "air_humidifyer": "fa-wind",
+            "light_white": "fa-lightbulb",
+            "light_yellow": "fa-lightbulb",
+            "light_grow": "fa-sun",
+            "plant_pot_level": "fa-vial",
+            "stop_all": "fa-triangle-exclamation"
+        };
+
+        // Groupings for the dashboard
+        const dashboardGroups = [
+            { name: "Root Zone", icon: "fa-seedling" },
+            { name: "Water System", icon: "fa-tint" },
+            { name: "Air Environment", icon: "fa-wind" },
+            { name: "Lighting", icon: "fa-lightbulb" },
+            { name: "Tanks", icon: "fa-droplet" },
+            { name: "Controls", icon: "fa-sliders-h" },
+            { name: "Emergency", icon: "fa-triangle-exclamation" }
+        ];
+
+        // Define the global systemStats variable at the top level
+        let systemStats = {};
+
+        function loadSystemStats() {
+            fetch("/sys_state")
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    updateSystemStats(data);
+                })
+                .catch(error => {
+                    appendToConsole("Error loading system stats: " + error.message, 'error');
+                });
+        }
+
+        function updateSystemStats(data) {
+            // Update the global systemStats variable with the new data
+            systemStats = {...data}; // Create a shallow copy of the data
+            
+            const tbody = document.getElementById("systemStatsBody");
+            tbody.innerHTML = '';
+            
+            // Create a map of all available data for quick lookup
+            const dataMap = {};
+            for (const [key, value] of Object.entries(data)) {
+                if (key !== 'relay_states' && key !== 'console_output') {
+                    dataMap[key] = value;
+                }
+            }
+            
+            if (data.relay_states) {
+                for (const [key, value] of Object.entries(data.relay_states)) {
+                    dataMap[key] = value;
+                }
+            }
+            
+            // Process by groups
+            dashboardGroups.forEach(group => {
+                // Add group header
+                const groupHeader = tbody.insertRow();
+                groupHeader.className = "group-header";
+                groupHeader.innerHTML = `<td colspan="4">
+                    <i class="fas ${group.icon}"></i> ${group.name}
+                </td>`;
+                
+                // Add items in this group
+                systemStatsOrder.forEach(item => {
+                    if (item.group === group.name && dataMap[item.key]) {
+                        addTableRow(tbody, item.key, dataMap[item.key], item.icon);
+                        
+                        // Add target value if exists
+                        const targetKey = `target_${item.key.replace('target_', '')}`;
+                        if (dataMap[targetKey]) {
+                            addTableRow(tbody, targetKey, dataMap[targetKey], "fa-bullseye");
+                        }
+                    }
+                });
+            });
+            
+            // After updating the table, trigger an event to notify other components
+            const event = new CustomEvent('systemStatsUpdated', { detail: systemStats });
+            document.dispatchEvent(event);
+        }
+
+        function addTableRow(tbody, key, item, icon) {
+            const row = tbody.insertRow();
+            
+            // Find the label from systemStatsOrder
+            const statConfig = systemStatsOrder.find(item => item.key === key);
+            const label = statConfig ? statConfig.label : key.replace(/_/g, ' ')
+                .replace(/\btarget\b/gi, '')
+                .replace(/\bNPK\b/, 'EC')
+                .replace(/\btemp\b/, 'Temperature')
+                .trim();
+            
+            // Icon cell
+            const iconCell = row.insertCell();
+            iconCell.className = "icon-cell";
+            iconCell.innerHTML = `<i class="fas ${icon || iconMap[key] || 'fa-circle-info'}"></i>`;
+            
+            // Name cell
+            const nameCell = row.insertCell();
+            nameCell.className = "sensor-name";
+            nameCell.textContent = label;
+            
+            // Value cell
+            const valueCell = row.insertCell();
+            let displayValue = "N/A";
+            if (item.value !== undefined && item.value !== null) displayValue = item.value;
+            else if (item.state !== undefined && item.state !== null) displayValue = item.state;
+            else if (item.level !== undefined && item.level !== null) displayValue = item.level;
+            
+            // Handle ON/OFF states with icons and colors
+            if (typeof displayValue === 'string' && (displayValue.toLowerCase() === 'on' || displayValue.toLowerCase() === 'off')) {
+                const isOn = displayValue.toLowerCase() === 'on';
+                valueCell.innerHTML = `<span class="sensor-value ${isOn ? 'status-on' : 'status-off'}">
+                    <i class="fas ${isOn ? 'fa-toggle-on' : 'fa-toggle-off'}"></i> ${displayValue.charAt(0).toUpperCase() + displayValue.slice(1)}
+                </span>`;
+            } else {
+                valueCell.innerHTML = `<span class="sensor-value">${displayValue}</span>`;
+                
+                // Apply value coloring based on conditions
+                if (typeof displayValue === 'number') {
+                    if (key.includes('temperature')) {
+                        if (displayValue > 30) valueCell.classList.add('danger-value');
+                        else if (displayValue > 28) valueCell.classList.add('warning-value');
+                        else valueCell.classList.add('good-value');
+                    } else if (key.includes('ph')) {
+                        if (displayValue < 5 || displayValue > 7) valueCell.classList.add('danger-value');
+                        else if (displayValue < 5.5 || displayValue > 6.5) valueCell.classList.add('warning-value');
+                        else valueCell.classList.add('good-value');
+                    } else if (key.includes('humidity')) {
+                        if (displayValue < 30 || displayValue > 80) valueCell.classList.add('danger-value');
+                        else if (displayValue < 40 || displayValue > 70) valueCell.classList.add('warning-value');
+                        else valueCell.classList.add('good-value');
+                    } else if (key.includes('level')) {
+                        if (displayValue < 20) valueCell.classList.add('danger-value');
+                        else if (displayValue < 40) valueCell.classList.add('warning-value');
+                        else valueCell.classList.add('good-value');
+                    }
+                }
+            }
+            
+            // Timestamp cell
+            const timeCell = row.insertCell();
+            timeCell.className = "timestamp";
+            timeCell.textContent = item.timestamp ? 
+                new Date(item.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "N/A";
+        }
+
+        // Console functions
+        let lastConsoleUpdate = 0;
+        const consoleUpdateInterval = setInterval(updateConsole, 300);
+        let consoleUpdateInProgress = false;
+        
+        const scrollAnchor = document.createElement('div');
+        scrollAnchor.className = 'console-anchor';
+        document.getElementById('consoleOutput').appendChild(scrollAnchor);
+
+        function updateConsole() {
+            if (consoleUpdateInProgress) return;
+            consoleUpdateInProgress = true;
+            
+            fetch('/console_output?ts=' + lastConsoleUpdate)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.console_messages?.length > 0) {
+                        const newMessages = data.console_messages.filter(
+                            msg => msg.timestamp > lastConsoleUpdate
+                        );
+                        
+                        if (newMessages.length > 0) {
+                            lastConsoleUpdate = data.timestamp;
+                            appendConsoleMessages(newMessages);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Console update error:', error);
+                })
+                .finally(() => {
+                    consoleUpdateInProgress = false;
+                });
+        }
+
+        function appendConsoleMessages(messages) {
+            const consoleOutput = document.getElementById('consoleOutput');
+            const fragment = document.createDocumentFragment();
+            
+            messages.forEach(msg => {
+                const messageElement = document.createElement('div');
+                const timestamp = new Date(msg.timestamp * 1000).toLocaleTimeString();
+                messageElement.textContent = `[${timestamp}] ${msg.message}`;
+                fragment.appendChild(messageElement);
+            });
+            
+            consoleOutput.insertBefore(fragment, scrollAnchor);
+            
+            setTimeout(() => {
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                setTimeout(() => {
+                    scrollAnchor.scrollIntoView({ behavior: 'smooth' });
+                    setTimeout(() => {
+                        if (consoleOutput.scrollHeight > consoleOutput.clientHeight && 
+                            consoleOutput.scrollTop < consoleOutput.scrollHeight - consoleOutput.clientHeight - 10) {
+                            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                        }
+                    }, 50);
+                }, 50);
+            }, 0);
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSystemStats();
+            updateConsole();
+            setInterval(loadSystemStats, 5000);
+            
+            setTimeout(() => {
+                appendConsoleMessages([{
+                    message: "Console initialized and ready",
+                    timestamp: Date.now() / 1000
+                }]);
+            }, 100);
+        });
+    </script>
+</body>
+</html>
