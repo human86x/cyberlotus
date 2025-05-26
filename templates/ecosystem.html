@@ -369,6 +369,7 @@
     <script>
 
 function set_ec_baseline(){
+    document.getElementById('ambient-ppm').textContent = '0';
         fetch('/set_ec_baseline')
             .then(response => response.json())
             .then(data => {
@@ -397,7 +398,7 @@ function set_ec_baseline(){
                 document.getElementById('air-temp').value = '25';
                 document.getElementById('humidity').value = '80';
                 document.getElementById('ph-level').value = '6.0';
-                document.getElementById('npk-ec').value = '800'; // 800μS/cm
+                document.getElementById('npk-ec').value = '300'; // 800μS/cm
                 document.getElementById('light-hours').value = '14';
             } else if (plant === 'vanilla') {
                 plantImage.src = "{{ url_for('static', filename='vanilla-orchid.jpg') }}";
@@ -407,7 +408,7 @@ function set_ec_baseline(){
                 document.getElementById('air-temp').value = '28';
                 document.getElementById('humidity').value = '85';
                 document.getElementById('ph-level').value = '6.8';
-                document.getElementById('npk-ec').value = '600'; // 600μS/cm
+                document.getElementById('npk-ec').value = '200'; // 600μS/cm
                 document.getElementById('light-hours').value = '12';
             }
         });
