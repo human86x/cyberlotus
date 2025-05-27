@@ -585,7 +585,7 @@ import serial
 from serial import SerialException
 
 
-def send_command_and_get_response(ser, command, retries=1, timeout=3.3):
+def send_command_and_get_response(ser, command, retries=7, timeout=3.3):
     attempt = 0
     global power_ser
     while attempt < retries:
