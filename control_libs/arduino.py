@@ -239,7 +239,7 @@ def hard_reset_arduino():
         
     except Exception as e:
         print(f"Reset failed: {str(e)}", "error")
-        append_console_message(f"Reset failed: {str(e)}", "error")
+        append_console_message(f"Reset failed: {str(e)} error")
         power_ser = None  # Force reconnect on next attempt
         return False
 
