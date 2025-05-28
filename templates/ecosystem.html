@@ -533,7 +533,7 @@ function updateAmbientDisplay(data) {
                 }
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('refresh-status').textContent = "Error updating: " + error.message;
+                document.getElementById('refresh-status').textContent = "Notification: ";
             } finally {
                 document.getElementById('refresh-ambient').disabled = false;
             }
