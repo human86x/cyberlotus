@@ -1,8 +1,8 @@
 {
   "solution_level": "15",
-  "NPK_mult": "0.7",
-  "pH_plus_mult": "2",
-  "pH_minus_mult": "2",
+  "NPK_mult": "1.3",
+  "pH_plus_mult": "4",
+  "pH_minus_mult": "4",
   "drop_mult": "100",
   "solution_margin": "10",
   "NPK_margin": "5",
